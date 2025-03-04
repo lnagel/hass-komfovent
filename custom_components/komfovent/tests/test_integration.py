@@ -50,7 +50,7 @@ def register_data() -> dict:
         return json.load(f)
 
 @pytest.fixture
-async def mock_modbus_server(hass: HomeAssistant, register_data, socket_enabled) -> Generator:
+async def mock_modbus_server(hass: HomeAssistant, register_data, socket_enabled) -> dict:
     """Create a mock Modbus server with real register data."""
     register_array = [0] * 1025
     for reg, value in register_data.items():
@@ -65,15 +65,13 @@ async def mock_modbus_server(hass: HomeAssistant, register_data, socket_enabled)
         address=("127.0.0.1", 0)
     )
     
-    try:
-        yield {
-            "host": "127.0.0.1",
-            "port": server.server.sockets[0].getsockname()[1]
-        }
-    finally:
-        server.server.close()
-        await server.server.wait_closed()
-        await server.shutdown()
+    server_info = {
+        "host": "127.0.0.1",
+        "port": server.server.sockets[0].getsockname()[1],
+        "server": server
+    }
+    
+    return server_info
 
 @pytest.fixture
 def socket_enabled():
@@ -83,16 +81,17 @@ def socket_enabled():
     pytest_socket.disable_socket()
 
 @pytest.fixture
-async def integration(hass: HomeAssistant, mock_modbus_server):
+async def integration(hass: HomeAssistant, mock_modbus_server) -> None:
     """Set up the Komfovent integration."""
-    # Set up Modbus first
-    modbus_config = {
-        CONF_NAME: DEFAULT_NAME,
-        CONF_HOST: mock_modbus_server["host"],
-        CONF_PORT: mock_modbus_server["port"],
-        "type": "tcp",
-        "delay": 0,
-    }
+    try:
+        # Set up Modbus first
+        modbus_config = {
+            CONF_NAME: DEFAULT_NAME,
+            CONF_HOST: mock_modbus_server["host"],
+            CONF_PORT: mock_modbus_server["port"],
+            "type": "tcp",
+            "delay": 0,
+        }
     
     assert await async_setup_component(
         hass, 
@@ -116,7 +115,13 @@ async def integration(hass: HomeAssistant, mock_modbus_server):
         
         assert result["type"] == "create_entry"
         await hass.async_block_till_done()
-        return result
+        yield result
+    finally:
+        # Clean up server
+        server = mock_modbus_server["server"]
+        server.server.close()
+        await server.server.wait_closed()
+        await server.shutdown()
 
 @pytest.mark.asyncio
 async def test_climate_entity(hass: HomeAssistant, integration, register_data):
