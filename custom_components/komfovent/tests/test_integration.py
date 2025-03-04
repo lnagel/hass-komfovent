@@ -4,6 +4,7 @@ import os
 from unittest.mock import patch, AsyncMock
 import asyncio
 from typing import Generator
+import pytest_socket
 
 import pytest
 from homeassistant.core import HomeAssistant
@@ -49,7 +50,7 @@ def register_data() -> dict:
         return json.load(f)
 
 @pytest.fixture
-def mock_modbus_server(hass: HomeAssistant, register_data) -> Generator:
+def mock_modbus_server(hass: HomeAssistant, register_data, socket_enabled) -> Generator:
     """Create a mock Modbus server with real register data."""
     register_array = [0] * 1025
     for reg, value in register_data.items():
@@ -72,6 +73,13 @@ def mock_modbus_server(hass: HomeAssistant, register_data) -> Generator:
     
     server.server.close()
     loop.run_until_complete(server.server.wait_closed())
+
+@pytest.fixture
+def socket_enabled():
+    """Enable socket connections for this test."""
+    pytest_socket.enable_socket()
+    yield
+    pytest_socket.disable_socket()
 
 @pytest.fixture
 async def integration(hass: HomeAssistant, mock_modbus_server):
