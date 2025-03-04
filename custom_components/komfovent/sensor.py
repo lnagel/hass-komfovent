@@ -40,7 +40,7 @@ def create_aq_sensor(coordinator: KomfoventCoordinator, sensor_num: int) -> Komf
     if sensor_type == AQ_SENSOR_TYPE_NOT_INSTALLED:
         return None
         
-    name = f"{'Secondary ' if sensor_num == 2 else ''}Air Quality {AQ_SENSOR_TYPES.get(sensor_type, 'Unknown')}"
+    name = f"Air Quality {AQ_SENSOR_TYPES.get(sensor_type, 'Unknown')}"
     
     if sensor_type == AQ_SENSOR_TYPE_CO2:
         unit, device_class = "ppm", SensorDeviceClass.CO2
