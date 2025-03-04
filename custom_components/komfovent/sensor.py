@@ -172,31 +172,20 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
                 return value
             return None
         elif self._sensor_type in ["aq_sensor1_value", "aq_sensor2_value"]:
-            sensor_type = self.coordinator.data.get(
-                "aq_sensor1_type" if self._sensor_type == "aq_sensor1_value" else "aq_sensor2_type",
-                0
-            )
-            
-            # Update name based on sensor type
-            type_names = {1: "CO2", 2: "VOC", 3: "Humidity"}
-            self._attr_name = type_names.get(sensor_type, "Unknown")
-            
-            if sensor_type == AQ_SENSOR_TYPE_NOT_INSTALLED:
+            if not isinstance(value, (int, float)):
                 return None
-            elif sensor_type == AQ_SENSOR_TYPE_CO2:
-                self._attr_native_unit_of_measurement = "ppm"
-                self._attr_device_class = SensorDeviceClass.CO2
-                if 0 <= float(value) <= 2500:
-                    return float(value)
-            elif sensor_type == AQ_SENSOR_TYPE_VOC:
-                self._attr_native_unit_of_measurement = "ppb"
-                if 0 <= float(value) <= 2000:
-                    return float(value)
-            elif sensor_type == AQ_SENSOR_TYPE_RH:
-                self._attr_native_unit_of_measurement = PERCENTAGE
-                self._attr_device_class = SensorDeviceClass.HUMIDITY
-                if 0 <= float(value) <= 100:
-                    return float(value)
+            value = float(value)
+            
+            # Use device_class to determine validation rules
+            if self._attr_device_class == SensorDeviceClass.CO2:
+                if 0 <= value <= 2500:
+                    return value
+            elif self._attr_device_class == SensorDeviceClass.HUMIDITY:
+                if 0 <= value <= 100:
+                    return value
+            elif self._attr_native_unit_of_measurement == "ppb":  # VOC
+                if 0 <= value <= 2000:
+                    return value
             return None
             
         return float(value)
