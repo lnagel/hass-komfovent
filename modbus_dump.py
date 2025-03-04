@@ -18,9 +18,22 @@ def dump_registers(host: str, port: int) -> dict:
     try:
         for register_id in range(0, 1024):
             try:
+                # Try reading single register first
                 response = client.read_holding_registers(address=register_id, count=1)
                 
                 if isinstance(response, ExceptionResponse):
+                    # If failed, try reading two registers starting from previous address
+                    if register_id > 0:
+                        response = client.read_holding_registers(address=register_id-1, count=2)
+                        if isinstance(response, ExceptionResponse):
+                            print(f"Register {register_id}: Exception on both single and double read")
+                            continue
+                        if hasattr(response, 'registers') and len(response.registers) == 2:
+                            # Take second value from the double read
+                            value = response.registers[1]
+                            results[register_id] = value
+                            print(f"Register {register_id}: {value} (from double read)")
+                            continue
                     print(f"Register {register_id}: Exception {response}")
                     continue
                     
@@ -28,9 +41,10 @@ def dump_registers(host: str, port: int) -> dict:
                     print(f"Register {register_id}: Invalid response")
                     continue
                 
+                # Normal single register read succeeded
                 value = response.registers[0]
                 results[register_id] = value
-                print(f"Register {register_id}: {value}")
+                print(f"Register {register_id}: {value} (direct read)")
                 
                 # Small delay to avoid overwhelming the device
                 time.sleep(0.1)
