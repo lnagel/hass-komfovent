@@ -19,30 +19,30 @@ DEFAULT_SLAVE_ID: Final = 254
 DEFAULT_SCAN_INTERVAL = 30
 
 # Modbus registers - Basic Control
-REG_POWER = 0  # ON/OFF status
-REG_AUTO_MODE_CONTROL = 1  # Auto mode control
-REG_ECO_MODE = 2  # ECO mode active
-REG_AUTO_MODE = 3  # AUTO mode active
-REG_OPERATION_MODE = 4  # Current operating mode
-REG_SCHEDULER_MODE = 5  # Scheduler operation mode (StayAtHome=0, WorkingWeek=1, Office=2, Custom=3)
+REG_POWER = 0  # ON/OFF status (R/W, unsigned char, 0-1)
+REG_AUTO_MODE_CONTROL = 1  # Auto mode control (RO, unsigned char, 0-1)
+REG_ECO_MODE = 2  # ECO mode (R/W, unsigned char, 0-1)
+REG_AUTO_MODE = 3  # AUTO mode (R/W, unsigned char, 0-1)
+REG_OPERATION_MODE = 4  # Current mode (R/W, unsigned char, 0-10)
+REG_SCHEDULER_MODE = 5  # Scheduler operation mode (R/W, unsigned char, 0-3)
 REG_NEXT_MODE = 6  # Next mode
 REG_NEXT_MODE_TIME = 7  # Next mode start time
 REG_NEXT_MODE_WEEKDAY = 8  # Next mode weekday
 REG_BEFORE_MODE_MASK = 9  # Before been mode mask
 
 # Temperature and Flow control
-REG_TEMP_CONTROL = 10  # Temperature control (Supply/Extract/Balance/Room)
-REG_FLOW_CONTROL = 11  # Flow control (CAV/VAV/DCV)
-REG_MAX_SUPPLY_FLOW = 12  # Maximum supply flow (32-bit) (m3/h, l/s)
-REG_MAX_EXTRACT_FLOW = 14  # Maximum extract flow (32-bit) (m3/h, l/s)
-REG_MAX_SUPPLY_PRESSURE = 16  # Max supply pressure (Pa)
-REG_MAX_EXTRACT_PRESSURE = 17  # Max extract pressure (Pa)
+REG_TEMP_CONTROL = 10  # Temperature control (R/W, unsigned char, 0-3)
+REG_FLOW_CONTROL = 11  # Flow control (R/W, unsigned char, 0-2)
+REG_MAX_SUPPLY_FLOW = 12  # Maximum supply flow (RO, unsigned int, 0-200000)
+REG_MAX_EXTRACT_FLOW = 14  # Maximum extract flow (RO, unsigned int, 0-200000)
+REG_MAX_SUPPLY_PRESSURE = 16  # Max supply pressure (R/W, unsigned short, 0-1000)
+REG_MAX_EXTRACT_PRESSURE = 17  # Max extract pressure (R/W, unsigned short, 0-1000)
 
 # Control sequence
-REG_STAGE1 = 18  # Stage 1 control (None=0, External coil=1, Electric heater=2, External Dx unit=3)
-REG_STAGE2 = 19  # Stage 2 control (None=0, External coil=1, Electric heater=2, External Dx unit=3)
-REG_STAGE3 = 20  # Stage 3 control (None=0, External coil=1, Electric heater=2, External Dx unit=3)
-REG_COIL_TYPE = 21  # Coil type (Hot water=0, Cold water=1, Combi=2)
+REG_STAGE1 = 18  # Stage 1 control (R/W, unsigned char, 0-3)
+REG_STAGE2 = 19  # Stage 2 control (R/W, unsigned char, 0-3)
+REG_STAGE3 = 20  # Stage 3 control (R/W, unsigned char, 0-3)
+REG_COIL_TYPE = 21  # Coil type (R/W, unsigned char, 0-2)
 
 # Connectivity
 REG_IP = 22  # IP address (32-bit)
