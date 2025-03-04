@@ -94,28 +94,28 @@ async def integration(hass: HomeAssistant, mock_modbus_server) -> None:
         }
         
         assert await async_setup_component(
-        hass, 
-        MODBUS_DOMAIN, 
-        {MODBUS_DOMAIN: [modbus_config]}
-    )
-    await hass.async_block_till_done()
-
-    # Set up Komfovent
-    with patch("custom_components.komfovent.dashboard.async_get_dashboard", return_value={}), \
-         patch("homeassistant.components.lovelace.dashboard.async_get_dashboards", return_value=[]):
-        result = await hass.config_entries.flow.async_init(
-            DOMAIN,
-            context={"source": "user"},
-            data={
-                CONF_NAME: DEFAULT_NAME,
-                CONF_HOST: mock_modbus_server["host"],
-                CONF_PORT: mock_modbus_server["port"],
-            },
+            hass, 
+            MODBUS_DOMAIN, 
+            {MODBUS_DOMAIN: [modbus_config]}
         )
-        
-        assert result["type"] == "create_entry"
         await hass.async_block_till_done()
-        yield result
+
+        # Set up Komfovent
+        with patch("custom_components.komfovent.dashboard.async_get_dashboard", return_value={}), \
+             patch("homeassistant.components.lovelace.dashboard.async_get_dashboards", return_value=[]):
+            result = await hass.config_entries.flow.async_init(
+                DOMAIN,
+                context={"source": "user"},
+                data={
+                    CONF_NAME: DEFAULT_NAME,
+                    CONF_HOST: mock_modbus_server["host"],
+                    CONF_PORT: mock_modbus_server["port"],
+                },
+            )
+            
+            assert result["type"] == "create_entry"
+            await hass.async_block_till_done()
+            yield result
     finally:
         # Clean up server
         server = mock_modbus_server["server"]
