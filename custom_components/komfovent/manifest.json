@@ -1,0 +1,12 @@
+{
+  "domain": "komfovent",
+  "name": "Komfovent",
+  "codeowners": [
+    "@lnagel"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/lnagel/hass-komfovent",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/lnagel/hass-komfovent/issues",
+  "version": "0.1.0"
+}
