@@ -16,7 +16,7 @@ def dump_registers(host: str, port: int) -> dict:
         # Query registers in chunks of 100 to avoid timeout issues
         for start in range(0, 1024, 100):
             count = min(100, 1024 - start)
-            response = client.read_holding_registers(start, count)
+            response = client.read_holding_registers(address=start, count=count)
             
             if response.isError():
                 print(f"Error reading registers {start}-{start+count}")
