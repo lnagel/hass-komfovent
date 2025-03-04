@@ -79,6 +79,7 @@ async def mock_modbus_server(hass: HomeAssistant, register_data, socket_enabled)
 def socket_enabled():
     """Enable socket connections for this test."""
     pytest_socket.enable_socket()
+    pytest_socket.allow_unix_socket()
     yield
     pytest_socket.disable_socket()
 
@@ -118,6 +119,7 @@ async def integration(hass: HomeAssistant, mock_modbus_server, event_loop):
         await hass.async_block_till_done()
         return result
 
+@pytest.mark.asyncio
 async def test_climate_entity(hass: HomeAssistant, integration, register_data):
     """Test climate entity setup and attributes."""
     entity_id = "climate.komfovent"
@@ -151,6 +153,7 @@ async def test_climate_entity(hass: HomeAssistant, integration, register_data):
     assert state.attributes.get("eco_mode") == eco_mode
     assert state.attributes.get("auto_mode") == auto_mode
 
+@pytest.mark.asyncio
 async def test_temperature_sensors(hass: HomeAssistant, integration, register_data):
     """Test temperature sensor entities."""
     sensors = [
@@ -167,6 +170,7 @@ async def test_temperature_sensors(hass: HomeAssistant, integration, register_da
         expected_value = float(register_data[reg_key]) / 10
         assert float(state.state) == expected_value
 
+@pytest.mark.asyncio
 async def test_flow_sensors(hass: HomeAssistant, integration, register_data):
     """Test flow sensor entities."""
     sensors = [
@@ -180,6 +184,7 @@ async def test_flow_sensors(hass: HomeAssistant, integration, register_data):
         assert state.attributes["unit_of_measurement"] == unit
         assert float(state.state) == float(register_data[reg_key])
 
+@pytest.mark.asyncio
 async def test_percentage_sensors(hass: HomeAssistant, integration, register_data):
     """Test percentage-based sensor entities."""
     sensors = [
@@ -197,6 +202,7 @@ async def test_percentage_sensors(hass: HomeAssistant, integration, register_dat
         assert state.attributes["unit_of_measurement"] == PERCENTAGE
         assert float(state.state) == float(register_data[reg_key])
 
+@pytest.mark.asyncio
 async def test_power_sensors(hass: HomeAssistant, integration, register_data):
     """Test power-related sensor entities."""
     sensors = [
@@ -211,6 +217,7 @@ async def test_power_sensors(hass: HomeAssistant, integration, register_data):
         assert state.attributes["unit_of_measurement"] == UnitOfPower.WATT
         assert float(state.state) == float(register_data[reg_key])
 
+@pytest.mark.asyncio
 async def test_air_quality_sensors(hass: HomeAssistant, integration, register_data):
     """Test air quality sensor entities."""
     # Check AQ sensor 1
@@ -231,6 +238,7 @@ async def test_air_quality_sensors(hass: HomeAssistant, integration, register_da
         assert state is not None
         assert float(state.state) == float(register_data["aq_sensor2_value"])
 
+@pytest.mark.asyncio
 async def test_climate_controls(hass: HomeAssistant, integration):
     """Test climate entity controls."""
     entity_id = "climate.komfovent"
