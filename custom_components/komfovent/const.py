@@ -203,6 +203,7 @@ REG_PANEL2_AQ = 950  # Panel 2 air quality
 # Air quality sensor registers
 REG_AQ_SENSOR1_VALUE = 951  # Air quality sensor 1 value
 REG_AQ_SENSOR2_VALUE = 952  # Air quality sensor 2 value
+REG_INDOOR_ABS_HUMIDITY = 955  # Indoor absolute humidity
 
 # Firmware registers
 REG_FIRMWARE = 999  # Firmware version (32-bit)
