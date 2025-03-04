@@ -18,7 +18,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN
+from .const import DOMAIN, AQ_SENSOR_TYPES
 from .coordinator import KomfoventCoordinator
 
 def get_aq_sensor_attributes(sensor_type: int) -> tuple[str | None, str | None]:
