@@ -1,7 +1,7 @@
 """Integration tests for Komfovent integration."""
 import json
 import os
-from unittest.mock import patch
+from unittest.mock import patch, AsyncMock
 import asyncio
 from typing import Generator
 
@@ -93,7 +93,8 @@ async def integration(hass: HomeAssistant, mock_modbus_server):
     await hass.async_block_till_done()
 
     # Set up Komfovent
-    with patch("custom_components.komfovent.async_register_dashboard"):
+    with patch("custom_components.komfovent.dashboard.async_get_dashboard", return_value={}), \
+         patch("homeassistant.components.lovelace.dashboard.async_get_dashboards", return_value=[]):
         result = await hass.config_entries.flow.async_init(
             DOMAIN,
             context={"source": "user"},
