@@ -103,9 +103,12 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
         if value is None:
             return None
 
-        # Apply transforms based on sensor type
+        # Apply transforms based on sensor type and register format
         if self._attr_device_class == SensorDeviceClass.TEMPERATURE:
-            return float(value) / 10
+            # All temperatures are x10 in Modbus registers
+            if isinstance(value, (int, float)):
+                return float(value) / 10
+            return None
         elif self._attr_device_class == SensorDeviceClass.HUMIDITY:
             # Validate RH values (0-125%)
             if 0 <= float(value) <= 125:

@@ -65,8 +65,11 @@ class KomfoventCoordinator(DataUpdateCoordinator):
             data["outdoor_temp"] = await self.hub.async_read_holding_registers(REG_OUTDOOR_TEMP, 1)
             
             # Flow and fan data
-            data["supply_flow"] = await self.hub.async_read_holding_registers(REG_SUPPLY_FLOW, 2)
-            data["extract_flow"] = await self.hub.async_read_holding_registers(REG_EXTRACT_FLOW, 2)
+            # Read 32-bit flow values (two 16-bit registers)
+            supply_flow_regs = await self.hub.async_read_holding_registers(REG_SUPPLY_FLOW, 2)
+            extract_flow_regs = await self.hub.async_read_holding_registers(REG_EXTRACT_FLOW, 2)
+            data["supply_flow"] = (supply_flow_regs[0] << 16) + supply_flow_regs[1]
+            data["extract_flow"] = (extract_flow_regs[0] << 16) + extract_flow_regs[1]
             data["supply_fan_intensity"] = await self.hub.async_read_holding_registers(REG_SUPPLY_FAN_INTENSITY, 1)
             data["extract_fan_intensity"] = await self.hub.async_read_holding_registers(REG_EXTRACT_FAN_INTENSITY, 1)
             

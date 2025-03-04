@@ -50,12 +50,13 @@ REG_HUMIDITY_SETPOINT = 207  # Humidity setpoint
 REG_CO2_SETPOINT = 206  # CO2 setpoint
 
 # Sensor registers
-REG_STATUS = 899  # Unit status
-REG_SUPPLY_TEMP = 901  # Supply air temperature
-REG_EXTRACT_TEMP = 902  # Extract air temperature
-REG_OUTDOOR_TEMP = 903  # Outdoor air temperature
-REG_SUPPLY_FLOW = 905  # Supply air flow
-REG_EXTRACT_FLOW = 907  # Extract air flow
+REG_STATUS = 899  # Unit status bitmask
+REG_SUPPLY_TEMP = 901  # Supply air temperature (x10 °C)
+REG_EXTRACT_TEMP = 902  # Extract air temperature (x10 °C)
+REG_OUTDOOR_TEMP = 903  # Outdoor air temperature (x10 °C)
+REG_WATER_TEMP = 904   # Water temperature (x10 °C)
+REG_SUPPLY_FLOW = 905  # Supply air flow (32-bit)
+REG_EXTRACT_FLOW = 907  # Extract air flow (32-bit)
 REG_SUPPLY_FAN_INTENSITY = 909  # Supply fan speed
 REG_EXTRACT_FAN_INTENSITY = 910  # Extract fan speed
 REG_HEAT_EXCHANGER = 911  # Heat exchanger signal
