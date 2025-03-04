@@ -28,15 +28,36 @@ from .const import (
 )
 from .coordinator import KomfoventCoordinator
 
-def get_aq_sensor_attributes(sensor_type: int) -> tuple[str | None, str | None]:
-    """Get the unit and device class for an air quality sensor type."""
+def create_aq_sensor(coordinator: KomfoventCoordinator, sensor_num: int) -> KomfoventSensor | None:
+    """Create an air quality sensor if installed."""
+    sensor_type_key = f"aq_sensor{sensor_num}_type"
+    sensor_value_key = f"aq_sensor{sensor_num}_value"
+    
+    if not coordinator.data:
+        return None
+        
+    sensor_type = coordinator.data.get(sensor_type_key, AQ_SENSOR_TYPE_NOT_INSTALLED)
+    if sensor_type == AQ_SENSOR_TYPE_NOT_INSTALLED:
+        return None
+        
+    name = f"{'Secondary ' if sensor_num == 2 else ''}Air Quality {AQ_SENSOR_TYPES.get(sensor_type, 'Unknown')}"
+    
     if sensor_type == AQ_SENSOR_TYPE_CO2:
-        return "ppm", SensorDeviceClass.CO2
+        unit, device_class = "ppm", SensorDeviceClass.CO2
     elif sensor_type == AQ_SENSOR_TYPE_VOC:
-        return "ppb", None
+        unit, device_class = "ppb", None
     elif sensor_type == AQ_SENSOR_TYPE_RH:
-        return PERCENTAGE, SensorDeviceClass.HUMIDITY
-    return None, None
+        unit, device_class = PERCENTAGE, SensorDeviceClass.HUMIDITY
+    else:
+        return None
+        
+    return KomfoventSensor(
+        coordinator,
+        sensor_value_key,
+        name,
+        unit,
+        device_class,
+    )
 
 SENSOR_TYPES = {
     "supply_temp": ("Supply Temperature", TEMP_CELSIUS, SensorDeviceClass.TEMPERATURE),
@@ -85,36 +106,10 @@ async def async_setup_entry(
             )
 
     # Add AQ sensors if installed
-    if coordinator.data:
-        # Sensor 1
-        if coordinator.data.get("aq_sensor1_type", 0) != 0:
-            sensor_type = coordinator.data["aq_sensor1_type"]
-            name = f"Air Quality {AQ_SENSOR_TYPES.get(sensor_type, 'Unknown')}"
-            unit, device_class = get_aq_sensor_attributes(sensor_type)
-            entities.append(
-                KomfoventSensor(
-                    coordinator,
-                    "aq_sensor1_value",
-                    name,
-                    unit,
-                    device_class,
-                )
-            )
-            
-        # Sensor 2
-        if coordinator.data.get("aq_sensor2_type", 0) != 0:
-            sensor_type = coordinator.data["aq_sensor2_type"]
-            name = f"Secondary Air Quality {AQ_SENSOR_TYPES.get(sensor_type, 'Unknown')}"
-            unit, device_class = get_aq_sensor_attributes(sensor_type)
-            entities.append(
-            KomfoventSensor(
-                coordinator,
-                sensor_type,
-                name,
-                unit,
-                device_class,
-            )
-        )
+    if aq_sensor := create_aq_sensor(coordinator, 1):
+        entities.append(aq_sensor)
+    if aq_sensor := create_aq_sensor(coordinator, 2):
+        entities.append(aq_sensor)
 
     async_add_entities(entities)
 
