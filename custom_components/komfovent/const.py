@@ -60,20 +60,62 @@ REG_MONTH_DAY = 30  # Month/Day
 REG_WEEK_DAY = 31  # Week day
 REG_EPOCH_TIME = 32  # Time since 1970 (32-bit)
 
-# Mode temperature setpoints
-REG_NORMAL_SETPOINT = 109  # Normal mode temperature
-REG_NORMAL_FAN_SUPPLY = 105  # Normal mode supply fan speed
-REG_NORMAL_FAN_EXTRACT = 107  # Normal mode extract fan speed
-REG_AWAY_FAN_SUPPLY = 99     # Away mode supply fan speed
-REG_AWAY_FAN_EXTRACT = 101   # Away mode extract fan speed
-REG_INTENSIVE_FAN_SUPPLY = 111  # Intensive mode supply fan speed
-REG_INTENSIVE_FAN_EXTRACT = 113  # Intensive mode extract fan speed
-REG_BOOST_FAN_SUPPLY = 117   # Boost mode supply fan speed
-REG_BOOST_FAN_EXTRACT = 119  # Boost mode extract fan speed
-REG_INTENSIVE_TEMP = 115  # Intensive mode temperature
-REG_BOOST_TEMP = 121  # Boost mode temperature
-REG_AWAY_TEMP = 103  # Away mode temperature
-REG_KITCHEN_TEMP = 127  # Kitchen mode temperature
+# Mode: Away
+REG_AWAY_FAN_SUPPLY = 99     # Supply flow
+REG_AWAY_FAN_EXTRACT = 101   # Extract flow
+REG_AWAY_TEMP = 103          # Setpoint
+REG_AWAY_HEATING = 104       # Heating
+
+# Mode: Normal
+REG_NORMAL_FAN_SUPPLY = 105  # Supply flow
+REG_NORMAL_FAN_EXTRACT = 107 # Extract flow
+REG_NORMAL_SETPOINT = 109    # Setpoint
+REG_NORMAL_HEATING = 110     # Heating
+
+# Mode: Intensive
+REG_INTENSIVE_FAN_SUPPLY = 111  # Supply flow
+REG_INTENSIVE_FAN_EXTRACT = 113 # Extract flow
+REG_INTENSIVE_TEMP = 115     # Setpoint
+REG_INTENSIVE_HEATING = 116  # Heating
+
+# Mode: Boost
+REG_BOOST_FAN_SUPPLY = 117   # Supply flow
+REG_BOOST_FAN_EXTRACT = 119  # Extract flow
+REG_BOOST_TEMP = 121        # Setpoint
+REG_BOOST_HEATING = 122     # Heating
+
+# Mode: Kitchen
+REG_KITCHEN_SUPPLY = 123    # Supply flow
+REG_KITCHEN_EXTRACT = 125   # Extract flow
+REG_KITCHEN_TEMP = 127      # Setpoint
+REG_KITCHEN_HEATING = 128   # Heating
+REG_KITCHEN_TIMER = 129     # Timer time
+
+# Mode: Fireplace
+REG_FIREPLACE_SUPPLY = 130  # Supply flow
+REG_FIREPLACE_EXTRACT = 132 # Extract flow
+REG_FIREPLACE_TEMP = 134    # Setpoint
+REG_FIREPLACE_HEATING = 135 # Heating
+REG_FIREPLACE_TIMER = 136   # Timer time
+
+# Mode: Override
+REG_OVERRIDE_SUPPLY = 137   # Supply flow
+REG_OVERRIDE_EXTRACT = 139  # Extract flow
+REG_OVERRIDE_TEMP = 141     # Setpoint
+REG_OVERRIDE_HEATING = 142  # Heating
+REG_OVERRIDE_MODE = 143     # Mode
+REG_OVERRIDE_TIMER = 144    # Timer time
+
+# Mode: Holidays
+REG_HOLIDAYS_MICROVENT = 145 # Microventilation
+REG_HOLIDAYS_TEMP = 146      # Setpoint
+REG_HOLIDAYS_HEATING = 147   # Heating
+REG_HOLIDAYS_FROM = 148      # From Day/Month
+REG_HOLIDAYS_TILL = 150      # Till Day/Month
+REG_HOLIDAYS_YEAR_FROM = 152 # Year, from
+REG_HOLIDAYS_DATE_FROM = 153 # Month/Day, from
+REG_HOLIDAYS_YEAR_TILL = 154 # Year, till
+REG_HOLIDAYS_DATE_TILL = 155 # Month/Day, till
 
 # ECO settings
 REG_ECO_MIN_TEMP = 199  # Minimum supply air temperature
