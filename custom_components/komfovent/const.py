@@ -24,7 +24,9 @@ REG_AUTO_MODE_CONTROL = 1  # Auto mode control
 REG_ECO_MODE = 2  # ECO mode active
 REG_AUTO_MODE = 3  # AUTO mode active
 REG_OPERATION_MODE = 4  # Current operating mode
-REG_SCHEDULER_MODE = 5  # Scheduler operation mode
+REG_SCHEDULER_MODE = 5  # Scheduler operation mode (StayAtHome=0, WorkingWeek=1, Office=2, Custom=3)
+REG_SCHEDULER_START = 299  # Start of scheduler registers block
+REG_SCHEDULER_END = 554  # End of scheduler registers block
 REG_NEXT_MODE = 6  # Next mode
 REG_NEXT_MODE_TIME = 7  # Next mode start time
 REG_NEXT_MODE_WEEKDAY = 8  # Next mode weekday
@@ -152,7 +154,7 @@ REG_ACTIVE_ALARM9 = 608  # Active alarm 9 code
 REG_ACTIVE_ALARM10 = 609  # Active alarm 10 code
 
 # Sensor registers
-REG_STATUS = 899  # Unit status bitmask
+REG_STATUS = 899  # Unit status bitmask (Starting=0, Stopping=1, Fan=2, Rotor=3, Heating=4, Cooling=5, HeatingDenied=6, CoolingDenied=7, FlowDown=8, FreeHeating=9, FreeCooling=10, AlarmF=11, AlarmW=12)
 REG_HEATING_CONFIG = 900  # Heating/cooling config
 REG_SUPPLY_TEMP = 901  # Supply air temperature (x10 °C)
 REG_EXTRACT_TEMP = 902  # Extract air temperature (x10 °C)
