@@ -50,7 +50,7 @@ def register_data() -> dict:
         return json.load(f)
 
 @pytest.fixture
-def mock_modbus_server(hass: HomeAssistant, register_data, socket_enabled) -> Generator:
+async def mock_modbus_server(hass: HomeAssistant, register_data, socket_enabled) -> Generator:
     """Create a mock Modbus server with real register data."""
     register_array = [0] * 1025
     for reg, value in register_data.items():
@@ -60,11 +60,10 @@ def mock_modbus_server(hass: HomeAssistant, register_data, socket_enabled) -> Ge
     store = ModbusSlaveContext(hr=block)
     context = ModbusServerContext(slaves=store, single=True)
 
-    loop = asyncio.get_event_loop()
-    server = loop.run_until_complete(StartAsyncTcpServer(
+    server = await StartAsyncTcpServer(
         context=context,
         address=("127.0.0.1", 0)
-    ))
+    )
     
     try:
         yield {
@@ -73,10 +72,8 @@ def mock_modbus_server(hass: HomeAssistant, register_data, socket_enabled) -> Ge
         }
     finally:
         server.server.close()
-        loop.run_until_complete(server.server.wait_closed())
-        loop.run_until_complete(server.shutdown())
-        loop.run_until_complete(server.server.shutdown(socket=True))
-        loop.close()
+        await server.server.wait_closed()
+        await server.shutdown()
 
 @pytest.fixture
 def socket_enabled():
