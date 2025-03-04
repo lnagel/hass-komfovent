@@ -31,12 +31,12 @@ from pymodbus.server import StartAsyncTcpServer
 from custom_components.komfovent.const import (
     DOMAIN,
     DEFAULT_NAME,
-    OPERATION_MODES,
     REG_POWER,
     REG_OPERATION_MODE,
     REG_ECO_MODE,
     REG_AUTO_MODE,
-    AQ_SENSOR_TYPES,
+    OperationMode,
+    AirQualitySensorType,
 )
 
 @pytest.fixture
@@ -123,7 +123,7 @@ async def test_climate_entity(hass: HomeAssistant, integration, register_data):
         | ClimateEntityFeature.FAN_MODE
     )
     assert state.attributes["fan_modes"] == ["away", "normal", "intensive", "boost"]
-    assert state.attributes["preset_modes"] == list(OPERATION_MODES.values())
+    assert state.attributes["preset_modes"] == [mode.name.lower() for mode in OperationMode]
 
     # Check state based on power and operation mode
     power = int(register_data[str(REG_POWER)])
@@ -134,7 +134,7 @@ async def test_climate_entity(hass: HomeAssistant, integration, register_data):
 
     # Check current operation mode
     mode = int(register_data[str(REG_OPERATION_MODE)])
-    assert state.attributes["preset_mode"] == OPERATION_MODES.get(mode, "Unknown")
+    assert state.attributes["preset_mode"] == OperationMode(mode).name.lower()
 
     # Check eco and auto modes
     eco_mode = bool(int(register_data[str(REG_ECO_MODE)]))
@@ -206,8 +206,8 @@ async def test_air_quality_sensors(hass: HomeAssistant, integration, register_da
     """Test air quality sensor entities."""
     # Check AQ sensor 1
     sensor_type = int(register_data["aq_sensor1_type"])
-    if sensor_type != 0:  # If sensor is installed
-        sensor_name = AQ_SENSOR_TYPES.get(sensor_type, "Unknown")
+    if sensor_type != AirQualitySensorType.NOT_INSTALLED:
+        sensor_name = AirQualitySensorType(sensor_type).name
         entity_id = f"sensor.komfovent_air_quality_{sensor_name.lower()}"
         state = hass.states.get(entity_id)
         assert state is not None
@@ -215,8 +215,8 @@ async def test_air_quality_sensors(hass: HomeAssistant, integration, register_da
 
     # Check AQ sensor 2
     sensor_type = int(register_data["aq_sensor2_type"])
-    if sensor_type != 0:  # If sensor is installed
-        sensor_name = AQ_SENSOR_TYPES.get(sensor_type, "Unknown")
+    if sensor_type != AirQualitySensorType.NOT_INSTALLED:
+        sensor_name = AirQualitySensorType(sensor_type).name
         entity_id = f"sensor.komfovent_air_quality_{sensor_name.lower()}"
         state = hass.states.get(entity_id)
         assert state is not None
