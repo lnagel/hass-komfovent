@@ -92,8 +92,8 @@ async def integration(hass: HomeAssistant, mock_modbus_server) -> None:
             "type": "tcp",
             "delay": 0,
         }
-    
-    assert await async_setup_component(
+        
+        assert await async_setup_component(
         hass, 
         MODBUS_DOMAIN, 
         {MODBUS_DOMAIN: [modbus_config]}
