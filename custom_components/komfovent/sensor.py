@@ -41,8 +41,8 @@ SENSOR_TYPES = {
     "panel1_rh": ("Panel 1 Humidity", PERCENTAGE, SensorDeviceClass.HUMIDITY),
     "extract_co2": ("Extract Air CO2", "ppm", SensorDeviceClass.CO2),
     "extract_rh": ("Extract Air Humidity", PERCENTAGE, SensorDeviceClass.HUMIDITY),
-    "aq_sensor1_value": ("Air Quality Sensor 1", None, None),  # Units/class set dynamically
-    "aq_sensor2_value": ("Air Quality Sensor 2", None, None),  # Units/class set dynamically
+    "aq_sensor1_value": ("Air Quality", None, None),  # Units/class set dynamically
+    "aq_sensor2_value": ("Secondary Air Quality", None, None),  # Units/class set dynamically
 }
 
 async def async_setup_entry(
@@ -87,7 +87,14 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
         self._attr_name = name
         self._attr_native_unit_of_measurement = unit
         self._attr_device_class = device_class
-        self._attr_unique_id = f"{DOMAIN}_{sensor_type}"
+        # Special handling for AQ sensors to include type in unique_id
+        if sensor_type in ["aq_sensor1_value", "aq_sensor2_value"]:
+            aq_type_reg = "aq_sensor1_type" if sensor_type == "aq_sensor1_value" else "aq_sensor2_type"
+            aq_type = coordinator.data.get(aq_type_reg, 0) if coordinator.data else 0
+            aq_type_name = {1: "co2", 2: "voc", 3: "rh"}.get(aq_type, "unknown")
+            self._attr_unique_id = f"{DOMAIN}_aq_{aq_type_name}"
+        else:
+            self._attr_unique_id = f"{DOMAIN}_{sensor_type}"
         self._attr_device_info = {
             "identifiers": {(DOMAIN, f"{DOMAIN}_device")},
             "name": "Komfovent Ventilation",
@@ -132,6 +139,10 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
                 "aq_sensor1_type" if self._sensor_type == "aq_sensor1_value" else "aq_sensor2_type",
                 0
             )
+            
+            # Update name based on sensor type
+            type_names = {1: "CO2", 2: "VOC", 3: "Humidity"}
+            self._attr_name = type_names.get(sensor_type, "Unknown")
             
             if sensor_type == 0:  # Not installed
                 return None
