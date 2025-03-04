@@ -33,16 +33,16 @@ REG_BEFORE_MODE_MASK = 9  # Before been mode mask
 # Temperature and Flow control
 REG_TEMP_CONTROL = 10  # Temperature control (Supply/Extract/Balance/Room)
 REG_FLOW_CONTROL = 11  # Flow control (CAV/VAV/DCV)
-REG_MAX_SUPPLY_FLOW = 12  # Maximum supply flow (32-bit)
-REG_MAX_EXTRACT_FLOW = 14  # Maximum extract flow (32-bit)
-REG_MAX_SUPPLY_PRESSURE = 16  # Max supply pressure
-REG_MAX_EXTRACT_PRESSURE = 17  # Max extract pressure
+REG_MAX_SUPPLY_FLOW = 12  # Maximum supply flow (32-bit) (m3/h, l/s)
+REG_MAX_EXTRACT_FLOW = 14  # Maximum extract flow (32-bit) (m3/h, l/s)
+REG_MAX_SUPPLY_PRESSURE = 16  # Max supply pressure (Pa)
+REG_MAX_EXTRACT_PRESSURE = 17  # Max extract pressure (Pa)
 
 # Control sequence
-REG_STAGE1 = 18  # Stage 1 control
-REG_STAGE2 = 19  # Stage 2 control
-REG_STAGE3 = 20  # Stage 3 control
-REG_COIL_TYPE = 21  # Coil type
+REG_STAGE1 = 18  # Stage 1 control (None=0, External coil=1, Electric heater=2, External Dx unit=3)
+REG_STAGE2 = 19  # Stage 2 control (None=0, External coil=1, Electric heater=2, External Dx unit=3)
+REG_STAGE3 = 20  # Stage 3 control (None=0, External coil=1, Electric heater=2, External Dx unit=3)
+REG_COIL_TYPE = 21  # Coil type (Hot water=0, Cold water=1, Combi=2)
 
 # Connectivity
 REG_IP = 22  # IP address (32-bit)
@@ -137,7 +137,9 @@ REG_AQ_SENSOR1_TYPE = 212  # Air quality sensor 1 type
 REG_AQ_SENSOR2_TYPE = 213  # Air quality sensor 2 type
 
 # Alarm registers
-REG_ACTIVE_ALARMS_COUNT = 599  # Active alarms count (write 0x99C6 to reset)
+REG_ACTIVE_ALARMS_COUNT = 599  # Active alarms count (write 0x99C6 to reset and restore previous mode)
+REG_ALARM_HISTORY_START = 610  # Start of alarm history registers block
+REG_ALARM_HISTORY_END = 868  # End of alarm history registers block
 REG_ACTIVE_ALARM1 = 600  # Active alarm 1 code
 REG_ACTIVE_ALARM2 = 601  # Active alarm 2 code
 REG_ACTIVE_ALARM3 = 602  # Active alarm 3 code
@@ -161,7 +163,7 @@ REG_EXTRACT_FLOW = 907  # Extract air flow (32-bit)
 REG_SUPPLY_FAN_INTENSITY = 909  # Supply fan speed
 REG_EXTRACT_FAN_INTENSITY = 910  # Extract fan speed
 REG_HEAT_EXCHANGER = 911  # Heat exchanger signal
-REG_ELECTRIC_HEATER = 912  # Electric heater signal
+REG_ELECTRIC_HEATER = 912  # Electric heater signal (x10 %)
 REG_WATER_HEATER = 913  # Water heater signal
 REG_WATER_COOLER = 914  # Water cooler signal
 REG_DX_UNIT = 915  # DX unit signal
