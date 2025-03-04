@@ -54,7 +54,18 @@ async def async_setup_entry(
     coordinator: KomfoventCoordinator = hass.data[DOMAIN][entry.entry_id]
 
     entities = []
+    
+    # First get the AQ sensor types if available
+    aq_sensor1_type = coordinator.data.get("aq_sensor1_type", 0) if coordinator.data else 0
+    aq_sensor2_type = coordinator.data.get("aq_sensor2_type", 0) if coordinator.data else 0
+    
     for sensor_type, (name, unit, device_class) in SENSOR_TYPES.items():
+        # Skip AQ sensors if they're not installed
+        if sensor_type == "aq_sensor1_value" and aq_sensor1_type == 0:
+            continue
+        if sensor_type == "aq_sensor2_value" and aq_sensor2_type == 0:
+            continue
+            
         entities.append(
             KomfoventSensor(
                 coordinator,
