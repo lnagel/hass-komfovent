@@ -41,6 +41,8 @@ SENSOR_TYPES = {
     "panel1_rh": ("Panel 1 Humidity", PERCENTAGE, SensorDeviceClass.HUMIDITY),
     "extract_co2": ("Extract Air CO2", "ppm", SensorDeviceClass.CO2),
     "extract_rh": ("Extract Air Humidity", PERCENTAGE, SensorDeviceClass.HUMIDITY),
+    "aq_sensor1_value": ("Air Quality Sensor 1", None, None),  # Units/class set dynamically
+    "aq_sensor2_value": ("Air Quality Sensor 2", None, None),  # Units/class set dynamically
 }
 
 async def async_setup_entry(
@@ -124,6 +126,29 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
             value = float(value) / 1000
             if 0 <= value <= 5:
                 return value
+            return None
+        elif self._sensor_type in ["aq_sensor1_value", "aq_sensor2_value"]:
+            sensor_type = self.coordinator.data.get(
+                "aq_sensor1_type" if self._sensor_type == "aq_sensor1_value" else "aq_sensor2_type",
+                0
+            )
+            
+            if sensor_type == 0:  # Not installed
+                return None
+            elif sensor_type == 1:  # CO2
+                self._attr_native_unit_of_measurement = "ppm"
+                self._attr_device_class = SensorDeviceClass.CO2
+                if 0 <= float(value) <= 2500:
+                    return float(value)
+            elif sensor_type == 2:  # VOC
+                self._attr_native_unit_of_measurement = "ppb"
+                if 0 <= float(value) <= 2000:
+                    return float(value)
+            elif sensor_type == 3:  # RH
+                self._attr_native_unit_of_measurement = PERCENTAGE
+                self._attr_device_class = SensorDeviceClass.HUMIDITY
+                if 0 <= float(value) <= 100:
+                    return float(value)
             return None
             
         return float(value)

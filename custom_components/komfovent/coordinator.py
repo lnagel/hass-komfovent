@@ -83,6 +83,12 @@ class KomfoventCoordinator(DataUpdateCoordinator):
             data["heater_power"] = await self.hub.async_read_holding_registers(REG_HEATER_POWER, 1)
             data["heat_recovery"] = await self.hub.async_read_holding_registers(REG_HEAT_RECOVERY, 1)
 
+            # Air quality sensor configuration and values
+            data["aq_sensor1_type"] = await self.hub.async_read_holding_registers(REG_AQ_SENSOR1_TYPE, 1)
+            data["aq_sensor2_type"] = await self.hub.async_read_holding_registers(REG_AQ_SENSOR2_TYPE, 1)
+            data["aq_sensor1_value"] = await self.hub.async_read_holding_registers(REG_AQ_SENSOR1_VALUE, 1)
+            data["aq_sensor2_value"] = await self.hub.async_read_holding_registers(REG_AQ_SENSOR2_VALUE, 1)
+
             return data
 
         except Exception as error:

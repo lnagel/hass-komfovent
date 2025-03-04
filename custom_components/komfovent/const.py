@@ -74,6 +74,20 @@ REG_PANEL1_RH = 946  # Panel 1 relative humidity
 REG_EXTRACT_CO2 = 951  # Extract air CO2
 REG_EXTRACT_RH = 952  # Extract air relative humidity
 
+# Air quality sensor configuration
+REG_AQ_SENSOR1_TYPE = 212  # Air quality sensor 1 type
+REG_AQ_SENSOR2_TYPE = 213  # Air quality sensor 2 type
+REG_AQ_SENSOR1_VALUE = 951  # Air quality sensor 1 value
+REG_AQ_SENSOR2_VALUE = 952  # Air quality sensor 2 value
+
+# Air quality sensor types
+AQ_SENSOR_TYPES = {
+    0: "Not installed",
+    1: "CO2",
+    2: "VOC",
+    3: "RH"
+}
+
 # Time registers
 REG_TIME_START = 28  # Start of time registers block (6 registers)
 
