@@ -33,8 +33,8 @@ REG_BEFORE_MODE_MASK = 9  # Before been mode mask
 # Temperature and Flow control
 REG_TEMP_CONTROL = 10  # Temperature control
 REG_FLOW_CONTROL = 11  # Flow control
-REG_MAX_SUPPLY_FLOW = 12  # Maximum supply flow
-REG_MAX_EXTRACT_FLOW = 14  # Maximum extract flow
+REG_MAX_SUPPLY_FLOW = 12  # Maximum supply flow (32-bit)
+REG_MAX_EXTRACT_FLOW = 14  # Maximum extract flow (32-bit)
 REG_MAX_SUPPLY_PRESSURE = 16  # Max supply pressure
 REG_MAX_EXTRACT_PRESSURE = 17  # Max extract pressure
 
@@ -60,46 +60,46 @@ REG_WEEK_DAY = 31  # Week day
 REG_EPOCH_TIME = 32  # Time since 1970 (32-bit)
 
 # Mode: Away
-REG_AWAY_FAN_SUPPLY = 99     # Supply flow
-REG_AWAY_FAN_EXTRACT = 101   # Extract flow
+REG_AWAY_FAN_SUPPLY = 99     # Supply flow (32-bit)
+REG_AWAY_FAN_EXTRACT = 101   # Extract flow (32-bit)
 REG_AWAY_TEMP = 103          # Setpoint
 REG_AWAY_HEATING = 104       # Heating
 
 # Mode: Normal
-REG_NORMAL_FAN_SUPPLY = 105  # Supply flow
-REG_NORMAL_FAN_EXTRACT = 107 # Extract flow
+REG_NORMAL_FAN_SUPPLY = 105  # Supply flow (32-bit)
+REG_NORMAL_FAN_EXTRACT = 107 # Extract flow (32-bit)
 REG_NORMAL_SETPOINT = 109    # Setpoint
 REG_NORMAL_HEATING = 110     # Heating
 
 # Mode: Intensive
-REG_INTENSIVE_FAN_SUPPLY = 111  # Supply flow
-REG_INTENSIVE_FAN_EXTRACT = 113 # Extract flow
+REG_INTENSIVE_FAN_SUPPLY = 111  # Supply flow (32-bit)
+REG_INTENSIVE_FAN_EXTRACT = 113 # Extract flow (32-bit)
 REG_INTENSIVE_TEMP = 115     # Setpoint
 REG_INTENSIVE_HEATING = 116  # Heating
 
 # Mode: Boost
-REG_BOOST_FAN_SUPPLY = 117   # Supply flow
-REG_BOOST_FAN_EXTRACT = 119  # Extract flow
+REG_BOOST_FAN_SUPPLY = 117   # Supply flow (32-bit)
+REG_BOOST_FAN_EXTRACT = 119  # Extract flow (32-bit)
 REG_BOOST_TEMP = 121        # Setpoint
 REG_BOOST_HEATING = 122     # Heating
 
 # Mode: Kitchen
-REG_KITCHEN_SUPPLY = 123    # Supply flow
-REG_KITCHEN_EXTRACT = 125   # Extract flow
+REG_KITCHEN_SUPPLY = 123    # Supply flow (32-bit)
+REG_KITCHEN_EXTRACT = 125   # Extract flow (32-bit)
 REG_KITCHEN_TEMP = 127      # Setpoint
 REG_KITCHEN_HEATING = 128   # Heating
 REG_KITCHEN_TIMER = 129     # Timer time
 
 # Mode: Fireplace
-REG_FIREPLACE_SUPPLY = 130  # Supply flow
-REG_FIREPLACE_EXTRACT = 132 # Extract flow
+REG_FIREPLACE_SUPPLY = 130  # Supply flow (32-bit)
+REG_FIREPLACE_EXTRACT = 132 # Extract flow (32-bit)
 REG_FIREPLACE_TEMP = 134    # Setpoint
 REG_FIREPLACE_HEATING = 135 # Heating
 REG_FIREPLACE_TIMER = 136   # Timer time
 
 # Mode: Override
-REG_OVERRIDE_SUPPLY = 137   # Supply flow
-REG_OVERRIDE_EXTRACT = 139  # Extract flow
+REG_OVERRIDE_SUPPLY = 137   # Supply flow (32-bit)
+REG_OVERRIDE_EXTRACT = 139  # Extract flow (32-bit)
 REG_OVERRIDE_TEMP = 141     # Setpoint
 REG_OVERRIDE_HEATING = 142  # Heating
 REG_OVERRIDE_MODE = 143     # Mode
