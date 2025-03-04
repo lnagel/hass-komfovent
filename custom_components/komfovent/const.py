@@ -94,6 +94,8 @@ REG_AQ_CHECK_PERIOD = 211  # Air quality check period
 REG_AQ_SENSOR1_TYPE = 212  # Air quality sensor 1 type
 REG_AQ_SENSOR2_TYPE = 213  # Air quality sensor 2 type
 
+# TODO: Add alarm registers
+
 # Sensor registers
 REG_STATUS = 899  # Unit status bitmask
 REG_HEATING_CONFIG = 900  # Heating/cooling config
