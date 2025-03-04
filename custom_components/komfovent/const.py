@@ -19,13 +19,13 @@ DEFAULT_SLAVE_ID: Final = 254
 DEFAULT_SCAN_INTERVAL = 30
 
 # Modbus registers
-REG_POWER = 0  # Unit active status
+REG_POWER = 0  # ON/OFF status
 REG_ECO_MODE = 2  # ECO mode active
 REG_AUTO_MODE = 3  # AUTO mode active
 REG_OPERATION_MODE = 4  # Current operating mode
-REG_SCHEDULER_MODE = 5
-REG_TEMP_CONTROL = 10
-REG_FLOW_CONTROL = 11
+REG_SCHEDULER_MODE = 5  # Scheduler operation mode
+REG_TEMP_CONTROL = 10  # Temperature control (Supply/Extract/Balance/Room)
+REG_FLOW_CONTROL = 11  # Flow control (CAV/VAV/DCV)
 
 # Mode temperature setpoints
 REG_NORMAL_SETPOINT = 109  # Normal mode temperature
