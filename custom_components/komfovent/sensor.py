@@ -93,9 +93,7 @@ async def async_setup_entry(
     
     # Create standard sensors
     for sensor_type, (name, unit, device_class) in SENSOR_TYPES.items():
-        # Skip AQ sensors - we'll handle them separately
-        if sensor_type not in ["aq_sensor1_value", "aq_sensor2_value"]:
-            entities.append(
+        entities.append(
                 KomfoventSensor(
                     coordinator,
                     sensor_type,
