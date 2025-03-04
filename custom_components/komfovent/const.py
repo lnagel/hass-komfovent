@@ -29,6 +29,8 @@ REG_NEXT_MODE = 6  # Next mode
 REG_NEXT_MODE_TIME = 7  # Next mode start time
 REG_NEXT_MODE_WEEKDAY = 8  # Next mode weekday
 REG_BEFORE_MODE_MASK = 9  # Before been mode mask
+
+# Temperature and Flow control
 REG_TEMP_CONTROL = 10  # Temperature control (Supply/Extract/Balance/Room)
 REG_FLOW_CONTROL = 11  # Flow control (CAV/VAV/DCV)
 REG_MAX_SUPPLY_FLOW = 12  # Maximum supply flow (32-bit)
