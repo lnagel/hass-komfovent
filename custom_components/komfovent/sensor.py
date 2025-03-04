@@ -21,6 +21,16 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import DOMAIN
 from .coordinator import KomfoventCoordinator
 
+def get_aq_sensor_attributes(sensor_type: int) -> tuple[str | None, str | None]:
+    """Get the unit and device class for an air quality sensor type."""
+    if sensor_type == 1:  # CO2
+        return "ppm", SensorDeviceClass.CO2
+    elif sensor_type == 2:  # VOC
+        return "ppb", None
+    elif sensor_type == 3:  # RH
+        return PERCENTAGE, SensorDeviceClass.HUMIDITY
+    return None, None
+
 SENSOR_TYPES = {
     "supply_temp": ("Supply Temperature", TEMP_CELSIUS, SensorDeviceClass.TEMPERATURE),
     "extract_temp": ("Extract Temperature", TEMP_CELSIUS, SensorDeviceClass.TEMPERATURE),
@@ -41,8 +51,6 @@ SENSOR_TYPES = {
     "panel1_rh": ("Panel 1 Humidity", PERCENTAGE, SensorDeviceClass.HUMIDITY),
     "extract_co2": ("Extract Air CO2", "ppm", SensorDeviceClass.CO2),
     "extract_rh": ("Extract Air Humidity", PERCENTAGE, SensorDeviceClass.HUMIDITY),
-    "aq_sensor1_value": ("Air Quality", None, None),  # Units/class set dynamically
-    "aq_sensor2_value": ("Secondary Air Quality", None, None),  # Units/class set dynamically
 }
 
 async def async_setup_entry(
@@ -55,18 +63,43 @@ async def async_setup_entry(
 
     entities = []
     
-    # First get the AQ sensor types if available
-    aq_sensor1_type = coordinator.data.get("aq_sensor1_type", 0) if coordinator.data else 0
-    aq_sensor2_type = coordinator.data.get("aq_sensor2_type", 0) if coordinator.data else 0
-    
+    # Create standard sensors
     for sensor_type, (name, unit, device_class) in SENSOR_TYPES.items():
-        # Skip AQ sensors if they're not installed
-        if sensor_type == "aq_sensor1_value" and aq_sensor1_type == 0:
-            continue
-        if sensor_type == "aq_sensor2_value" and aq_sensor2_type == 0:
-            continue
+        # Skip AQ sensors - we'll handle them separately
+        if sensor_type not in ["aq_sensor1_value", "aq_sensor2_value"]:
+            entities.append(
+                KomfoventSensor(
+                    coordinator,
+                    sensor_type,
+                    name,
+                    unit,
+                    device_class,
+                )
+            )
+
+    # Add AQ sensors if installed
+    if coordinator.data:
+        # Sensor 1
+        if coordinator.data.get("aq_sensor1_type", 0) != 0:
+            sensor_type = coordinator.data["aq_sensor1_type"]
+            name = f"Air Quality {AQ_SENSOR_TYPES.get(sensor_type, 'Unknown')}"
+            unit, device_class = get_aq_sensor_attributes(sensor_type)
+            entities.append(
+                KomfoventSensor(
+                    coordinator,
+                    "aq_sensor1_value",
+                    name,
+                    unit,
+                    device_class,
+                )
+            )
             
-        entities.append(
+        # Sensor 2
+        if coordinator.data.get("aq_sensor2_type", 0) != 0:
+            sensor_type = coordinator.data["aq_sensor2_type"]
+            name = f"Secondary Air Quality {AQ_SENSOR_TYPES.get(sensor_type, 'Unknown')}"
+            unit, device_class = get_aq_sensor_attributes(sensor_type)
+            entities.append(
             KomfoventSensor(
                 coordinator,
                 sensor_type,
