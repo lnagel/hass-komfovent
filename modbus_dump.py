@@ -2,10 +2,13 @@
 
 import argparse
 import json
+import time
 from pymodbus.client import ModbusTcpClient
+from pymodbus.exceptions import ModbusException
+from pymodbus.pdu import ExceptionResponse
 
 def dump_registers(host: str, port: int) -> dict:
-    """Query all holding registers and return values as dictionary."""
+    """Query all holding registers one by one and return values as dictionary."""
     client = ModbusTcpClient(host=host, port=port)
     
     if not client.connect():
@@ -13,18 +16,29 @@ def dump_registers(host: str, port: int) -> dict:
     
     results = {}
     try:
-        # Query registers in chunks of 100 to avoid timeout issues
-        for start in range(0, 1024, 100):
-            count = min(100, 1024 - start)
-            response = client.read_holding_registers(address=start, count=count)
-            
-            if response.isError():
-                print(f"Error reading registers {start}-{start+count}")
-                continue
+        for register_id in range(0, 1024):
+            try:
+                response = client.read_holding_registers(address=register_id, count=1)
                 
-            for i, value in enumerate(response.registers):
-                register_id = start + i
+                if isinstance(response, ExceptionResponse):
+                    print(f"Register {register_id}: Exception {response}")
+                    continue
+                    
+                if not hasattr(response, 'registers') or not response.registers:
+                    print(f"Register {register_id}: Invalid response")
+                    continue
+                
+                value = response.registers[0]
                 results[register_id] = value
+                print(f"Register {register_id}: {value}")
+                
+                # Small delay to avoid overwhelming the device
+                time.sleep(0.1)
+                
+            except ModbusException as e:
+                print(f"Register {register_id}: Modbus error - {e}")
+            except Exception as e:
+                print(f"Register {register_id}: Unexpected error - {e}")
                 
     finally:
         client.close()
@@ -40,6 +54,8 @@ def main():
     args = parser.parse_args()
     
     try:
+        print(f"Connecting to {args.host}:{args.port}...")
+        print("Starting register scan (this may take a few minutes)...")
         registers = dump_registers(args.host, args.port)
         
         with open(args.output, 'w') as f:
