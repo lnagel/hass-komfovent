@@ -43,7 +43,7 @@ from custom_components.komfovent.const import (
 def register_data() -> dict:
     """Load register data from file."""
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    register_file = os.path.join(current_dir, "..", "documentation", "C6_holding_registers.json")
+    register_file = os.path.join(current_dir, "..", "..", "..", "documentation", "C6_holding_registers.json")
     
     with open(register_file) as f:
         return json.load(f)
