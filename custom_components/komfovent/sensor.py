@@ -176,16 +176,11 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
                 return None
             value = float(value)
             
-            # Use device_class to determine validation rules
-            if self._attr_device_class == SensorDeviceClass.CO2:
-                if 0 <= value <= 2500:
-                    return value
-            elif self._attr_device_class == SensorDeviceClass.HUMIDITY:
-                if 0 <= value <= 100:
-                    return value
-            elif self._attr_native_unit_of_measurement == "ppb":  # VOC
+            # Only validate VOC values, CO2 and humidity are handled above
+            if self._attr_native_unit_of_measurement == "ppb":  # VOC
                 if 0 <= value <= 2000:
                     return value
-            return None
+                return None
+            return value
             
         return float(value)
