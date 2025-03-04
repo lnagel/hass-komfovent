@@ -212,10 +212,6 @@ REG_PANEL2_FW = 1003  # Panel 2 firmware version (32-bit)
 # Reset register
 REG_RESET_SETTINGS = 1049  # Reset settings
 
-
-# Time registers
-REG_TIME_START = 28  # Start of time registers block (6 registers)
-
 # Register value types
 VALUE_TYPE_UINT8: Final = "uint8"
 VALUE_TYPE_UINT16: Final = "uint16"
