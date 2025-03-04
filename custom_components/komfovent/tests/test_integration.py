@@ -66,13 +66,15 @@ def mock_modbus_server(hass: HomeAssistant, register_data, socket_enabled) -> Ge
         address=("127.0.0.1", 0)
     ))
     
-    yield {
-        "host": "127.0.0.1",
-        "port": server.server.sockets[0].getsockname()[1]
-    }
-    
-    server.server.close()
-    loop.run_until_complete(server.server.wait_closed())
+    try:
+        yield {
+            "host": "127.0.0.1",
+            "port": server.server.sockets[0].getsockname()[1]
+        }
+    finally:
+        server.server.close()
+        loop.run_until_complete(server.server.wait_closed())
+        loop.run_until_complete(server.shutdown())
 
 @pytest.fixture
 def socket_enabled():
