@@ -3,6 +3,7 @@ from datetime import timedelta
 import logging
 from typing import Any, Dict
 
+from homeassistant.components.modbus import ModbusHub
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.components.modbus import ModbusHub
@@ -32,6 +33,11 @@ from .const import (
 )
 
 _LOGGER = logging.getLogger(__name__)
+
+async def read_32bit_register(hub: ModbusHub, register: int) -> int:
+    """Read a 32-bit value from two consecutive 16-bit registers."""
+    regs = await hub.async_read_holding_registers(register, 2)
+    return (regs[0] << 16) + regs[1]
 
 class KomfoventCoordinator(DataUpdateCoordinator):
     """Class to manage fetching Komfovent data."""
@@ -65,11 +71,8 @@ class KomfoventCoordinator(DataUpdateCoordinator):
             data["outdoor_temp"] = await self.hub.async_read_holding_registers(REG_OUTDOOR_TEMP, 1)
             
             # Flow and fan data
-            # Read 32-bit flow values (two 16-bit registers)
-            supply_flow_regs = await self.hub.async_read_holding_registers(REG_SUPPLY_FLOW, 2)
-            extract_flow_regs = await self.hub.async_read_holding_registers(REG_EXTRACT_FLOW, 2)
-            data["supply_flow"] = (supply_flow_regs[0] << 16) + supply_flow_regs[1]
-            data["extract_flow"] = (extract_flow_regs[0] << 16) + extract_flow_regs[1]
+            data["supply_flow"] = await read_32bit_register(self.hub, REG_SUPPLY_FLOW)
+            data["extract_flow"] = await read_32bit_register(self.hub, REG_EXTRACT_FLOW)
             data["supply_fan_intensity"] = await self.hub.async_read_holding_registers(REG_SUPPLY_FAN_INTENSITY, 1)
             data["extract_fan_intensity"] = await self.hub.async_read_holding_registers(REG_EXTRACT_FAN_INTENSITY, 1)
             
