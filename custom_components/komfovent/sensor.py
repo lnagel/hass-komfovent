@@ -18,8 +18,46 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN
+from .const import (
+    DOMAIN,
+    AQ_SENSOR_TYPES,
+    AQ_SENSOR_TYPE_NOT_INSTALLED,
+    AQ_SENSOR_TYPE_CO2,
+    AQ_SENSOR_TYPE_VOC,
+    AQ_SENSOR_TYPE_RH,
+)
 from .coordinator import KomfoventCoordinator
+
+def create_aq_sensor(coordinator: KomfoventCoordinator, sensor_num: int) -> KomfoventSensor | None:
+    """Create an air quality sensor if installed."""
+    sensor_type_key = f"aq_sensor{sensor_num}_type"
+    sensor_value_key = f"aq_sensor{sensor_num}_value"
+    
+    if not coordinator.data:
+        return None
+        
+    sensor_type = coordinator.data.get(sensor_type_key, AQ_SENSOR_TYPE_NOT_INSTALLED)
+    if sensor_type == AQ_SENSOR_TYPE_NOT_INSTALLED:
+        return None
+        
+    name = f"Air Quality {AQ_SENSOR_TYPES.get(sensor_type, 'Unknown')}"
+    
+    if sensor_type == AQ_SENSOR_TYPE_CO2:
+        unit, device_class = "ppm", SensorDeviceClass.CO2
+    elif sensor_type == AQ_SENSOR_TYPE_VOC:
+        unit, device_class = "ppb", None
+    elif sensor_type == AQ_SENSOR_TYPE_RH:
+        unit, device_class = PERCENTAGE, SensorDeviceClass.HUMIDITY
+    else:
+        return None
+        
+    return KomfoventSensor(
+        coordinator,
+        sensor_value_key,
+        name,
+        unit,
+        device_class,
+    )
 
 SENSOR_TYPES = {
     "supply_temp": ("Supply Temperature", TEMP_CELSIUS, SensorDeviceClass.TEMPERATURE),
@@ -52,16 +90,24 @@ async def async_setup_entry(
     coordinator: KomfoventCoordinator = hass.data[DOMAIN][entry.entry_id]
 
     entities = []
+    
+    # Create standard sensors
     for sensor_type, (name, unit, device_class) in SENSOR_TYPES.items():
         entities.append(
-            KomfoventSensor(
-                coordinator,
-                sensor_type,
-                name,
-                unit,
-                device_class,
+                KomfoventSensor(
+                    coordinator,
+                    sensor_type,
+                    name,
+                    unit,
+                    device_class,
+                )
             )
-        )
+
+    # Add AQ sensors if installed
+    if aq_sensor := create_aq_sensor(coordinator, 1):
+        entities.append(aq_sensor)
+    if aq_sensor := create_aq_sensor(coordinator, 2):
+        entities.append(aq_sensor)
 
     async_add_entities(entities)
 
@@ -125,5 +171,16 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
             if 0 <= value <= 5:
                 return value
             return None
+        elif self._sensor_type in ["aq_sensor1_value", "aq_sensor2_value"]:
+            if not isinstance(value, (int, float)):
+                return None
+            value = float(value)
+            
+            # Only validate VOC values, CO2 and humidity are handled above
+            if self._attr_native_unit_of_measurement == "ppb":  # VOC
+                if 0 <= value <= 2000:
+                    return value
+                return None
+            return value
             
         return float(value)

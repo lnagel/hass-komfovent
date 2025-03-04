@@ -30,6 +30,10 @@ from .const import (
     REG_POWER_CONSUMPTION,
     REG_HEATER_POWER,
     REG_HEAT_RECOVERY,
+    REG_AQ_SENSOR1_TYPE,
+    REG_AQ_SENSOR2_TYPE,
+    REG_AQ_SENSOR1_VALUE,
+    REG_AQ_SENSOR2_VALUE,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -82,6 +86,12 @@ class KomfoventCoordinator(DataUpdateCoordinator):
             data["power_consumption"] = await self.hub.async_read_holding_registers(REG_POWER_CONSUMPTION, 1)
             data["heater_power"] = await self.hub.async_read_holding_registers(REG_HEATER_POWER, 1)
             data["heat_recovery"] = await self.hub.async_read_holding_registers(REG_HEAT_RECOVERY, 1)
+
+            # Air quality sensor configuration and values
+            data["aq_sensor1_type"] = await self.hub.async_read_holding_registers(REG_AQ_SENSOR1_TYPE, 1)
+            data["aq_sensor2_type"] = await self.hub.async_read_holding_registers(REG_AQ_SENSOR2_TYPE, 1)
+            data["aq_sensor1_value"] = await self.hub.async_read_holding_registers(REG_AQ_SENSOR1_VALUE, 1)
+            data["aq_sensor2_value"] = await self.hub.async_read_holding_registers(REG_AQ_SENSOR2_VALUE, 1)
 
             return data
 
