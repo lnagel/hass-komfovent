@@ -17,10 +17,12 @@ from homeassistant.const import (
     CONF_PORT,
     CONF_NAME,
     ATTR_TEMPERATURE,
-    TEMP_CELSIUS,
     PERCENTAGE,
-    POWER_WATT,
-    VOLUME_FLOW_RATE_CUBIC_METERS_PER_HOUR,
+)
+from homeassistant.const import UnitOfTemperature
+from homeassistant.components.sensor import (
+    UnitOfPower,
+    UnitOfVolumeFlowRate,
 )
 from homeassistant.setup import async_setup_component
 from pymodbus.datastore import ModbusSequentialDataBlock, ModbusSlaveContext, ModbusServerContext
@@ -113,7 +115,7 @@ async def test_climate_entity(hass: HomeAssistant, integration, register_data):
     assert state is not None
 
     # Check basic attributes
-    assert state.attributes["temperature_unit"] == TEMP_CELSIUS
+    assert state.attributes["temperature_unit"] == UnitOfTemperature.CELSIUS
     assert state.attributes["supported_features"] == (
         ClimateEntityFeature.TARGET_TEMPERATURE
         | ClimateEntityFeature.PRESET_MODE
@@ -142,9 +144,9 @@ async def test_climate_entity(hass: HomeAssistant, integration, register_data):
 async def test_temperature_sensors(hass: HomeAssistant, integration, register_data):
     """Test temperature sensor entities."""
     sensors = [
-        ("sensor.komfovent_supply_temperature", "supply_temp", TEMP_CELSIUS),
-        ("sensor.komfovent_extract_temperature", "extract_temp", TEMP_CELSIUS),
-        ("sensor.komfovent_outdoor_temperature", "outdoor_temp", TEMP_CELSIUS),
+        ("sensor.komfovent_supply_temperature", "supply_temp", UnitOfTemperature.CELSIUS),
+        ("sensor.komfovent_extract_temperature", "extract_temp", UnitOfTemperature.CELSIUS),
+        ("sensor.komfovent_outdoor_temperature", "outdoor_temp", UnitOfTemperature.CELSIUS),
     ]
 
     for entity_id, reg_key, unit in sensors:
@@ -158,8 +160,8 @@ async def test_temperature_sensors(hass: HomeAssistant, integration, register_da
 async def test_flow_sensors(hass: HomeAssistant, integration, register_data):
     """Test flow sensor entities."""
     sensors = [
-        ("sensor.komfovent_supply_flow", "supply_flow", VOLUME_FLOW_RATE_CUBIC_METERS_PER_HOUR),
-        ("sensor.komfovent_extract_flow", "extract_flow", VOLUME_FLOW_RATE_CUBIC_METERS_PER_HOUR),
+        ("sensor.komfovent_supply_flow", "supply_flow", UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR),
+        ("sensor.komfovent_extract_flow", "extract_flow", UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR),
     ]
 
     for entity_id, reg_key, unit in sensors:
