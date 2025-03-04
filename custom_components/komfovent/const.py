@@ -223,16 +223,6 @@ VALUE_TYPE_INT8: Final = "int8"
 VALUE_TYPE_INT16: Final = "int16"
 VALUE_TYPE_UINT32: Final = "uint32"
 
-# Register read/write transforms
-TRANSFORM_DEFAULT: Final = "default"
-TRANSFORM_DIVIDE10: Final = "JS(divide10.js)"
-TRANSFORM_MULTIPLY10: Final = "JS(multiply10.js)"
-TRANSFORM_DIVIDE1000: Final = "JS(divide1000.js)"
-TRANSFORM_VALIDATE_RH: Final = "JS(validateRH.js)"
-TRANSFORM_VALIDATE_CO2: Final = "JS(validateCO2.js)"
-TRANSFORM_VALIDATE_SPI: Final = "JS(validateSPI.js)"
-
-
 class OperationMode(IntEnum):
     """Operation modes."""
     STANDBY = 0
