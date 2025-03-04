@@ -6,7 +6,7 @@ from pymodbus.client import ModbusTcpClient
 
 def dump_registers(host: str, port: int) -> dict:
     """Query all holding registers and return values as dictionary."""
-    client = ModbusTcpClient(host, port)
+    client = ModbusTcpClient(host=host, port=port)
     
     if not client.connect():
         raise ConnectionError(f"Failed to connect to {host}:{port}")
