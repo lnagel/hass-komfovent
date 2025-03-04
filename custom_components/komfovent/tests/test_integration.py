@@ -190,12 +190,12 @@ async def test_percentage_sensors(hass: HomeAssistant, integration, register_dat
 async def test_power_sensors(hass: HomeAssistant, integration, register_data):
     """Test power-related sensor entities."""
     sensors = [
-        ("sensor.komfovent_power_consumption", "power_consumption"),
-        ("sensor.komfovent_heater_power", "heater_power"),
-        ("sensor.komfovent_heat_recovery", "heat_recovery"),
+        ("sensor.komfovent_power_consumption", "power_consumption", UnitOfPower.WATT),
+        ("sensor.komfovent_heater_power", "heater_power", UnitOfPower.WATT),
+        ("sensor.komfovent_heat_recovery", "heat_recovery", UnitOfPower.WATT),
     ]
 
-    for entity_id, reg_key in sensors:
+    for entity_id, reg_key, unit in sensors:
         state = hass.states.get(entity_id)
         assert state is not None
         assert state.attributes["unit_of_measurement"] == POWER_WATT
