@@ -25,8 +25,6 @@ REG_ECO_MODE = 2  # ECO mode active
 REG_AUTO_MODE = 3  # AUTO mode active
 REG_OPERATION_MODE = 4  # Current operating mode
 REG_SCHEDULER_MODE = 5  # Scheduler operation mode (StayAtHome=0, WorkingWeek=1, Office=2, Custom=3)
-REG_SCHEDULER_START = 299  # Start of scheduler registers block
-REG_SCHEDULER_END = 554  # End of scheduler registers block
 REG_NEXT_MODE = 6  # Next mode
 REG_NEXT_MODE_TIME = 7  # Next mode start time
 REG_NEXT_MODE_WEEKDAY = 8  # Next mode weekday
@@ -140,8 +138,6 @@ REG_AQ_SENSOR2_TYPE = 213  # Air quality sensor 2 type
 
 # Alarm registers
 REG_ACTIVE_ALARMS_COUNT = 599  # Active alarms count (write 0x99C6 to reset and restore previous mode)
-REG_ALARM_HISTORY_START = 610  # Start of alarm history registers block
-REG_ALARM_HISTORY_END = 868  # End of alarm history registers block
 REG_ACTIVE_ALARM1 = 600  # Active alarm 1 code
 REG_ACTIVE_ALARM2 = 601  # Active alarm 2 code
 REG_ACTIVE_ALARM3 = 602  # Active alarm 3 code
