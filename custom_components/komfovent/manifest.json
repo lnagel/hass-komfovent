@@ -1,11 +1,10 @@
 {
   "domain": "komfovent",
   "name": "Komfovent",
-  "codeowners": [
-    "@lnagel"
-  ],
+  "codeowners": ["@lnagel"],
   "config_flow": true,
   "documentation": "https://github.com/lnagel/hass-komfovent",
+  "dependencies": ["modbus"],
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/lnagel/hass-komfovent/issues",
   "version": "0.1.0"

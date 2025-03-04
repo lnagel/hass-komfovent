@@ -1,57 +1,126 @@
-"""Sensor platform for komfovent."""
-
+"""Sensor platform for Komfovent."""
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
-
-from .entity import IntegrationBlueprintEntity
-
-if TYPE_CHECKING:
-    from homeassistant.core import HomeAssistant
-    from homeassistant.helpers.entity_platform import AddEntitiesCallback
-
-    from .coordinator import BlueprintDataUpdateCoordinator
-    from .data import IntegrationBlueprintConfigEntry
-
-ENTITY_DESCRIPTIONS = (
-    SensorEntityDescription(
-        key="komfovent",
-        name="Integration Sensor",
-        icon="mdi:format-quote-close",
-    ),
+from homeassistant.components.sensor import (
+    SensorDeviceClass,
+    SensorEntity,
+    SensorStateClass,
 )
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import (
+    PERCENTAGE,
+    TEMP_CELSIUS,
+    POWER_WATT,
+    ENERGY_KILO_WATT_HOUR,
+    VOLUME_FLOW_RATE_CUBIC_METERS_PER_HOUR,
+)
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
+from .const import DOMAIN
+from .coordinator import KomfoventCoordinator
+
+SENSOR_TYPES = {
+    "supply_temp": ("Supply Temperature", TEMP_CELSIUS, SensorDeviceClass.TEMPERATURE),
+    "extract_temp": ("Extract Temperature", TEMP_CELSIUS, SensorDeviceClass.TEMPERATURE),
+    "outdoor_temp": ("Outdoor Temperature", TEMP_CELSIUS, SensorDeviceClass.TEMPERATURE),
+    "supply_flow": ("Supply Flow", VOLUME_FLOW_RATE_CUBIC_METERS_PER_HOUR, None),
+    "extract_flow": ("Extract Flow", VOLUME_FLOW_RATE_CUBIC_METERS_PER_HOUR, None),
+    "supply_fan_intensity": ("Supply Fan Intensity", PERCENTAGE, None),
+    "extract_fan_intensity": ("Extract Fan Intensity", PERCENTAGE, None),
+    "heat_exchanger": ("Heat Exchanger", PERCENTAGE, None),
+    "electric_heater": ("Electric Heater", PERCENTAGE, None),
+    "filter_impurity": ("Filter Impurity", PERCENTAGE, None),
+    "power_consumption": ("Power Consumption", POWER_WATT, SensorDeviceClass.POWER),
+    "heater_power": ("Heater Power", POWER_WATT, SensorDeviceClass.POWER),
+    "heat_recovery": ("Heat Recovery", POWER_WATT, SensorDeviceClass.POWER),
+    "heat_efficiency": ("Heat Exchanger Efficiency", PERCENTAGE, None),
+    "spi": ("Specific Power Input", None, None),
+    "panel1_temp": ("Panel 1 Temperature", TEMP_CELSIUS, SensorDeviceClass.TEMPERATURE),
+    "panel1_rh": ("Panel 1 Humidity", PERCENTAGE, SensorDeviceClass.HUMIDITY),
+    "extract_co2": ("Extract Air CO2", "ppm", SensorDeviceClass.CO2),
+    "extract_rh": ("Extract Air Humidity", PERCENTAGE, SensorDeviceClass.HUMIDITY),
+}
 
 async def async_setup_entry(
-    hass: HomeAssistant,  # noqa: ARG001 Unused function argument: `hass`
-    entry: IntegrationBlueprintConfigEntry,
+    hass: HomeAssistant,
+    entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up the sensor platform."""
-    async_add_entities(
-        IntegrationBlueprintSensor(
-            coordinator=entry.runtime_data.coordinator,
-            entity_description=entity_description,
+    """Set up the Komfovent sensors."""
+    coordinator: KomfoventCoordinator = hass.data[DOMAIN][entry.entry_id]
+
+    entities = []
+    for sensor_type, (name, unit, device_class) in SENSOR_TYPES.items():
+        entities.append(
+            KomfoventSensor(
+                coordinator,
+                sensor_type,
+                name,
+                unit,
+                device_class,
+            )
         )
-        for entity_description in ENTITY_DESCRIPTIONS
-    )
 
+    async_add_entities(entities)
 
-class IntegrationBlueprintSensor(IntegrationBlueprintEntity, SensorEntity):
-    """komfovent Sensor class."""
+class KomfoventSensor(CoordinatorEntity, SensorEntity):
+    """Representation of a Komfovent sensor."""
+
+    _attr_has_entity_name = True
+    _attr_state_class = SensorStateClass.MEASUREMENT
 
     def __init__(
         self,
-        coordinator: BlueprintDataUpdateCoordinator,
-        entity_description: SensorEntityDescription,
+        coordinator: KomfoventCoordinator,
+        sensor_type: str,
+        name: str,
+        unit: str | None,
+        device_class: str | None,
     ) -> None:
-        """Initialize the sensor class."""
+        """Initialize the sensor."""
         super().__init__(coordinator)
-        self.entity_description = entity_description
+        self._sensor_type = sensor_type
+        self._attr_name = name
+        self._attr_native_unit_of_measurement = unit
+        self._attr_device_class = device_class
+        self._attr_unique_id = f"{DOMAIN}_{sensor_type}"
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, f"{DOMAIN}_device")},
+            "name": "Komfovent Ventilation",
+            "manufacturer": "Komfovent",
+            "model": "Modbus",
+        }
 
     @property
-    def native_value(self) -> str | None:
-        """Return the native value of the sensor."""
-        return self.coordinator.data.get("body")
+    def native_value(self) -> float | None:
+        """Return the state of the sensor."""
+        if not self.coordinator.data:
+            return None
+            
+        value = self.coordinator.data.get(self._sensor_type)
+        if value is None:
+            return None
+
+        # Apply transforms based on sensor type
+        if self._attr_device_class == SensorDeviceClass.TEMPERATURE:
+            return float(value) / 10
+        elif self._attr_device_class == SensorDeviceClass.HUMIDITY:
+            # Validate RH values (0-125%)
+            if 0 <= float(value) <= 125:
+                return float(value)
+            return None
+        elif self._attr_device_class == SensorDeviceClass.CO2:
+            # Validate CO2 values (0-2500 ppm)
+            if 0 <= float(value) <= 2500:
+                return float(value)
+            return None
+        elif self._sensor_type == "spi":
+            # Validate SPI values (0-5)
+            value = float(value) / 1000
+            if 0 <= value <= 5:
+                return value
+            return None
+            
+        return float(value)
