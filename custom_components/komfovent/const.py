@@ -3,11 +3,11 @@ from __future__ import annotations
 
 from enum import IntEnum
 from homeassistant.const import (
-    TEMP_CELSIUS,
+    UnitOfTemperature,
     PERCENTAGE,
-    POWER_WATT,
-    ENERGY_KILO_WATT_HOUR,
-    VOLUME_FLOW_RATE_CUBIC_METERS_PER_HOUR,
+    UnitOfPower,
+    UnitOfEnergy,
+    UnitOfVolumeFlowRate,
     REVOLUTIONS_PER_MINUTE,
 )
 from typing import Final
