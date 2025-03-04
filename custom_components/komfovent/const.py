@@ -212,19 +212,6 @@ REG_PANEL2_FW = 1003  # Panel 2 firmware version (32-bit)
 # Reset register
 REG_RESET_SETTINGS = 1049  # Reset settings
 
-# Air quality sensor type constants
-AQ_SENSOR_TYPE_NOT_INSTALLED: Final = 0
-AQ_SENSOR_TYPE_CO2: Final = 1
-AQ_SENSOR_TYPE_VOC: Final = 2
-AQ_SENSOR_TYPE_RH: Final = 3
-
-# Air quality sensor type names
-AQ_SENSOR_TYPES = {
-    AQ_SENSOR_TYPE_NOT_INSTALLED: "Not installed",
-    AQ_SENSOR_TYPE_CO2: "CO2",
-    AQ_SENSOR_TYPE_VOC: "VOC",
-    AQ_SENSOR_TYPE_RH: "RH"
-}
 
 # Time registers
 REG_TIME_START = 28  # Start of time registers block (6 registers)
@@ -245,28 +232,6 @@ TRANSFORM_VALIDATE_RH: Final = "JS(validateRH.js)"
 TRANSFORM_VALIDATE_CO2: Final = "JS(validateCO2.js)"
 TRANSFORM_VALIDATE_SPI: Final = "JS(validateSPI.js)"
 
-# Operation modes
-OPERATION_MODES = {
-    0: "Standby",
-    1: "Away", 
-    2: "Normal",
-    3: "Intensive",
-    4: "Boost",
-    5: "Kitchen",
-    6: "Fireplace",
-    7: "Override",
-    8: "Holiday",
-    9: "Air Quality",
-    10: "Off"
-}
-
-# Scheduler modes
-SCHEDULER_MODES = {
-    0: "StayAtHome",
-    1: "WorkingWeek", 
-    2: "Office",
-    3: "Custom"
-}
 
 class OperationMode(IntEnum):
     """Operation modes."""
