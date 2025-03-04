@@ -94,7 +94,18 @@ REG_AQ_CHECK_PERIOD = 211  # Air quality check period
 REG_AQ_SENSOR1_TYPE = 212  # Air quality sensor 1 type
 REG_AQ_SENSOR2_TYPE = 213  # Air quality sensor 2 type
 
-# TODO: Add alarm registers
+# Alarm registers
+REG_ACTIVE_ALARMS_COUNT = 599  # Active alarms count (write 0x99C6 to reset)
+REG_ACTIVE_ALARM1 = 600  # Active alarm 1 code
+REG_ACTIVE_ALARM2 = 601  # Active alarm 2 code
+REG_ACTIVE_ALARM3 = 602  # Active alarm 3 code
+REG_ACTIVE_ALARM4 = 603  # Active alarm 4 code
+REG_ACTIVE_ALARM5 = 604  # Active alarm 5 code
+REG_ACTIVE_ALARM6 = 605  # Active alarm 6 code
+REG_ACTIVE_ALARM7 = 606  # Active alarm 7 code
+REG_ACTIVE_ALARM8 = 607  # Active alarm 8 code
+REG_ACTIVE_ALARM9 = 608  # Active alarm 9 code
+REG_ACTIVE_ALARM10 = 609  # Active alarm 10 code
 
 # Sensor registers
 REG_STATUS = 899  # Unit status bitmask
@@ -136,19 +147,6 @@ REG_RECOVERY_DAY = 938  # Recovered energy Day (32-bit)
 REG_RECOVERY_MONTH = 940  # Recovered energy Month (32-bit)
 REG_RECOVERY_TOTAL = 942  # Recovered energy Total (32-bit)
 REG_SPI_DAY = 944  # SPI per day
-
-# Alarm registers
-REG_ACTIVE_ALARMS_COUNT = 599  # Active alarms count (write 0x99C6 to reset)
-REG_ACTIVE_ALARM1 = 600  # Active alarm 1 code
-REG_ACTIVE_ALARM2 = 601  # Active alarm 2 code
-REG_ACTIVE_ALARM3 = 602  # Active alarm 3 code
-REG_ACTIVE_ALARM4 = 603  # Active alarm 4 code
-REG_ACTIVE_ALARM5 = 604  # Active alarm 5 code
-REG_ACTIVE_ALARM6 = 605  # Active alarm 6 code
-REG_ACTIVE_ALARM7 = 606  # Active alarm 7 code
-REG_ACTIVE_ALARM8 = 607  # Active alarm 8 code
-REG_ACTIVE_ALARM9 = 608  # Active alarm 9 code
-REG_ACTIVE_ALARM10 = 609  # Active alarm 10 code
 
 # Panel sensor registers
 REG_PANEL1_TEMP = 945  # Panel 1 temperature
