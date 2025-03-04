@@ -79,12 +79,11 @@ async def mock_modbus_server(hass: HomeAssistant, register_data, socket_enabled)
 def socket_enabled():
     """Enable socket connections for this test."""
     pytest_socket.enable_socket()
-    pytest_socket.allow_unix_socket()
     yield
     pytest_socket.disable_socket()
 
 @pytest.fixture
-async def integration(hass: HomeAssistant, mock_modbus_server, event_loop):
+async def integration(hass: HomeAssistant, mock_modbus_server):
     """Set up the Komfovent integration."""
     # Set up Modbus first
     modbus_config = {
