@@ -20,7 +20,7 @@ from homeassistant.const import (
     PERCENTAGE,
 )
 from homeassistant.const import UnitOfTemperature
-from homeassistant.components.sensor import (
+from homeassistant.const import (
     UnitOfPower,
     UnitOfVolumeFlowRate,
 )
@@ -198,7 +198,7 @@ async def test_power_sensors(hass: HomeAssistant, integration, register_data):
     for entity_id, reg_key, unit in sensors:
         state = hass.states.get(entity_id)
         assert state is not None
-        assert state.attributes["unit_of_measurement"] == POWER_WATT
+        assert state.attributes["unit_of_measurement"] == UnitOfPower.WATT
         assert float(state.state) == float(register_data[reg_key])
 
 async def test_air_quality_sensors(hass: HomeAssistant, integration, register_data):
