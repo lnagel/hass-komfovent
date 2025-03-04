@@ -30,6 +30,10 @@ from .const import (
     REG_POWER_CONSUMPTION,
     REG_HEATER_POWER,
     REG_HEAT_RECOVERY,
+    REG_AQ_SENSOR1_TYPE,
+    REG_AQ_SENSOR2_TYPE,
+    REG_AQ_SENSOR1_VALUE,
+    REG_AQ_SENSOR2_VALUE,
 )
 
 _LOGGER = logging.getLogger(__name__)
