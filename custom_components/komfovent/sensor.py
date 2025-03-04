@@ -131,14 +131,7 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
         self._attr_name = name
         self._attr_native_unit_of_measurement = unit
         self._attr_device_class = device_class
-        # Special handling for AQ sensors to include type in unique_id
-        if sensor_type in ["aq_sensor1_value", "aq_sensor2_value"]:
-            aq_type_reg = "aq_sensor1_type" if sensor_type == "aq_sensor1_value" else "aq_sensor2_type"
-            aq_type = coordinator.data.get(aq_type_reg, 0) if coordinator.data else 0
-            aq_type_name = {1: "co2", 2: "voc", 3: "rh"}.get(aq_type, "unknown")
-            self._attr_unique_id = f"{DOMAIN}_aq_{aq_type_name}"
-        else:
-            self._attr_unique_id = f"{DOMAIN}_{sensor_type}"
+        self._attr_unique_id = f"{DOMAIN}_{sensor_type}"
         self._attr_device_info = {
             "identifiers": {(DOMAIN, f"{DOMAIN}_device")},
             "name": "Komfovent Ventilation",
