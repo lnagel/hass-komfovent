@@ -142,6 +142,8 @@ REG_PANEL1_AQ = 947  # Panel 1 air quality
 REG_PANEL2_TEMP = 948  # Panel 2 temperature
 REG_PANEL2_RH = 949  # Panel 2 relative humidity
 REG_PANEL2_AQ = 950  # Panel 2 air quality
+
+# Air quality sensor registers
 REG_AQ_SENSOR1_VALUE = 951  # Air quality sensor 1 value
 REG_AQ_SENSOR2_VALUE = 952  # Air quality sensor 2 value
 
