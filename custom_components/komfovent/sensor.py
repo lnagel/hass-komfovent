@@ -18,16 +18,23 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN, AQ_SENSOR_TYPES
+from .const import (
+    DOMAIN,
+    AQ_SENSOR_TYPES,
+    AQ_SENSOR_TYPE_NOT_INSTALLED,
+    AQ_SENSOR_TYPE_CO2,
+    AQ_SENSOR_TYPE_VOC,
+    AQ_SENSOR_TYPE_RH,
+)
 from .coordinator import KomfoventCoordinator
 
 def get_aq_sensor_attributes(sensor_type: int) -> tuple[str | None, str | None]:
     """Get the unit and device class for an air quality sensor type."""
-    if sensor_type == 1:  # CO2
+    if sensor_type == AQ_SENSOR_TYPE_CO2:
         return "ppm", SensorDeviceClass.CO2
-    elif sensor_type == 2:  # VOC
+    elif sensor_type == AQ_SENSOR_TYPE_VOC:
         return "ppb", None
-    elif sensor_type == 3:  # RH
+    elif sensor_type == AQ_SENSOR_TYPE_RH:
         return PERCENTAGE, SensorDeviceClass.HUMIDITY
     return None, None
 
@@ -188,18 +195,18 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
             type_names = {1: "CO2", 2: "VOC", 3: "Humidity"}
             self._attr_name = type_names.get(sensor_type, "Unknown")
             
-            if sensor_type == 0:  # Not installed
+            if sensor_type == AQ_SENSOR_TYPE_NOT_INSTALLED:
                 return None
-            elif sensor_type == 1:  # CO2
+            elif sensor_type == AQ_SENSOR_TYPE_CO2:
                 self._attr_native_unit_of_measurement = "ppm"
                 self._attr_device_class = SensorDeviceClass.CO2
                 if 0 <= float(value) <= 2500:
                     return float(value)
-            elif sensor_type == 2:  # VOC
+            elif sensor_type == AQ_SENSOR_TYPE_VOC:
                 self._attr_native_unit_of_measurement = "ppb"
                 if 0 <= float(value) <= 2000:
                     return float(value)
-            elif sensor_type == 3:  # RH
+            elif sensor_type == AQ_SENSOR_TYPE_RH:
                 self._attr_native_unit_of_measurement = PERCENTAGE
                 self._attr_device_class = SensorDeviceClass.HUMIDITY
                 if 0 <= float(value) <= 100:
