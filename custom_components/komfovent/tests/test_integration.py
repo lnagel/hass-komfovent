@@ -75,6 +75,8 @@ def mock_modbus_server(hass: HomeAssistant, register_data, socket_enabled) -> Ge
         server.server.close()
         loop.run_until_complete(server.server.wait_closed())
         loop.run_until_complete(server.shutdown())
+        loop.run_until_complete(server.server.shutdown(socket=True))
+        loop.close()
 
 @pytest.fixture
 def socket_enabled():
@@ -84,7 +86,7 @@ def socket_enabled():
     pytest_socket.disable_socket()
 
 @pytest.fixture
-async def integration(hass: HomeAssistant, mock_modbus_server):
+async def integration(hass: HomeAssistant, mock_modbus_server, event_loop):
     """Set up the Komfovent integration."""
     # Set up Modbus first
     modbus_config = {
