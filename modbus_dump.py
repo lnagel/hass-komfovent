@@ -61,7 +61,7 @@ def dump_registers(host: str, port: int) -> dict:
 
 def main():
     parser = argparse.ArgumentParser(description='Dump Modbus TCP registers to JSON')
-    parser.add_argument('--host', default='10.20.2.60', help='Modbus TCP host')
+    parser.add_argument('--host', required=True, help='Modbus TCP host')
     parser.add_argument('--port', type=int, default=502, help='Modbus TCP port')
     parser.add_argument('--output', default='registers.json', help='Output JSON file')
     
