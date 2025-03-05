@@ -54,7 +54,7 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
         self._attr_unique_id = f"{coordinator.config_entry.entry_id}_climate"
         self._attr_device_info = {
             "identifiers": {(DOMAIN, coordinator.config_entry.entry_id)},
-            "name": "Komfovent Ventilation",
+            "name": coordinator.config_entry.title,
             "manufacturer": "Komfovent",
             "model": "Modbus",
         }

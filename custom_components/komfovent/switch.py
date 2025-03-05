@@ -82,7 +82,7 @@ class KomfoventSwitch(CoordinatorEntity, SwitchEntity):
         )
         self._attr_device_info = {
             "identifiers": {(DOMAIN, coordinator.config_entry.entry_id)},
-            "name": "Komfovent Ventilation",
+            "name": coordinator.config_entry.title,
             "manufacturer": "Komfovent",
             "model": "Modbus",
         }
