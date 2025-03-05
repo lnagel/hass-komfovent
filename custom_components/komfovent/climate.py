@@ -165,7 +165,7 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
             )
         else:
             _LOGGER.warning("Unsupported set preset mode: %s", preset_mode)
-            return 
+            return
 
         await self.coordinator.async_request_refresh()
 
