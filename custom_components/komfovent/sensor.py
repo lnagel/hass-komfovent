@@ -14,6 +14,7 @@ from homeassistant.components.sensor import (
     SensorStateClass,
     SensorEntityDescription,
 )
+from homeassistant.helpers.entity import EntityCategory
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     PERCENTAGE,
@@ -312,6 +313,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             entity_description=SensorEntityDescription(
                 key="firmware_version",
                 name="Firmware Version",
+                entity_category=EntityCategory.DIAGNOSTIC,
             ),
         ),
     ]
