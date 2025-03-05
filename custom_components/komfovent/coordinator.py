@@ -3,21 +3,21 @@ from datetime import timedelta
 import logging
 from typing import Any, Dict
 
-from homeassistant.components.modbus import ModbusHub
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-from homeassistant.components.modbus import ModbusHub
 from homeassistant.exceptions import ConfigEntryNotReady
 
+from .modbus import KomfoventModbusClient
 from .const import (
     DOMAIN,
     DEFAULT_SCAN_INTERVAL,
     REG_POWER,
+    REG_AUTO_MODE_CONTROL,
     REG_ECO_MODE,
     REG_AUTO_MODE,
     REG_OPERATION_MODE,
     REG_SCHEDULER_MODE,
-    REG_NORMAL_SETPOINT,
+    REG_STATUS,
     REG_SUPPLY_TEMP,
     REG_EXTRACT_TEMP,
     REG_OUTDOOR_TEMP,
@@ -38,26 +38,10 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
-async def read_32bit_register(hub: ModbusHub, register: int) -> int:
-    """Read a 32-bit value from two consecutive 16-bit registers."""
-    regs = await hub.async_read_holding_registers(register, 2)
-    return (regs[0] << 16) + regs[1]
-
-
-# Based on _async_read_register in ModbusThermostat class
-async def read_int16_from_register(hub: ModbusHub, register: int) -> int:
-    """Read register using the Modbus hub slave."""
-    result = await hub.async_pb_call(self._slave, register, 1, register_type)
-    if result is None:
-        _LOGGER.error("Error reading value from Flexit modbus adapter")
-        return -1
-
-    return int(result.registers[0])
-
 class KomfoventCoordinator(DataUpdateCoordinator):
     """Class to manage fetching Komfovent data."""
 
-    def __init__(self, hass: HomeAssistant, hub: ModbusHub):
+    def __init__(self, hass: HomeAssistant, host: str, port: int):
         """Initialize."""
         super().__init__(
             hass,
@@ -65,44 +49,82 @@ class KomfoventCoordinator(DataUpdateCoordinator):
             name=DOMAIN,
             update_interval=timedelta(seconds=DEFAULT_SCAN_INTERVAL),
         )
-        self.hub = hub
+        self.client = KomfoventModbusClient(host, port)
+
+    async def connect(self) -> bool:
+        """Connect to the Modbus device."""
+        return await self.client.connect()
+
+    def _extract_32bit_value(self, registers: list[int], offset: int) -> int:
+        """Extract a 32-bit value from register list at given offset."""
+        return (registers[offset] << 16) + registers[offset + 1]
 
     async def _async_update_data(self) -> Dict[str, Any]:
         """Fetch data from Komfovent."""
         try:
             data = {}
             
-            # Basic status
-            data["power"] = await self.hub.async_read_holding_registers(REG_POWER, 1)
-            data["eco_mode"] = await self.hub.async_read_holding_registers(REG_ECO_MODE, 1)
-            data["auto_mode"] = await self.hub.async_read_holding_registers(REG_AUTO_MODE, 1)
-            data["operation_mode"] = await self.hub.async_read_holding_registers(REG_OPERATION_MODE, 1)
-            data["scheduler_mode"] = await self.hub.async_read_holding_registers(REG_SCHEDULER_MODE, 1)
-            
-            # Temperature readings
-            data["setpoint"] = await self.hub.async_read_holding_registers(REG_NORMAL_SETPOINT, 1)
-            data["supply_temp"] = await self.hub.async_read_holding_registers(REG_SUPPLY_TEMP, 1)
-            data["extract_temp"] = await self.hub.async_read_holding_registers(REG_EXTRACT_TEMP, 1)
-            data["outdoor_temp"] = await self.hub.async_read_holding_registers(REG_OUTDOOR_TEMP, 1)
-            
-            # Flow and fan data
-            data["supply_flow"] = await read_32bit_register(self.hub, REG_SUPPLY_FLOW)
-            data["extract_flow"] = await read_32bit_register(self.hub, REG_EXTRACT_FLOW)
-            data["supply_fan_intensity"] = await self.hub.async_read_holding_registers(REG_SUPPLY_FAN_INTENSITY, 1)
-            data["extract_fan_intensity"] = await self.hub.async_read_holding_registers(REG_EXTRACT_FAN_INTENSITY, 1)
-            
-            # Power and efficiency data
-            data["electric_heater"] = await self.hub.async_read_holding_registers(REG_ELECTRIC_HEATER, 1)
-            data["filter_impurity"] = await self.hub.async_read_holding_registers(REG_FILTER_IMPURITY, 1)
-            data["power_consumption"] = await self.hub.async_read_holding_registers(REG_POWER_CONSUMPTION, 1)
-            data["heater_power"] = await self.hub.async_read_holding_registers(REG_HEATER_POWER, 1)
-            data["heat_recovery"] = await self.hub.async_read_holding_registers(REG_HEAT_RECOVERY, 1)
+            # Read basic control block (0-9)
+            basic_control = await self.client.read_holding_registers(REG_POWER, 10)
+            data.update({
+                "power": basic_control[0],
+                "auto_mode_control": basic_control[1],
+                "eco_mode": basic_control[2],
+                "auto_mode": basic_control[3],
+                "operation_mode": basic_control[4],
+                "scheduler_mode": basic_control[5],
+                "next_mode": basic_control[6],
+                "next_mode_time": basic_control[7],
+                "next_mode_weekday": basic_control[8],
+                "before_mode_mask": basic_control[9],
+            })
 
-            # Air quality sensor configuration and values
-            data["aq_sensor1_type"] = await self.hub.async_read_holding_registers(REG_AQ_SENSOR1_TYPE, 1)
-            data["aq_sensor2_type"] = await self.hub.async_read_holding_registers(REG_AQ_SENSOR2_TYPE, 1)
-            data["aq_sensor1_value"] = await self.hub.async_read_holding_registers(REG_AQ_SENSOR1_VALUE, 1)
-            data["aq_sensor2_value"] = await self.hub.async_read_holding_registers(REG_AQ_SENSOR2_VALUE, 1)
+            # Read sensor block (899-955)
+            sensor_block = await self.client.read_holding_registers(REG_STATUS, 57)
+            
+            data.update({
+                "status": sensor_block[0],
+                "heating_config": sensor_block[1],
+                "supply_temp": sensor_block[2],
+                "extract_temp": sensor_block[3],
+                "outdoor_temp": sensor_block[4],
+                "water_temp": sensor_block[5],
+            })
+            
+            # Handle 32-bit flow values
+            data.update({
+                "supply_flow": self._extract_32bit_value(sensor_block, 6),
+                "extract_flow": self._extract_32bit_value(sensor_block, 8),
+            })
+            
+            # Continue with remaining sensor values
+            data.update({
+                "supply_fan_intensity": sensor_block[10],
+                "extract_fan_intensity": sensor_block[11],
+                "heat_exchanger": sensor_block[12],
+                "electric_heater": sensor_block[13],
+                "water_heater": sensor_block[14],
+                "water_cooler": sensor_block[15],
+                "dx_unit": sensor_block[16],
+                "filter_impurity": sensor_block[17],
+                "air_dampers": sensor_block[18],
+                "supply_pressure": sensor_block[19],
+                "extract_pressure": sensor_block[20],
+                "power_consumption": sensor_block[21],
+                "heater_power": sensor_block[22],
+                "heat_recovery": sensor_block[23],
+                "heat_efficiency": sensor_block[24],
+                "energy_saving": sensor_block[25],
+                "spi": sensor_block[26],
+            })
+
+            # Handle AQ sensors at the end of the block
+            data.update({
+                "aq_sensor1_type": sensor_block[52],
+                "aq_sensor2_type": sensor_block[53],
+                "aq_sensor1_value": sensor_block[54],
+                "aq_sensor2_value": sensor_block[55],
+            })
 
             return data
 
