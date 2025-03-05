@@ -16,31 +16,37 @@ from .coordinator import KomfoventCoordinator
 async def create_switches(coordinator):
     return [
         KomfoventSwitch(
-            coordinator,
-            "Power",
-            "power",
-            registers.REG_POWER,
-            "Turn ventilation unit on/off",
-            "mdi:power",
-            entity_description=SwitchEntityDescription(),
+            coordinator=coordinator,
+            register_id=registers.REG_POWER,
+            entity_description=SwitchEntityDescription(
+                key="power",
+                name="Power",
+                icon="mdi:power",
+                entity_registry_enabled_default=True,
+                entity_category=None,
+            ),
         ),
         KomfoventSwitch(
-            coordinator,
-            "ECO Mode",
-            "eco_mode",
-            registers.REG_ECO_MODE,
-            "Enables energy saving mode",
-            "mdi:leaf",
-            entity_description=SwitchEntityDescription(),
+            coordinator=coordinator,
+            register_id=registers.REG_ECO_MODE,
+            entity_description=SwitchEntityDescription(
+                key="eco_mode",
+                name="ECO Mode",
+                icon="mdi:leaf",
+                entity_registry_enabled_default=True,
+                entity_category=None,
+            ),
         ),
         KomfoventSwitch(
-            coordinator,
-            "AUTO Mode",
-            "auto_mode",
-            registers.REG_AUTO_MODE,
-            "Enables automatic mode control",
-            "mdi:auto-fix",
-            entity_description=SwitchEntityDescription(),
+            coordinator=coordinator,
+            register_id=registers.REG_AUTO_MODE,
+            entity_description=SwitchEntityDescription(
+                key="auto_mode",
+                name="AUTO Mode", 
+                icon="mdi:auto-fix",
+                entity_registry_enabled_default=True,
+                entity_category=None,
+            ),
         ),
     ]
 
@@ -64,28 +70,20 @@ class KomfoventSwitch(CoordinatorEntity, SwitchEntity):
     def __init__(
         self,
         coordinator: KomfoventCoordinator,
-        name: str,
-        key: str,
         register_id: int,
-        description: str,
-        icon: str,
-        entity_description: SwitchEntityDescription | None = None,
+        entity_description: SwitchEntityDescription,
     ) -> None:
         """Initialize the switch."""
         super().__init__(coordinator)
-        self._register_id = register_id
         self.entity_description = entity_description
-        self._attr_name = name
-        self._key = key
-        self._attr_device_class = None
-        self._attr_unique_id = f"{coordinator.config_entry.entry_id}_{key}"
+        self._register_id = register_id
+        self._attr_unique_id = f"{coordinator.config_entry.entry_id}_{entity_description.key}"
         self._attr_device_info = {
             "identifiers": {(DOMAIN, coordinator.config_entry.entry_id)},
             "name": "Komfovent Ventilation",
             "manufacturer": "Komfovent",
             "model": "Modbus",
         }
-        self._attr_icon = icon
 
     @property
     def is_on(self) -> bool | None:
