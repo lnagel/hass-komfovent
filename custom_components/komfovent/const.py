@@ -37,6 +37,8 @@ class SchedulerMode(IntEnum):
     WORKING_WEEK = 1
     OFFICE = 2
     CUSTOM = 3
+    OFFICE = 2
+    CUSTOM = 3
 
 
 class AutoModeControl(IntEnum):
