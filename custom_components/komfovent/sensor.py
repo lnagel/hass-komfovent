@@ -366,7 +366,7 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
                 return None
 
             # Apply transforms based on sensor type and register format
-            if self._attr_device_class == SensorDeviceClass.TEMPERATURE:
+            if self.entity_description.device_class == SensorDeviceClass.TEMPERATURE:
                 # All temperatures are x10 in Modbus registers
                 if isinstance(value, (int, float)):
                     return float(value) / 10
@@ -395,12 +395,12 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
                     v4 = value & 0xFFF  # Fourth number (12 bits)
                     return f"{v1}.{v2}.{v3}.{v4}"
                 return None
-            elif self._attr_device_class == SensorDeviceClass.HUMIDITY:
+            elif self.entity_description.device_class == SensorDeviceClass.HUMIDITY:
                 # Validate RH values (0-125%)
                 if 0 <= float(value) <= 125:
                     return float(value)
                 return None
-            elif self._attr_device_class == SensorDeviceClass.CO2:
+            elif self.entity_description.device_class == SensorDeviceClass.CO2:
                 # Validate CO2 values (0-2500 ppm)
                 if 0 <= float(value) <= 2500:
                     return float(value)
@@ -411,7 +411,7 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
                 if 0 <= value <= 5:
                     return value
                 return None
-            elif self._attr_native_unit_of_measurement == "ppb":  # VOC
+            elif self.entity_description.native_unit_of_measurement == "ppb":  # VOC
                 if not isinstance(value, (int, float)):
                     return None
                 value = float(value)
