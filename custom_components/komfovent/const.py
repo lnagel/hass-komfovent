@@ -49,19 +49,19 @@ class OperationMode(IntEnum):
     AIR_QUALITY = 9
     OFF = 10
 
-# Mapping of operation modes to their temperature data keys and registers
+# Mapping of operation modes to their temperature registers
 MODE_TEMP_MAPPING = {
-    OperationMode.STANDBY: ("normal_temp", registers.REG_NORMAL_SETPOINT),  # Use normal temp for standby
-    OperationMode.AWAY: ("away_temp", registers.REG_AWAY_TEMP),
-    OperationMode.NORMAL: ("normal_temp", registers.REG_NORMAL_SETPOINT),
-    OperationMode.INTENSIVE: ("intensive_temp", registers.REG_INTENSIVE_TEMP),
-    OperationMode.BOOST: ("boost_temp", registers.REG_BOOST_TEMP),
-    OperationMode.KITCHEN: ("kitchen_temp", registers.REG_KITCHEN_TEMP),
-    OperationMode.FIREPLACE: ("fireplace_temp", registers.REG_FIREPLACE_TEMP),
-    OperationMode.OVERRIDE: ("override_temp", registers.REG_OVERRIDE_TEMP),
-    OperationMode.HOLIDAY: ("holidays_temp", registers.REG_HOLIDAYS_TEMP),
-    OperationMode.AIR_QUALITY: ("aq_temp_setpoint", registers.REG_AQ_TEMP_SETPOINT),
-    OperationMode.OFF: ("normal_temp", registers.REG_NORMAL_SETPOINT),  # Use normal temp when off
+    OperationMode.STANDBY: registers.REG_NORMAL_SETPOINT,  # Use normal temp for standby
+    OperationMode.AWAY: registers.REG_AWAY_TEMP,
+    OperationMode.NORMAL: registers.REG_NORMAL_SETPOINT,
+    OperationMode.INTENSIVE: registers.REG_INTENSIVE_TEMP,
+    OperationMode.BOOST: registers.REG_BOOST_TEMP,
+    OperationMode.KITCHEN: registers.REG_KITCHEN_TEMP,
+    OperationMode.FIREPLACE: registers.REG_FIREPLACE_TEMP,
+    OperationMode.OVERRIDE: registers.REG_OVERRIDE_TEMP,
+    OperationMode.HOLIDAY: registers.REG_HOLIDAYS_TEMP,
+    OperationMode.AIR_QUALITY: registers.REG_AQ_TEMP_SETPOINT,
+    OperationMode.OFF: registers.REG_NORMAL_SETPOINT,  # Use normal temp when off
 }
 
 class SchedulerMode(IntEnum):

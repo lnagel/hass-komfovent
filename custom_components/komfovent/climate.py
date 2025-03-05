@@ -98,8 +98,8 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
             
         try:
             mode = OperationMode(self.coordinator.data.get(registers.REG_OPERATION_MODE, 0))
-            temp_key = MODE_TEMP_MAPPING[mode][0]
-            if (temp := self.coordinator.data.get(temp_key)) is not None:
+            temp_reg = MODE_TEMP_MAPPING[mode]
+            if (temp := self.coordinator.data.get(temp_reg)) is not None:
                 return float(temp) / 10
         except (ValueError, KeyError):
             _LOGGER.warning("Invalid operation mode or temperature value")
@@ -136,7 +136,7 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
 
         try:
             mode = OperationMode(self.coordinator.data.get(registers.REG_OPERATION_MODE, 0))
-            reg = MODE_TEMP_MAPPING[mode][1]
+            reg = MODE_TEMP_MAPPING[mode]
         except (ValueError, KeyError):
             _LOGGER.warning("Invalid operation mode, using normal setpoint")
             reg = registers.REG_NORMAL_SETPOINT
