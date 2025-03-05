@@ -120,13 +120,20 @@ class KomfoventCoordinator(DataUpdateCoordinator):
                 "spi": sensor_block[26],
             })
 
-            # Handle AQ sensors at the end of the block
+            # Handle AQ sensors and panel values at the end of the block
             data.update({
                 "aq_sensor1_type": sensor_block[52],
                 "aq_sensor2_type": sensor_block[53],
                 "aq_sensor1_value": sensor_block[54],
                 "aq_sensor2_value": sensor_block[55],
                 "indoor_abs_humidity": sensor_block[56],
+            })
+            
+            # Read panel values
+            panel_block = await self.client.read_holding_registers(REG_PANEL1_TEMP, 2)
+            data.update({
+                "panel1_temp": panel_block[0],
+                "panel1_rh": panel_block[1],
             })
 
             return data
