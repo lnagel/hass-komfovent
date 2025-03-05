@@ -11,15 +11,8 @@ from . import registers
 from .const import DOMAIN
 from .coordinator import KomfoventCoordinator
 
-async def async_setup_entry(
-    hass: HomeAssistant,
-    entry: ConfigEntry,
-    async_add_entities: AddEntitiesCallback,
-) -> None:
-    """Set up Komfovent switches."""
-    coordinator: KomfoventCoordinator = hass.data[DOMAIN][entry.entry_id]
-
-    async_add_entities([
+async def create_switches(coordinator):
+    return [
         KomfoventSwitch(
             coordinator,
             "Power",
@@ -44,7 +37,21 @@ async def async_setup_entry(
             "Enables automatic mode control",
             "mdi:auto-fix",
         ),
-    ])
+    ]
+
+
+async def async_setup_entry(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+) -> None:
+    """Set up Komfovent switches."""
+    coordinator: KomfoventCoordinator = hass.data[DOMAIN][entry.entry_id]
+
+    async_add_entities(await create_switches(coordinator))
+
+
+
 
 class KomfoventSwitch(CoordinatorEntity, SwitchEntity):
     """Representation of a Komfovent switch."""

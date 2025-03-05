@@ -86,9 +86,9 @@ def create_aq_sensor(coordinator: KomfoventCoordinator, register_id: int) -> Kom
         device_class,
     )
 
-def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSensor]:
+async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSensor]:
     """Get list of sensor entities."""
-    return [
+    entities = [
         KomfoventSensor(coordinator, registers.REG_SUPPLY_TEMP, "Supply Temperature", UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE),
         KomfoventSensor(coordinator, registers.REG_EXTRACT_TEMP, "Extract Temperature", UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE),
         KomfoventSensor(coordinator, registers.REG_OUTDOOR_TEMP, "Outdoor Temperature", UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE),
@@ -111,6 +111,14 @@ def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSensor]:
         KomfoventSensor(coordinator, registers.REG_FIRMWARE, "Firmware Version", None, None),
     ]
 
+    # Add AQ sensors if installed
+    if aq_sensor := create_aq_sensor(coordinator, registers.REG_AQ_SENSOR1_VALUE):
+        entities.append(aq_sensor)
+    if aq_sensor := create_aq_sensor(coordinator, registers.REG_AQ_SENSOR2_VALUE):
+        entities.append(aq_sensor)
+
+    return entities
+
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: ConfigEntry,
@@ -119,18 +127,8 @@ async def async_setup_entry(
     """Set up the Komfovent sensors."""
     coordinator: KomfoventCoordinator = hass.data[DOMAIN][entry.entry_id]
 
-    entities = []
+    async_add_entities(await create_sensors(coordinator))
 
-    # Create standard sensors
-    entities.extend(create_sensors(coordinator))
-
-    # Add AQ sensors if installed
-    if aq_sensor := create_aq_sensor(coordinator, registers.REG_AQ_SENSOR1_VALUE):
-        entities.append(aq_sensor)
-    if aq_sensor := create_aq_sensor(coordinator, registers.REG_AQ_SENSOR2_VALUE):
-        entities.append(aq_sensor)
-
-    async_add_entities(entities)
 
 class KomfoventSensor(CoordinatorEntity, SensorEntity):
     """Representation of a Komfovent sensor."""
