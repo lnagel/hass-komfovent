@@ -19,6 +19,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import (
     DOMAIN,
     OperationMode,
+    MODE_TEMP_MAPPING,
     REG_OPERATION_MODE,
     REG_POWER,
     REG_NORMAL_SETPOINT,
