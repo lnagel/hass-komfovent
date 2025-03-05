@@ -1,19 +1,14 @@
 """The Komfovent integration."""
 
-from homeassistant.components.modbus import ModbusHub, get_hub
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
-    CONF_DELAY,
     CONF_HOST,
-    CONF_NAME,
     CONF_PORT,
-    CONF_TIMEOUT,
-    CONF_TYPE,
     Platform,
 )
 from homeassistant.core import HomeAssistant
 
-from .const import DEFAULT_NAME, DOMAIN
+from .const import DOMAIN
 from .coordinator import KomfoventCoordinator
 
 PLATFORMS = [Platform.CLIMATE, Platform.SENSOR, Platform.SWITCH]
