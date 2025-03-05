@@ -344,7 +344,7 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
     ) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator)
-        self._register_id = register_id
+        self.register_id = register_id
         self.entity_description = entity_description
         self._attr_unique_id = f"{coordinator.config_entry.entry_id}_{register_id}"
         self._attr_device_info = {
@@ -361,7 +361,7 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
             if not self.coordinator.data:
                 return None
 
-            value = self.coordinator.data.get(self._register_id)
+            value = self.coordinator.data.get(self.register_id)
             if value is None:
                 return None
 
@@ -371,22 +371,22 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
                 if isinstance(value, (int, float)):
                     return float(value) / 10
                 return None
-            elif self._register_id in X10_PERCENTAGE_FIELDS:
+            elif self.register_id in X10_PERCENTAGE_FIELDS:
                 # These percentage fields are stored as actual value * 10
                 if isinstance(value, (int, float)):
                     value = float(value) / 10
                     if 0 <= value <= 100:
                         return value
                 return None
-            elif self._register_id in X100_FIELDS:
+            elif self.register_id in X100_FIELDS:
                 if isinstance(value, (int, float)):
                     return float(value) / 100
                 return None
-            elif self._register_id in WH_TO_KWH_FIELDS:
+            elif self.register_id in WH_TO_KWH_FIELDS:
                 if isinstance(value, (int, float)):
                     return float(value) / 1000  # Convert Wh to kWh
                 return None
-            elif self._register_id == registers.REG_FIRMWARE:
+            elif self.register_id == registers.REG_FIRMWARE:
                 if isinstance(value, int):
                     # Extract version numbers using bit shifts
                     v1 = (value >> 24) & 0xFF  # First number (8 bits)
@@ -405,7 +405,7 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
                 if 0 <= float(value) <= 2500:
                     return float(value)
                 return None
-            elif self._register_id == registers.REG_SPI:
+            elif self.register_id == registers.REG_SPI:
                 # Validate SPI values (0-5)
                 value = float(value) / 1000
                 if 0 <= value <= 5:
