@@ -64,8 +64,8 @@ class KomfoventCoordinator(DataUpdateCoordinator):
         try:
             data = {}
             
-            # Read basic control block (0-9)
-            basic_control = await self.client.read_holding_registers(REG_POWER, 10)
+            # Read basic control block (0-11)
+            basic_control = await self.client.read_holding_registers(REG_POWER, 12)
             data.update({
                 "power": basic_control[0],
                 "auto_mode_control": basic_control[1],
@@ -77,6 +77,8 @@ class KomfoventCoordinator(DataUpdateCoordinator):
                 "next_mode_time": basic_control[7],
                 "next_mode_weekday": basic_control[8],
                 "before_mode_mask": basic_control[9],
+                "temp_control": basic_control[10],
+                "flow_control": basic_control[11],
             })
 
             # Read sensor block (899-955)

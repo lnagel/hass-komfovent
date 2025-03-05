@@ -33,6 +33,8 @@ from .const import (
     REG_AQ_TEMP_SETPOINT,
     REG_ECO_MODE,
     REG_AUTO_MODE,
+    REG_TEMP_CONTROL,
+    TemperatureControl,
 )
 from .coordinator import KomfoventCoordinator
 
@@ -86,8 +88,24 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
     @property
     def current_temperature(self) -> float | None:
         """Return the current temperature."""
-        if self.coordinator.data:
-            return float(self.coordinator.data.get("extract_temp", 0)) / 10
+        if not self.coordinator.data:
+            return None
+            
+        try:
+            temp_control = TemperatureControl(self.coordinator.data.get("temp_control", TemperatureControl.SUPPLY))
+            temp_key = {
+                TemperatureControl.SUPPLY: "supply_temp",
+                TemperatureControl.EXTRACT: "extract_temp",
+                TemperatureControl.ROOM: "panel1_temp",  # Using panel1 temp for room temperature
+                TemperatureControl.BALANCE: "extract_temp",  # Using extract temp for balance mode
+            }[temp_control]
+            
+            if (temp := self.coordinator.data.get(temp_key)) is not None:
+                return float(temp) / 10
+        except (ValueError, KeyError):
+            _LOGGER.warning("Invalid temperature control mode")
+            
+        return None
 
     @property
     def target_temperature(self) -> float | None:
