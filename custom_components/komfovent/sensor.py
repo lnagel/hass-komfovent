@@ -293,8 +293,8 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             coordinator=coordinator,
             register_id=registers.REG_FIRMWARE,
             entity_description=SensorEntityDescription(
-                key="controller_firmware_version",
-                name="Controller firmware version",
+                key="controller_firmware",
+                name="Controller firmware",
                 entity_category=EntityCategory.DIAGNOSTIC,
             ),
         )
@@ -329,8 +329,8 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 coordinator=coordinator,
                 register_id=registers.REG_PANEL1_FW,
                 entity_description=SensorEntityDescription(
-                    key="panel_1_firmware_version",
-                    name="Panel 1 firmware version",
+                    key="panel_1_firmware",
+                    name="Panel 1 firmware",
                     entity_category=EntityCategory.DIAGNOSTIC,
                 ),
             ),
@@ -365,8 +365,8 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 coordinator=coordinator,
                 register_id=registers.REG_PANEL2_FW,
                 entity_description=SensorEntityDescription(
-                    key="panel_2_firmware_version",
-                    name="Panel 2 firmware version",
+                    key="panel_2_firmware",
+                    name="Panel 2 firmware",
                     entity_category=EntityCategory.DIAGNOSTIC,
                 ),
             ),
