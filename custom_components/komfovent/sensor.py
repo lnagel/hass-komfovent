@@ -6,6 +6,20 @@ from homeassistant.components.sensor import (
     SensorEntity,
     SensorStateClass,
 )
+
+X10_PERCENTAGE_FIELDS = {
+    "supply_fan_intensity",
+    "extract_fan_intensity", 
+    "heat_exchanger",
+    "electric_heater",
+    "water_heater",
+    "water_cooler",
+    "dx_unit",
+    "filter_impurity",
+    "air_dampers",
+    "heat_efficiency",
+    "energy_saving",
+}
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     PERCENTAGE,
