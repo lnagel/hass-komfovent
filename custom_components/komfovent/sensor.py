@@ -164,6 +164,9 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
             "manufacturer": "Komfovent",
             "model": "Modbus",
         }
+        # Set state class for all sensors except firmware version
+        if register_id != registers.REG_FIRMWARE:
+            self._attr_state_class = SensorStateClass.MEASUREMENT
 
     @property
     def native_value(self) -> float | None:
