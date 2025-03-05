@@ -10,7 +10,14 @@ from homeassistant.components.select import SelectEntity, SelectEntityDescriptio
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import registers
-from .const import DOMAIN, FlowControl, OperationMode, SchedulerMode, TemperatureControl
+from .const import (
+    DOMAIN,
+    AirQualitySensorType,
+    FlowControl,
+    OperationMode,
+    SchedulerMode,
+    TemperatureControl,
+)
 
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
@@ -69,6 +76,26 @@ async def async_setup_entry(
                     key="flow_control",
                     name="Flow control",
                     options=[mode.name.lower() for mode in FlowControl],
+                ),
+            ),
+            KomfoventSelect(
+                coordinator=coordinator,
+                register_id=registers.REG_AQ_SENSOR1_TYPE,
+                enum_class=AirQualitySensorType,
+                entity_description=SelectEntityDescription(
+                    key="aq_sensor1_type",
+                    name="Air quality sensor 1 type",
+                    options=[mode.name.lower() for mode in AirQualitySensorType],
+                ),
+            ),
+            KomfoventSelect(
+                coordinator=coordinator,
+                register_id=registers.REG_AQ_SENSOR2_TYPE,
+                enum_class=AirQualitySensorType,
+                entity_description=SelectEntityDescription(
+                    key="aq_sensor2_type",
+                    name="Air quality sensor 2 type", 
+                    options=[mode.name.lower() for mode in AirQualitySensorType],
                 ),
             ),
         ]
