@@ -45,8 +45,6 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
     _attr_supported_features = (
         ClimateEntityFeature.TARGET_TEMPERATURE
         | ClimateEntityFeature.PRESET_MODE
-        | ClimateEntityFeature.TURN_ECO_ON
-        | ClimateEntityFeature.TURN_AUTO_ON
     )
     _attr_preset_modes = [mode.name.lower() for mode in OperationMode]
 
