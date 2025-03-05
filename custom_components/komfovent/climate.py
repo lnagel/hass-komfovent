@@ -182,7 +182,7 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
             "boost": 4
         }
         if fan_mode in mode_map:
-            await self.coordinator.hub.async_write_register(
+            await self.coordinator.client.write_register(
                 REG_OPERATION_MODE, mode_map[fan_mode]
             )
             await self.coordinator.async_request_refresh()
