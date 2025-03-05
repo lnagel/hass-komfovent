@@ -50,9 +50,7 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
     _attr_supported_features = (
         ClimateEntityFeature.TARGET_TEMPERATURE
         | ClimateEntityFeature.PRESET_MODE
-        | ClimateEntityFeature.FAN_MODE
     )
-    _attr_fan_modes = ["away", "normal", "intensive", "boost"]
     _attr_preset_modes = [mode.name.lower() for mode in OperationMode]
 
     def __init__(self, coordinator: KomfoventCoordinator) -> None:
@@ -165,28 +163,3 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
         except ValueError:
             _LOGGER.warning("Invalid preset mode: %s", preset_mode)
 
-    @property
-    def fan_mode(self) -> str | None:
-        """Return the fan setting."""
-        if self.coordinator.data:
-            mode = self.coordinator.data.get("operation_mode", 0)
-            if mode == 1:
-                return "away"
-            elif mode == 2:
-                return "normal"
-            elif mode == 3:
-                return "intensive"
-            elif mode == 4:
-                return "boost"
-        return "normal"
-
-    async def async_set_fan_mode(self, fan_mode: str) -> None:
-        """Set new fan mode."""
-        try:
-            mode = OperationMode[fan_mode.upper()]
-            await self.coordinator.client.write_register(
-                REG_OPERATION_MODE, mode.value
-            )
-            await self.coordinator.async_request_refresh()
-        except ValueError:
-            _LOGGER.warning("Invalid fan mode: %s", fan_mode)
