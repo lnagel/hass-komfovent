@@ -7,7 +7,7 @@ from homeassistant.components.modbus import get_hub, ModbusHub
 from .const import DOMAIN, DEFAULT_NAME
 from .coordinator import KomfoventCoordinator
 
-PLATFORMS = [Platform.CLIMATE, Platform.SENSOR]
+PLATFORMS = [Platform.CLIMATE, Platform.SENSOR, Platform.SWITCH]
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Komfovent from a config entry."""
