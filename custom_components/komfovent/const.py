@@ -10,9 +10,23 @@ from homeassistant.const import (
     UnitOfVolumeFlowRate,
     REVOLUTIONS_PER_MINUTE,
 )
-from typing import Final
+from typing import Final, Dict
 
 DOMAIN = "komfovent"
+
+OPERATION_MODES: Dict[int, str] = {
+    0: "standby",
+    1: "away",
+    2: "normal",
+    3: "intensive",
+    4: "boost",
+    5: "kitchen",
+    6: "fireplace",
+    7: "override",
+    8: "holiday",
+    9: "air_quality",
+    10: "off"
+}
 
 
 DEFAULT_NAME = "Komfovent"
