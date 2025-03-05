@@ -103,6 +103,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             "Supply Temperature",
             UnitOfTemperature.CELSIUS,
             SensorDeviceClass.TEMPERATURE,
+            SensorStateClass.MEASUREMENT,
         ),
         KomfoventSensor(
             coordinator,
@@ -110,6 +111,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             "Extract Temperature",
             UnitOfTemperature.CELSIUS,
             SensorDeviceClass.TEMPERATURE,
+            SensorStateClass.MEASUREMENT,
         ),
         KomfoventSensor(
             coordinator,
@@ -117,6 +119,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             "Outdoor Temperature",
             UnitOfTemperature.CELSIUS,
             SensorDeviceClass.TEMPERATURE,
+            SensorStateClass.MEASUREMENT,
         ),
         KomfoventSensor(
             coordinator,
@@ -124,6 +127,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             "Supply Fan Intensity",
             PERCENTAGE,
             None,
+            SensorStateClass.MEASUREMENT,
         ),
         KomfoventSensor(
             coordinator,
@@ -131,6 +135,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             "Extract Fan Intensity",
             PERCENTAGE,
             None,
+            SensorStateClass.MEASUREMENT,
         ),
         KomfoventSensor(
             coordinator,
@@ -138,6 +143,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             "Heat Exchanger",
             PERCENTAGE,
             None,
+            SensorStateClass.MEASUREMENT,
         ),
         KomfoventSensor(
             coordinator,
@@ -145,6 +151,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             "Electric Heater",
             PERCENTAGE,
             None,
+            SensorStateClass.MEASUREMENT,
         ),
         KomfoventSensor(
             coordinator,
@@ -152,6 +159,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             "Filter Impurity",
             PERCENTAGE,
             None,
+            SensorStateClass.MEASUREMENT,
         ),
         KomfoventSensor(
             coordinator,
@@ -159,6 +167,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             "Power Consumption",
             UnitOfPower.WATT,
             SensorDeviceClass.POWER,
+            SensorStateClass.MEASUREMENT,
         ),
         KomfoventSensor(
             coordinator,
@@ -166,6 +175,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             "Heater Power",
             UnitOfPower.WATT,
             SensorDeviceClass.POWER,
+            SensorStateClass.MEASUREMENT,
         ),
         KomfoventSensor(
             coordinator,
@@ -173,6 +183,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             "Heat Recovery",
             UnitOfPower.WATT,
             SensorDeviceClass.POWER,
+            SensorStateClass.MEASUREMENT,
         ),
         KomfoventSensor(
             coordinator,
@@ -180,9 +191,14 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             "Heat Exchanger Efficiency",
             PERCENTAGE,
             None,
+            SensorStateClass.MEASUREMENT,
         ),
         KomfoventSensor(
-            coordinator, registers.REG_SPI, "Specific Power Input", None, None
+            coordinator,
+            registers.REG_SPI,
+            "Specific Power Input",
+            None,
+            SensorStateClass.MEASUREMENT,
         ),
         KomfoventSensor(
             coordinator,
@@ -190,6 +206,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             "Panel 1 Temperature",
             UnitOfTemperature.CELSIUS,
             SensorDeviceClass.TEMPERATURE,
+            SensorStateClass.MEASUREMENT,
         ),
         KomfoventSensor(
             coordinator,
@@ -197,13 +214,14 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             "Panel 1 Humidity",
             PERCENTAGE,
             SensorDeviceClass.HUMIDITY,
+            SensorStateClass.MEASUREMENT,
         ),
         KomfoventSensor(
             coordinator,
             registers.REG_INDOOR_ABS_HUMIDITY,
             "Indoor Absolute Humidity",
             "g/m³",
-            None,
+            SensorStateClass.MEASUREMENT,
         ),
         KomfoventSensor(
             coordinator,
@@ -230,7 +248,11 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             SensorStateClass.TOTAL_INCREASING,
         ),
         KomfoventSensor(
-            coordinator, registers.REG_FIRMWARE, "Firmware Version", None, None
+            coordinator,
+            registers.REG_FIRMWARE,
+            "Firmware Version",
+            None,
+            None,
         ),
     ]
 
@@ -281,13 +303,7 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
             "manufacturer": "Komfovent",
             "model": "Modbus",
         }
-        # Set state class if provided or determine automatically
-        if state_class is not None:
-            self._attr_state_class = state_class
-        elif register_id in WH_TO_KWH_FIELDS:
-            self._attr_state_class = SensorStateClass.TOTAL_INCREASING
-        elif register_id != registers.REG_FIRMWARE:
-            self._attr_state_class = SensorStateClass.MEASUREMENT
+        self._attr_state_class = state_class
 
     @property
     def native_value(self) -> float | None:
