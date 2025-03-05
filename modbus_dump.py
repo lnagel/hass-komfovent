@@ -53,20 +53,18 @@ RANGES = INTEGRATION_RANGES + MOBILE_APP_RANGES
 
 
 def dump_registers(host: str, port: int) -> dict[int, list[int]]:
-    """
-    Query all holding registers one by one and return values as dictionary.
-    
+    """Query all holding registers one by one and return values as dictionary.
+
     Args:
         host: Modbus TCP host address
         port: Modbus TCP port number
-        
+
     Returns:
         Dictionary mapping register addresses to list of register values
-        
+
     Raises:
         ConnectionError: If connection to device fails
         ModbusException: If there is an error reading registers
-
     """
     client = ModbusTcpClient(host=host, port=port)
 
@@ -88,7 +86,7 @@ def dump_registers(host: str, port: int) -> dict[int, list[int]]:
                 time.sleep(0.1)
 
             except ModbusException as e:
-                logger.error("Register %d: Modbus error - %s", address, e)
+                logger.exception("Register %d: Modbus error", address)
 
     finally:
         client.close()
@@ -114,10 +112,14 @@ def main() -> None:
         with output_path.open("w") as f:
             json.dump(registers, f, indent=2)
 
-        logger.info("Successfully dumped %d registers to %s", len(registers), args.output)
+        logger.info(
+            "Successfully dumped %d registers to %s",
+            len(registers),
+            args.output
+        )
 
     except (ConnectionError, ModbusException) as e:
-        logger.error("Error: %s", e)
+        logger.exception("Error occurred")
         sys.exit(1)
 
 
