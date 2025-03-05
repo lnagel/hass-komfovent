@@ -1,4 +1,5 @@
 """Integration tests for Komfovent integration."""
+
 import json
 import os
 from unittest.mock import patch, AsyncMock
@@ -26,7 +27,11 @@ from homeassistant.const import (
     UnitOfVolumeFlowRate,
 )
 from homeassistant.setup import async_setup_component
-from pymodbus.datastore import ModbusSequentialDataBlock, ModbusSlaveContext, ModbusServerContext
+from pymodbus.datastore import (
+    ModbusSequentialDataBlock,
+    ModbusSlaveContext,
+    ModbusServerContext,
+)
 from pymodbus.server import StartAsyncTcpServer
 
 from custom_components.komfovent.const import (
@@ -42,13 +47,18 @@ from .. import registers
 def register_data() -> dict:
     """Load register data from file."""
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    register_file = os.path.join(current_dir, "..", "..", "..", "documentation", "C6_holding_registers.json")
-    
+    register_file = os.path.join(
+        current_dir, "..", "..", "..", "documentation", "C6_holding_registers.json"
+    )
+
     with open(register_file) as f:
         return json.load(f)
 
+
 @pytest.fixture
-async def mock_modbus_server(hass: HomeAssistant, register_data, socket_enabled) -> dict:
+async def mock_modbus_server(
+    hass: HomeAssistant, register_data, socket_enabled
+) -> dict:
     """Create a mock Modbus server with real register data."""
     register_array = [0] * 1025
     for reg, value in register_data.items():
@@ -58,18 +68,16 @@ async def mock_modbus_server(hass: HomeAssistant, register_data, socket_enabled)
     store = ModbusSlaveContext(hr=block)
     context = ModbusServerContext(slaves=store, single=True)
 
-    server = await StartAsyncTcpServer(
-        context=context,
-        address=("127.0.0.1", 0)
-    )
-    
+    server = await StartAsyncTcpServer(context=context, address=("127.0.0.1", 0))
+
     server_info = {
         "host": "127.0.0.1",
         "port": server.server.sockets[0].getsockname()[1],
-        "server": server
+        "server": server,
     }
-    
+
     return server_info
+
 
 @pytest.fixture
 def socket_enabled():
@@ -77,6 +85,7 @@ def socket_enabled():
     pytest_socket.enable_socket()
     yield
     pytest_socket.disable_socket()
+
 
 @pytest.fixture
 async def integration(hass: HomeAssistant, mock_modbus_server) -> None:
@@ -90,17 +99,23 @@ async def integration(hass: HomeAssistant, mock_modbus_server) -> None:
             "type": "tcp",
             "delay": 0,
         }
-        
+
         assert await async_setup_component(
-            hass, 
-            MODBUS_DOMAIN, 
-            {MODBUS_DOMAIN: [modbus_config]}
+            hass, MODBUS_DOMAIN, {MODBUS_DOMAIN: [modbus_config]}
         )
         await hass.async_block_till_done()
 
         # Set up Komfovent
-        with patch("custom_components.komfovent.dashboard.async_get_dashboard", return_value={}), \
-             patch("homeassistant.components.lovelace.dashboard.async_get_dashboards", return_value=[]):
+        with (
+            patch(
+                "custom_components.komfovent.dashboard.async_get_dashboard",
+                return_value={},
+            ),
+            patch(
+                "homeassistant.components.lovelace.dashboard.async_get_dashboards",
+                return_value=[],
+            ),
+        ):
             result = await hass.config_entries.flow.async_init(
                 DOMAIN,
                 context={"source": "user"},
@@ -110,7 +125,7 @@ async def integration(hass: HomeAssistant, mock_modbus_server) -> None:
                     CONF_PORT: mock_modbus_server["port"],
                 },
             )
-            
+
             assert result["type"] == "create_entry"
             await hass.async_block_till_done()
             yield result
@@ -120,6 +135,7 @@ async def integration(hass: HomeAssistant, mock_modbus_server) -> None:
         server.server.close()
         await server.server.wait_closed()
         await server.shutdown()
+
 
 @pytest.mark.asyncio
 async def test_climate_entity(hass: HomeAssistant, integration, register_data):
@@ -136,7 +152,9 @@ async def test_climate_entity(hass: HomeAssistant, integration, register_data):
         | ClimateEntityFeature.FAN_MODE
     )
     assert state.attributes["fan_modes"] == ["away", "normal", "intensive", "boost"]
-    assert state.attributes["preset_modes"] == [mode.name.lower() for mode in OperationMode]
+    assert state.attributes["preset_modes"] == [
+        mode.name.lower() for mode in OperationMode
+    ]
 
     # Check state based on power and operation mode
     power = int(register_data[str(registers.REG_POWER)])
@@ -155,13 +173,26 @@ async def test_climate_entity(hass: HomeAssistant, integration, register_data):
     assert state.attributes.get("eco_mode") == eco_mode
     assert state.attributes.get("auto_mode") == auto_mode
 
+
 @pytest.mark.asyncio
 async def test_temperature_sensors(hass: HomeAssistant, integration, register_data):
     """Test temperature sensor entities."""
     sensors = [
-        ("sensor.komfovent_supply_temperature", "supply_temp", UnitOfTemperature.CELSIUS),
-        ("sensor.komfovent_extract_temperature", "extract_temp", UnitOfTemperature.CELSIUS),
-        ("sensor.komfovent_outdoor_temperature", "outdoor_temp", UnitOfTemperature.CELSIUS),
+        (
+            "sensor.komfovent_supply_temperature",
+            "supply_temp",
+            UnitOfTemperature.CELSIUS,
+        ),
+        (
+            "sensor.komfovent_extract_temperature",
+            "extract_temp",
+            UnitOfTemperature.CELSIUS,
+        ),
+        (
+            "sensor.komfovent_outdoor_temperature",
+            "outdoor_temp",
+            UnitOfTemperature.CELSIUS,
+        ),
     ]
 
     for entity_id, reg_key, unit in sensors:
@@ -172,12 +203,21 @@ async def test_temperature_sensors(hass: HomeAssistant, integration, register_da
         expected_value = float(register_data[reg_key]) / 10
         assert float(state.state) == expected_value
 
+
 @pytest.mark.asyncio
 async def test_flow_sensors(hass: HomeAssistant, integration, register_data):
     """Test flow sensor entities."""
     sensors = [
-        ("sensor.komfovent_supply_flow", "supply_flow", UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR),
-        ("sensor.komfovent_extract_flow", "extract_flow", UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR),
+        (
+            "sensor.komfovent_supply_flow",
+            "supply_flow",
+            UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR,
+        ),
+        (
+            "sensor.komfovent_extract_flow",
+            "extract_flow",
+            UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR,
+        ),
     ]
 
     for entity_id, reg_key, unit in sensors:
@@ -185,6 +225,7 @@ async def test_flow_sensors(hass: HomeAssistant, integration, register_data):
         assert state is not None
         assert state.attributes["unit_of_measurement"] == unit
         assert float(state.state) == float(register_data[reg_key])
+
 
 @pytest.mark.asyncio
 async def test_percentage_sensors(hass: HomeAssistant, integration, register_data):
@@ -204,6 +245,7 @@ async def test_percentage_sensors(hass: HomeAssistant, integration, register_dat
         assert state.attributes["unit_of_measurement"] == PERCENTAGE
         assert float(state.state) == float(register_data[reg_key])
 
+
 @pytest.mark.asyncio
 async def test_power_sensors(hass: HomeAssistant, integration, register_data):
     """Test power-related sensor entities."""
@@ -218,6 +260,7 @@ async def test_power_sensors(hass: HomeAssistant, integration, register_data):
         assert state is not None
         assert state.attributes["unit_of_measurement"] == UnitOfPower.WATT
         assert float(state.state) == float(register_data[reg_key])
+
 
 @pytest.mark.asyncio
 async def test_air_quality_sensors(hass: HomeAssistant, integration, register_data):
@@ -240,6 +283,7 @@ async def test_air_quality_sensors(hass: HomeAssistant, integration, register_da
         assert state is not None
         assert float(state.state) == float(register_data["aq_sensor2_value"])
 
+
 @pytest.mark.asyncio
 async def test_climate_controls(hass: HomeAssistant, integration):
     """Test climate entity controls."""
@@ -249,10 +293,7 @@ async def test_climate_controls(hass: HomeAssistant, integration):
     await hass.services.async_call(
         "climate",
         "set_temperature",
-        {
-            "entity_id": entity_id,
-            ATTR_TEMPERATURE: 22
-        },
+        {"entity_id": entity_id, ATTR_TEMPERATURE: 22},
         blocking=True,
     )
 
@@ -260,10 +301,7 @@ async def test_climate_controls(hass: HomeAssistant, integration):
     await hass.services.async_call(
         "climate",
         "set_hvac_mode",
-        {
-            "entity_id": entity_id,
-            "hvac_mode": HVACMode.OFF
-        },
+        {"entity_id": entity_id, "hvac_mode": HVACMode.OFF},
         blocking=True,
     )
 
@@ -271,10 +309,7 @@ async def test_climate_controls(hass: HomeAssistant, integration):
     await hass.services.async_call(
         "climate",
         "set_preset_mode",
-        {
-            "entity_id": entity_id,
-            "preset_mode": "normal"
-        },
+        {"entity_id": entity_id, "preset_mode": "normal"},
         blocking=True,
     )
 
@@ -282,9 +317,6 @@ async def test_climate_controls(hass: HomeAssistant, integration):
     await hass.services.async_call(
         "climate",
         "set_fan_mode",
-        {
-            "entity_id": entity_id,
-            "fan_mode": "normal"
-        },
+        {"entity_id": entity_id, "fan_mode": "normal"},
         blocking=True,
     )

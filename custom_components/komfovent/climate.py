@@ -1,4 +1,5 @@
 """Climate platform for Komfovent."""
+
 from __future__ import annotations
 from typing import Any
 import logging
@@ -26,6 +27,7 @@ from .const import (
 from . import registers
 from .coordinator import KomfoventCoordinator
 
+
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: ConfigEntry,
@@ -35,6 +37,7 @@ async def async_setup_entry(
     coordinator: KomfoventCoordinator = hass.data[DOMAIN][entry.entry_id]
     async_add_entities([KomfoventClimate(coordinator)])
 
+
 class KomfoventClimate(CoordinatorEntity, ClimateEntity):
     """Representation of a Komfovent climate device."""
 
@@ -43,8 +46,7 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
     _attr_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_hvac_modes = [HVACMode.OFF, HVACMode.HEAT_COOL]
     _attr_supported_features = (
-        ClimateEntityFeature.TARGET_TEMPERATURE
-        | ClimateEntityFeature.PRESET_MODE
+        ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.PRESET_MODE
     )
     _attr_preset_modes = [mode.name.lower() for mode in OperationMode]
 
@@ -61,22 +63,25 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
         self._eco_mode = False
         self._auto_mode = False
 
-
     @property
     def current_temperature(self) -> float | None:
         """Return the current temperature."""
         if not self.coordinator.data:
             return None
-            
+
         try:
-            temp_control = TemperatureControl(self.coordinator.data.get(registers.REG_TEMP_CONTROL, TemperatureControl.SUPPLY))
+            temp_control = TemperatureControl(
+                self.coordinator.data.get(
+                    registers.REG_TEMP_CONTROL, TemperatureControl.SUPPLY
+                )
+            )
             temp_key = TEMP_CONTROL_MAPPING[temp_control]
-            
+
             if (temp := self.coordinator.data.get(temp_key)) is not None:
                 return float(temp) / 10
         except (ValueError, KeyError):
             _LOGGER.warning("Invalid temperature control mode")
-            
+
         return None
 
     @property
@@ -84,15 +89,17 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
         """Return the temperature we try to reach."""
         if not self.coordinator.data:
             return None
-            
+
         try:
-            mode = OperationMode(self.coordinator.data.get(registers.REG_OPERATION_MODE, 0))
+            mode = OperationMode(
+                self.coordinator.data.get(registers.REG_OPERATION_MODE, 0)
+            )
             temp_reg = MODE_TEMP_MAPPING[mode]
             if (temp := self.coordinator.data.get(temp_reg)) is not None:
                 return float(temp) / 10
         except (ValueError, KeyError):
             _LOGGER.warning("Invalid operation mode or temperature value")
-            
+
         return None
 
     @property
@@ -100,10 +107,12 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
         """Return hvac operation mode."""
         if not self.coordinator.data:
             return HVACMode.OFF
-            
+
         power = self.coordinator.data.get(registers.REG_POWER, 0)
-        operation_mode = self.coordinator.data.get(registers.REG_OPERATION_MODE, OperationMode.OFF)
-        
+        operation_mode = self.coordinator.data.get(
+            registers.REG_OPERATION_MODE, OperationMode.OFF
+        )
+
         if not power or operation_mode == OperationMode.OFF:
             return HVACMode.OFF
         return HVACMode.HEAT_COOL
@@ -125,7 +134,9 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
 
         # Get current mode and its temperature register
         try:
-            mode = OperationMode(self.coordinator.data.get(registers.REG_OPERATION_MODE, 0))
+            mode = OperationMode(
+                self.coordinator.data.get(registers.REG_OPERATION_MODE, 0)
+            )
             reg = MODE_TEMP_MAPPING[mode]
         except (ValueError, KeyError):
             _LOGGER.warning("Invalid operation mode, using normal setpoint")
@@ -160,14 +171,15 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
             return
 
         if mode == OperationMode.OFF:
-            await self.coordinator.client.write_register(
-                registers.REG_POWER, 0
-            )
+            await self.coordinator.client.write_register(registers.REG_POWER, 0)
         elif mode == OperationMode.AIR_QUALITY:
-            await self.coordinator.client.write_register(
-                registers.REG_AUTO_MODE, 1
-            )
-        elif mode in {OperationMode.AWAY, OperationMode.NORMAL, OperationMode.INTENSIVE, OperationMode.BOOST}:
+            await self.coordinator.client.write_register(registers.REG_AUTO_MODE, 1)
+        elif mode in {
+            OperationMode.AWAY,
+            OperationMode.NORMAL,
+            OperationMode.INTENSIVE,
+            OperationMode.BOOST,
+        }:
             await self.coordinator.client.write_register(
                 registers.REG_OPERATION_MODE, mode.value
             )
@@ -176,4 +188,3 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
             return
 
         await self.coordinator.async_request_refresh()
-

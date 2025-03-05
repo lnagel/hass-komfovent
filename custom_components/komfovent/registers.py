@@ -43,61 +43,61 @@ REG_WEEK_DAY = 31  # Week day
 REG_EPOCH_TIME = 32  # Time since 1970 (32-bit)
 
 # Mode: Away
-REG_AWAY_FAN_SUPPLY = 99     # Supply flow (32-bit)
-REG_AWAY_FAN_EXTRACT = 101   # Extract flow (32-bit)
-REG_AWAY_TEMP = 103          # Setpoint
-REG_AWAY_HEATING = 104       # Heating
+REG_AWAY_FAN_SUPPLY = 99  # Supply flow (32-bit)
+REG_AWAY_FAN_EXTRACT = 101  # Extract flow (32-bit)
+REG_AWAY_TEMP = 103  # Setpoint
+REG_AWAY_HEATING = 104  # Heating
 
 # Mode: Normal
 REG_NORMAL_FAN_SUPPLY = 105  # Supply flow (32-bit)
-REG_NORMAL_FAN_EXTRACT = 107 # Extract flow (32-bit)
-REG_NORMAL_SETPOINT = 109    # Setpoint
-REG_NORMAL_HEATING = 110     # Heating
+REG_NORMAL_FAN_EXTRACT = 107  # Extract flow (32-bit)
+REG_NORMAL_SETPOINT = 109  # Setpoint
+REG_NORMAL_HEATING = 110  # Heating
 
 # Mode: Intensive
 REG_INTENSIVE_FAN_SUPPLY = 111  # Supply flow (32-bit)
-REG_INTENSIVE_FAN_EXTRACT = 113 # Extract flow (32-bit)
-REG_INTENSIVE_TEMP = 115     # Setpoint
+REG_INTENSIVE_FAN_EXTRACT = 113  # Extract flow (32-bit)
+REG_INTENSIVE_TEMP = 115  # Setpoint
 REG_INTENSIVE_HEATING = 116  # Heating
 
 # Mode: Boost
-REG_BOOST_FAN_SUPPLY = 117   # Supply flow (32-bit)
+REG_BOOST_FAN_SUPPLY = 117  # Supply flow (32-bit)
 REG_BOOST_FAN_EXTRACT = 119  # Extract flow (32-bit)
-REG_BOOST_TEMP = 121        # Setpoint
-REG_BOOST_HEATING = 122     # Heating
+REG_BOOST_TEMP = 121  # Setpoint
+REG_BOOST_HEATING = 122  # Heating
 
 # Mode: Kitchen
-REG_KITCHEN_SUPPLY = 123    # Supply flow (32-bit)
-REG_KITCHEN_EXTRACT = 125   # Extract flow (32-bit)
-REG_KITCHEN_TEMP = 127      # Setpoint
-REG_KITCHEN_HEATING = 128   # Heating
-REG_KITCHEN_TIMER = 129     # Timer time
+REG_KITCHEN_SUPPLY = 123  # Supply flow (32-bit)
+REG_KITCHEN_EXTRACT = 125  # Extract flow (32-bit)
+REG_KITCHEN_TEMP = 127  # Setpoint
+REG_KITCHEN_HEATING = 128  # Heating
+REG_KITCHEN_TIMER = 129  # Timer time
 
 # Mode: Fireplace
 REG_FIREPLACE_SUPPLY = 130  # Supply flow (32-bit)
-REG_FIREPLACE_EXTRACT = 132 # Extract flow (32-bit)
-REG_FIREPLACE_TEMP = 134    # Setpoint
-REG_FIREPLACE_HEATING = 135 # Heating
-REG_FIREPLACE_TIMER = 136   # Timer time
+REG_FIREPLACE_EXTRACT = 132  # Extract flow (32-bit)
+REG_FIREPLACE_TEMP = 134  # Setpoint
+REG_FIREPLACE_HEATING = 135  # Heating
+REG_FIREPLACE_TIMER = 136  # Timer time
 
 # Mode: Override
-REG_OVERRIDE_SUPPLY = 137   # Supply flow (32-bit)
+REG_OVERRIDE_SUPPLY = 137  # Supply flow (32-bit)
 REG_OVERRIDE_EXTRACT = 139  # Extract flow (32-bit)
-REG_OVERRIDE_TEMP = 141     # Setpoint
+REG_OVERRIDE_TEMP = 141  # Setpoint
 REG_OVERRIDE_HEATING = 142  # Heating
-REG_OVERRIDE_MODE = 143     # Mode
-REG_OVERRIDE_TIMER = 144    # Timer time
+REG_OVERRIDE_MODE = 143  # Mode
+REG_OVERRIDE_TIMER = 144  # Timer time
 
 # Mode: Holidays
-REG_HOLIDAYS_MICROVENT = 145 # Microventilation
-REG_HOLIDAYS_TEMP = 146      # Setpoint
-REG_HOLIDAYS_HEATING = 147   # Heating
-REG_HOLIDAYS_FROM = 148      # From Day/Month
-REG_HOLIDAYS_TILL = 150      # Till Day/Month
-REG_HOLIDAYS_YEAR_FROM = 152 # Year, from
-REG_HOLIDAYS_DATE_FROM = 153 # Month/Day, from
-REG_HOLIDAYS_YEAR_TILL = 154 # Year, till
-REG_HOLIDAYS_DATE_TILL = 155 # Month/Day, till
+REG_HOLIDAYS_MICROVENT = 145  # Microventilation
+REG_HOLIDAYS_TEMP = 146  # Setpoint
+REG_HOLIDAYS_HEATING = 147  # Heating
+REG_HOLIDAYS_FROM = 148  # From Day/Month
+REG_HOLIDAYS_TILL = 150  # Till Day/Month
+REG_HOLIDAYS_YEAR_FROM = 152  # Year, from
+REG_HOLIDAYS_DATE_FROM = 153  # Month/Day, from
+REG_HOLIDAYS_YEAR_TILL = 154  # Year, till
+REG_HOLIDAYS_DATE_TILL = 155  # Month/Day, till
 
 # ECO settings
 REG_ECO_MIN_TEMP = 199  # Minimum supply air temperature
@@ -119,7 +119,9 @@ REG_AQ_SENSOR1_TYPE = 212  # Air quality sensor 1 type
 REG_AQ_SENSOR2_TYPE = 213  # Air quality sensor 2 type
 
 # Alarm registers
-REG_ACTIVE_ALARMS_COUNT = 599  # Active alarms count (write 0x99C6 to reset and restore previous mode)
+REG_ACTIVE_ALARMS_COUNT = (
+    599  # Active alarms count (write 0x99C6 to reset and restore previous mode)
+)
 REG_ACTIVE_ALARM1 = 600  # Active alarm 1 code
 REG_ACTIVE_ALARM2 = 601  # Active alarm 2 code
 REG_ACTIVE_ALARM3 = 602  # Active alarm 3 code
@@ -137,7 +139,7 @@ REG_HEATING_CONFIG = 900  # Heating/cooling config
 REG_SUPPLY_TEMP = 901  # Supply air temperature (x10 °C)
 REG_EXTRACT_TEMP = 902  # Extract air temperature (x10 °C)
 REG_OUTDOOR_TEMP = 903  # Outdoor air temperature (x10 °C)
-REG_WATER_TEMP = 904   # Water temperature (x10 °C)
+REG_WATER_TEMP = 904  # Water temperature (x10 °C)
 REG_SUPPLY_FLOW = 905  # Supply air flow (32-bit)
 REG_EXTRACT_FLOW = 907  # Extract air flow (32-bit)
 REG_SUPPLY_FAN_INTENSITY = 909  # Supply fan speed

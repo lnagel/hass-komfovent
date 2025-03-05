@@ -1,4 +1,5 @@
 """Switch platform for Komfovent."""
+
 from __future__ import annotations
 
 from homeassistant.components.switch import SwitchEntity
@@ -10,6 +11,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from . import registers
 from .const import DOMAIN
 from .coordinator import KomfoventCoordinator
+
 
 async def create_switches(coordinator):
     return [
@@ -49,8 +51,6 @@ async def async_setup_entry(
     coordinator: KomfoventCoordinator = hass.data[DOMAIN][entry.entry_id]
 
     async_add_entities(await create_switches(coordinator))
-
-
 
 
 class KomfoventSwitch(CoordinatorEntity, SwitchEntity):

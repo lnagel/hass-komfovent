@@ -1,6 +1,8 @@
 """Dashboard for Komfovent integration."""
+
 from homeassistant.components.lovelace.dashboard import LovelaceYAML
 from homeassistant.components.lovelace.types import LovelaceConfig
+
 
 async def async_get_dashboard() -> LovelaceConfig:
     """Get the Komfovent dashboard configuration."""
@@ -29,19 +31,19 @@ async def async_get_dashboard() -> LovelaceConfig:
                                                 "address": 4,
                                                 "hub": "Komfovent",
                                                 "unit": 1,
-                                                "value": 1
-                                            }
+                                                "value": 1,
+                                            },
                                         },
                                         "name": "Away",
                                         "icon": "mdi:home-export-outline",
                                         "state": {
                                             "value": "Away",
-                                            "color": "CornflowerBlue"
-                                        }
+                                            "color": "CornflowerBlue",
+                                        },
                                     },
                                     {
                                         "type": "custom:button-card",
-                                        "entity": "sensor.komfovent_operation_mode", 
+                                        "entity": "sensor.komfovent_operation_mode",
                                         "color": "grey",
                                         "tap_action": {
                                             "action": "call-service",
@@ -50,20 +52,20 @@ async def async_get_dashboard() -> LovelaceConfig:
                                                 "address": 4,
                                                 "hub": "Komfovent",
                                                 "unit": 1,
-                                                "value": 2
-                                            }
+                                                "value": 2,
+                                            },
                                         },
                                         "name": "Normal",
                                         "icon": "mdi:home-account",
                                         "state": {
                                             "value": "Normal",
-                                            "color": "CornflowerBlue"
-                                        }
+                                            "color": "CornflowerBlue",
+                                        },
                                     },
                                     {
                                         "type": "custom:button-card",
                                         "entity": "sensor.komfovent_operation_mode",
-                                        "color": "grey", 
+                                        "color": "grey",
                                         "tap_action": {
                                             "action": "call-service",
                                             "service": "modbus.write_register",
@@ -71,38 +73,38 @@ async def async_get_dashboard() -> LovelaceConfig:
                                                 "address": 4,
                                                 "hub": "Komfovent",
                                                 "unit": 1,
-                                                "value": 3
-                                            }
+                                                "value": 3,
+                                            },
                                         },
                                         "name": "Intensive",
                                         "icon": "mdi:weather-windy",
                                         "state": {
                                             "value": "Intensive",
-                                            "color": "CornflowerBlue"
-                                        }
+                                            "color": "CornflowerBlue",
+                                        },
                                     },
                                     {
                                         "type": "custom:button-card",
                                         "entity": "sensor.komfovent_operation_mode",
                                         "color": "grey",
                                         "tap_action": {
-                                            "action": "call-service", 
+                                            "action": "call-service",
                                             "service": "modbus.write_register",
                                             "service_data": {
                                                 "address": 4,
                                                 "hub": "Komfovent",
                                                 "unit": 1,
-                                                "value": 4
-                                            }
+                                                "value": 4,
+                                            },
                                         },
                                         "name": "Boost",
                                         "icon": "mdi:fan",
                                         "state": {
                                             "value": "Boost",
-                                            "color": "CornflowerBlue"
-                                        }
-                                    }
-                                ]
+                                            "color": "CornflowerBlue",
+                                        },
+                                    },
+                                ],
                             },
                             {
                                 "type": "horizontal-stack",
@@ -111,21 +113,21 @@ async def async_get_dashboard() -> LovelaceConfig:
                                         "type": "sensor",
                                         "entity": "sensor.komfovent_supply_temperature_c",
                                         "name": "Supply",
-                                        "icon": "mdi:home-import-outline"
+                                        "icon": "mdi:home-import-outline",
                                     },
                                     {
                                         "type": "sensor",
-                                        "entity": "sensor.komfovent_extract_temperature_c", 
+                                        "entity": "sensor.komfovent_extract_temperature_c",
                                         "name": "Extract",
-                                        "icon": "mdi:home-export-outline"
+                                        "icon": "mdi:home-export-outline",
                                     },
                                     {
                                         "type": "sensor",
                                         "entity": "sensor.komfovent_outdoor_temperature_c",
                                         "name": "Outside",
-                                        "icon": "mdi:thermometer"
-                                    }
-                                ]
+                                        "icon": "mdi:thermometer",
+                                    },
+                                ],
                             },
                             {
                                 "type": "horizontal-stack",
@@ -133,16 +135,16 @@ async def async_get_dashboard() -> LovelaceConfig:
                                     {
                                         "type": "custom:numberbox-card",
                                         "name": "Setpoint",
-                                        "entity": "input_number.komfovent_set_temp"
+                                        "entity": "input_number.komfovent_set_temp",
                                     },
                                     {
                                         "type": "custom:numberbox-card",
                                         "name": "Fan Speed",
-                                        "entity": "input_number.komfovent_set_fan"
-                                    }
-                                ]
-                            }
-                        ]
+                                        "entity": "input_number.komfovent_set_fan",
+                                    },
+                                ],
+                            },
+                        ],
                     },
                     {
                         "type": "entities",
@@ -153,8 +155,8 @@ async def async_get_dashboard() -> LovelaceConfig:
                             "binary_sensor.komfovent_status_fan",
                             "binary_sensor.komfovent_status_rotor",
                             "binary_sensor.komfovent_status_heating",
-                            "binary_sensor.komfovent_status_cooling"
-                        ]
+                            "binary_sensor.komfovent_status_cooling",
+                        ],
                     },
                     {
                         "type": "entities",
@@ -162,10 +164,10 @@ async def async_get_dashboard() -> LovelaceConfig:
                         "entities": [
                             "sensor.komfovent_power_consumption_w",
                             "sensor.komfovent_heat_recovery_w",
-                            "sensor.komfovent_heater_power_w"
-                        ]
-                    }
-                ]
+                            "sensor.komfovent_heater_power_w",
+                        ],
+                    },
+                ],
             }
-        ]
+        ],
     }

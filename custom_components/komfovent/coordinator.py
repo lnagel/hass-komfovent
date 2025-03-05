@@ -1,4 +1,5 @@
 """DataUpdateCoordinator for Komfovent."""
+
 from datetime import timedelta
 import logging
 from typing import Any, Dict
@@ -14,18 +15,19 @@ from .const import (
 )
 from . import registers
 
+
 def process_register_block(block: Dict[int, int]) -> Dict[int, int]:
     """Process a block of register values handling 16/32 bit registers.
-    
+
     Args:
         block: Dictionary of register values from read_holding_registers
         start_address: Starting address of the block
-        
+
     Returns:
         Dictionary of processed register values
     """
     data = {}
-    
+
     for reg_address, value in block.items():
         if reg_address in registers.REGISTERS_32BIT:
             # For 32-bit registers, combine with next register
@@ -34,10 +36,12 @@ def process_register_block(block: Dict[int, int]) -> Dict[int, int]:
         elif reg_address in registers.REGISTERS_16BIT:
             # For 16-bit registers, use value directly
             data[reg_address] = value
-            
+
     return data
 
+
 _LOGGER = logging.getLogger(__name__)
+
 
 class KomfoventCoordinator(DataUpdateCoordinator):
     """Class to manage fetching Komfovent data."""
@@ -60,25 +64,35 @@ class KomfoventCoordinator(DataUpdateCoordinator):
         """Fetch data from Komfovent."""
         try:
             data = {}
-            
+
             # Read basic control block (0-11)
-            basic_control = await self.client.read_holding_registers(registers.REG_POWER, 12)
+            basic_control = await self.client.read_holding_registers(
+                registers.REG_POWER, 12
+            )
             data.update(process_register_block(basic_control))
 
             # Read Eco and air quality blocks (199-213)
-            eco_auto_block = await self.client.read_holding_registers(registers.REG_ECO_MIN_TEMP, 15)
+            eco_auto_block = await self.client.read_holding_registers(
+                registers.REG_ECO_MIN_TEMP, 15
+            )
             data.update(process_register_block(eco_auto_block))
 
             # Read sensor block (899-955)
-            sensor_block = await self.client.read_holding_registers(registers.REG_STATUS, 57)
+            sensor_block = await self.client.read_holding_registers(
+                registers.REG_STATUS, 57
+            )
             data.update(process_register_block(sensor_block))
 
             # Read panel values
-            panel_block = await self.client.read_holding_registers(registers.REG_PANEL1_TEMP, 11)
+            panel_block = await self.client.read_holding_registers(
+                registers.REG_PANEL1_TEMP, 11
+            )
             data.update(process_register_block(panel_block))
 
             # Read firmware version
-            firmware_block = await self.client.read_holding_registers(registers.REG_FIRMWARE, 2)
+            firmware_block = await self.client.read_holding_registers(
+                registers.REG_FIRMWARE, 2
+            )
             data.update(process_register_block(firmware_block))
 
             return data
