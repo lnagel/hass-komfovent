@@ -20,6 +20,7 @@ from .const import (
     DOMAIN,
     OperationMode,
     MODE_TEMP_MAPPING,
+    TEMP_CONTROL_MAPPING,
     REG_OPERATION_MODE,
     REG_POWER,
     REG_NORMAL_SETPOINT,
@@ -93,12 +94,7 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
             
         try:
             temp_control = TemperatureControl(self.coordinator.data.get("temp_control", TemperatureControl.SUPPLY))
-            temp_key = {
-                TemperatureControl.SUPPLY: "supply_temp",
-                TemperatureControl.EXTRACT: "extract_temp",
-                TemperatureControl.ROOM: "panel1_temp",  # Using panel1 temp for room temperature
-                TemperatureControl.BALANCE: "extract_temp",  # Using extract temp for balance mode
-            }[temp_control]
+            temp_key = TEMP_CONTROL_MAPPING[temp_control]
             
             if (temp := self.coordinator.data.get(temp_key)) is not None:
                 return float(temp) / 10

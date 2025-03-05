@@ -282,6 +282,14 @@ class TemperatureControl(IntEnum):
     BALANCE = 2
     ROOM = 3
 
+# Mapping of temperature control modes to their data keys
+TEMP_CONTROL_MAPPING = {
+    TemperatureControl.SUPPLY: "supply_temp",
+    TemperatureControl.EXTRACT: "extract_temp",
+    TemperatureControl.ROOM: "panel1_temp",  # Using panel1 temp for room temperature
+    TemperatureControl.BALANCE: "extract_temp",  # Using extract temp for balance mode
+}
+
 class FlowControl(IntEnum):
     """Flow control types."""
     CAV = 0
