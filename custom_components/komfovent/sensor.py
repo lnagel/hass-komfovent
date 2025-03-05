@@ -86,7 +86,7 @@ def create_aq_sensor(coordinator: KomfoventCoordinator, register_id: int) -> Kom
         device_class,
     )
 
-def get_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSensor]:
+def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSensor]:
     """Get list of sensor entities."""
     return [
         KomfoventSensor(coordinator, registers.REG_SUPPLY_TEMP, "Supply Temperature", UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE),
@@ -122,7 +122,7 @@ async def async_setup_entry(
     entities = []
 
     # Create standard sensors
-    entities.extend(get_sensors(coordinator))
+    entities.extend(create_sensors(coordinator))
 
     # Add AQ sensors if installed
     if aq_sensor := create_aq_sensor(coordinator, registers.REG_AQ_SENSOR1_VALUE):
