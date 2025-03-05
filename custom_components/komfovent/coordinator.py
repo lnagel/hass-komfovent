@@ -77,6 +77,10 @@ class KomfoventCoordinator(DataUpdateCoordinator):
             panel_block = await self.client.read_holding_registers(registers.REG_PANEL1_TEMP, 11)
             data.update(process_register_block(panel_block))
 
+            # Read firmware version
+            firmware_block = await self.client.read_holding_registers(registers.REG_FIRMWARE, 2)
+            data.update(process_register_block(firmware_block))
+
             return data
 
         except Exception as error:
