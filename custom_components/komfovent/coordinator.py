@@ -14,7 +14,7 @@ from .const import (
 )
 from . import registers
 
-def process_register_block(block: Dict[int, int], start_address: int) -> Dict[int, int]:
+def process_register_block(block: Dict[int, int]) -> Dict[int, int]:
     """Process a block of register values handling 16/32 bit registers.
     
     Args:
@@ -26,13 +26,11 @@ def process_register_block(block: Dict[int, int], start_address: int) -> Dict[in
     """
     data = {}
     
-    for reg_offset, value in block.items():
-        reg_address = start_address + reg_offset
-        
+    for reg_address, value in block.items():
         if reg_address in registers.REGISTERS_32BIT:
             # For 32-bit registers, combine with next register
-            if reg_offset + 1 in block:
-                data[reg_address] = (value << 16) + block[reg_offset + 1]
+            if reg_address + 1 in block:
+                data[reg_address] = (value << 16) + block[reg_address + 1]
         elif reg_address in registers.REGISTERS_16BIT:
             # For 16-bit registers, use value directly
             data[reg_address] = value
@@ -65,19 +63,19 @@ class KomfoventCoordinator(DataUpdateCoordinator):
             
             # Read basic control block (0-11)
             basic_control = await self.client.read_holding_registers(registers.REG_POWER, 12)
-            data.update(process_register_block(basic_control, registers.REG_POWER))
+            data.update(process_register_block(basic_control))
 
             # Read Eco and air quality blocks (199-213)
             eco_auto_block = await self.client.read_holding_registers(registers.REG_ECO_MIN_TEMP, 15)
-            data.update(process_register_block(eco_auto_block, registers.REG_ECO_MIN_TEMP))
+            data.update(process_register_block(eco_auto_block))
 
             # Read sensor block (899-955)
             sensor_block = await self.client.read_holding_registers(registers.REG_STATUS, 57)
-            data.update(process_register_block(sensor_block, registers.REG_STATUS))
+            data.update(process_register_block(sensor_block))
 
             # Read panel values
             panel_block = await self.client.read_holding_registers(registers.REG_PANEL1_TEMP, 11)
-            data.update(process_register_block(panel_block, registers.REG_PANEL1_TEMP))
+            data.update(process_register_block(panel_block))
 
             return data
 
