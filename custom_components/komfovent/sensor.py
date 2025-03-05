@@ -1,6 +1,8 @@
 """Sensor platform for Komfovent."""
 from __future__ import annotations
 
+from . import registers
+
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
