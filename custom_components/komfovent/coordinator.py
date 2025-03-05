@@ -65,11 +65,17 @@ class KomfoventCoordinator(DataUpdateCoordinator):
         try:
             data = {}
 
-            # Read basic control block (0-11)
+            # Read basic control block (0-33)
             basic_control = await self.client.read_holding_registers(
-                registers.REG_POWER, 12
+                registers.REG_POWER, 34
             )
             data.update(process_register_block(basic_control))
+
+            # Read modes (99-155)
+            modes_block = await self.client.read_holding_registers(
+                registers.REG_AWAY_FAN_SUPPLY, 57
+            )
+            data.update(process_register_block(modes_block))
 
             # Read Eco and air quality blocks (199-213)
             eco_auto_block = await self.client.read_holding_registers(
@@ -77,17 +83,17 @@ class KomfoventCoordinator(DataUpdateCoordinator):
             )
             data.update(process_register_block(eco_auto_block))
 
+            # Read active alarms block (599-609)
+            alarms_block = await self.client.read_holding_registers(
+                registers.REG_ACTIVE_ALARMS_COUNT, 11
+            )
+            data.update(process_register_block(alarms_block))
+
             # Read sensor block (899-955)
             sensor_block = await self.client.read_holding_registers(
                 registers.REG_STATUS, 57
             )
             data.update(process_register_block(sensor_block))
-
-            # Read panel values
-            panel_block = await self.client.read_holding_registers(
-                registers.REG_PANEL1_TEMP, 11
-            )
-            data.update(process_register_block(panel_block))
 
             # Read firmware version
             firmware_block = await self.client.read_holding_registers(
