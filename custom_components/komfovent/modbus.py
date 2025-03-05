@@ -1,12 +1,11 @@
 """Modbus communication handler for Komfovent."""
 
-from typing import Dict
 import asyncio
 import logging
 
+from homeassistant.exceptions import ConfigEntryNotReady
 from pymodbus.client import AsyncModbusTcpClient
 from pymodbus.exceptions import ModbusException
-from homeassistant.exceptions import ConfigEntryNotReady
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -38,7 +37,7 @@ class KomfoventModbusClient:
         """Close the Modbus connection."""
         self.client.close()
 
-    async def read_holding_registers(self, address: int, count: int) -> Dict[int, int]:
+    async def read_holding_registers(self, address: int, count: int) -> dict[int, int]:
         """Read holding registers and return dict keyed by absolute register addresses."""
         async with self._lock:
             try:

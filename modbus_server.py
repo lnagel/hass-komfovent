@@ -4,11 +4,10 @@ import argparse
 import asyncio
 import json
 import logging
-from typing import Dict
 
 from pymodbus.datastore import (
-    ModbusSlaveContext,
     ModbusServerContext,
+    ModbusSlaveContext,
     ModbusSparseDataBlock,
 )
 from pymodbus.device import ModbusDeviceIdentification
@@ -19,9 +18,8 @@ logging.basicConfig(level=logging.INFO)
 _LOGGER = logging.getLogger(__name__)
 
 
-async def run_server(host: str, port: int, registers: Dict[str, int]):
+async def run_server(host: str, port: int, registers: dict[str, int]):
     """Start the Modbus TCP server."""
-
     # Initialize data storage
     block = ModbusSparseDataBlock(registers)
     store = ModbusSlaveContext(hr=block)

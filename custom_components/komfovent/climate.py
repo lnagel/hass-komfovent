@@ -1,8 +1,9 @@
 """Climate platform for Komfovent."""
 
 from __future__ import annotations
-from typing import Any
+
 import logging
+from typing import Any
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -17,12 +18,12 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
+from . import registers
 from .const import (
     DOMAIN,
     OperationMode,
     TemperatureControl,
 )
-from . import registers
 from .coordinator import KomfoventCoordinator
 
 

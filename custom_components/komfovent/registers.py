@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-
 # Modbus registers - Basic Control
 REG_POWER = 0  # ON/OFF status
 REG_AUTO_MODE_CONTROL = 1  # Auto mode control

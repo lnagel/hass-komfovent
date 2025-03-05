@@ -1,23 +1,24 @@
 """DataUpdateCoordinator for Komfovent."""
 
-from datetime import timedelta
 import logging
-from typing import Any, Dict
+from datetime import timedelta
+from typing import Any
 
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
-from .modbus import KomfoventModbusClient
-from .const import (
-    DOMAIN,
-    DEFAULT_SCAN_INTERVAL,
-)
 from . import registers
+from .const import (
+    DEFAULT_SCAN_INTERVAL,
+    DOMAIN,
+)
+from .modbus import KomfoventModbusClient
 
 
-def process_register_block(block: Dict[int, int]) -> Dict[int, int]:
-    """Process a block of register values handling 16/32 bit registers.
+def process_register_block(block: dict[int, int]) -> dict[int, int]:
+    """
+    Process a block of register values handling 16/32 bit registers.
 
     Args:
         block: Dictionary of register values from read_holding_registers
@@ -25,6 +26,7 @@ def process_register_block(block: Dict[int, int]) -> Dict[int, int]:
 
     Returns:
         Dictionary of processed register values
+
     """
     data = {}
 
@@ -60,7 +62,7 @@ class KomfoventCoordinator(DataUpdateCoordinator):
         """Connect to the Modbus device."""
         return await self.client.connect()
 
-    async def _async_update_data(self) -> Dict[str, Any]:
+    async def _async_update_data(self) -> dict[str, Any]:
         """Fetch data from Komfovent."""
         try:
             data = {}

@@ -3,9 +3,9 @@
 import argparse
 import json
 import time
+
 from pymodbus.client import ModbusTcpClient
 from pymodbus.exceptions import ModbusException
-from pymodbus.pdu import ExceptionResponse
 
 INTEGRATION_RANGES = [
     (0, 34),  # primary control block 0-33

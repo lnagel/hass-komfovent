@@ -1,6 +1,5 @@
 """Dashboard for Komfovent integration."""
 
-from homeassistant.components.lovelace.dashboard import LovelaceYAML
 from homeassistant.components.lovelace.types import LovelaceConfig
 
 

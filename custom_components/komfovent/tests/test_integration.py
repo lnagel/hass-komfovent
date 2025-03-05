@@ -2,44 +2,41 @@
 
 import json
 import os
-from unittest.mock import patch, AsyncMock
-import asyncio
-from typing import Generator
-import pytest_socket
+from unittest.mock import patch
 
 import pytest
-from homeassistant.core import HomeAssistant
-from homeassistant.components.modbus import DOMAIN as MODBUS_DOMAIN
+import pytest_socket
 from homeassistant.components.climate import (
-    HVACMode,
     ClimateEntityFeature,
+    HVACMode,
 )
+from homeassistant.components.modbus import DOMAIN as MODBUS_DOMAIN
 from homeassistant.const import (
-    CONF_HOST,
-    CONF_PORT,
-    CONF_NAME,
     ATTR_TEMPERATURE,
+    CONF_HOST,
+    CONF_NAME,
+    CONF_PORT,
     PERCENTAGE,
-)
-from homeassistant.const import UnitOfTemperature
-from homeassistant.const import (
     UnitOfPower,
+    UnitOfTemperature,
     UnitOfVolumeFlowRate,
 )
+from homeassistant.core import HomeAssistant
 from homeassistant.setup import async_setup_component
 from pymodbus.datastore import (
     ModbusSequentialDataBlock,
-    ModbusSlaveContext,
     ModbusServerContext,
+    ModbusSlaveContext,
 )
 from pymodbus.server import StartAsyncTcpServer
 
 from custom_components.komfovent.const import (
-    DOMAIN,
     DEFAULT_NAME,
-    OperationMode,
+    DOMAIN,
     AirQualitySensorType,
+    OperationMode,
 )
+
 from .. import registers
 
 

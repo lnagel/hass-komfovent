@@ -2,8 +2,9 @@
 
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.const import CONF_HOST, CONF_PORT, CONF_NAME
-from .const import DOMAIN, DEFAULT_NAME, DEFAULT_PORT
+from homeassistant.const import CONF_HOST, CONF_NAME, CONF_PORT
+
+from .const import DEFAULT_NAME, DEFAULT_PORT, DOMAIN
 
 
 class KomfoventConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):

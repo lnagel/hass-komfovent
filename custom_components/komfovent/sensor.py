@@ -4,35 +4,32 @@ from __future__ import annotations
 
 from datetime import date, datetime
 from decimal import Decimal
-from homeassistant.helpers.typing import UNDEFINED, ConfigType, StateType, UndefinedType
-
-from . import registers
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
-    SensorStateClass,
     SensorEntityDescription,
+    SensorStateClass,
 )
-from homeassistant.helpers.entity import EntityCategory
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     PERCENTAGE,
-    UnitOfTemperature,
-    UnitOfPower,
     UnitOfEnergy,
-    UnitOfVolumeFlowRate,
+    UnitOfPower,
+    UnitOfTemperature,
 )
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.typing import StateType
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
+from . import registers
 from .const import (
     DOMAIN,
     AirQualitySensorType,
 )
 from .coordinator import KomfoventCoordinator
-
 
 X100_FIELDS = {
     registers.REG_INDOOR_ABS_HUMIDITY,
@@ -60,7 +57,6 @@ def create_aq_sensor(
     coordinator: KomfoventCoordinator, register_id: int
 ) -> KomfoventSensor | None:
     """Create an air quality sensor if installed."""
-
     if not coordinator.data:
         return None
 
@@ -459,22 +455,22 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
                 if isinstance(value, (int, float)):
                     return float(value) / 10
                 return None
-            elif self.register_id in X10_PERCENTAGE_FIELDS:
+            if self.register_id in X10_PERCENTAGE_FIELDS:
                 # These percentage fields are stored as actual value * 10
                 if isinstance(value, (int, float)):
                     value = float(value) / 10
                     if 0 <= value <= 100:
                         return value
                 return None
-            elif self.register_id in X100_FIELDS:
+            if self.register_id in X100_FIELDS:
                 if isinstance(value, (int, float)):
                     return float(value) / 100
                 return None
-            elif self.register_id in WH_TO_KWH_FIELDS:
+            if self.register_id in WH_TO_KWH_FIELDS:
                 if isinstance(value, (int, float)):
                     return float(value) / 1000  # Convert Wh to kWh
                 return None
-            elif self.register_id in {
+            if self.register_id in {
                 registers.REG_FIRMWARE,
                 registers.REG_PANEL1_FW,
                 registers.REG_PANEL2_FW,
@@ -488,23 +484,23 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
                     if any([v1, v2, v3, v4]):
                         return f"{v1}.{v2}.{v3}.{v4}"
                 return None
-            elif self.entity_description.device_class == SensorDeviceClass.HUMIDITY:
+            if self.entity_description.device_class == SensorDeviceClass.HUMIDITY:
                 # Validate RH values (0-125%)
                 if 0 <= float(value) <= 125:
                     return float(value)
                 return None
-            elif self.entity_description.device_class == SensorDeviceClass.CO2:
+            if self.entity_description.device_class == SensorDeviceClass.CO2:
                 # Validate CO2 values (0-2500 ppm)
                 if 0 <= float(value) <= 2500:
                     return float(value)
                 return None
-            elif self.register_id == registers.REG_SPI:
+            if self.register_id == registers.REG_SPI:
                 # Validate SPI values (0-5)
                 value = float(value) / 1000
                 if 0 <= value <= 5:
                     return value
                 return None
-            elif self.entity_description.native_unit_of_measurement == "ppb":  # VOC
+            if self.entity_description.native_unit_of_measurement == "ppb":  # VOC
                 if not isinstance(value, (int, float)):
                     return None
                 value = float(value)
