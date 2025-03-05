@@ -3,22 +3,28 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
-
-_LOGGER = logging.getLogger(__name__)
+from typing import Any, ClassVar, Final
 
 from homeassistant.components.climate import (
     ClimateEntity,
     ClimateEntityFeature,
     HVACMode,
 )
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import registers
+
+if TYPE_CHECKING:
+    from homeassistant.config_entries import ConfigEntry
+    from homeassistant.core import HomeAssistant
+    from homeassistant.helpers.entity_platform import AddEntitiesCallback
+    from .coordinator import KomfoventCoordinator
+
+_LOGGER = logging.getLogger(__name__)
+
+MIN_TEMP: Final = 10
+MAX_TEMP: Final = 30
 from .const import (
     DOMAIN,
     OperationMode,
@@ -40,14 +46,14 @@ async def async_setup_entry(
 class KomfoventClimate(CoordinatorEntity, ClimateEntity):
     """Representation of a Komfovent climate device."""
 
-    _attr_has_entity_name = True
-    _attr_name = None
-    _attr_temperature_unit = UnitOfTemperature.CELSIUS
-    _attr_hvac_modes = [HVACMode.OFF, HVACMode.HEAT_COOL]
-    _attr_supported_features = (
+    _attr_has_entity_name: ClassVar[bool] = True
+    _attr_name: ClassVar[None] = None
+    _attr_temperature_unit: ClassVar[str] = UnitOfTemperature.CELSIUS
+    _attr_hvac_modes: ClassVar[list[str]] = [HVACMode.OFF, HVACMode.HEAT_COOL]
+    _attr_supported_features: ClassVar[int] = (
         ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.PRESET_MODE
     )
-    _attr_preset_modes = [mode.name.lower() for mode in OperationMode]
+    _attr_preset_modes: ClassVar[list[str]] = [mode.name.lower() for mode in OperationMode]
 
     def __init__(self, coordinator: KomfoventCoordinator) -> None:
         """Initialize the climate device."""
@@ -119,12 +125,14 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
     @property
     def preset_mode(self) -> str | None:
         """Return the current preset mode."""
-        if self.coordinator.data:
-            mode = self.coordinator.data.get(registers.REG_OPERATION_MODE, 0)
-            try:
-                return OperationMode(mode).name.lower()
-            except ValueError:
-                return "unknown"
+        if not self.coordinator.data:
+            return None
+        
+        mode = self.coordinator.data.get(registers.REG_OPERATION_MODE, 0)
+        try:
+            return OperationMode(mode).name.lower()
+        except ValueError:
+            return "unknown"
 
     async def async_set_temperature(self, **kwargs: Any) -> None:
         """Set new target temperature."""
@@ -141,17 +149,20 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
             _LOGGER.warning("Invalid operation mode, using normal setpoint")
             reg = registers.REG_NORMAL_SETPOINT
 
-        # Convert temperature to device format (×10)
-        # Ensure the value is within reasonable bounds (10-30°C)
-        if 10 <= temp <= 30:
+        # Convert temperature to device format (x10)
+        # Ensure the value is within reasonable bounds
+        if MIN_TEMP <= temp <= MAX_TEMP:
             value = int(temp * 10)
             try:
                 await self.coordinator.client.write_register(reg, value)
                 await self.coordinator.async_request_refresh()
-            except Exception as err:
-                _LOGGER.error("Failed to set temperature: %s", err)
+            except (ConnectionError, TimeoutError) as err:
+                _LOGGER.exception("Failed to set temperature")
         else:
-            _LOGGER.warning("Temperature %.1f°C out of bounds (10-30°C)", temp)
+            _LOGGER.warning(
+                "Temperature %.1f°C out of bounds (%d-%d°C)", 
+                temp, MIN_TEMP, MAX_TEMP
+            )
 
     async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
         """Set new target hvac mode."""
@@ -205,6 +216,8 @@ MODE_TEMP_MAPPING = {
 TEMP_CONTROL_MAPPING = {
     TemperatureControl.SUPPLY: registers.REG_SUPPLY_TEMP,
     TemperatureControl.EXTRACT: registers.REG_EXTRACT_TEMP,
-    TemperatureControl.ROOM: registers.REG_PANEL1_TEMP,  # Using panel1 temp for room temperature
-    TemperatureControl.BALANCE: registers.REG_EXTRACT_TEMP,  # Using extract temp for balance mode
+    # Using panel1 temp for room temperature
+    TemperatureControl.ROOM: registers.REG_PANEL1_TEMP,
+    # Using extract temp for balance mode  
+    TemperatureControl.BALANCE: registers.REG_EXTRACT_TEMP,
 }
