@@ -24,6 +24,7 @@ if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
+
     from .coordinator import KomfoventCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -162,7 +163,11 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
         else:
             _LOGGER.warning(
                 "Temperature %.1f°C out of bounds (%d-%d°C, raw values %d-%d)",
-                temp, MIN_TEMP, MAX_TEMP, MIN_TEMP * 10, MAX_TEMP * 10
+                temp,
+                MIN_TEMP,
+                MAX_TEMP,
+                MIN_TEMP * 10,
+                MAX_TEMP * 10,
             )
 
     async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
