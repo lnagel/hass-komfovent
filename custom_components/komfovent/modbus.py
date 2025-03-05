@@ -1,5 +1,5 @@
 """Modbus communication handler for Komfovent."""
-from typing import List
+from typing import Dict
 import asyncio
 import logging
 
@@ -36,14 +36,20 @@ class KomfoventModbusClient:
         """Close the Modbus connection."""
         self.client.close()
         
-    async def read_holding_registers(self, address: int, count: int) -> List[int]:
-        """Read holding registers."""
+    async def read_holding_registers(self, address: int, count: int) -> Dict[int, int]:
+        """Read holding registers and return dict keyed by absolute register addresses."""
         async with self._lock:
             try:
                 result = await self.client.read_holding_registers(address, count=count, slave=1)
                 if result.isError():
                     raise ModbusException(f"Error reading registers at {address}")
-                return result.registers
+                    
+                # Create dictionary with absolute register addresses as keys
+                return {
+                    address + i: value 
+                    for i, value in enumerate(result.registers)
+                }
+                
             except Exception as error:
                 _LOGGER.error("Failed to read registers at %s: %s", address, error)
                 raise ConfigEntryNotReady from error

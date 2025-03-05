@@ -55,10 +55,6 @@ class KomfoventCoordinator(DataUpdateCoordinator):
         """Connect to the Modbus device."""
         return await self.client.connect()
 
-    def _extract_32bit_value(self, registers: list[int], offset: int) -> int:
-        """Extract a 32-bit value from register list at given offset."""
-        return (registers[offset] << 16) + registers[offset + 1]
-
     async def _async_update_data(self) -> Dict[str, Any]:
         """Fetch data from Komfovent."""
         try:
@@ -67,73 +63,60 @@ class KomfoventCoordinator(DataUpdateCoordinator):
             # Read basic control block (0-11)
             basic_control = await self.client.read_holding_registers(REG_POWER, 12)
             data.update({
-                "power": basic_control[0],
-                "auto_mode_control": basic_control[1],
-                "eco_mode": basic_control[2],
-                "auto_mode": basic_control[3],
-                "operation_mode": basic_control[4],
-                "scheduler_mode": basic_control[5],
-                "next_mode": basic_control[6],
-                "next_mode_time": basic_control[7],
-                "next_mode_weekday": basic_control[8],
-                "before_mode_mask": basic_control[9],
-                "temp_control": basic_control[10],
-                "flow_control": basic_control[11],
+                "power": basic_control[REG_POWER],
+                "auto_mode_control": basic_control[REG_AUTO_MODE_CONTROL],
+                "eco_mode": basic_control[REG_ECO_MODE],
+                "auto_mode": basic_control[REG_AUTO_MODE],
+                "operation_mode": basic_control[REG_OPERATION_MODE],
+                "scheduler_mode": basic_control[REG_SCHEDULER_MODE],
+                "next_mode": basic_control[REG_NEXT_MODE],
+                "next_mode_time": basic_control[REG_NEXT_MODE_TIME],
+                "next_mode_weekday": basic_control[REG_NEXT_MODE_WEEKDAY],
+                "before_mode_mask": basic_control[REG_BEFORE_MODE_MASK],
+                "temp_control": basic_control[REG_TEMP_CONTROL],
+                "flow_control": basic_control[REG_FLOW_CONTROL],
             })
 
             # Read sensor block (899-955)
             sensor_block = await self.client.read_holding_registers(REG_STATUS, 57)
-            
             data.update({
-                "status": sensor_block[0],
-                "heating_config": sensor_block[1],
-                "supply_temp": sensor_block[2],
-                "extract_temp": sensor_block[3],
-                "outdoor_temp": sensor_block[4],
-                "water_temp": sensor_block[5],
-            })
-            
-            # Handle 32-bit flow values
-            data.update({
-                "supply_flow": self._extract_32bit_value(sensor_block, 6),
-                "extract_flow": self._extract_32bit_value(sensor_block, 8),
-            })
-            
-            # Continue with remaining sensor values
-            data.update({
-                "supply_fan_intensity": sensor_block[10],
-                "extract_fan_intensity": sensor_block[11],
-                "heat_exchanger": sensor_block[12],
-                "electric_heater": sensor_block[13],
-                "water_heater": sensor_block[14],
-                "water_cooler": sensor_block[15],
-                "dx_unit": sensor_block[16],
-                "filter_impurity": sensor_block[17],
-                "air_dampers": sensor_block[18],
-                "supply_pressure": sensor_block[19],
-                "extract_pressure": sensor_block[20],
-                "power_consumption": sensor_block[21],
-                "heater_power": sensor_block[22],
-                "heat_recovery": sensor_block[23],
-                "heat_efficiency": sensor_block[24],
-                "energy_saving": sensor_block[25],
-                "spi": sensor_block[26],
+                "status": sensor_block[REG_STATUS],
+                "heating_config": sensor_block[REG_HEATING_CONFIG],
+                "supply_temp": sensor_block[REG_SUPPLY_TEMP],
+                "extract_temp": sensor_block[REG_EXTRACT_TEMP],
+                "outdoor_temp": sensor_block[REG_OUTDOOR_TEMP],
+                "water_temp": sensor_block[REG_WATER_TEMP],
+                "supply_flow": (sensor_block[REG_SUPPLY_FLOW] << 16) + sensor_block[REG_SUPPLY_FLOW + 1],
+                "extract_flow": (sensor_block[REG_EXTRACT_FLOW] << 16) + sensor_block[REG_EXTRACT_FLOW + 1],
+                "supply_fan_intensity": sensor_block[REG_SUPPLY_FAN_INTENSITY],
+                "extract_fan_intensity": sensor_block[REG_EXTRACT_FAN_INTENSITY],
+                "heat_exchanger": sensor_block[REG_HEAT_EXCHANGER],
+                "electric_heater": sensor_block[REG_ELECTRIC_HEATER],
+                "water_heater": sensor_block[REG_WATER_HEATER],
+                "water_cooler": sensor_block[REG_WATER_COOLER],
+                "dx_unit": sensor_block[REG_DX_UNIT],
+                "filter_impurity": sensor_block[REG_FILTER_IMPURITY],
+                "air_dampers": sensor_block[REG_AIR_DAMPERS],
+                "supply_pressure": sensor_block[REG_SUPPLY_PRESSURE],
+                "extract_pressure": sensor_block[REG_EXTRACT_PRESSURE],
+                "power_consumption": sensor_block[REG_POWER_CONSUMPTION],
+                "heater_power": sensor_block[REG_HEATER_POWER],
+                "heat_recovery": sensor_block[REG_HEAT_RECOVERY],
+                "heat_efficiency": sensor_block[REG_HEAT_EFFICIENCY],
+                "energy_saving": sensor_block[REG_ENERGY_SAVING],
+                "spi": sensor_block[REG_SPI],
+                "aq_sensor1_type": sensor_block[REG_AQ_SENSOR1_TYPE],
+                "aq_sensor2_type": sensor_block[REG_AQ_SENSOR2_TYPE],
+                "aq_sensor1_value": sensor_block[REG_AQ_SENSOR1_VALUE],
+                "aq_sensor2_value": sensor_block[REG_AQ_SENSOR2_VALUE],
+                "indoor_abs_humidity": sensor_block[REG_INDOOR_ABS_HUMIDITY],
             })
 
-            # Handle AQ sensors and panel values at the end of the block
-            data.update({
-                "aq_sensor1_type": sensor_block[52],
-                "aq_sensor2_type": sensor_block[53],
-                "aq_sensor1_value": sensor_block[54],
-                "aq_sensor2_value": sensor_block[55],
-                "indoor_abs_humidity": sensor_block[56],
-            })
-            
             # Read panel values
             panel_block = await self.client.read_holding_registers(REG_PANEL1_TEMP, 2)
             data.update({
-                "panel1_temp": panel_block[0],
-                "panel1_rh": panel_block[1],
+                "panel1_temp": panel_block[REG_PANEL1_TEMP],
+                "panel1_rh": panel_block[REG_PANEL1_RH],
             })
 
             return data
