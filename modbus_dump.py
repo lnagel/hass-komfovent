@@ -1,11 +1,21 @@
 #!/usr/bin/env python3
+"""Tool to dump Modbus TCP registers from Komfovent devices to JSON."""
 
 import argparse
 import json
+import logging
+import sys
 import time
+from pathlib import Path
 
 from pymodbus.client import ModbusTcpClient
 from pymodbus.exceptions import ModbusException
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(message)s"
+)
+logger = logging.getLogger(__name__)
 
 INTEGRATION_RANGES = [
     (0, 34),  # primary control block 0-33
@@ -42,14 +52,27 @@ MOBILE_APP_RANGES = [
 RANGES = INTEGRATION_RANGES + MOBILE_APP_RANGES
 
 
-def dump_registers(host: str, port: int) -> dict:
-    """Query all holding registers one by one and return values as dictionary."""
+def dump_registers(host: str, port: int) -> dict[int, list[int]]:
+    """Query all holding registers one by one and return values as dictionary.
+    
+    Args:
+        host: Modbus TCP host address
+        port: Modbus TCP port number
+        
+    Returns:
+        Dictionary mapping register addresses to list of register values
+        
+    Raises:
+        ConnectionError: If connection to device fails
+        ModbusException: If there is an error reading registers
+    """
     client = ModbusTcpClient(host=host, port=port)
 
+    error_msg = f"Failed to connect to {host}:{port}"
     if not client.connect():
-        raise ConnectionError(f"Failed to connect to {host}:{port}")
+        raise ConnectionError(error_msg)
 
-    results = {}
+    results: dict[int, list[int]] = {}
     try:
         for address, count in RANGES:
             try:
@@ -57,15 +80,13 @@ def dump_registers(host: str, port: int) -> dict:
                 response = client.read_holding_registers(address=address, count=count)
 
                 results[address] = response.registers
-                print(f"Register {address}: {response.registers}")
+                logger.info("Register %d: %s", address, response.registers)
 
                 # Small delay to avoid overwhelming the device
                 time.sleep(0.1)
 
             except ModbusException as e:
-                print(f"Register {address}: Modbus error - {e}")
-            except Exception as e:
-                print(f"Register {address}: Unexpected error - {e}")
+                logger.error("Register %d: Modbus error - %s", address, e)
 
     finally:
         client.close()
@@ -73,7 +94,8 @@ def dump_registers(host: str, port: int) -> dict:
     return results
 
 
-def main():
+def main() -> None:
+    """Run the Modbus register dump tool."""
     parser = argparse.ArgumentParser(description="Dump Modbus TCP registers to JSON")
     parser.add_argument("--host", required=True, help="Modbus TCP host")
     parser.add_argument("--port", type=int, default=502, help="Modbus TCP port")
@@ -82,18 +104,19 @@ def main():
     args = parser.parse_args()
 
     try:
-        print(f"Connecting to {args.host}:{args.port}...")
-        print("Starting register scan (this may take a few minutes)...")
+        logger.info("Connecting to %s:%d...", args.host, args.port)
+        logger.info("Starting register scan (this may take a few minutes)...")
         registers = dump_registers(args.host, args.port)
 
-        with open(args.output, "w") as f:
+        output_path = Path(args.output)
+        with output_path.open("w") as f:
             json.dump(registers, f, indent=2)
 
-        print(f"Successfully dumped {len(registers)} registers to {args.output}")
+        logger.info("Successfully dumped %d registers to %s", len(registers), args.output)
 
-    except Exception as e:
-        print(f"Error: {e}")
-        exit(1)
+    except (ConnectionError, ModbusException) as e:
+        logger.error("Error: %s", e)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
