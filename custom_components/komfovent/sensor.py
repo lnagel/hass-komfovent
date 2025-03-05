@@ -2,12 +2,17 @@
 
 from __future__ import annotations
 
+from datetime import date, datetime
+from decimal import Decimal
+from homeassistant.helpers.typing import UNDEFINED, ConfigType, StateType, UndefinedType
+
 from . import registers
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
     SensorStateClass,
+    SensorEntityDescription,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
@@ -86,11 +91,15 @@ def create_aq_sensor(
         return None
 
     return KomfoventSensor(
-        coordinator,
-        register_id,
-        name,
-        unit,
-        device_class,
+        coordinator=coordinator,
+        register_id=register_id,
+        entity_description=SensorEntityDescription(
+            key=f"aq_sensor_{register_id}",
+            name=name,
+            native_unit_of_measurement=unit,
+            device_class=device_class,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
     )
 
 
@@ -98,161 +107,212 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
     """Get list of sensor entities."""
     entities = [
         KomfoventSensor(
-            coordinator,
-            registers.REG_SUPPLY_TEMP,
-            "Supply Temperature",
-            UnitOfTemperature.CELSIUS,
-            SensorDeviceClass.TEMPERATURE,
-            SensorStateClass.MEASUREMENT,
+            coordinator=coordinator,
+            register_id=registers.REG_SUPPLY_TEMP,
+            entity_description=SensorEntityDescription(
+                key="supply_temperature",
+                name="Supply Temperature",
+                native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                device_class=SensorDeviceClass.TEMPERATURE,
+                state_class=SensorStateClass.MEASUREMENT,
+            ),
         ),
         KomfoventSensor(
-            coordinator,
-            registers.REG_EXTRACT_TEMP,
-            "Extract Temperature",
-            UnitOfTemperature.CELSIUS,
-            SensorDeviceClass.TEMPERATURE,
-            SensorStateClass.MEASUREMENT,
+            coordinator=coordinator,
+            register_id=registers.REG_EXTRACT_TEMP,
+            entity_description=SensorEntityDescription(
+                key="extract_temperature",
+                name="Extract Temperature",
+                native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                device_class=SensorDeviceClass.TEMPERATURE,
+                state_class=SensorStateClass.MEASUREMENT,
+            ),
         ),
         KomfoventSensor(
-            coordinator,
-            registers.REG_OUTDOOR_TEMP,
-            "Outdoor Temperature",
-            UnitOfTemperature.CELSIUS,
-            SensorDeviceClass.TEMPERATURE,
-            SensorStateClass.MEASUREMENT,
+            coordinator=coordinator,
+            register_id=registers.REG_OUTDOOR_TEMP,
+            entity_description=SensorEntityDescription(
+                key="outdoor_temperature",
+                name="Outdoor Temperature",
+                native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                device_class=SensorDeviceClass.TEMPERATURE,
+                state_class=SensorStateClass.MEASUREMENT,
+            ),
         ),
         KomfoventSensor(
-            coordinator,
-            registers.REG_SUPPLY_FAN_INTENSITY,
-            "Supply Fan Intensity",
-            PERCENTAGE,
-            None,
-            SensorStateClass.MEASUREMENT,
+            coordinator=coordinator,
+            register_id=registers.REG_SUPPLY_FAN_INTENSITY,
+            entity_description=SensorEntityDescription(
+                key="supply_fan_intensity",
+                name="Supply Fan Intensity",
+                native_unit_of_measurement=PERCENTAGE,
+                state_class=SensorStateClass.MEASUREMENT,
+            ),
         ),
         KomfoventSensor(
-            coordinator,
-            registers.REG_EXTRACT_FAN_INTENSITY,
-            "Extract Fan Intensity",
-            PERCENTAGE,
-            None,
-            SensorStateClass.MEASUREMENT,
+            coordinator=coordinator,
+            register_id=registers.REG_EXTRACT_FAN_INTENSITY,
+            entity_description=SensorEntityDescription(
+                key="extract_fan_intensity",
+                name="Extract Fan Intensity",
+                native_unit_of_measurement=PERCENTAGE,
+                state_class=SensorStateClass.MEASUREMENT,
+            ),
         ),
         KomfoventSensor(
-            coordinator,
-            registers.REG_HEAT_EXCHANGER,
-            "Heat Exchanger",
-            PERCENTAGE,
-            None,
-            SensorStateClass.MEASUREMENT,
+            coordinator=coordinator,
+            register_id=registers.REG_HEAT_EXCHANGER,
+            entity_description=SensorEntityDescription(
+                key="heat_exchanger",
+                name="Heat Exchanger",
+                native_unit_of_measurement=PERCENTAGE,
+                state_class=SensorStateClass.MEASUREMENT,
+            ),
         ),
         KomfoventSensor(
-            coordinator,
-            registers.REG_ELECTRIC_HEATER,
-            "Electric Heater",
-            PERCENTAGE,
-            None,
-            SensorStateClass.MEASUREMENT,
+            coordinator=coordinator,
+            register_id=registers.REG_ELECTRIC_HEATER,
+            entity_description=SensorEntityDescription(
+                key="electric_heater",
+                name="Electric Heater",
+                native_unit_of_measurement=PERCENTAGE,
+                state_class=SensorStateClass.MEASUREMENT,
+            ),
         ),
         KomfoventSensor(
-            coordinator,
-            registers.REG_FILTER_IMPURITY,
-            "Filter Impurity",
-            PERCENTAGE,
-            None,
-            SensorStateClass.MEASUREMENT,
+            coordinator=coordinator,
+            register_id=registers.REG_FILTER_IMPURITY,
+            entity_description=SensorEntityDescription(
+                key="filter_impurity",
+                name="Filter Impurity",
+                native_unit_of_measurement=PERCENTAGE,
+                state_class=SensorStateClass.MEASUREMENT,
+            ),
         ),
         KomfoventSensor(
-            coordinator,
-            registers.REG_POWER_CONSUMPTION,
-            "Power Consumption",
-            UnitOfPower.WATT,
-            SensorDeviceClass.POWER,
-            SensorStateClass.MEASUREMENT,
+            coordinator=coordinator,
+            register_id=registers.REG_POWER_CONSUMPTION,
+            entity_description=SensorEntityDescription(
+                key="power_consumption",
+                name="Power Consumption",
+                native_unit_of_measurement=UnitOfPower.WATT,
+                device_class=SensorDeviceClass.POWER,
+                state_class=SensorStateClass.MEASUREMENT,
+            ),
         ),
         KomfoventSensor(
-            coordinator,
-            registers.REG_HEATER_POWER,
-            "Heater Power",
-            UnitOfPower.WATT,
-            SensorDeviceClass.POWER,
-            SensorStateClass.MEASUREMENT,
+            coordinator=coordinator,
+            register_id=registers.REG_HEATER_POWER,
+            entity_description=SensorEntityDescription(
+                key="heater_power",
+                name="Heater Power",
+                native_unit_of_measurement=UnitOfPower.WATT,
+                device_class=SensorDeviceClass.POWER,
+                state_class=SensorStateClass.MEASUREMENT,
+            ),
         ),
         KomfoventSensor(
-            coordinator,
-            registers.REG_HEAT_RECOVERY,
-            "Heat Recovery",
-            UnitOfPower.WATT,
-            SensorDeviceClass.POWER,
-            SensorStateClass.MEASUREMENT,
+            coordinator=coordinator,
+            register_id=registers.REG_HEAT_RECOVERY,
+            entity_description=SensorEntityDescription(
+                key="heat_recovery",
+                name="Heat Recovery",
+                native_unit_of_measurement=UnitOfPower.WATT,
+                device_class=SensorDeviceClass.POWER,
+                state_class=SensorStateClass.MEASUREMENT,
+            ),
         ),
         KomfoventSensor(
-            coordinator,
-            registers.REG_HEAT_EFFICIENCY,
-            "Heat Exchanger Efficiency",
-            PERCENTAGE,
-            None,
-            SensorStateClass.MEASUREMENT,
+            coordinator=coordinator,
+            register_id=registers.REG_HEAT_EFFICIENCY,
+            entity_description=SensorEntityDescription(
+                key="heat_exchanger_efficiency",
+                name="Heat Exchanger Efficiency",
+                native_unit_of_measurement=PERCENTAGE,
+                state_class=SensorStateClass.MEASUREMENT,
+            ),
         ),
         KomfoventSensor(
-            coordinator,
-            registers.REG_SPI,
-            "Specific Power Input",
-            None,
-            SensorStateClass.MEASUREMENT,
+            coordinator=coordinator,
+            register_id=registers.REG_SPI,
+            entity_description=SensorEntityDescription(
+                key="specific_power_input",
+                name="Specific Power Input",
+                state_class=SensorStateClass.MEASUREMENT,
+            ),
         ),
         KomfoventSensor(
-            coordinator,
-            registers.REG_PANEL1_TEMP,
-            "Panel 1 Temperature",
-            UnitOfTemperature.CELSIUS,
-            SensorDeviceClass.TEMPERATURE,
-            SensorStateClass.MEASUREMENT,
+            coordinator=coordinator,
+            register_id=registers.REG_PANEL1_TEMP,
+            entity_description=SensorEntityDescription(
+                key="panel1_temperature",
+                name="Panel 1 Temperature",
+                native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                device_class=SensorDeviceClass.TEMPERATURE,
+                state_class=SensorStateClass.MEASUREMENT,
+            ),
         ),
         KomfoventSensor(
-            coordinator,
-            registers.REG_PANEL1_RH,
-            "Panel 1 Humidity",
-            PERCENTAGE,
-            SensorDeviceClass.HUMIDITY,
-            SensorStateClass.MEASUREMENT,
+            coordinator=coordinator,
+            register_id=registers.REG_PANEL1_RH,
+            entity_description=SensorEntityDescription(
+                key="panel1_humidity",
+                name="Panel 1 Humidity",
+                native_unit_of_measurement=PERCENTAGE,
+                device_class=SensorDeviceClass.HUMIDITY,
+                state_class=SensorStateClass.MEASUREMENT,
+            ),
         ),
         KomfoventSensor(
-            coordinator,
-            registers.REG_INDOOR_ABS_HUMIDITY,
-            "Indoor Absolute Humidity",
-            "g/m³",
-            SensorStateClass.MEASUREMENT,
+            coordinator=coordinator,
+            register_id=registers.REG_INDOOR_ABS_HUMIDITY,
+            entity_description=SensorEntityDescription(
+                key="indoor_absolute_humidity",
+                name="Indoor Absolute Humidity",
+                native_unit_of_measurement="g/m³",
+                state_class=SensorStateClass.MEASUREMENT,
+            ),
         ),
         KomfoventSensor(
-            coordinator,
-            registers.REG_AHU_TOTAL,
-            "Total AHU Energy",
-            UnitOfEnergy.KILO_WATT_HOUR,
-            SensorDeviceClass.ENERGY,
-            SensorStateClass.TOTAL_INCREASING,
+            coordinator=coordinator,
+            register_id=registers.REG_AHU_TOTAL,
+            entity_description=SensorEntityDescription(
+                key="total_ahu_energy",
+                name="Total AHU Energy",
+                native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+                device_class=SensorDeviceClass.ENERGY,
+                state_class=SensorStateClass.TOTAL_INCREASING,
+            ),
         ),
         KomfoventSensor(
-            coordinator,
-            registers.REG_HEATER_TOTAL,
-            "Total Heater Energy",
-            UnitOfEnergy.KILO_WATT_HOUR,
-            SensorDeviceClass.ENERGY,
-            SensorStateClass.TOTAL_INCREASING,
+            coordinator=coordinator,
+            register_id=registers.REG_HEATER_TOTAL,
+            entity_description=SensorEntityDescription(
+                key="total_heater_energy",
+                name="Total Heater Energy",
+                native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+                device_class=SensorDeviceClass.ENERGY,
+                state_class=SensorStateClass.TOTAL_INCREASING,
+            ),
         ),
         KomfoventSensor(
-            coordinator,
-            registers.REG_RECOVERY_TOTAL,
-            "Total Recovered Energy",
-            UnitOfEnergy.KILO_WATT_HOUR,
-            SensorDeviceClass.ENERGY,
-            SensorStateClass.TOTAL_INCREASING,
+            coordinator=coordinator,
+            register_id=registers.REG_RECOVERY_TOTAL,
+            entity_description=SensorEntityDescription(
+                key="total_recovered_energy",
+                name="Total Recovered Energy",
+                native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+                device_class=SensorDeviceClass.ENERGY,
+                state_class=SensorStateClass.TOTAL_INCREASING,
+            ),
         ),
         KomfoventSensor(
-            coordinator,
-            registers.REG_FIRMWARE,
-            "Firmware Version",
-            None,
-            None,
+            coordinator=coordinator,
+            register_id=registers.REG_FIRMWARE,
+            entity_description=SensorEntityDescription(
+                key="firmware_version",
+                name="Firmware Version",
+            ),
         ),
     ]
 
@@ -285,17 +345,12 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
         self,
         coordinator: KomfoventCoordinator,
         register_id: int,
-        name: str,
-        unit: str | None,
-        device_class: str | None,
-        state_class: SensorStateClass | None = None,
+        entity_description: SensorEntityDescription,
     ) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator)
-        self._register_id = register_id
-        self._attr_name = name
-        self._attr_native_unit_of_measurement = unit
-        self._attr_device_class = device_class
+        self.register_id = register_id
+        self.entity_description = entity_description
         self._attr_unique_id = f"{coordinator.config_entry.entry_id}_{register_id}"
         self._attr_device_info = {
             "identifiers": {(DOMAIN, coordinator.config_entry.entry_id)},
@@ -303,41 +358,40 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
             "manufacturer": "Komfovent",
             "model": "Modbus",
         }
-        self._attr_state_class = state_class
 
     @property
-    def native_value(self) -> float | None:
+    def native_value(self) -> StateType | date | datetime | Decimal:
         """Return the state of the sensor."""
+        if not self.coordinator.data:
+            return None
+
+        value = self.coordinator.data.get(self.register_id)
+        if value is None:
+            return None
+
         try:
-            if not self.coordinator.data:
-                return None
-
-            value = self.coordinator.data.get(self._register_id)
-            if value is None:
-                return None
-
             # Apply transforms based on sensor type and register format
-            if self._attr_device_class == SensorDeviceClass.TEMPERATURE:
+            if self.entity_description.device_class == SensorDeviceClass.TEMPERATURE:
                 # All temperatures are x10 in Modbus registers
                 if isinstance(value, (int, float)):
                     return float(value) / 10
                 return None
-            elif self._register_id in X10_PERCENTAGE_FIELDS:
+            elif self.register_id in X10_PERCENTAGE_FIELDS:
                 # These percentage fields are stored as actual value * 10
                 if isinstance(value, (int, float)):
                     value = float(value) / 10
                     if 0 <= value <= 100:
                         return value
                 return None
-            elif self._register_id in X100_FIELDS:
+            elif self.register_id in X100_FIELDS:
                 if isinstance(value, (int, float)):
                     return float(value) / 100
                 return None
-            elif self._register_id in WH_TO_KWH_FIELDS:
+            elif self.register_id in WH_TO_KWH_FIELDS:
                 if isinstance(value, (int, float)):
                     return float(value) / 1000  # Convert Wh to kWh
                 return None
-            elif self._register_id == registers.REG_FIRMWARE:
+            elif self.register_id == registers.REG_FIRMWARE:
                 if isinstance(value, int):
                     # Extract version numbers using bit shifts
                     v1 = (value >> 24) & 0xFF  # First number (8 bits)
@@ -346,23 +400,23 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
                     v4 = value & 0xFFF  # Fourth number (12 bits)
                     return f"{v1}.{v2}.{v3}.{v4}"
                 return None
-            elif self._attr_device_class == SensorDeviceClass.HUMIDITY:
+            elif self.entity_description.device_class == SensorDeviceClass.HUMIDITY:
                 # Validate RH values (0-125%)
                 if 0 <= float(value) <= 125:
                     return float(value)
                 return None
-            elif self._attr_device_class == SensorDeviceClass.CO2:
+            elif self.entity_description.device_class == SensorDeviceClass.CO2:
                 # Validate CO2 values (0-2500 ppm)
                 if 0 <= float(value) <= 2500:
                     return float(value)
                 return None
-            elif self._register_id == registers.REG_SPI:
+            elif self.register_id == registers.REG_SPI:
                 # Validate SPI values (0-5)
                 value = float(value) / 1000
                 if 0 <= value <= 5:
                     return value
                 return None
-            elif self._attr_native_unit_of_measurement == "ppb":  # VOC
+            elif self.entity_description.native_unit_of_measurement == "ppb":  # VOC
                 if not isinstance(value, (int, float)):
                     return None
                 value = float(value)

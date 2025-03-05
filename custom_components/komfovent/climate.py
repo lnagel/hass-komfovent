@@ -20,8 +20,6 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import (
     DOMAIN,
     OperationMode,
-    MODE_TEMP_MAPPING,
-    TEMP_CONTROL_MAPPING,
     TemperatureControl,
 )
 from . import registers
@@ -188,3 +186,24 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
             return
 
         await self.coordinator.async_request_refresh()
+
+
+MODE_TEMP_MAPPING = {
+    OperationMode.STANDBY: registers.REG_NORMAL_SETPOINT,  # Use normal temp for standby
+    OperationMode.AWAY: registers.REG_AWAY_TEMP,
+    OperationMode.NORMAL: registers.REG_NORMAL_SETPOINT,
+    OperationMode.INTENSIVE: registers.REG_INTENSIVE_TEMP,
+    OperationMode.BOOST: registers.REG_BOOST_TEMP,
+    OperationMode.KITCHEN: registers.REG_KITCHEN_TEMP,
+    OperationMode.FIREPLACE: registers.REG_FIREPLACE_TEMP,
+    OperationMode.OVERRIDE: registers.REG_OVERRIDE_TEMP,
+    OperationMode.HOLIDAY: registers.REG_HOLIDAYS_TEMP,
+    OperationMode.AIR_QUALITY: registers.REG_AQ_TEMP_SETPOINT,
+    OperationMode.OFF: registers.REG_NORMAL_SETPOINT,  # Use normal temp when off
+}
+TEMP_CONTROL_MAPPING = {
+    TemperatureControl.SUPPLY: registers.REG_SUPPLY_TEMP,
+    TemperatureControl.EXTRACT: registers.REG_EXTRACT_TEMP,
+    TemperatureControl.ROOM: registers.REG_PANEL1_TEMP,  # Using panel1 temp for room temperature
+    TemperatureControl.BALANCE: registers.REG_EXTRACT_TEMP,  # Using extract temp for balance mode
+}

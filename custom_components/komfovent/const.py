@@ -3,38 +3,15 @@
 from __future__ import annotations
 
 from enum import IntEnum
-from typing import Final, Dict
-
-from . import registers
+from typing import Final
 
 DOMAIN = "komfovent"
-
-OPERATION_MODES: Dict[int, str] = {
-    0: "standby",
-    1: "away",
-    2: "normal",
-    3: "intensive",
-    4: "boost",
-    5: "kitchen",
-    6: "fireplace",
-    7: "override",
-    8: "holiday",
-    9: "air_quality",
-    10: "off",
-}
 
 DEFAULT_NAME = "Komfovent"
 DEFAULT_HOST: Final = None
 DEFAULT_PORT = 502
 DEFAULT_SLAVE_ID: Final = 254
 DEFAULT_SCAN_INTERVAL = 30
-
-# Register value types
-VALUE_TYPE_UINT8: Final = "uint8"
-VALUE_TYPE_UINT16: Final = "uint16"
-VALUE_TYPE_INT8: Final = "int8"
-VALUE_TYPE_INT16: Final = "int16"
-VALUE_TYPE_UINT32: Final = "uint32"
 
 
 class OperationMode(IntEnum):
@@ -51,22 +28,6 @@ class OperationMode(IntEnum):
     HOLIDAY = 8
     AIR_QUALITY = 9
     OFF = 10
-
-
-# Mapping of operation modes to their temperature registers
-MODE_TEMP_MAPPING = {
-    OperationMode.STANDBY: registers.REG_NORMAL_SETPOINT,  # Use normal temp for standby
-    OperationMode.AWAY: registers.REG_AWAY_TEMP,
-    OperationMode.NORMAL: registers.REG_NORMAL_SETPOINT,
-    OperationMode.INTENSIVE: registers.REG_INTENSIVE_TEMP,
-    OperationMode.BOOST: registers.REG_BOOST_TEMP,
-    OperationMode.KITCHEN: registers.REG_KITCHEN_TEMP,
-    OperationMode.FIREPLACE: registers.REG_FIREPLACE_TEMP,
-    OperationMode.OVERRIDE: registers.REG_OVERRIDE_TEMP,
-    OperationMode.HOLIDAY: registers.REG_HOLIDAYS_TEMP,
-    OperationMode.AIR_QUALITY: registers.REG_AQ_TEMP_SETPOINT,
-    OperationMode.OFF: registers.REG_NORMAL_SETPOINT,  # Use normal temp when off
-}
 
 
 class SchedulerMode(IntEnum):
@@ -92,15 +53,6 @@ class TemperatureControl(IntEnum):
     EXTRACT = 1
     BALANCE = 2
     ROOM = 3
-
-
-# Mapping of temperature control modes to their register IDs
-TEMP_CONTROL_MAPPING = {
-    TemperatureControl.SUPPLY: registers.REG_SUPPLY_TEMP,
-    TemperatureControl.EXTRACT: registers.REG_EXTRACT_TEMP,
-    TemperatureControl.ROOM: registers.REG_PANEL1_TEMP,  # Using panel1 temp for room temperature
-    TemperatureControl.BALANCE: registers.REG_EXTRACT_TEMP,  # Using extract temp for balance mode
-}
 
 
 class FlowControl(IntEnum):
