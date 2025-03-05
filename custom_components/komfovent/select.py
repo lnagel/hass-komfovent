@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Any, ClassVar, Final
 
-from homeassistant.components.select import SelectEntity
+from homeassistant.components.select import SelectEntity, SelectEntityDescription
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -28,21 +28,38 @@ async def async_setup_entry(
 ) -> None:
     """Set up Komfovent select entities."""
     coordinator: KomfoventCoordinator = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities([KomfoventModeSelect(coordinator)])
+    async_add_entities(
+        [
+            KomfoventSelect(
+                coordinator=coordinator,
+                register_id=registers.REG_OPERATION_MODE,
+                entity_description=SelectEntityDescription(
+                    key="operation_mode",
+                    name="Current mode",
+                    entity_category=EntityCategory.CONFIG,
+                    options=[mode.name.lower() for mode in OperationMode],
+                ),
+            )
+        ]
+    )
 
 
-class KomfoventModeSelect(CoordinatorEntity, SelectEntity):
-    """Representation of a Komfovent mode select entity."""
+class KomfoventSelect(CoordinatorEntity, SelectEntity):
+    """Representation of a Komfovent select entity."""
 
     _attr_has_entity_name: ClassVar[bool] = True
-    _attr_name: ClassVar[str] = "Current mode"
-    _attr_entity_category = EntityCategory.CONFIG
-    _attr_options = [mode.name.lower() for mode in OperationMode]
 
-    def __init__(self, coordinator: KomfoventCoordinator) -> None:
+    def __init__(
+        self,
+        coordinator: KomfoventCoordinator,
+        register_id: int,
+        entity_description: SelectEntityDescription,
+    ) -> None:
         """Initialize the select entity."""
         super().__init__(coordinator)
-        self._attr_unique_id = f"{coordinator.config_entry.entry_id}_mode_select"
+        self.register_id = register_id
+        self.entity_description = entity_description
+        self._attr_unique_id = f"{coordinator.config_entry.entry_id}_{register_id}"
         self._attr_device_info = {
             "identifiers": {(DOMAIN, coordinator.config_entry.entry_id)},
             "name": coordinator.config_entry.title,
@@ -56,7 +73,7 @@ class KomfoventModeSelect(CoordinatorEntity, SelectEntity):
         if not self.coordinator.data:
             return None
 
-        mode = self.coordinator.data.get(registers.REG_OPERATION_MODE, 0)
+        mode = self.coordinator.data.get(self.register_id, 0)
         try:
             return OperationMode(mode).name.lower()
         except ValueError:
