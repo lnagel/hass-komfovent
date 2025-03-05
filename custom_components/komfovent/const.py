@@ -14,7 +14,6 @@ DEFAULT_SLAVE_ID: Final = 254
 DEFAULT_SCAN_INTERVAL = 30
 
 
-
 class OperationMode(IntEnum):
     """Operation modes."""
 
@@ -29,8 +28,6 @@ class OperationMode(IntEnum):
     HOLIDAY = 8
     AIR_QUALITY = 9
     OFF = 10
-
-
 
 
 class SchedulerMode(IntEnum):
@@ -56,8 +53,6 @@ class TemperatureControl(IntEnum):
     EXTRACT = 1
     BALANCE = 2
     ROOM = 3
-
-
 
 
 class FlowControl(IntEnum):

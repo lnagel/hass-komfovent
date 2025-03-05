@@ -11,7 +11,8 @@ from . import registers
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
-    SensorStateClass, SensorEntityDescription,
+    SensorStateClass,
+    SensorEntityDescription,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (

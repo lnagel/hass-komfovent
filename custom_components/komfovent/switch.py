@@ -42,7 +42,7 @@ async def create_switches(coordinator):
             register_id=registers.REG_AUTO_MODE,
             entity_description=SwitchEntityDescription(
                 key="auto_mode",
-                name="AUTO Mode", 
+                name="AUTO Mode",
                 icon="mdi:auto-fix",
                 entity_registry_enabled_default=True,
                 entity_category=None,
@@ -77,7 +77,9 @@ class KomfoventSwitch(CoordinatorEntity, SwitchEntity):
         super().__init__(coordinator)
         self.register_id = register_id
         self.entity_description = entity_description
-        self._attr_unique_id = f"{coordinator.config_entry.entry_id}_{entity_description.key}"
+        self._attr_unique_id = (
+            f"{coordinator.config_entry.entry_id}_{entity_description.key}"
+        )
         self._attr_device_info = {
             "identifiers": {(DOMAIN, coordinator.config_entry.entry_id)},
             "name": "Komfovent Ventilation",
