@@ -123,6 +123,7 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
         if (temp := kwargs.get(ATTR_TEMPERATURE)) is None:
             return
 
+        # Get current mode and its temperature register
         try:
             mode = OperationMode(self.coordinator.data.get(registers.REG_OPERATION_MODE, 0))
             reg = MODE_TEMP_MAPPING[mode]
@@ -130,10 +131,17 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
             _LOGGER.warning("Invalid operation mode, using normal setpoint")
             reg = registers.REG_NORMAL_SETPOINT
 
-        # Temperature values are stored as actual value * 10 in Modbus
-        value = int(temp * 10)
-        await self.coordinator.client.write_register(reg, value)
-        await self.coordinator.async_request_refresh()
+        # Convert temperature to device format (×10)
+        # Ensure the value is within reasonable bounds (10-30°C)
+        if 10 <= temp <= 30:
+            value = int(temp * 10)
+            try:
+                await self.coordinator.client.write_register(reg, value)
+                await self.coordinator.async_request_refresh()
+            except Exception as err:
+                _LOGGER.error("Failed to set temperature: %s", err)
+        else:
+            _LOGGER.warning("Temperature %.1f°C out of bounds (10-30°C)", temp)
 
     async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
         """Set new target hvac mode."""
