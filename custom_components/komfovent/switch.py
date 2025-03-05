@@ -22,6 +22,14 @@ async def async_setup_entry(
     async_add_entities([
         KomfoventSwitch(
             coordinator,
+            "Power",
+            "power",
+            registers.REG_POWER,
+            "Turn ventilation unit on/off",
+            "mdi:power",
+        ),
+        KomfoventSwitch(
+            coordinator,
             "ECO Mode",
             "eco_mode",
             registers.REG_ECO_MODE,
