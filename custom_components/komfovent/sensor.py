@@ -31,6 +31,13 @@ X100_FIELDS = {
     registers.REG_INDOOR_ABS_HUMIDITY,
 }
 
+# Fields that need to be converted from Wh to kWh (divide by 1000)
+WH_TO_KWH_FIELDS = {
+    registers.REG_AHU_TOTAL,
+    registers.REG_HEATER_TOTAL,
+    registers.REG_RECOVERY_TOTAL,
+}
+
 X10_PERCENTAGE_FIELDS = {
     registers.REG_SUPPLY_FAN_INTENSITY,
     registers.REG_EXTRACT_FAN_INTENSITY,
@@ -96,6 +103,9 @@ SENSOR_TYPES = {
     registers.REG_PANEL1_TEMP: ("Panel 1 Temperature", UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE),
     registers.REG_PANEL1_RH: ("Panel 1 Humidity", PERCENTAGE, SensorDeviceClass.HUMIDITY),
     registers.REG_INDOOR_ABS_HUMIDITY: ("Indoor Absolute Humidity", "g/m³", None),
+    registers.REG_AHU_TOTAL: ("Total AHU Energy", UnitOfEnergy.KILO_WATT_HOUR, SensorDeviceClass.ENERGY),
+    registers.REG_HEATER_TOTAL: ("Total Heater Energy", UnitOfEnergy.KILO_WATT_HOUR, SensorDeviceClass.ENERGY),
+    registers.REG_RECOVERY_TOTAL: ("Total Recovered Energy", UnitOfEnergy.KILO_WATT_HOUR, SensorDeviceClass.ENERGY),
 }
 
 async def async_setup_entry(
@@ -183,6 +193,10 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
             elif self._register_id in X100_FIELDS:
                 if isinstance(value, (int, float)):
                     return float(value) / 100
+                return None
+            elif self._register_id in WH_TO_KWH_FIELDS:
+                if isinstance(value, (int, float)):
+                    return float(value) / 1000  # Convert Wh to kWh
                 return None
             elif self._attr_device_class == SensorDeviceClass.HUMIDITY:
                 # Validate RH values (0-125%)
