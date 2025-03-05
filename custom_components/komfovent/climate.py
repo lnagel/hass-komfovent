@@ -109,20 +109,6 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
         return HVACMode.HEAT_COOL
 
     @property
-    def is_eco_mode(self) -> bool:
-        """Return if ECO mode is active."""
-        if not self.coordinator.data:
-            return False
-        return bool(self.coordinator.data.get(registers.REG_ECO_MODE, 0))
-
-    @property
-    def is_auto_mode(self) -> bool:
-        """Return if AUTO mode is active."""
-        if not self.coordinator.data:
-            return False
-        return bool(self.coordinator.data.get(registers.REG_AUTO_MODE, 0))
-
-    @property
     def preset_mode(self) -> str | None:
         """Return the current preset mode."""
         if self.coordinator.data:
