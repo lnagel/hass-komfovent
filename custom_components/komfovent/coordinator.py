@@ -126,6 +126,7 @@ class KomfoventCoordinator(DataUpdateCoordinator):
                 "aq_sensor2_type": sensor_block[53],
                 "aq_sensor1_value": sensor_block[54],
                 "aq_sensor2_value": sensor_block[55],
+                "indoor_abs_humidity": sensor_block[56],
             })
 
             return data
