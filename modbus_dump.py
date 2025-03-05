@@ -7,6 +7,40 @@ from pymodbus.client import ModbusTcpClient
 from pymodbus.exceptions import ModbusException
 from pymodbus.pdu import ExceptionResponse
 
+INTEGRATION_RANGES = [
+    (0, 34),  # primary control block 0-33
+    (99, 57),  # modes 99-155
+    (199, 15),  # eco and air quality 199-213
+    (299, 100),  # scheduler 299-554
+    (399, 100),  # scheduler 299-554
+    (499, 56),  # scheduler 299-554
+    (599, 11),  # active alarms 599-609
+    (610, 89),  # alarm history 610-868
+    (699, 100),  # alarm history 610-868
+    (799, 62),  # alarm history 610-860
+    (899, 57),  # detailed information 899-955
+    (999, 6),  # firmware 999-1004
+    # reset settings 1049
+]
+MOBILE_APP_RANGES = [
+    (10802, 1),
+    (4999, 47),
+    (5199, 49),
+    (5099, 65),
+    (5599, 8),
+    (6100, 21),
+    (5999, 6),
+    (5579, 11),
+    (7001, 2),
+    (5699, 65),
+    (5764, 64),
+    (5828, 64),
+    (5892, 64),
+    (5299, 125),
+    (5424, 125),
+]
+RANGES = INTEGRATION_RANGES + MOBILE_APP_RANGES
+
 
 def dump_registers(host: str, port: int) -> dict:
     """Query all holding registers one by one and return values as dictionary."""
@@ -17,50 +51,21 @@ def dump_registers(host: str, port: int) -> dict:
 
     results = {}
     try:
-        for register_id in range(0, 1024):
+        for address, count in RANGES:
             try:
                 # Try reading single register first
-                response = client.read_holding_registers(address=register_id, count=1)
+                response = client.read_holding_registers(address=address, count=count)
 
-                if isinstance(response, ExceptionResponse):
-                    # If failed, try reading two registers starting from previous address
-                    if register_id > 0:
-                        response = client.read_holding_registers(
-                            address=register_id - 1, count=2
-                        )
-                        if isinstance(response, ExceptionResponse):
-                            print(
-                                f"Register {register_id}: Exception on both single and double read"
-                            )
-                            continue
-                        if (
-                            hasattr(response, "registers")
-                            and len(response.registers) == 2
-                        ):
-                            # Take second value from the double read
-                            value = response.registers[1]
-                            results[register_id] = value
-                            print(f"Register {register_id}: {value} (from double read)")
-                            continue
-                    print(f"Register {register_id}: Exception {response}")
-                    continue
-
-                if not hasattr(response, "registers") or not response.registers:
-                    print(f"Register {register_id}: Invalid response")
-                    continue
-
-                # Normal single register read succeeded
-                value = response.registers[0]
-                results[register_id] = value
-                print(f"Register {register_id}: {value} (direct read)")
+                results[address] = response.registers
+                print(f"Register {address}: {response.registers}")
 
                 # Small delay to avoid overwhelming the device
                 time.sleep(0.1)
 
             except ModbusException as e:
-                print(f"Register {register_id}: Modbus error - {e}")
+                print(f"Register {address}: Modbus error - {e}")
             except Exception as e:
-                print(f"Register {register_id}: Unexpected error - {e}")
+                print(f"Register {address}: Unexpected error - {e}")
 
     finally:
         client.close()
