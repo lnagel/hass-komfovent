@@ -32,7 +32,12 @@ def create_aq_sensor(coordinator: KomfoventCoordinator, sensor_num: int) -> Komf
     if not coordinator.data:
         return None
         
-    sensor_type = coordinator.data.get(sensor_type_key, AirQualitySensorType.NOT_INSTALLED)
+    sensor_type_int = coordinator.data.get(sensor_type_key, AirQualitySensorType.NOT_INSTALLED)
+    try:
+        sensor_type = AirQualitySensorType(sensor_type_int)
+    except ValueError:
+        return None
+        
     if sensor_type == AirQualitySensorType.NOT_INSTALLED:
         return None
         
