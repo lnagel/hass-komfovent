@@ -106,21 +106,8 @@ def create_aq_sensor(
 
 async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSensor]:
     """Get list of sensor entities."""
-    # First get firmware versions to determine which panels are present
     entities = []
-    
-    # Add controller firmware version sensor first to ensure we have this information
-    entities.append(
-        KomfoventSensor(
-            coordinator=coordinator,
-            register_id=registers.REG_FIRMWARE,
-            entity_description=SensorEntityDescription(
-                key="controller_firmware_version",
-                name="Controller firmware version",
-                entity_category=EntityCategory.DIAGNOSTIC,
-            ),
-        )
-    )
+
 
     # Add core sensors
     entities.extend([
@@ -302,6 +289,15 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 state_class=SensorStateClass.TOTAL_INCREASING,
             ),
         ),
+        KomfoventSensor(
+            coordinator=coordinator,
+            register_id=registers.REG_FIRMWARE,
+            entity_description=SensorEntityDescription(
+                key="controller_firmware_version",
+                name="Controller firmware version",
+                entity_category=EntityCategory.DIAGNOSTIC,
+            ),
+        )
     ])
 
     # Add panel 1 sensors if panel is present
@@ -309,18 +305,9 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
         entities.extend([
             KomfoventSensor(
                 coordinator=coordinator,
-                register_id=registers.REG_PANEL1_FW,
-                entity_description=SensorEntityDescription(
-                    key="panel_1_firmware_version",
-                    name="Panel 1 firmware version",
-                    entity_category=EntityCategory.DIAGNOSTIC,
-                ),
-            ),
-            KomfoventSensor(
-                coordinator=coordinator,
                 register_id=registers.REG_PANEL1_TEMP,
                 entity_description=SensorEntityDescription(
-                    key="panel1_temperature",
+                    key="panel_1_temperature",
                     name="Panel 1 Temperature",
                     native_unit_of_measurement=UnitOfTemperature.CELSIUS,
                     device_class=SensorDeviceClass.TEMPERATURE,
@@ -331,18 +318,49 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 coordinator=coordinator,
                 register_id=registers.REG_PANEL1_RH,
                 entity_description=SensorEntityDescription(
-                    key="panel1_humidity",
+                    key="panel_1_humidity",
                     name="Panel 1 Humidity",
                     native_unit_of_measurement=PERCENTAGE,
                     device_class=SensorDeviceClass.HUMIDITY,
                     state_class=SensorStateClass.MEASUREMENT,
                 ),
             ),
+            KomfoventSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_PANEL1_FW,
+                entity_description=SensorEntityDescription(
+                    key="panel_1_firmware_version",
+                    name="Panel 1 firmware version",
+                    entity_category=EntityCategory.DIAGNOSTIC,
+                ),
+            ),
         ])
 
     # Add panel 2 firmware sensor if panel is present
     if coordinator.data and coordinator.data.get(registers.REG_PANEL2_FW, 0) != 0:
-        entities.append(
+        entities.extend([
+            KomfoventSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_PANEL2_TEMP,
+                entity_description=SensorEntityDescription(
+                    key="panel_2_temperature",
+                    name="Panel 2 Temperature",
+                    native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                    device_class=SensorDeviceClass.TEMPERATURE,
+                    state_class=SensorStateClass.MEASUREMENT,
+                ),
+            ),
+            KomfoventSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_PANEL2_RH,
+                entity_description=SensorEntityDescription(
+                    key="panel_2_humidity",
+                    name="Panel 2 Humidity",
+                    native_unit_of_measurement=PERCENTAGE,
+                    device_class=SensorDeviceClass.HUMIDITY,
+                    state_class=SensorStateClass.MEASUREMENT,
+                ),
+            ),
             KomfoventSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_PANEL2_FW,
@@ -352,7 +370,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_category=EntityCategory.DIAGNOSTIC,
                 ),
             ),
-        )
+        ])
 
     # Add AQ sensors if installed
     if aq_sensor := create_aq_sensor(coordinator, registers.REG_AQ_SENSOR1_VALUE):
