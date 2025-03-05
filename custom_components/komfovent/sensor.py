@@ -41,26 +41,27 @@ X10_PERCENTAGE_FIELDS = {
     registers.REG_DX_UNIT,
 }
 
-def create_aq_sensor(coordinator: KomfoventCoordinator, sensor_num: int) -> KomfoventSensor | None:
+def create_aq_sensor(coordinator: KomfoventCoordinator, register_id: int) -> KomfoventSensor | None:
     """Create an air quality sensor if installed."""
-    sensor_type_key = f"aq_sensor{sensor_num}_type"
-    sensor_value_key = f"aq_sensor{sensor_num}_value"
-    
+
+
     if not coordinator.data:
         return None
-        
-    sensor_type_reg = registers.REG_AQ_SENSOR1_TYPE if sensor_num == 1 else registers.REG_AQ_SENSOR2_TYPE
-    sensor_type_int = coordinator.data.get(sensor_type_reg, AirQualitySensorType.NOT_INSTALLED)
-    try:
-        sensor_type = AirQualitySensorType(sensor_type_int)
-    except ValueError:
-        return None
-        
+
+    if register_id == registers.REG_AQ_SENSOR1_VALUE:
+        sensor_type_int = coordinator.data.get(registers.REG_AQ_SENSOR1_TYPE, AirQualitySensorType.NOT_INSTALLED)
+    elif register_id == registers.REG_AQ_SENSOR2_VALUE:
+        sensor_type_int = coordinator.data.get(registers.REG_AQ_SENSOR2_TYPE, AirQualitySensorType.NOT_INSTALLED)
+    else:
+        sensor_type_int = AirQualitySensorType.NOT_INSTALLED
+
+    sensor_type = AirQualitySensorType(sensor_type_int)
+
     if sensor_type == AirQualitySensorType.NOT_INSTALLED:
         return None
-        
+
     name = f"Air Quality {sensor_type.name.title()}"
-    
+
     if sensor_type == AirQualitySensorType.CO2:
         unit, device_class = "ppm", SensorDeviceClass.CO2
     elif sensor_type == AirQualitySensorType.VOC:
@@ -69,10 +70,10 @@ def create_aq_sensor(coordinator: KomfoventCoordinator, sensor_num: int) -> Komf
         unit, device_class = PERCENTAGE, SensorDeviceClass.HUMIDITY
     else:
         return None
-        
+
     return KomfoventSensor(
         coordinator,
-        sensor_value_key,
+        register_id,
         name,
         unit,
         device_class,
@@ -108,13 +109,13 @@ async def async_setup_entry(
     coordinator: KomfoventCoordinator = hass.data[DOMAIN][entry.entry_id]
 
     entities = []
-    
+
     # Create standard sensors
-    for sensor_type, (name, unit, device_class) in SENSOR_TYPES.items():
+    for register_id, (name, unit, device_class) in SENSOR_TYPES.items():
         entities.append(
                 KomfoventSensor(
                     coordinator,
-                    sensor_type,
+                    register_id,
                     name,
                     unit,
                     device_class,
@@ -122,9 +123,9 @@ async def async_setup_entry(
             )
 
     # Add AQ sensors if installed
-    if aq_sensor := create_aq_sensor(coordinator, 1):
+    if aq_sensor := create_aq_sensor(coordinator, registers.REG_AQ_SENSOR1_VALUE):
         entities.append(aq_sensor)
-    if aq_sensor := create_aq_sensor(coordinator, 2):
+    if aq_sensor := create_aq_sensor(coordinator, registers.REG_AQ_SENSOR2_VALUE):
         entities.append(aq_sensor)
 
     async_add_entities(entities)
@@ -138,18 +139,18 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
     def __init__(
         self,
         coordinator: KomfoventCoordinator,
-        sensor_type: str,
+        register_id: int,
         name: str,
         unit: str | None,
         device_class: str | None,
     ) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator)
-        self._sensor_type = sensor_type
+        self._register_id = register_id
         self._attr_name = name
         self._attr_native_unit_of_measurement = unit
         self._attr_device_class = device_class
-        self._attr_unique_id = f"{coordinator.config_entry.entry_id}_{sensor_type}"
+        self._attr_unique_id = f"{coordinator.config_entry.entry_id}_{register_id}"
         self._attr_device_info = {
             "identifiers": {(DOMAIN, coordinator.config_entry.entry_id)},
             "name": "Komfovent Ventilation",
@@ -163,8 +164,8 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
         try:
             if not self.coordinator.data:
                 return None
-                
-            value = self.coordinator.data.get(self._sensor_type)
+
+            value = self.coordinator.data.get(self._register_id)
             if value is None:
                 return None
 
@@ -174,14 +175,14 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
                 if isinstance(value, (int, float)):
                     return float(value) / 10
                 return None
-            elif self._sensor_type in X10_PERCENTAGE_FIELDS:
+            elif self._register_id in X10_PERCENTAGE_FIELDS:
                 # These percentage fields are stored as actual value * 10
                 if isinstance(value, (int, float)):
                     value = float(value) / 10
                     if 0 <= value <= 100:
                         return value
                 return None
-            elif self._sensor_type in X100_FIELDS:
+            elif self._register_id in X100_FIELDS:
                 if isinstance(value, (int, float)):
                     return float(value) / 100
                 return None
@@ -195,23 +196,19 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
                 if 0 <= float(value) <= 2500:
                     return float(value)
                 return None
-            elif self._sensor_type == "spi":
+            elif self._register_id == registers.REG_SPI:
                 # Validate SPI values (0-5)
                 value = float(value) / 1000
                 if 0 <= value <= 5:
                     return value
                 return None
-            elif self._sensor_type in ["aq_sensor1_value", "aq_sensor2_value"]:
+            elif self._attr_native_unit_of_measurement == "ppb":  # VOC
                 if not isinstance(value, (int, float)):
                     return None
                 value = float(value)
-                
-                # Only validate VOC values, CO2 and humidity are handled above
-                if self._attr_native_unit_of_measurement == "ppb":  # VOC
-                    if 0 <= value <= 2000:
-                        return value
-                    return None
-                return value
+                if 0 <= value <= 2000:
+                    return value
+                return None
                 
             return float(value)
         except (ValueError, TypeError):
