@@ -80,6 +80,8 @@ SENSOR_TYPES = {
     "panel1_rh": ("Panel 1 Humidity", PERCENTAGE, SensorDeviceClass.HUMIDITY),
     "extract_co2": ("Extract Air CO2", "ppm", SensorDeviceClass.CO2),
     "extract_rh": ("Extract Air Humidity", PERCENTAGE, SensorDeviceClass.HUMIDITY),
+    "indoor_humidity": ("Indoor Humidity", PERCENTAGE, SensorDeviceClass.HUMIDITY),
+    "indoor_abs_humidity": ("Indoor Absolute Humidity", "g/m³", None),
 }
 
 async def async_setup_entry(
