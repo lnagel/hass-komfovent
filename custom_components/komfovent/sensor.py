@@ -164,12 +164,11 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
             "manufacturer": "Komfovent",
             "model": "Modbus",
         }
-        # Set appropriate state class based on sensor type
-        if register_id != registers.REG_FIRMWARE:
-            if register_id in WH_TO_KWH_FIELDS:
-                self._attr_state_class = SensorStateClass.TOTAL_INCREASING
-            else:
-                self._attr_state_class = SensorStateClass.MEASUREMENT
+        # Set state class for measurement sensors
+        if register_id in WH_TO_KWH_FIELDS:
+            self._attr_state_class = SensorStateClass.TOTAL_INCREASING
+        elif register_id != registers.REG_FIRMWARE:
+            self._attr_state_class = SensorStateClass.MEASUREMENT
 
     @property
     def native_value(self) -> float | None:
