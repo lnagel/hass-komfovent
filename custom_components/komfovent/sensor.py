@@ -9,7 +9,7 @@ from homeassistant.components.sensor import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     PERCENTAGE,
-    TEMP_CELSIUS,
+    UnitOfTemperature,
     POWER_WATT,
     ENERGY_KILO_WATT_HOUR,
     VOLUME_FLOW_RATE_CUBIC_METERS_PER_HOUR,
@@ -60,9 +60,9 @@ def create_aq_sensor(coordinator: KomfoventCoordinator, sensor_num: int) -> Komf
     )
 
 SENSOR_TYPES = {
-    "supply_temp": ("Supply Temperature", TEMP_CELSIUS, SensorDeviceClass.TEMPERATURE),
-    "extract_temp": ("Extract Temperature", TEMP_CELSIUS, SensorDeviceClass.TEMPERATURE),
-    "outdoor_temp": ("Outdoor Temperature", TEMP_CELSIUS, SensorDeviceClass.TEMPERATURE),
+    "supply_temp": ("Supply Temperature", UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE),
+    "extract_temp": ("Extract Temperature", UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE),
+    "outdoor_temp": ("Outdoor Temperature", UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE),
     "supply_flow": ("Supply Flow", VOLUME_FLOW_RATE_CUBIC_METERS_PER_HOUR, None),
     "extract_flow": ("Extract Flow", VOLUME_FLOW_RATE_CUBIC_METERS_PER_HOUR, None),
     "supply_fan_intensity": ("Supply Fan Intensity", PERCENTAGE, None),
@@ -75,7 +75,7 @@ SENSOR_TYPES = {
     "heat_recovery": ("Heat Recovery", POWER_WATT, SensorDeviceClass.POWER),
     "heat_efficiency": ("Heat Exchanger Efficiency", PERCENTAGE, None),
     "spi": ("Specific Power Input", None, None),
-    "panel1_temp": ("Panel 1 Temperature", TEMP_CELSIUS, SensorDeviceClass.TEMPERATURE),
+    "panel1_temp": ("Panel 1 Temperature", UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE),
     "panel1_rh": ("Panel 1 Humidity", PERCENTAGE, SensorDeviceClass.HUMIDITY),
     "extract_co2": ("Extract Air CO2", "ppm", SensorDeviceClass.CO2),
     "extract_rh": ("Extract Air Humidity", PERCENTAGE, SensorDeviceClass.HUMIDITY),
