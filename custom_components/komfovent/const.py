@@ -13,12 +13,6 @@ DEFAULT_PORT = 502
 DEFAULT_SLAVE_ID: Final = 254
 DEFAULT_SCAN_INTERVAL = 30
 
-# Register value types
-VALUE_TYPE_UINT8: Final = "uint8"
-VALUE_TYPE_UINT16: Final = "uint16"
-VALUE_TYPE_INT8: Final = "int8"
-VALUE_TYPE_INT16: Final = "int16"
-VALUE_TYPE_UINT32: Final = "uint32"
 
 
 class OperationMode(IntEnum):
