@@ -106,7 +106,7 @@ SENSOR_TYPES = {
     registers.REG_AHU_TOTAL: ("Total AHU Energy", UnitOfEnergy.KILO_WATT_HOUR, SensorDeviceClass.ENERGY),
     registers.REG_HEATER_TOTAL: ("Total Heater Energy", UnitOfEnergy.KILO_WATT_HOUR, SensorDeviceClass.ENERGY),
     registers.REG_RECOVERY_TOTAL: ("Total Recovered Energy", UnitOfEnergy.KILO_WATT_HOUR, SensorDeviceClass.ENERGY),
-    registers.REG_FIRMWARE: ("Firmware Version", None, SensorDeviceClass.FIRMWARE),
+    registers.REG_FIRMWARE: ("Firmware Version", None, None),
 }
 
 async def async_setup_entry(
