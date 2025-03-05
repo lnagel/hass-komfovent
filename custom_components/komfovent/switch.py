@@ -22,6 +22,7 @@ async def create_switches(coordinator):
             registers.REG_POWER,
             "Turn ventilation unit on/off",
             "mdi:power",
+            entity_description=SwitchEntityDescription(),
         ),
         KomfoventSwitch(
             coordinator,
@@ -30,6 +31,7 @@ async def create_switches(coordinator):
             registers.REG_ECO_MODE,
             "Enables energy saving mode",
             "mdi:leaf",
+            entity_description=SwitchEntityDescription(),
         ),
         KomfoventSwitch(
             coordinator,
@@ -38,6 +40,7 @@ async def create_switches(coordinator):
             registers.REG_AUTO_MODE,
             "Enables automatic mode control",
             "mdi:auto-fix",
+            entity_description=SwitchEntityDescription(),
         ),
     ]
 

@@ -91,6 +91,7 @@ def create_aq_sensor(
         name,
         unit,
         device_class,
+        entity_description=SensorEntityDescription(),
     )
 
 
@@ -104,6 +105,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             UnitOfTemperature.CELSIUS,
             SensorDeviceClass.TEMPERATURE,
             SensorStateClass.MEASUREMENT,
+            entity_description=SensorEntityDescription(),
         ),
         KomfoventSensor(
             coordinator,
@@ -112,6 +114,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             UnitOfTemperature.CELSIUS,
             SensorDeviceClass.TEMPERATURE,
             SensorStateClass.MEASUREMENT,
+            entity_description=SensorEntityDescription(),
         ),
         KomfoventSensor(
             coordinator,
@@ -120,6 +123,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             UnitOfTemperature.CELSIUS,
             SensorDeviceClass.TEMPERATURE,
             SensorStateClass.MEASUREMENT,
+            entity_description=SensorEntityDescription(),
         ),
         KomfoventSensor(
             coordinator,
@@ -128,6 +132,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             PERCENTAGE,
             None,
             SensorStateClass.MEASUREMENT,
+            entity_description=SensorEntityDescription(),
         ),
         KomfoventSensor(
             coordinator,
@@ -136,6 +141,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             PERCENTAGE,
             None,
             SensorStateClass.MEASUREMENT,
+            entity_description=SensorEntityDescription(),
         ),
         KomfoventSensor(
             coordinator,
@@ -144,6 +150,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             PERCENTAGE,
             None,
             SensorStateClass.MEASUREMENT,
+            entity_description=SensorEntityDescription(),
         ),
         KomfoventSensor(
             coordinator,
@@ -152,6 +159,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             PERCENTAGE,
             None,
             SensorStateClass.MEASUREMENT,
+            entity_description=SensorEntityDescription(),
         ),
         KomfoventSensor(
             coordinator,
@@ -160,6 +168,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             PERCENTAGE,
             None,
             SensorStateClass.MEASUREMENT,
+            entity_description=SensorEntityDescription(),
         ),
         KomfoventSensor(
             coordinator,
@@ -168,6 +177,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             UnitOfPower.WATT,
             SensorDeviceClass.POWER,
             SensorStateClass.MEASUREMENT,
+            entity_description=SensorEntityDescription(),
         ),
         KomfoventSensor(
             coordinator,
@@ -176,6 +186,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             UnitOfPower.WATT,
             SensorDeviceClass.POWER,
             SensorStateClass.MEASUREMENT,
+            entity_description=SensorEntityDescription(),
         ),
         KomfoventSensor(
             coordinator,
@@ -184,6 +195,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             UnitOfPower.WATT,
             SensorDeviceClass.POWER,
             SensorStateClass.MEASUREMENT,
+            entity_description=SensorEntityDescription(),
         ),
         KomfoventSensor(
             coordinator,
@@ -192,6 +204,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             PERCENTAGE,
             None,
             SensorStateClass.MEASUREMENT,
+            entity_description=SensorEntityDescription(),
         ),
         KomfoventSensor(
             coordinator,
@@ -199,6 +212,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             "Specific Power Input",
             None,
             SensorStateClass.MEASUREMENT,
+            entity_description=SensorEntityDescription(),
         ),
         KomfoventSensor(
             coordinator,
@@ -207,6 +221,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             UnitOfTemperature.CELSIUS,
             SensorDeviceClass.TEMPERATURE,
             SensorStateClass.MEASUREMENT,
+            entity_description=SensorEntityDescription(),
         ),
         KomfoventSensor(
             coordinator,
@@ -215,6 +230,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             PERCENTAGE,
             SensorDeviceClass.HUMIDITY,
             SensorStateClass.MEASUREMENT,
+            entity_description=SensorEntityDescription(),
         ),
         KomfoventSensor(
             coordinator,
@@ -222,6 +238,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             "Indoor Absolute Humidity",
             "g/m³",
             SensorStateClass.MEASUREMENT,
+            entity_description=SensorEntityDescription(),
         ),
         KomfoventSensor(
             coordinator,
@@ -230,6 +247,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             UnitOfEnergy.KILO_WATT_HOUR,
             SensorDeviceClass.ENERGY,
             SensorStateClass.TOTAL_INCREASING,
+            entity_description=SensorEntityDescription(),
         ),
         KomfoventSensor(
             coordinator,
@@ -238,6 +256,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             UnitOfEnergy.KILO_WATT_HOUR,
             SensorDeviceClass.ENERGY,
             SensorStateClass.TOTAL_INCREASING,
+            entity_description=SensorEntityDescription(),
         ),
         KomfoventSensor(
             coordinator,
@@ -246,6 +265,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             UnitOfEnergy.KILO_WATT_HOUR,
             SensorDeviceClass.ENERGY,
             SensorStateClass.TOTAL_INCREASING,
+            entity_description=SensorEntityDescription(),
         ),
         KomfoventSensor(
             coordinator,
@@ -253,6 +273,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             "Firmware Version",
             None,
             None,
+            entity_description=SensorEntityDescription(),
         ),
     ]
 
