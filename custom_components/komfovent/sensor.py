@@ -83,8 +83,6 @@ SENSOR_TYPES = {
     registers.REG_SUPPLY_TEMP: ("Supply Temperature", UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE),
     registers.REG_EXTRACT_TEMP: ("Extract Temperature", UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE),
     registers.REG_OUTDOOR_TEMP: ("Outdoor Temperature", UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE),
-    registers.REG_SUPPLY_FLOW: ("Supply Flow", UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR, None),
-    registers.REG_EXTRACT_FLOW: ("Extract Flow", UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR, None),
     registers.REG_SUPPLY_FAN_INTENSITY: ("Supply Fan Intensity", PERCENTAGE, None),
     registers.REG_EXTRACT_FAN_INTENSITY: ("Extract Fan Intensity", PERCENTAGE, None),
     registers.REG_HEAT_EXCHANGER: ("Heat Exchanger", PERCENTAGE, None),
