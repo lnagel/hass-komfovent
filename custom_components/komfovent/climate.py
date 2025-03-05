@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, ClassVar, Final, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, ClassVar, Final
 
 from homeassistant.components.climate import (
     ClimateEntity,
@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
+
     from .coordinator import KomfoventCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -127,7 +128,7 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
         """Return the current preset mode."""
         if not self.coordinator.data:
             return None
-        
+
         mode = self.coordinator.data.get(registers.REG_OPERATION_MODE, 0)
         try:
             return OperationMode(mode).name.lower()
@@ -156,11 +157,11 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
             try:
                 await self.coordinator.client.write_register(reg, value)
                 await self.coordinator.async_request_refresh()
-            except (ConnectionError, TimeoutError) as err:
+            except (ConnectionError, TimeoutError):
                 _LOGGER.exception("Failed to set temperature")
         else:
             _LOGGER.warning(
-                "Temperature %.1f°C out of bounds (%d-%d°C, raw values %d-%d)", 
+                "Temperature %.1f°C out of bounds (%d-%d°C, raw values %d-%d)",
                 temp, MIN_TEMP, MAX_TEMP, MIN_TEMP * 10, MAX_TEMP * 10
             )
 
@@ -218,6 +219,6 @@ TEMP_CONTROL_MAPPING = {
     TemperatureControl.EXTRACT: registers.REG_EXTRACT_TEMP,
     # Using panel1 temp for room temperature
     TemperatureControl.ROOM: registers.REG_PANEL1_TEMP,
-    # Using extract temp for balance mode  
+    # Using extract temp for balance mode
     TemperatureControl.BALANCE: registers.REG_EXTRACT_TEMP,
 }
