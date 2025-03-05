@@ -83,12 +83,12 @@ class TemperatureControl(IntEnum):
     BALANCE = 2
     ROOM = 3
 
-# Mapping of temperature control modes to their data keys
+# Mapping of temperature control modes to their register IDs
 TEMP_CONTROL_MAPPING = {
-    TemperatureControl.SUPPLY: "supply_temp",
-    TemperatureControl.EXTRACT: "extract_temp",
-    TemperatureControl.ROOM: "panel1_temp",  # Using panel1 temp for room temperature
-    TemperatureControl.BALANCE: "extract_temp",  # Using extract temp for balance mode
+    TemperatureControl.SUPPLY: registers.REG_SUPPLY_TEMP,
+    TemperatureControl.EXTRACT: registers.REG_EXTRACT_TEMP,
+    TemperatureControl.ROOM: registers.REG_PANEL1_TEMP,  # Using panel1 temp for room temperature
+    TemperatureControl.BALANCE: registers.REG_EXTRACT_TEMP,  # Using extract temp for balance mode
 }
 
 class FlowControl(IntEnum):
