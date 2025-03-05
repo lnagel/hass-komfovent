@@ -23,8 +23,8 @@ if TYPE_CHECKING:
 
 _LOGGER = logging.getLogger(__name__)
 
-MIN_TEMP: Final = 10
-MAX_TEMP: Final = 30
+MIN_TEMP: Final = 5  # Minimum temperature supported by device (raw value 50)
+MAX_TEMP: Final = 40  # Maximum temperature supported by device (raw value 400)
 from .const import (
     DOMAIN,
     OperationMode,
@@ -160,8 +160,8 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
                 _LOGGER.exception("Failed to set temperature")
         else:
             _LOGGER.warning(
-                "Temperature %.1f°C out of bounds (%d-%d°C)", 
-                temp, MIN_TEMP, MAX_TEMP
+                "Temperature %.1f°C out of bounds (%d-%d°C, raw values %d-%d)", 
+                temp, MIN_TEMP, MAX_TEMP, MIN_TEMP * 10, MAX_TEMP * 10
             )
 
     async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
