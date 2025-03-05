@@ -132,9 +132,9 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
         self._attr_name = name
         self._attr_native_unit_of_measurement = unit
         self._attr_device_class = device_class
-        self._attr_unique_id = f"{DOMAIN}_{sensor_type}"
+        self._attr_unique_id = f"{coordinator.config_entry.entry_id}_{sensor_type}"
         self._attr_device_info = {
-            "identifiers": {(DOMAIN, f"{DOMAIN}_device")},
+            "identifiers": {(DOMAIN, coordinator.config_entry.entry_id)},
             "name": "Komfovent Ventilation",
             "manufacturer": "Komfovent",
             "model": "Modbus",
