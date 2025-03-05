@@ -58,7 +58,7 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
         super().__init__(coordinator)
         self._attr_unique_id = f"{DOMAIN}_climate"
         self._attr_device_info = {
-            "identifiers": {(DOMAIN, self._attr_unique_id)},
+            "identifiers": {(DOMAIN, f"{DOMAIN}_device")},
             "name": "Komfovent Ventilation",
             "manufacturer": "Komfovent",
             "model": "Modbus",
