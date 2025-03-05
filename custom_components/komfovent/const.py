@@ -8,7 +8,7 @@ from homeassistant.const import (
     UnitOfPower,
     UnitOfEnergy,
     UnitOfVolumeFlowRate,
-    REVOLUTIONS_PER_MINUTE,
+    UnitOfSpeed,
 )
 from typing import Final, Dict
 

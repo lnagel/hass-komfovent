@@ -11,8 +11,8 @@ from homeassistant.const import (
     PERCENTAGE,
     UnitOfTemperature,
     UnitOfPower,
-    ENERGY_KILO_WATT_HOUR,
-    VOLUME_FLOW_RATE_CUBIC_METERS_PER_HOUR,
+    UnitOfEnergy,
+    UnitOfVolumeFlowRate,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -63,8 +63,8 @@ SENSOR_TYPES = {
     "supply_temp": ("Supply Temperature", UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE),
     "extract_temp": ("Extract Temperature", UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE),
     "outdoor_temp": ("Outdoor Temperature", UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE),
-    "supply_flow": ("Supply Flow", VOLUME_FLOW_RATE_CUBIC_METERS_PER_HOUR, None),
-    "extract_flow": ("Extract Flow", VOLUME_FLOW_RATE_CUBIC_METERS_PER_HOUR, None),
+    "supply_flow": ("Supply Flow", UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR, None),
+    "extract_flow": ("Extract Flow", UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR, None),
     "supply_fan_intensity": ("Supply Fan Intensity", PERCENTAGE, None),
     "extract_fan_intensity": ("Extract Fan Intensity", PERCENTAGE, None),
     "heat_exchanger": ("Heat Exchanger", PERCENTAGE, None),
