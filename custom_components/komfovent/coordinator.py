@@ -91,7 +91,7 @@ class KomfoventCoordinator(DataUpdateCoordinator):
 
             # Read firmware version
             firmware_block = await self.client.read_holding_registers(
-                registers.REG_FIRMWARE, 2
+                registers.REG_FIRMWARE, 6
             )
             data.update(process_register_block(firmware_block))
 

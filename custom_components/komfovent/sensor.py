@@ -311,8 +311,26 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             coordinator=coordinator,
             register_id=registers.REG_FIRMWARE,
             entity_description=SensorEntityDescription(
-                key="firmware_version",
-                name="Firmware Version",
+                key="controller_firmware_version",
+                name="Controller firmware version",
+                entity_category=EntityCategory.DIAGNOSTIC,
+            ),
+        ),
+        KomfoventSensor(
+            coordinator=coordinator,
+            register_id=registers.REG_PANEL1_FW,
+            entity_description=SensorEntityDescription(
+                key="panel_1_firmware_version",
+                name="Panel 1 firmware version",
+                entity_category=EntityCategory.DIAGNOSTIC,
+            ),
+        ),
+        KomfoventSensor(
+            coordinator=coordinator,
+            register_id=registers.REG_PANEL2_FW,
+            entity_description=SensorEntityDescription(
+                key="panel_2_firmware_version",
+                name="Panel 2 firmware version",
                 entity_category=EntityCategory.DIAGNOSTIC,
             ),
         ),
@@ -393,14 +411,15 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
                 if isinstance(value, (int, float)):
                     return float(value) / 1000  # Convert Wh to kWh
                 return None
-            elif self.register_id == registers.REG_FIRMWARE:
+            elif self.register_id in {registers.REG_FIRMWARE, registers.REG_PANEL1_FW, registers.REG_PANEL2_FW}:
                 if isinstance(value, int):
                     # Extract version numbers using bit shifts
                     v1 = (value >> 24) & 0xFF  # First number (8 bits)
                     v2 = (value >> 20) & 0xF  # Second number (4 bits)
                     v3 = (value >> 12) & 0xFF  # Third number (8 bits)
                     v4 = value & 0xFFF  # Fourth number (12 bits)
-                    return f"{v1}.{v2}.{v3}.{v4}"
+                    if any([v1, v2, v3, v4]):
+                        return f"{v1}.{v2}.{v3}.{v4}"
                 return None
             elif self.entity_description.device_class == SensorDeviceClass.HUMIDITY:
                 # Validate RH values (0-125%)
