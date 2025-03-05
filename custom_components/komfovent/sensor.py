@@ -20,11 +20,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
     DOMAIN,
-    AQ_SENSOR_TYPES,
-    AQ_SENSOR_TYPE_NOT_INSTALLED,
-    AQ_SENSOR_TYPE_CO2,
-    AQ_SENSOR_TYPE_VOC,
-    AQ_SENSOR_TYPE_RH,
+    AirQualitySensorType,
 )
 from .coordinator import KomfoventCoordinator
 
@@ -36,17 +32,17 @@ def create_aq_sensor(coordinator: KomfoventCoordinator, sensor_num: int) -> Komf
     if not coordinator.data:
         return None
         
-    sensor_type = coordinator.data.get(sensor_type_key, AQ_SENSOR_TYPE_NOT_INSTALLED)
-    if sensor_type == AQ_SENSOR_TYPE_NOT_INSTALLED:
+    sensor_type = coordinator.data.get(sensor_type_key, AirQualitySensorType.NOT_INSTALLED)
+    if sensor_type == AirQualitySensorType.NOT_INSTALLED:
         return None
         
-    name = f"Air Quality {AQ_SENSOR_TYPES.get(sensor_type, 'Unknown')}"
+    name = f"Air Quality {sensor_type.name.title()}"
     
-    if sensor_type == AQ_SENSOR_TYPE_CO2:
+    if sensor_type == AirQualitySensorType.CO2:
         unit, device_class = "ppm", SensorDeviceClass.CO2
-    elif sensor_type == AQ_SENSOR_TYPE_VOC:
+    elif sensor_type == AirQualitySensorType.VOC:
         unit, device_class = "ppb", None
-    elif sensor_type == AQ_SENSOR_TYPE_RH:
+    elif sensor_type == AirQualitySensorType.RH:
         unit, device_class = PERCENTAGE, SensorDeviceClass.HUMIDITY
     else:
         return None
