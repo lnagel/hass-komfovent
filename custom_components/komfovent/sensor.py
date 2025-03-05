@@ -199,6 +199,15 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
                 if isinstance(value, (int, float)):
                     return float(value) / 1000  # Convert Wh to kWh
                 return None
+            elif self._register_id == registers.REG_FIRMWARE:
+                if isinstance(value, int):
+                    # Extract version numbers using bit shifts
+                    v1 = (value >> 24) & 0xFF  # First number (8 bits)
+                    v2 = (value >> 20) & 0xF   # Second number (4 bits)
+                    v3 = (value >> 12) & 0xFF  # Third number (8 bits)
+                    v4 = value & 0xFFF         # Fourth number (12 bits)
+                    return f"{v1}.{v2}.{v3}.{v4}"
+                return None
             elif self._attr_device_class == SensorDeviceClass.HUMIDITY:
                 # Validate RH values (0-125%)
                 if 0 <= float(value) <= 125:
