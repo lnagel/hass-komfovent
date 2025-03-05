@@ -15,7 +15,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
     DOMAIN,
-    OPERATION_MODES,
+    OperationMode,
     REG_OPERATION_MODE,
     REG_POWER,
     REG_NORMAL_SETPOINT,
@@ -50,7 +50,7 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
         | ClimateEntityFeature.FAN_MODE
     )
     _attr_fan_modes = ["away", "normal", "intensive", "boost"]
-    _attr_preset_modes = list(OPERATION_MODES.values())
+    _attr_preset_modes = [mode.name.lower() for mode in OperationMode]
 
     def __init__(self, coordinator: KomfoventCoordinator) -> None:
         """Initialize the climate device."""
@@ -114,7 +114,10 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
         """Return the current preset mode."""
         if self.coordinator.data:
             mode = self.coordinator.data.get("operation_mode", 0)
-            return OPERATION_MODES.get(mode, "Unknown")
+            try:
+                return OperationMode(mode).name.lower()
+            except ValueError:
+                return "unknown"
 
     async def async_set_temperature(self, **kwargs: Any) -> None:
         """Set new target temperature."""
@@ -150,12 +153,11 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
 
     async def async_set_preset_mode(self, preset_mode: str) -> None:
         """Set new preset mode."""
-        for mode_num, mode_name in OPERATION_MODES.items():
-            if mode_name == preset_mode:
-                await self.coordinator.client.write_register(
-                    REG_OPERATION_MODE, mode_num
-                )
-                break
+        try:
+            mode = OperationMode[preset_mode.upper()]
+            await self.coordinator.client.write_register(
+                REG_OPERATION_MODE, mode.value
+            )
         await self.coordinator.async_request_refresh()
 
     @property
@@ -175,14 +177,9 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
 
     async def async_set_fan_mode(self, fan_mode: str) -> None:
         """Set new fan mode."""
-        mode_map = {
-            "away": 1,
-            "normal": 2,
-            "intensive": 3,
-            "boost": 4
-        }
-        if fan_mode in mode_map:
+        try:
+            mode = OperationMode[fan_mode.upper()]
             await self.coordinator.client.write_register(
-                REG_OPERATION_MODE, mode_map[fan_mode]
+                REG_OPERATION_MODE, mode.value
             )
             await self.coordinator.async_request_refresh()
