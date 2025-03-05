@@ -10,7 +10,7 @@ from homeassistant.components.select import SelectEntity, SelectEntityDescriptio
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import registers
-from .const import DOMAIN, OperationMode
+from .const import DOMAIN, OperationMode, SchedulerMode
 
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
@@ -40,7 +40,17 @@ async def async_setup_entry(
                     name="Current mode",
                     options=[mode.name.lower() for mode in OperationMode],
                 ),
-            )
+            ),
+            KomfoventSelect(
+                coordinator=coordinator,
+                register_id=registers.REG_SCHEDULER_MODE,
+                enum_class=SchedulerMode,
+                entity_description=SelectEntityDescription(
+                    key="scheduler_mode",
+                    name="Scheduler operation mode",
+                    options=[mode.name.lower() for mode in SchedulerMode],
+                ),
+            ),
         ]
     )
 
