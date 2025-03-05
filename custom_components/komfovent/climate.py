@@ -26,6 +26,10 @@ from .const import (
     REG_INTENSIVE_TEMP,
     REG_BOOST_TEMP,
     REG_KITCHEN_TEMP,
+    REG_FIREPLACE_TEMP,
+    REG_OVERRIDE_TEMP,
+    REG_HOLIDAYS_TEMP,
+    REG_AQ_TEMP_SETPOINT,
     REG_ECO_MODE,
     REG_AUTO_MODE,
 )
@@ -87,19 +91,31 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
     @property
     def target_temperature(self) -> float | None:
         """Return the temperature we try to reach."""
-        if self.coordinator.data:
-            mode = self.coordinator.data.get("operation_mode", 0)
-            if mode == 1:  # Away
-                return float(self.coordinator.data.get("away_temp", 0)) / 10
-            elif mode == 2:  # Normal
-                return float(self.coordinator.data.get("normal_temp", 0)) / 10
-            elif mode == 3:  # Intensive
-                return float(self.coordinator.data.get("intensive_temp", 0)) / 10
-            elif mode == 4:  # Boost
-                return float(self.coordinator.data.get("boost_temp", 0)) / 10
-            elif mode == 5:  # Kitchen
-                return float(self.coordinator.data.get("kitchen_temp", 0)) / 10
-            return float(self.coordinator.data.get("normal_temp", 0)) / 10
+        if not self.coordinator.data:
+            return None
+            
+        try:
+            mode = OperationMode(self.coordinator.data.get("operation_mode", 0))
+            temp_key = {
+                OperationMode.STANDBY: "normal_temp",  # Use normal temp for standby
+                OperationMode.AWAY: "away_temp",
+                OperationMode.NORMAL: "normal_temp",
+                OperationMode.INTENSIVE: "intensive_temp",
+                OperationMode.BOOST: "boost_temp",
+                OperationMode.KITCHEN: "kitchen_temp",
+                OperationMode.FIREPLACE: "fireplace_temp",
+                OperationMode.OVERRIDE: "override_temp",
+                OperationMode.HOLIDAY: "holidays_temp",
+                OperationMode.AIR_QUALITY: "aq_temp_setpoint",
+                OperationMode.OFF: "normal_temp",  # Use normal temp when off
+            }[mode]
+            
+            if (temp := self.coordinator.data.get(temp_key)) is not None:
+                return float(temp) / 10
+        except (ValueError, KeyError):
+            _LOGGER.warning("Invalid operation mode or temperature value")
+            
+        return None
 
     @property
     def hvac_mode(self) -> HVACMode:
@@ -125,19 +141,24 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
         if (temp := kwargs.get(ATTR_TEMPERATURE)) is None:
             return
 
-        mode = self.coordinator.data.get("operation_mode", 0)
-        reg = REG_NORMAL_SETPOINT  # Default to normal mode
-        
-        if mode == 1:  # Away
-            reg = REG_AWAY_TEMP
-        elif mode == 2:  # Normal
+        try:
+            mode = OperationMode(self.coordinator.data.get("operation_mode", 0))
+            reg = {
+                OperationMode.STANDBY: REG_NORMAL_SETPOINT,  # Use normal for standby
+                OperationMode.AWAY: REG_AWAY_TEMP,
+                OperationMode.NORMAL: REG_NORMAL_SETPOINT,
+                OperationMode.INTENSIVE: REG_INTENSIVE_TEMP,
+                OperationMode.BOOST: REG_BOOST_TEMP,
+                OperationMode.KITCHEN: REG_KITCHEN_TEMP,
+                OperationMode.FIREPLACE: REG_FIREPLACE_TEMP,
+                OperationMode.OVERRIDE: REG_OVERRIDE_TEMP,
+                OperationMode.HOLIDAY: REG_HOLIDAYS_TEMP,
+                OperationMode.AIR_QUALITY: REG_AQ_TEMP_SETPOINT,
+                OperationMode.OFF: REG_NORMAL_SETPOINT,  # Use normal when off
+            }[mode]
+        except (ValueError, KeyError):
+            _LOGGER.warning("Invalid operation mode, using normal setpoint")
             reg = REG_NORMAL_SETPOINT
-        elif mode == 3:  # Intensive
-            reg = REG_INTENSIVE_TEMP
-        elif mode == 4:  # Boost
-            reg = REG_BOOST_TEMP
-        elif mode == 5:  # Kitchen
-            reg = REG_KITCHEN_TEMP
 
         # Temperature values are stored as actual value * 10 in Modbus
         value = int(temp * 10)
