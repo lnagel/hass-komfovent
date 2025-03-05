@@ -45,8 +45,6 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
     _attr_supported_features = (
         ClimateEntityFeature.TARGET_TEMPERATURE
         | ClimateEntityFeature.PRESET_MODE
-        | ClimateEntityFeature.TURN_ECO_ON
-        | ClimateEntityFeature.TURN_AUTO_ON
     )
     _attr_preset_modes = [mode.name.lower() for mode in OperationMode]
 
@@ -63,25 +61,6 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
         self._eco_mode = False
         self._auto_mode = False
 
-    async def async_turn_eco_on(self) -> None:
-        """Turn on eco mode."""
-        await self.coordinator.client.write_register(registers.REG_ECO_MODE, 1)
-        await self.coordinator.async_request_refresh()
-
-    async def async_turn_eco_off(self) -> None:
-        """Turn off eco mode."""
-        await self.coordinator.client.write_register(registers.REG_ECO_MODE, 0)
-        await self.coordinator.async_request_refresh()
-
-    async def async_turn_auto_on(self) -> None:
-        """Turn on auto mode."""
-        await self.coordinator.client.write_register(registers.REG_AUTO_MODE, 1)
-        await self.coordinator.async_request_refresh()
-
-    async def async_turn_auto_off(self) -> None:
-        """Turn off auto mode."""
-        await self.coordinator.client.write_register(registers.REG_AUTO_MODE, 0)
-        await self.coordinator.async_request_refresh()
 
     @property
     def current_temperature(self) -> float | None:
