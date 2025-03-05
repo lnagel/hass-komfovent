@@ -3,25 +3,11 @@
 from __future__ import annotations
 
 from enum import IntEnum
-from typing import Final, Dict
+from typing import Final
 
 from . import registers
 
 DOMAIN = "komfovent"
-
-OPERATION_MODES: Dict[int, str] = {
-    0: "standby",
-    1: "away",
-    2: "normal",
-    3: "intensive",
-    4: "boost",
-    5: "kitchen",
-    6: "fireplace",
-    7: "override",
-    8: "holiday",
-    9: "air_quality",
-    10: "off",
-}
 
 DEFAULT_NAME = "Komfovent"
 DEFAULT_HOST: Final = None
