@@ -29,8 +29,8 @@ if TYPE_CHECKING:
 
 _LOGGER = logging.getLogger(__name__)
 
-MIN_TEMP: Final = 5  # Minimum temperature supported by device (raw value 50)
-MAX_TEMP: Final = 40  # Maximum temperature supported by device (raw value 400)
+SETPOINT_MIN_TEMP: Final = 5  # Minimum temperature supported by device (raw value 50)
+SETPOINT_MAX_TEMP: Final = 40  # Maximum temperature supported by device (raw value 400)
 
 
 async def async_setup_entry(
@@ -153,7 +153,7 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
 
         # Convert temperature to device format (x10)
         # Ensure the value is within reasonable bounds
-        if MIN_TEMP <= temp <= MAX_TEMP:
+        if SETPOINT_MIN_TEMP <= temp <= SETPOINT_MAX_TEMP:
             value = int(temp * 10)
             try:
                 await self.coordinator.client.write_register(reg, value)
@@ -164,10 +164,10 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
             _LOGGER.warning(
                 "Temperature %.1f°C out of bounds (%d-%d°C, raw values %d-%d)",
                 temp,
-                MIN_TEMP,
-                MAX_TEMP,
-                MIN_TEMP * 10,
-                MAX_TEMP * 10,
+                SETPOINT_MIN_TEMP,
+                SETPOINT_MAX_TEMP,
+                SETPOINT_MIN_TEMP * 10,
+                SETPOINT_MAX_TEMP * 10,
             )
 
     async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
