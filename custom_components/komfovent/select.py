@@ -1,4 +1,5 @@
 """Select platform for Komfovent."""
+
 from __future__ import annotations
 
 import logging
@@ -31,7 +32,7 @@ async def async_setup_entry(
     coordinator: KomfoventCoordinator = hass.data[DOMAIN][entry.entry_id]
     async_add_entities(
         [
-            KomfoventSelect(
+            KomfoventOperationModeSelect(
                 coordinator=coordinator,
                 register_id=registers.REG_OPERATION_MODE,
                 enum_class=OperationMode,
@@ -83,6 +84,20 @@ class KomfoventSelect(CoordinatorEntity, SelectEntity):
         except ValueError:
             return None
 
+    async def async_select_option(self, option: str) -> None:
+        """Change the selected option."""
+        try:
+            mode = self.enum_class[option.upper()]
+        except ValueError:
+            _LOGGER.warning("Invalid operation mode: %s", option)
+            return
+
+        await self.coordinator.client.write_register(self.register_id, mode.value)
+
+        await self.coordinator.async_request_refresh()
+
+
+class KomfoventOperationModeSelect(KomfoventSelect):
     async def async_select_option(self, option: str) -> None:
         """Change the selected option."""
         try:
