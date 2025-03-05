@@ -83,7 +83,7 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
             temp_control = TemperatureControl(self.coordinator.data.get(registers.REG_TEMP_CONTROL, TemperatureControl.SUPPLY))
             temp_key = TEMP_CONTROL_MAPPING[temp_control]
             
-            if (temp := self.coordinator.data.get(temp_key.value)) is not None:
+            if (temp := self.coordinator.data.get(temp_key)) is not None:
                 return float(temp) / 10
         except (ValueError, KeyError):
             _LOGGER.warning("Invalid temperature control mode")
@@ -99,7 +99,7 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
         try:
             mode = OperationMode(self.coordinator.data.get(registers.REG_OPERATION_MODE, 0))
             temp_key = MODE_TEMP_MAPPING[mode][0]
-            if (temp := self.coordinator.data.get(temp_key.value)) is not None:
+            if (temp := self.coordinator.data.get(temp_key)) is not None:
                 return float(temp) / 10
         except (ValueError, KeyError):
             _LOGGER.warning("Invalid operation mode or temperature value")
