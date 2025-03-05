@@ -248,6 +248,21 @@ class OperationMode(IntEnum):
     AIR_QUALITY = 9
     OFF = 10
 
+# Mapping of operation modes to their temperature data keys and registers
+MODE_TEMP_MAPPING = {
+    OperationMode.STANDBY: ("normal_temp", REG_NORMAL_SETPOINT),  # Use normal temp for standby
+    OperationMode.AWAY: ("away_temp", REG_AWAY_TEMP),
+    OperationMode.NORMAL: ("normal_temp", REG_NORMAL_SETPOINT),
+    OperationMode.INTENSIVE: ("intensive_temp", REG_INTENSIVE_TEMP),
+    OperationMode.BOOST: ("boost_temp", REG_BOOST_TEMP),
+    OperationMode.KITCHEN: ("kitchen_temp", REG_KITCHEN_TEMP),
+    OperationMode.FIREPLACE: ("fireplace_temp", REG_FIREPLACE_TEMP),
+    OperationMode.OVERRIDE: ("override_temp", REG_OVERRIDE_TEMP),
+    OperationMode.HOLIDAY: ("holidays_temp", REG_HOLIDAYS_TEMP),
+    OperationMode.AIR_QUALITY: ("aq_temp_setpoint", REG_AQ_TEMP_SETPOINT),
+    OperationMode.OFF: ("normal_temp", REG_NORMAL_SETPOINT),  # Use normal temp when off
+}
+
 class SchedulerMode(IntEnum):
     """Scheduler operation modes."""
     STAY_AT_HOME = 0

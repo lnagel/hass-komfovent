@@ -96,20 +96,7 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
             
         try:
             mode = OperationMode(self.coordinator.data.get("operation_mode", 0))
-            temp_key = {
-                OperationMode.STANDBY: "normal_temp",  # Use normal temp for standby
-                OperationMode.AWAY: "away_temp",
-                OperationMode.NORMAL: "normal_temp",
-                OperationMode.INTENSIVE: "intensive_temp",
-                OperationMode.BOOST: "boost_temp",
-                OperationMode.KITCHEN: "kitchen_temp",
-                OperationMode.FIREPLACE: "fireplace_temp",
-                OperationMode.OVERRIDE: "override_temp",
-                OperationMode.HOLIDAY: "holidays_temp",
-                OperationMode.AIR_QUALITY: "aq_temp_setpoint",
-                OperationMode.OFF: "normal_temp",  # Use normal temp when off
-            }[mode]
-            
+            temp_key = MODE_TEMP_MAPPING[mode][0]
             if (temp := self.coordinator.data.get(temp_key)) is not None:
                 return float(temp) / 10
         except (ValueError, KeyError):
@@ -143,19 +130,7 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
 
         try:
             mode = OperationMode(self.coordinator.data.get("operation_mode", 0))
-            reg = {
-                OperationMode.STANDBY: REG_NORMAL_SETPOINT,  # Use normal for standby
-                OperationMode.AWAY: REG_AWAY_TEMP,
-                OperationMode.NORMAL: REG_NORMAL_SETPOINT,
-                OperationMode.INTENSIVE: REG_INTENSIVE_TEMP,
-                OperationMode.BOOST: REG_BOOST_TEMP,
-                OperationMode.KITCHEN: REG_KITCHEN_TEMP,
-                OperationMode.FIREPLACE: REG_FIREPLACE_TEMP,
-                OperationMode.OVERRIDE: REG_OVERRIDE_TEMP,
-                OperationMode.HOLIDAY: REG_HOLIDAYS_TEMP,
-                OperationMode.AIR_QUALITY: REG_AQ_TEMP_SETPOINT,
-                OperationMode.OFF: REG_NORMAL_SETPOINT,  # Use normal when off
-            }[mode]
+            reg = MODE_TEMP_MAPPING[mode][1]
         except (ValueError, KeyError):
             _LOGGER.warning("Invalid operation mode, using normal setpoint")
             reg = REG_NORMAL_SETPOINT
