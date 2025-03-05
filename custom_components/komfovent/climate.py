@@ -108,11 +108,15 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
     @property
     def hvac_mode(self) -> HVACMode:
         """Return hvac operation mode."""
-        if self.coordinator.data:
-            if not self.coordinator.data.get("power", 0):
-                return HVACMode.OFF
-            return HVACMode.HEAT_COOL
-        return HVACMode.OFF
+        if not self.coordinator.data:
+            return HVACMode.OFF
+            
+        power = self.coordinator.data.get("power", 0)
+        operation_mode = self.coordinator.data.get("operation_mode", OperationMode.OFF)
+        
+        if not power or operation_mode == OperationMode.OFF:
+            return HVACMode.OFF
+        return HVACMode.HEAT_COOL
 
     @property
     def preset_mode(self) -> str | None:
