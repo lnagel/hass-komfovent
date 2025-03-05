@@ -7,6 +7,7 @@ from enum import IntEnum
 from typing import TYPE_CHECKING, ClassVar
 
 from homeassistant.components.select import SelectEntity, SelectEntityDescription
+from homeassistant.const import EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import registers
@@ -55,6 +56,7 @@ async def async_setup_entry(
                 entity_description=SelectEntityDescription(
                     key="scheduler_mode",
                     name="Scheduler operation mode",
+                    entity_category=EntityCategory.CONFIG,
                     options=[mode.name.lower() for mode in SchedulerMode],
                 ),
             ),
@@ -65,6 +67,7 @@ async def async_setup_entry(
                 entity_description=SelectEntityDescription(
                     key="temperature_control",
                     name="Temperature control",
+                    entity_category=EntityCategory.CONFIG,
                     options=[mode.name.lower() for mode in TemperatureControl],
                 ),
             ),
@@ -75,6 +78,7 @@ async def async_setup_entry(
                 entity_description=SelectEntityDescription(
                     key="flow_control",
                     name="Flow control",
+                    entity_category=EntityCategory.CONFIG,
                     options=[mode.name.lower() for mode in FlowControl],
                 ),
             ),
@@ -85,6 +89,7 @@ async def async_setup_entry(
                 entity_description=SelectEntityDescription(
                     key="aq_sensor1_type",
                     name="Air quality sensor 1 type",
+                    entity_category=EntityCategory.CONFIG,
                     options=[mode.name.lower() for mode in AirQualitySensorType],
                 ),
             ),
@@ -94,7 +99,8 @@ async def async_setup_entry(
                 enum_class=AirQualitySensorType,
                 entity_description=SelectEntityDescription(
                     key="aq_sensor2_type",
-                    name="Air quality sensor 2 type", 
+                    name="Air quality sensor 2 type",
+                    entity_category=EntityCategory.CONFIG,
                     options=[mode.name.lower() for mode in AirQualitySensorType],
                 ),
             ),
