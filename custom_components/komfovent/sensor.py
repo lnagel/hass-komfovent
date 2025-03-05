@@ -26,17 +26,17 @@ from .coordinator import KomfoventCoordinator
 
 
 X100_FIELDS = {
-    "indoor_abs_humidity",
+    registers.REG_INDOOR_ABS_HUMIDITY,
 }
 
 X10_PERCENTAGE_FIELDS = {
-    "supply_fan_intensity",
-    "extract_fan_intensity",
-    "heat_exchanger",
-    "electric_heater",
-    "water_heater",
-    "water_cooler",
-    "dx_unit",
+    registers.REG_SUPPLY_FAN_INTENSITY,
+    registers.REG_EXTRACT_FAN_INTENSITY,
+    registers.REG_HEAT_EXCHANGER,
+    registers.REG_ELECTRIC_HEATER,
+    registers.REG_WATER_HEATER,
+    registers.REG_WATER_COOLER,
+    registers.REG_DX_UNIT,
 }
 
 def create_aq_sensor(coordinator: KomfoventCoordinator, sensor_num: int) -> KomfoventSensor | None:
@@ -47,7 +47,8 @@ def create_aq_sensor(coordinator: KomfoventCoordinator, sensor_num: int) -> Komf
     if not coordinator.data:
         return None
         
-    sensor_type_int = coordinator.data.get(sensor_type_key, AirQualitySensorType.NOT_INSTALLED)
+    sensor_type_reg = registers.REG_AQ_SENSOR1_TYPE if sensor_num == 1 else registers.REG_AQ_SENSOR2_TYPE
+    sensor_type_int = coordinator.data.get(sensor_type_reg, AirQualitySensorType.NOT_INSTALLED)
     try:
         sensor_type = AirQualitySensorType(sensor_type_int)
     except ValueError:
@@ -76,24 +77,24 @@ def create_aq_sensor(coordinator: KomfoventCoordinator, sensor_num: int) -> Komf
     )
 
 SENSOR_TYPES = {
-    "supply_temp": ("Supply Temperature", UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE),
-    "extract_temp": ("Extract Temperature", UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE),
-    "outdoor_temp": ("Outdoor Temperature", UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE),
-    "supply_flow": ("Supply Flow", UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR, None),
-    "extract_flow": ("Extract Flow", UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR, None),
-    "supply_fan_intensity": ("Supply Fan Intensity", PERCENTAGE, None),
-    "extract_fan_intensity": ("Extract Fan Intensity", PERCENTAGE, None),
-    "heat_exchanger": ("Heat Exchanger", PERCENTAGE, None),
-    "electric_heater": ("Electric Heater", PERCENTAGE, None),
-    "filter_impurity": ("Filter Impurity", PERCENTAGE, None),
-    "power_consumption": ("Power Consumption", UnitOfPower.WATT, SensorDeviceClass.POWER),
-    "heater_power": ("Heater Power", UnitOfPower.WATT, SensorDeviceClass.POWER),
-    "heat_recovery": ("Heat Recovery", UnitOfPower.WATT, SensorDeviceClass.POWER),
-    "heat_efficiency": ("Heat Exchanger Efficiency", PERCENTAGE, None),
-    "spi": ("Specific Power Input", None, None),
-    "panel1_temp": ("Panel 1 Temperature", UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE),
-    "panel1_rh": ("Panel 1 Humidity", PERCENTAGE, SensorDeviceClass.HUMIDITY),
-    "indoor_abs_humidity": ("Indoor Absolute Humidity", "g/m³", None),
+    registers.REG_SUPPLY_TEMP: ("Supply Temperature", UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE),
+    registers.REG_EXTRACT_TEMP: ("Extract Temperature", UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE),
+    registers.REG_OUTDOOR_TEMP: ("Outdoor Temperature", UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE),
+    registers.REG_SUPPLY_FLOW: ("Supply Flow", UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR, None),
+    registers.REG_EXTRACT_FLOW: ("Extract Flow", UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR, None),
+    registers.REG_SUPPLY_FAN_INTENSITY: ("Supply Fan Intensity", PERCENTAGE, None),
+    registers.REG_EXTRACT_FAN_INTENSITY: ("Extract Fan Intensity", PERCENTAGE, None),
+    registers.REG_HEAT_EXCHANGER: ("Heat Exchanger", PERCENTAGE, None),
+    registers.REG_ELECTRIC_HEATER: ("Electric Heater", PERCENTAGE, None),
+    registers.REG_FILTER_IMPURITY: ("Filter Impurity", PERCENTAGE, None),
+    registers.REG_POWER_CONSUMPTION: ("Power Consumption", UnitOfPower.WATT, SensorDeviceClass.POWER),
+    registers.REG_HEATER_POWER: ("Heater Power", UnitOfPower.WATT, SensorDeviceClass.POWER),
+    registers.REG_HEAT_RECOVERY: ("Heat Recovery", UnitOfPower.WATT, SensorDeviceClass.POWER),
+    registers.REG_HEAT_EFFICIENCY: ("Heat Exchanger Efficiency", PERCENTAGE, None),
+    registers.REG_SPI: ("Specific Power Input", None, None),
+    registers.REG_PANEL1_TEMP: ("Panel 1 Temperature", UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE),
+    registers.REG_PANEL1_RH: ("Panel 1 Humidity", PERCENTAGE, SensorDeviceClass.HUMIDITY),
+    registers.REG_INDOOR_ABS_HUMIDITY: ("Indoor Absolute Humidity", "g/m³", None),
 }
 
 async def async_setup_entry(
