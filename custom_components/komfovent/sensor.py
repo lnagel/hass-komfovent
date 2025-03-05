@@ -10,7 +10,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     PERCENTAGE,
     UnitOfTemperature,
-    POWER_WATT,
+    UnitOfPower,
     ENERGY_KILO_WATT_HOUR,
     VOLUME_FLOW_RATE_CUBIC_METERS_PER_HOUR,
 )
@@ -70,9 +70,9 @@ SENSOR_TYPES = {
     "heat_exchanger": ("Heat Exchanger", PERCENTAGE, None),
     "electric_heater": ("Electric Heater", PERCENTAGE, None),
     "filter_impurity": ("Filter Impurity", PERCENTAGE, None),
-    "power_consumption": ("Power Consumption", POWER_WATT, SensorDeviceClass.POWER),
-    "heater_power": ("Heater Power", POWER_WATT, SensorDeviceClass.POWER),
-    "heat_recovery": ("Heat Recovery", POWER_WATT, SensorDeviceClass.POWER),
+    "power_consumption": ("Power Consumption", UnitOfPower.WATT, SensorDeviceClass.POWER),
+    "heater_power": ("Heater Power", UnitOfPower.WATT, SensorDeviceClass.POWER),
+    "heat_recovery": ("Heat Recovery", UnitOfPower.WATT, SensorDeviceClass.POWER),
     "heat_efficiency": ("Heat Exchanger Efficiency", PERCENTAGE, None),
     "spi": ("Specific Power Input", None, None),
     "panel1_temp": ("Panel 1 Temperature", UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE),
