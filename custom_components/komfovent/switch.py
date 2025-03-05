@@ -48,7 +48,7 @@ class KomfoventSwitch(CoordinatorEntity, SwitchEntity):
         coordinator: KomfoventCoordinator,
         name: str,
         key: str,
-        register: int,
+        register_id: int,
         description: str,
         icon: str,
     ) -> None:
@@ -56,7 +56,7 @@ class KomfoventSwitch(CoordinatorEntity, SwitchEntity):
         super().__init__(coordinator)
         self._attr_name = name
         self._key = key
-        self._register = register
+        self._register_id = register_id
         self._attr_device_class = None
         self._attr_unique_id = f"{coordinator.config_entry.entry_id}_{key}"
         self._attr_device_info = {
@@ -72,14 +72,14 @@ class KomfoventSwitch(CoordinatorEntity, SwitchEntity):
         """Return True if entity is on."""
         if not self.coordinator.data:
             return None
-        return bool(self.coordinator.data.get(self._register, 0))
+        return bool(self.coordinator.data.get(self._register_id, 0))
 
     async def async_turn_on(self, **kwargs) -> None:
         """Turn the entity on."""
-        await self.coordinator.client.write_register(self._register, 1)
+        await self.coordinator.client.write_register(self._register_id, 1)
         await self.coordinator.async_request_refresh()
 
     async def async_turn_off(self, **kwargs) -> None:
         """Turn the entity off."""
-        await self.coordinator.client.write_register(self._register, 0)
+        await self.coordinator.client.write_register(self._register_id, 0)
         await self.coordinator.async_request_refresh()
