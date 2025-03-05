@@ -100,6 +100,7 @@ def create_aq_sensor(
             native_unit_of_measurement=unit,
             device_class=device_class,
             state_class=SensorStateClass.MEASUREMENT,
+            suggested_display_precision=0,
         ),
     )
 
@@ -108,269 +109,295 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
     """Get list of sensor entities."""
     entities = []
 
-
     # Add core sensors
-    entities.extend([
-        KomfoventSensor(
-            coordinator=coordinator,
-            register_id=registers.REG_SUPPLY_TEMP,
-            entity_description=SensorEntityDescription(
-                key="supply_temperature",
-                name="Supply Temperature",
-                native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-                device_class=SensorDeviceClass.TEMPERATURE,
-                state_class=SensorStateClass.MEASUREMENT,
+    entities.extend(
+        [
+            KomfoventSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_SUPPLY_TEMP,
+                entity_description=SensorEntityDescription(
+                    key="supply_temperature",
+                    name="Supply Temperature",
+                    native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                    device_class=SensorDeviceClass.TEMPERATURE,
+                    state_class=SensorStateClass.MEASUREMENT,
+                    suggested_display_precision=1,
+                ),
             ),
-        ),
-        KomfoventSensor(
-            coordinator=coordinator,
-            register_id=registers.REG_EXTRACT_TEMP,
-            entity_description=SensorEntityDescription(
-                key="extract_temperature",
-                name="Extract Temperature",
-                native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-                device_class=SensorDeviceClass.TEMPERATURE,
-                state_class=SensorStateClass.MEASUREMENT,
+            KomfoventSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_EXTRACT_TEMP,
+                entity_description=SensorEntityDescription(
+                    key="extract_temperature",
+                    name="Extract Temperature",
+                    native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                    device_class=SensorDeviceClass.TEMPERATURE,
+                    state_class=SensorStateClass.MEASUREMENT,
+                    suggested_display_precision=1,
+                ),
             ),
-        ),
-        KomfoventSensor(
-            coordinator=coordinator,
-            register_id=registers.REG_OUTDOOR_TEMP,
-            entity_description=SensorEntityDescription(
-                key="outdoor_temperature",
-                name="Outdoor Temperature",
-                native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-                device_class=SensorDeviceClass.TEMPERATURE,
-                state_class=SensorStateClass.MEASUREMENT,
+            KomfoventSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_OUTDOOR_TEMP,
+                entity_description=SensorEntityDescription(
+                    key="outdoor_temperature",
+                    name="Outdoor Temperature",
+                    native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                    device_class=SensorDeviceClass.TEMPERATURE,
+                    state_class=SensorStateClass.MEASUREMENT,
+                    suggested_display_precision=1,
+                ),
             ),
-        ),
-        KomfoventSensor(
-            coordinator=coordinator,
-            register_id=registers.REG_SUPPLY_FAN_INTENSITY,
-            entity_description=SensorEntityDescription(
-                key="supply_fan_intensity",
-                name="Supply Fan Intensity",
-                native_unit_of_measurement=PERCENTAGE,
-                state_class=SensorStateClass.MEASUREMENT,
+            KomfoventSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_SUPPLY_FAN_INTENSITY,
+                entity_description=SensorEntityDescription(
+                    key="supply_fan_intensity",
+                    name="Supply Fan Intensity",
+                    native_unit_of_measurement=PERCENTAGE,
+                    state_class=SensorStateClass.MEASUREMENT,
+                    suggested_display_precision=0,
+                ),
             ),
-        ),
-        KomfoventSensor(
-            coordinator=coordinator,
-            register_id=registers.REG_EXTRACT_FAN_INTENSITY,
-            entity_description=SensorEntityDescription(
-                key="extract_fan_intensity",
-                name="Extract Fan Intensity",
-                native_unit_of_measurement=PERCENTAGE,
-                state_class=SensorStateClass.MEASUREMENT,
+            KomfoventSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_EXTRACT_FAN_INTENSITY,
+                entity_description=SensorEntityDescription(
+                    key="extract_fan_intensity",
+                    name="Extract Fan Intensity",
+                    native_unit_of_measurement=PERCENTAGE,
+                    state_class=SensorStateClass.MEASUREMENT,
+                    suggested_display_precision=0,
+                ),
             ),
-        ),
-        KomfoventSensor(
-            coordinator=coordinator,
-            register_id=registers.REG_HEAT_EXCHANGER,
-            entity_description=SensorEntityDescription(
-                key="heat_exchanger",
-                name="Heat Exchanger",
-                native_unit_of_measurement=PERCENTAGE,
-                state_class=SensorStateClass.MEASUREMENT,
+            KomfoventSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_HEAT_EXCHANGER,
+                entity_description=SensorEntityDescription(
+                    key="heat_exchanger",
+                    name="Heat Exchanger",
+                    native_unit_of_measurement=PERCENTAGE,
+                    state_class=SensorStateClass.MEASUREMENT,
+                    suggested_display_precision=0,
+                ),
             ),
-        ),
-        KomfoventSensor(
-            coordinator=coordinator,
-            register_id=registers.REG_ELECTRIC_HEATER,
-            entity_description=SensorEntityDescription(
-                key="electric_heater",
-                name="Electric Heater",
-                native_unit_of_measurement=PERCENTAGE,
-                state_class=SensorStateClass.MEASUREMENT,
+            KomfoventSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_ELECTRIC_HEATER,
+                entity_description=SensorEntityDescription(
+                    key="electric_heater",
+                    name="Electric Heater",
+                    native_unit_of_measurement=PERCENTAGE,
+                    state_class=SensorStateClass.MEASUREMENT,
+                    suggested_display_precision=0,
+                ),
             ),
-        ),
-        KomfoventSensor(
-            coordinator=coordinator,
-            register_id=registers.REG_FILTER_IMPURITY,
-            entity_description=SensorEntityDescription(
-                key="filter_impurity",
-                name="Filter Impurity",
-                native_unit_of_measurement=PERCENTAGE,
-                state_class=SensorStateClass.MEASUREMENT,
+            KomfoventSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_FILTER_IMPURITY,
+                entity_description=SensorEntityDescription(
+                    key="filter_impurity",
+                    name="Filter Impurity",
+                    native_unit_of_measurement=PERCENTAGE,
+                    state_class=SensorStateClass.MEASUREMENT,
+                    suggested_display_precision=0,
+                ),
             ),
-        ),
-        KomfoventSensor(
-            coordinator=coordinator,
-            register_id=registers.REG_POWER_CONSUMPTION,
-            entity_description=SensorEntityDescription(
-                key="power_consumption",
-                name="Power Consumption",
-                native_unit_of_measurement=UnitOfPower.WATT,
-                device_class=SensorDeviceClass.POWER,
-                state_class=SensorStateClass.MEASUREMENT,
+            KomfoventSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_POWER_CONSUMPTION,
+                entity_description=SensorEntityDescription(
+                    key="power_consumption",
+                    name="Power Consumption",
+                    native_unit_of_measurement=UnitOfPower.WATT,
+                    device_class=SensorDeviceClass.POWER,
+                    state_class=SensorStateClass.MEASUREMENT,
+                    suggested_display_precision=0,
+                ),
             ),
-        ),
-        KomfoventSensor(
-            coordinator=coordinator,
-            register_id=registers.REG_HEATER_POWER,
-            entity_description=SensorEntityDescription(
-                key="heater_power",
-                name="Heater Power",
-                native_unit_of_measurement=UnitOfPower.WATT,
-                device_class=SensorDeviceClass.POWER,
-                state_class=SensorStateClass.MEASUREMENT,
+            KomfoventSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_HEATER_POWER,
+                entity_description=SensorEntityDescription(
+                    key="heater_power",
+                    name="Heater Power",
+                    native_unit_of_measurement=UnitOfPower.WATT,
+                    device_class=SensorDeviceClass.POWER,
+                    state_class=SensorStateClass.MEASUREMENT,
+                    suggested_display_precision=0,
+                ),
             ),
-        ),
-        KomfoventSensor(
-            coordinator=coordinator,
-            register_id=registers.REG_HEAT_RECOVERY,
-            entity_description=SensorEntityDescription(
-                key="heat_recovery",
-                name="Heat Recovery",
-                native_unit_of_measurement=UnitOfPower.WATT,
-                device_class=SensorDeviceClass.POWER,
-                state_class=SensorStateClass.MEASUREMENT,
+            KomfoventSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_HEAT_RECOVERY,
+                entity_description=SensorEntityDescription(
+                    key="heat_recovery",
+                    name="Heat Recovery",
+                    native_unit_of_measurement=UnitOfPower.WATT,
+                    device_class=SensorDeviceClass.POWER,
+                    state_class=SensorStateClass.MEASUREMENT,
+                    suggested_display_precision=0,
+                ),
             ),
-        ),
-        KomfoventSensor(
-            coordinator=coordinator,
-            register_id=registers.REG_HEAT_EFFICIENCY,
-            entity_description=SensorEntityDescription(
-                key="heat_exchanger_efficiency",
-                name="Heat Exchanger Efficiency",
-                native_unit_of_measurement=PERCENTAGE,
-                state_class=SensorStateClass.MEASUREMENT,
+            KomfoventSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_HEAT_EFFICIENCY,
+                entity_description=SensorEntityDescription(
+                    key="heat_exchanger_efficiency",
+                    name="Heat Exchanger Efficiency",
+                    native_unit_of_measurement=PERCENTAGE,
+                    state_class=SensorStateClass.MEASUREMENT,
+                    suggested_display_precision=0,
+                ),
             ),
-        ),
-        KomfoventSensor(
-            coordinator=coordinator,
-            register_id=registers.REG_SPI,
-            entity_description=SensorEntityDescription(
-                key="specific_power_input",
-                name="Specific Power Input",
-                state_class=SensorStateClass.MEASUREMENT,
+            KomfoventSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_SPI,
+                entity_description=SensorEntityDescription(
+                    key="specific_power_input",
+                    name="Specific Power Input",
+                    state_class=SensorStateClass.MEASUREMENT,
+                    suggested_display_precision=2,
+                ),
             ),
-        ),
-        KomfoventSensor(
-            coordinator=coordinator,
-            register_id=registers.REG_INDOOR_ABS_HUMIDITY,
-            entity_description=SensorEntityDescription(
-                key="indoor_absolute_humidity",
-                name="Indoor Absolute Humidity",
-                native_unit_of_measurement="g/m³",
-                state_class=SensorStateClass.MEASUREMENT,
+            KomfoventSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_INDOOR_ABS_HUMIDITY,
+                entity_description=SensorEntityDescription(
+                    key="indoor_absolute_humidity",
+                    name="Indoor Absolute Humidity",
+                    native_unit_of_measurement="g/m³",
+                    state_class=SensorStateClass.MEASUREMENT,
+                    suggested_display_precision=2,
+                ),
             ),
-        ),
-        KomfoventSensor(
-            coordinator=coordinator,
-            register_id=registers.REG_AHU_TOTAL,
-            entity_description=SensorEntityDescription(
-                key="total_ahu_energy",
-                name="Total AHU Energy",
-                native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
-                device_class=SensorDeviceClass.ENERGY,
-                state_class=SensorStateClass.TOTAL_INCREASING,
+            KomfoventSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_AHU_TOTAL,
+                entity_description=SensorEntityDescription(
+                    key="total_ahu_energy",
+                    name="Total AHU Energy",
+                    native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+                    device_class=SensorDeviceClass.ENERGY,
+                    state_class=SensorStateClass.TOTAL_INCREASING,
+                    suggested_display_precision=3,
+                ),
             ),
-        ),
-        KomfoventSensor(
-            coordinator=coordinator,
-            register_id=registers.REG_HEATER_TOTAL,
-            entity_description=SensorEntityDescription(
-                key="total_heater_energy",
-                name="Total Heater Energy",
-                native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
-                device_class=SensorDeviceClass.ENERGY,
-                state_class=SensorStateClass.TOTAL_INCREASING,
+            KomfoventSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_HEATER_TOTAL,
+                entity_description=SensorEntityDescription(
+                    key="total_heater_energy",
+                    name="Total Heater Energy",
+                    native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+                    device_class=SensorDeviceClass.ENERGY,
+                    state_class=SensorStateClass.TOTAL_INCREASING,
+                    suggested_display_precision=3,
+                ),
             ),
-        ),
-        KomfoventSensor(
-            coordinator=coordinator,
-            register_id=registers.REG_RECOVERY_TOTAL,
-            entity_description=SensorEntityDescription(
-                key="total_recovered_energy",
-                name="Total Recovered Energy",
-                native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
-                device_class=SensorDeviceClass.ENERGY,
-                state_class=SensorStateClass.TOTAL_INCREASING,
+            KomfoventSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_RECOVERY_TOTAL,
+                entity_description=SensorEntityDescription(
+                    key="total_recovered_energy",
+                    name="Total Recovered Energy",
+                    native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+                    device_class=SensorDeviceClass.ENERGY,
+                    state_class=SensorStateClass.TOTAL_INCREASING,
+                    suggested_display_precision=3,
+                ),
             ),
-        ),
-        KomfoventSensor(
-            coordinator=coordinator,
-            register_id=registers.REG_FIRMWARE,
-            entity_description=SensorEntityDescription(
-                key="controller_firmware",
-                name="Controller firmware",
-                entity_category=EntityCategory.DIAGNOSTIC,
+            KomfoventSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_FIRMWARE,
+                entity_description=SensorEntityDescription(
+                    key="controller_firmware",
+                    name="Controller firmware",
+                    entity_category=EntityCategory.DIAGNOSTIC,
+                ),
             ),
-        )
-    ])
+        ]
+    )
 
     # Add panel 1 sensors if panel is present
     if coordinator.data and coordinator.data.get(registers.REG_PANEL1_FW, 0) != 0:
-        entities.extend([
-            KomfoventSensor(
-                coordinator=coordinator,
-                register_id=registers.REG_PANEL1_TEMP,
-                entity_description=SensorEntityDescription(
-                    key="panel_1_temperature",
-                    name="Panel 1 Temperature",
-                    native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-                    device_class=SensorDeviceClass.TEMPERATURE,
-                    state_class=SensorStateClass.MEASUREMENT,
+        entities.extend(
+            [
+                KomfoventSensor(
+                    coordinator=coordinator,
+                    register_id=registers.REG_PANEL1_TEMP,
+                    entity_description=SensorEntityDescription(
+                        key="panel_1_temperature",
+                        name="Panel 1 Temperature",
+                        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                        device_class=SensorDeviceClass.TEMPERATURE,
+                        state_class=SensorStateClass.MEASUREMENT,
+                        suggested_display_precision=1,
+                    ),
                 ),
-            ),
-            KomfoventSensor(
-                coordinator=coordinator,
-                register_id=registers.REG_PANEL1_RH,
-                entity_description=SensorEntityDescription(
-                    key="panel_1_humidity",
-                    name="Panel 1 Humidity",
-                    native_unit_of_measurement=PERCENTAGE,
-                    device_class=SensorDeviceClass.HUMIDITY,
-                    state_class=SensorStateClass.MEASUREMENT,
+                KomfoventSensor(
+                    coordinator=coordinator,
+                    register_id=registers.REG_PANEL1_RH,
+                    entity_description=SensorEntityDescription(
+                        key="panel_1_humidity",
+                        name="Panel 1 Humidity",
+                        native_unit_of_measurement=PERCENTAGE,
+                        device_class=SensorDeviceClass.HUMIDITY,
+                        state_class=SensorStateClass.MEASUREMENT,
+                        suggested_display_precision=0,
+                    ),
                 ),
-            ),
-            KomfoventSensor(
-                coordinator=coordinator,
-                register_id=registers.REG_PANEL1_FW,
-                entity_description=SensorEntityDescription(
-                    key="panel_1_firmware",
-                    name="Panel 1 firmware",
-                    entity_category=EntityCategory.DIAGNOSTIC,
+                KomfoventSensor(
+                    coordinator=coordinator,
+                    register_id=registers.REG_PANEL1_FW,
+                    entity_description=SensorEntityDescription(
+                        key="panel_1_firmware",
+                        name="Panel 1 firmware",
+                        entity_category=EntityCategory.DIAGNOSTIC,
+                    ),
                 ),
-            ),
-        ])
+            ]
+        )
 
     # Add panel 2 firmware sensor if panel is present
     if coordinator.data and coordinator.data.get(registers.REG_PANEL2_FW, 0) != 0:
-        entities.extend([
-            KomfoventSensor(
-                coordinator=coordinator,
-                register_id=registers.REG_PANEL2_TEMP,
-                entity_description=SensorEntityDescription(
-                    key="panel_2_temperature",
-                    name="Panel 2 Temperature",
-                    native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-                    device_class=SensorDeviceClass.TEMPERATURE,
-                    state_class=SensorStateClass.MEASUREMENT,
+        entities.extend(
+            [
+                KomfoventSensor(
+                    coordinator=coordinator,
+                    register_id=registers.REG_PANEL2_TEMP,
+                    entity_description=SensorEntityDescription(
+                        key="panel_2_temperature",
+                        name="Panel 2 Temperature",
+                        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                        device_class=SensorDeviceClass.TEMPERATURE,
+                        state_class=SensorStateClass.MEASUREMENT,
+                        suggested_display_precision=1,
+                    ),
                 ),
-            ),
-            KomfoventSensor(
-                coordinator=coordinator,
-                register_id=registers.REG_PANEL2_RH,
-                entity_description=SensorEntityDescription(
-                    key="panel_2_humidity",
-                    name="Panel 2 Humidity",
-                    native_unit_of_measurement=PERCENTAGE,
-                    device_class=SensorDeviceClass.HUMIDITY,
-                    state_class=SensorStateClass.MEASUREMENT,
+                KomfoventSensor(
+                    coordinator=coordinator,
+                    register_id=registers.REG_PANEL2_RH,
+                    entity_description=SensorEntityDescription(
+                        key="panel_2_humidity",
+                        name="Panel 2 Humidity",
+                        native_unit_of_measurement=PERCENTAGE,
+                        device_class=SensorDeviceClass.HUMIDITY,
+                        state_class=SensorStateClass.MEASUREMENT,
+                        suggested_display_precision=0,
+                    ),
                 ),
-            ),
-            KomfoventSensor(
-                coordinator=coordinator,
-                register_id=registers.REG_PANEL2_FW,
-                entity_description=SensorEntityDescription(
-                    key="panel_2_firmware",
-                    name="Panel 2 firmware",
-                    entity_category=EntityCategory.DIAGNOSTIC,
+                KomfoventSensor(
+                    coordinator=coordinator,
+                    register_id=registers.REG_PANEL2_FW,
+                    entity_description=SensorEntityDescription(
+                        key="panel_2_firmware",
+                        name="Panel 2 firmware",
+                        entity_category=EntityCategory.DIAGNOSTIC,
+                    ),
                 ),
-            ),
-        ])
+            ]
+        )
 
     # Add AQ sensors if installed
     if aq_sensor := create_aq_sensor(coordinator, registers.REG_AQ_SENSOR1_VALUE):
@@ -447,7 +474,11 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
                 if isinstance(value, (int, float)):
                     return float(value) / 1000  # Convert Wh to kWh
                 return None
-            elif self.register_id in {registers.REG_FIRMWARE, registers.REG_PANEL1_FW, registers.REG_PANEL2_FW}:
+            elif self.register_id in {
+                registers.REG_FIRMWARE,
+                registers.REG_PANEL1_FW,
+                registers.REG_PANEL2_FW,
+            }:
                 if isinstance(value, int):
                     # Extract version numbers using bit shifts
                     v1 = (value >> 24) & 0xFF  # First number (8 bits)
