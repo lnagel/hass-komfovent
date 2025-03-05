@@ -211,6 +211,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             "Total AHU Energy",
             UnitOfEnergy.KILO_WATT_HOUR,
             SensorDeviceClass.ENERGY,
+            SensorStateClass.TOTAL_INCREASING,
         ),
         KomfoventSensor(
             coordinator,
@@ -218,6 +219,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             "Total Heater Energy",
             UnitOfEnergy.KILO_WATT_HOUR,
             SensorDeviceClass.ENERGY,
+            SensorStateClass.TOTAL_INCREASING,
         ),
         KomfoventSensor(
             coordinator,
@@ -225,6 +227,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             "Total Recovered Energy",
             UnitOfEnergy.KILO_WATT_HOUR,
             SensorDeviceClass.ENERGY,
+            SensorStateClass.TOTAL_INCREASING,
         ),
         KomfoventSensor(
             coordinator, registers.REG_FIRMWARE, "Firmware Version", None, None
@@ -263,6 +266,7 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
         name: str,
         unit: str | None,
         device_class: str | None,
+        state_class: SensorStateClass | None = None,
     ) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator)
@@ -277,8 +281,10 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
             "manufacturer": "Komfovent",
             "model": "Modbus",
         }
-        # Set state class for measurement sensors
-        if register_id in WH_TO_KWH_FIELDS:
+        # Set state class if provided or determine automatically
+        if state_class is not None:
+            self._attr_state_class = state_class
+        elif register_id in WH_TO_KWH_FIELDS:
             self._attr_state_class = SensorStateClass.TOTAL_INCREASING
         elif register_id != registers.REG_FIRMWARE:
             self._attr_state_class = SensorStateClass.MEASUREMENT
