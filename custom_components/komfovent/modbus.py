@@ -19,8 +19,10 @@ class KomfoventModbusClient:
             port=port,
             timeout=5,
             retries=3,
-            retry_on_empty=True,
-            close_comm_on_error=True,
+            reconnect_delay=5,
+            reconnect_delay_max=60,
+            strict=True,
+            broadcast_enable=False
         )
         self._lock = asyncio.Lock()
         
