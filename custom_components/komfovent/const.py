@@ -61,6 +61,7 @@ class FlowControl(IntEnum):
     CAV = 0
     VAV = 1
     DCV = 2
+    OFF = 3
 
 
 class CoilType(IntEnum):
