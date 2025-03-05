@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+from datetime import date, datetime
+from decimal import Decimal
+from homeassistant.helpers.typing import UNDEFINED, ConfigType, StateType, UndefinedType
+
 from . import registers
 
 from homeassistant.components.sensor import (
@@ -355,16 +359,16 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
         }
 
     @property
-    def native_value(self) -> float | None:
+    def native_value(self) -> StateType | date | datetime | Decimal:
         """Return the state of the sensor."""
+        if not self.coordinator.data:
+            return None
+
+        value = self.coordinator.data.get(self.register_id)
+        if value is None:
+            return None
+
         try:
-            if not self.coordinator.data:
-                return None
-
-            value = self.coordinator.data.get(self.register_id)
-            if value is None:
-                return None
-
             # Apply transforms based on sensor type and register format
             if self.entity_description.device_class == SensorDeviceClass.TEMPERATURE:
                 # All temperatures are x10 in Modbus registers
