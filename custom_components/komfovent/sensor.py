@@ -86,28 +86,30 @@ def create_aq_sensor(coordinator: KomfoventCoordinator, register_id: int) -> Kom
         device_class,
     )
 
-SENSOR_TYPES = {
-    registers.REG_SUPPLY_TEMP: ("Supply Temperature", UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE),
-    registers.REG_EXTRACT_TEMP: ("Extract Temperature", UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE),
-    registers.REG_OUTDOOR_TEMP: ("Outdoor Temperature", UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE),
-    registers.REG_SUPPLY_FAN_INTENSITY: ("Supply Fan Intensity", PERCENTAGE, None),
-    registers.REG_EXTRACT_FAN_INTENSITY: ("Extract Fan Intensity", PERCENTAGE, None),
-    registers.REG_HEAT_EXCHANGER: ("Heat Exchanger", PERCENTAGE, None),
-    registers.REG_ELECTRIC_HEATER: ("Electric Heater", PERCENTAGE, None),
-    registers.REG_FILTER_IMPURITY: ("Filter Impurity", PERCENTAGE, None),
-    registers.REG_POWER_CONSUMPTION: ("Power Consumption", UnitOfPower.WATT, SensorDeviceClass.POWER),
-    registers.REG_HEATER_POWER: ("Heater Power", UnitOfPower.WATT, SensorDeviceClass.POWER),
-    registers.REG_HEAT_RECOVERY: ("Heat Recovery", UnitOfPower.WATT, SensorDeviceClass.POWER),
-    registers.REG_HEAT_EFFICIENCY: ("Heat Exchanger Efficiency", PERCENTAGE, None),
-    registers.REG_SPI: ("Specific Power Input", None, None),
-    registers.REG_PANEL1_TEMP: ("Panel 1 Temperature", UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE),
-    registers.REG_PANEL1_RH: ("Panel 1 Humidity", PERCENTAGE, SensorDeviceClass.HUMIDITY),
-    registers.REG_INDOOR_ABS_HUMIDITY: ("Indoor Absolute Humidity", "g/m³", None),
-    registers.REG_AHU_TOTAL: ("Total AHU Energy", UnitOfEnergy.KILO_WATT_HOUR, SensorDeviceClass.ENERGY),
-    registers.REG_HEATER_TOTAL: ("Total Heater Energy", UnitOfEnergy.KILO_WATT_HOUR, SensorDeviceClass.ENERGY),
-    registers.REG_RECOVERY_TOTAL: ("Total Recovered Energy", UnitOfEnergy.KILO_WATT_HOUR, SensorDeviceClass.ENERGY),
-    registers.REG_FIRMWARE: ("Firmware Version", None, None),
-}
+def get_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSensor]:
+    """Get list of sensor entities."""
+    return [
+        KomfoventSensor(coordinator, registers.REG_SUPPLY_TEMP, "Supply Temperature", UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE),
+        KomfoventSensor(coordinator, registers.REG_EXTRACT_TEMP, "Extract Temperature", UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE),
+        KomfoventSensor(coordinator, registers.REG_OUTDOOR_TEMP, "Outdoor Temperature", UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE),
+        KomfoventSensor(coordinator, registers.REG_SUPPLY_FAN_INTENSITY, "Supply Fan Intensity", PERCENTAGE, None),
+        KomfoventSensor(coordinator, registers.REG_EXTRACT_FAN_INTENSITY, "Extract Fan Intensity", PERCENTAGE, None),
+        KomfoventSensor(coordinator, registers.REG_HEAT_EXCHANGER, "Heat Exchanger", PERCENTAGE, None),
+        KomfoventSensor(coordinator, registers.REG_ELECTRIC_HEATER, "Electric Heater", PERCENTAGE, None),
+        KomfoventSensor(coordinator, registers.REG_FILTER_IMPURITY, "Filter Impurity", PERCENTAGE, None),
+        KomfoventSensor(coordinator, registers.REG_POWER_CONSUMPTION, "Power Consumption", UnitOfPower.WATT, SensorDeviceClass.POWER),
+        KomfoventSensor(coordinator, registers.REG_HEATER_POWER, "Heater Power", UnitOfPower.WATT, SensorDeviceClass.POWER),
+        KomfoventSensor(coordinator, registers.REG_HEAT_RECOVERY, "Heat Recovery", UnitOfPower.WATT, SensorDeviceClass.POWER),
+        KomfoventSensor(coordinator, registers.REG_HEAT_EFFICIENCY, "Heat Exchanger Efficiency", PERCENTAGE, None),
+        KomfoventSensor(coordinator, registers.REG_SPI, "Specific Power Input", None, None),
+        KomfoventSensor(coordinator, registers.REG_PANEL1_TEMP, "Panel 1 Temperature", UnitOfTemperature.CELSIUS, SensorDeviceClass.TEMPERATURE),
+        KomfoventSensor(coordinator, registers.REG_PANEL1_RH, "Panel 1 Humidity", PERCENTAGE, SensorDeviceClass.HUMIDITY),
+        KomfoventSensor(coordinator, registers.REG_INDOOR_ABS_HUMIDITY, "Indoor Absolute Humidity", "g/m³", None),
+        KomfoventSensor(coordinator, registers.REG_AHU_TOTAL, "Total AHU Energy", UnitOfEnergy.KILO_WATT_HOUR, SensorDeviceClass.ENERGY),
+        KomfoventSensor(coordinator, registers.REG_HEATER_TOTAL, "Total Heater Energy", UnitOfEnergy.KILO_WATT_HOUR, SensorDeviceClass.ENERGY),
+        KomfoventSensor(coordinator, registers.REG_RECOVERY_TOTAL, "Total Recovered Energy", UnitOfEnergy.KILO_WATT_HOUR, SensorDeviceClass.ENERGY),
+        KomfoventSensor(coordinator, registers.REG_FIRMWARE, "Firmware Version", None, None),
+    ]
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -120,16 +122,7 @@ async def async_setup_entry(
     entities = []
 
     # Create standard sensors
-    for register_id, (name, unit, device_class) in SENSOR_TYPES.items():
-        entities.append(
-                KomfoventSensor(
-                    coordinator,
-                    register_id,
-                    name,
-                    unit,
-                    device_class,
-                )
-            )
+    entities.extend(get_sensors(coordinator))
 
     # Add AQ sensors if installed
     if aq_sensor := create_aq_sensor(coordinator, registers.REG_AQ_SENSOR1_VALUE):
