@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, ClassVar, Final
+from typing import Any, ClassVar, Final, TYPE_CHECKING
 
 from homeassistant.components.climate import (
     ClimateEntity,
