@@ -21,22 +21,9 @@ from .const import (
     OperationMode,
     MODE_TEMP_MAPPING,
     TEMP_CONTROL_MAPPING,
-    REG_OPERATION_MODE,
-    REG_POWER,
-    REG_NORMAL_SETPOINT,
-    REG_AWAY_TEMP,
-    REG_INTENSIVE_TEMP,
-    REG_BOOST_TEMP,
-    REG_KITCHEN_TEMP,
-    REG_FIREPLACE_TEMP,
-    REG_OVERRIDE_TEMP,
-    REG_HOLIDAYS_TEMP,
-    REG_AQ_TEMP_SETPOINT,
-    REG_ECO_MODE,
-    REG_AUTO_MODE,
-    REG_TEMP_CONTROL,
     TemperatureControl,
 )
+from . import registers
 from .coordinator import KomfoventCoordinator
 
 async def async_setup_entry(
@@ -76,13 +63,13 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
 
     async def async_set_eco_mode(self, eco_mode: bool) -> None:
         """Set ECO mode."""
-        await self.coordinator.client.write_register(REG_ECO_MODE, 1 if eco_mode else 0)
+        await self.coordinator.client.write_register(registers.REG_ECO_MODE, 1 if eco_mode else 0)
         self._eco_mode = eco_mode
         await self.coordinator.async_request_refresh()
 
     async def async_set_auto_mode(self, auto_mode: bool) -> None:
         """Set AUTO mode."""
-        await self.coordinator.client.write_register(REG_AUTO_MODE, 1 if auto_mode else 0)
+        await self.coordinator.client.write_register(registers.REG_AUTO_MODE, 1 if auto_mode else 0)
         self._auto_mode = auto_mode
         await self.coordinator.async_request_refresh()
 
@@ -152,7 +139,7 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
             reg = MODE_TEMP_MAPPING[mode][1]
         except (ValueError, KeyError):
             _LOGGER.warning("Invalid operation mode, using normal setpoint")
-            reg = REG_NORMAL_SETPOINT
+            reg = registers.REG_NORMAL_SETPOINT
 
         # Temperature values are stored as actual value * 10 in Modbus
         value = int(temp * 10)
@@ -162,9 +149,9 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
     async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
         """Set new target hvac mode."""
         if hvac_mode == HVACMode.OFF:
-            await self.coordinator.client.write_register(REG_POWER, 0)
+            await self.coordinator.client.write_register(registers.REG_POWER, 0)
         else:
-            await self.coordinator.client.write_register(REG_POWER, 1)
+            await self.coordinator.client.write_register(registers.REG_POWER, 1)
         await self.coordinator.async_request_refresh()
 
     async def async_set_preset_mode(self, preset_mode: str) -> None:
@@ -172,7 +159,7 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
         try:
             mode = OperationMode[preset_mode.upper()]
             await self.coordinator.client.write_register(
-                REG_OPERATION_MODE, mode.value
+                registers.REG_OPERATION_MODE, mode.value
             )
             await self.coordinator.async_request_refresh()
         except ValueError:

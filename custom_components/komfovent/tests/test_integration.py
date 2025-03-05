@@ -32,13 +32,11 @@ from pymodbus.server import StartAsyncTcpServer
 from custom_components.komfovent.const import (
     DOMAIN,
     DEFAULT_NAME,
-    REG_POWER,
-    REG_OPERATION_MODE,
-    REG_ECO_MODE,
-    REG_AUTO_MODE,
     OperationMode,
     AirQualitySensorType,
 )
+from .. import registers
+
 
 @pytest.fixture
 def register_data() -> dict:
@@ -141,19 +139,19 @@ async def test_climate_entity(hass: HomeAssistant, integration, register_data):
     assert state.attributes["preset_modes"] == [mode.name.lower() for mode in OperationMode]
 
     # Check state based on power and operation mode
-    power = int(register_data[str(REG_POWER)])
+    power = int(register_data[str(registers.REG_POWER)])
     if not power:
         assert state.state == HVACMode.OFF
     else:
         assert state.state == HVACMode.HEAT_COOL
 
     # Check current operation mode
-    mode = int(register_data[str(REG_OPERATION_MODE)])
+    mode = int(register_data[str(registers.REG_OPERATION_MODE)])
     assert state.attributes["preset_mode"] == OperationMode(mode).name.lower()
 
     # Check eco and auto modes
-    eco_mode = bool(int(register_data[str(REG_ECO_MODE)]))
-    auto_mode = bool(int(register_data[str(REG_AUTO_MODE)]))
+    eco_mode = bool(int(register_data[str(registers.REG_ECO_MODE)]))
+    auto_mode = bool(int(register_data[str(registers.REG_AUTO_MODE)]))
     assert state.attributes.get("eco_mode") == eco_mode
     assert state.attributes.get("auto_mode") == auto_mode
 
