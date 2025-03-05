@@ -188,3 +188,5 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
                 REG_OPERATION_MODE, mode.value
             )
             await self.coordinator.async_request_refresh()
+        except ValueError:
+            _LOGGER.warning("Invalid fan mode: %s", fan_mode)
