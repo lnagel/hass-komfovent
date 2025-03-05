@@ -11,10 +11,7 @@ from pathlib import Path
 from pymodbus.client import ModbusTcpClient
 from pymodbus.exceptions import ModbusException
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
 
 INTEGRATION_RANGES = [
@@ -115,9 +112,7 @@ def main() -> None:
             json.dump(registers, f, indent=2)
 
         logger.info(
-            "Successfully dumped %d registers to %s",
-            len(registers),
-            args.output
+            "Successfully dumped %d registers to %s", len(registers), args.output
         )
 
     except (ConnectionError, ModbusException):
