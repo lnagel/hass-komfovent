@@ -67,13 +67,13 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
 
     async def async_set_eco_mode(self, eco_mode: bool) -> None:
         """Set ECO mode."""
-        await self.coordinator.hub.async_write_register(REG_ECO_MODE, 1 if eco_mode else 0)
+        await self.coordinator.client.write_register(REG_ECO_MODE, 1 if eco_mode else 0)
         self._eco_mode = eco_mode
         await self.coordinator.async_request_refresh()
 
     async def async_set_auto_mode(self, auto_mode: bool) -> None:
         """Set AUTO mode."""
-        await self.coordinator.hub.async_write_register(REG_AUTO_MODE, 1 if auto_mode else 0)
+        await self.coordinator.client.write_register(REG_AUTO_MODE, 1 if auto_mode else 0)
         self._auto_mode = auto_mode
         await self.coordinator.async_request_refresh()
 
@@ -137,22 +137,22 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
 
         # Temperature values are stored as actual value * 10 in Modbus
         value = int(temp * 10)
-        await self.coordinator.hub.async_write_register(reg, value)
+        await self.coordinator.client.write_register(reg, value)
         await self.coordinator.async_request_refresh()
 
     async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
         """Set new target hvac mode."""
         if hvac_mode == HVACMode.OFF:
-            await self.coordinator.hub.async_write_register(REG_POWER, 0)
+            await self.coordinator.client.write_register(REG_POWER, 0)
         else:
-            await self.coordinator.hub.async_write_register(REG_POWER, 1)
+            await self.coordinator.client.write_register(REG_POWER, 1)
         await self.coordinator.async_request_refresh()
 
     async def async_set_preset_mode(self, preset_mode: str) -> None:
         """Set new preset mode."""
         for mode_num, mode_name in OPERATION_MODES.items():
             if mode_name == preset_mode:
-                await self.coordinator.hub.async_write_register(
+                await self.coordinator.client.write_register(
                     REG_OPERATION_MODE, mode_num
                 )
                 break

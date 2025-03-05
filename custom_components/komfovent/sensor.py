@@ -142,45 +142,48 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
     @property
     def native_value(self) -> float | None:
         """Return the state of the sensor."""
-        if not self.coordinator.data:
-            return None
-            
-        value = self.coordinator.data.get(self._sensor_type)
-        if value is None:
-            return None
-
-        # Apply transforms based on sensor type and register format
-        if self._attr_device_class == SensorDeviceClass.TEMPERATURE:
-            # All temperatures are x10 in Modbus registers
-            if isinstance(value, (int, float)):
-                return float(value) / 10
-            return None
-        elif self._attr_device_class == SensorDeviceClass.HUMIDITY:
-            # Validate RH values (0-125%)
-            if 0 <= float(value) <= 125:
-                return float(value)
-            return None
-        elif self._attr_device_class == SensorDeviceClass.CO2:
-            # Validate CO2 values (0-2500 ppm)
-            if 0 <= float(value) <= 2500:
-                return float(value)
-            return None
-        elif self._sensor_type == "spi":
-            # Validate SPI values (0-5)
-            value = float(value) / 1000
-            if 0 <= value <= 5:
-                return value
-            return None
-        elif self._sensor_type in ["aq_sensor1_value", "aq_sensor2_value"]:
-            if not isinstance(value, (int, float)):
+        try:
+            if not self.coordinator.data:
                 return None
-            value = float(value)
-            
-            # Only validate VOC values, CO2 and humidity are handled above
-            if self._attr_native_unit_of_measurement == "ppb":  # VOC
-                if 0 <= value <= 2000:
+                
+            value = self.coordinator.data.get(self._sensor_type)
+            if value is None:
+                return None
+
+            # Apply transforms based on sensor type and register format
+            if self._attr_device_class == SensorDeviceClass.TEMPERATURE:
+                # All temperatures are x10 in Modbus registers
+                if isinstance(value, (int, float)):
+                    return float(value) / 10
+                return None
+            elif self._attr_device_class == SensorDeviceClass.HUMIDITY:
+                # Validate RH values (0-125%)
+                if 0 <= float(value) <= 125:
+                    return float(value)
+                return None
+            elif self._attr_device_class == SensorDeviceClass.CO2:
+                # Validate CO2 values (0-2500 ppm)
+                if 0 <= float(value) <= 2500:
+                    return float(value)
+                return None
+            elif self._sensor_type == "spi":
+                # Validate SPI values (0-5)
+                value = float(value) / 1000
+                if 0 <= value <= 5:
                     return value
                 return None
-            return value
-            
-        return float(value)
+            elif self._sensor_type in ["aq_sensor1_value", "aq_sensor2_value"]:
+                if not isinstance(value, (int, float)):
+                    return None
+                value = float(value)
+                
+                # Only validate VOC values, CO2 and humidity are handled above
+                if self._attr_native_unit_of_measurement == "ppb":  # VOC
+                    if 0 <= value <= 2000:
+                        return value
+                    return None
+                return value
+                
+            return float(value)
+        except (ValueError, TypeError):
+            return None
