@@ -33,7 +33,11 @@ from .const import (
     REG_AQ_SENSOR1_TYPE,
     REG_AQ_SENSOR2_TYPE,
     REG_AQ_SENSOR1_VALUE,
-    REG_AQ_SENSOR2_VALUE,
+    REG_AQ_SENSOR2_VALUE, REG_NEXT_MODE, REG_NEXT_MODE_TIME, REG_NEXT_MODE_WEEKDAY, REG_BEFORE_MODE_MASK,
+    REG_TEMP_CONTROL, REG_FLOW_CONTROL, REG_HEATING_CONFIG, REG_WATER_TEMP, REG_HEAT_EXCHANGER, REG_WATER_HEATER,
+    REG_WATER_COOLER, REG_DX_UNIT, REG_AIR_DAMPERS, REG_SUPPLY_PRESSURE, REG_EXTRACT_PRESSURE, REG_HEAT_EFFICIENCY,
+    REG_ENERGY_SAVING, REG_SPI, REG_INDOOR_ABS_HUMIDITY, REG_PANEL1_TEMP, REG_PANEL1_RH, REG_PANEL2_TEMP, REG_PANEL2_RH,
+    REG_ECO_MIN_TEMP,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -77,6 +81,13 @@ class KomfoventCoordinator(DataUpdateCoordinator):
                 "flow_control": basic_control[REG_FLOW_CONTROL],
             })
 
+            # Read Eco and air quality blocks (199-213)
+            eco_auto_block = await self.client.read_holding_registers(REG_ECO_MIN_TEMP, 15)
+            data.update({
+                "aq_sensor1_type": eco_auto_block[REG_AQ_SENSOR1_TYPE],
+                "aq_sensor2_type": eco_auto_block[REG_AQ_SENSOR2_TYPE],
+            })
+
             # Read sensor block (899-955)
             sensor_block = await self.client.read_holding_registers(REG_STATUS, 57)
             data.update({
@@ -105,18 +116,18 @@ class KomfoventCoordinator(DataUpdateCoordinator):
                 "heat_efficiency": sensor_block[REG_HEAT_EFFICIENCY],
                 "energy_saving": sensor_block[REG_ENERGY_SAVING],
                 "spi": sensor_block[REG_SPI],
-                "aq_sensor1_type": sensor_block[REG_AQ_SENSOR1_TYPE],
-                "aq_sensor2_type": sensor_block[REG_AQ_SENSOR2_TYPE],
-                "aq_sensor1_value": sensor_block[REG_AQ_SENSOR1_VALUE],
-                "aq_sensor2_value": sensor_block[REG_AQ_SENSOR2_VALUE],
-                "indoor_abs_humidity": sensor_block[REG_INDOOR_ABS_HUMIDITY],
             })
 
             # Read panel values
-            panel_block = await self.client.read_holding_registers(REG_PANEL1_TEMP, 2)
+            panel_block = await self.client.read_holding_registers(REG_PANEL1_TEMP, 11)
             data.update({
                 "panel1_temp": panel_block[REG_PANEL1_TEMP],
                 "panel1_rh": panel_block[REG_PANEL1_RH],
+                "panel2_temp": panel_block[REG_PANEL2_TEMP],
+                "panel2_rh": panel_block[REG_PANEL2_RH],
+                "aq_sensor1_value": panel_block[REG_AQ_SENSOR1_VALUE],
+                "aq_sensor2_value": panel_block[REG_AQ_SENSOR2_VALUE],
+                "indoor_abs_humidity": panel_block[REG_INDOOR_ABS_HUMIDITY],
             })
 
             return data
