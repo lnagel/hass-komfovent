@@ -170,6 +170,13 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
                 if isinstance(value, (int, float)):
                     return float(value) / 10
                 return None
+            elif self._sensor_type in X10_PERCENTAGE_FIELDS:
+                # These percentage fields are stored as actual value * 10
+                if isinstance(value, (int, float)):
+                    value = float(value) / 10
+                    if 0 <= value <= 100:
+                        return value
+                return None
             elif self._attr_device_class == SensorDeviceClass.HUMIDITY:
                 # Validate RH values (0-125%)
                 if 0 <= float(value) <= 125:
@@ -186,14 +193,6 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
                 if 0 <= value <= 5:
                     return value
                 return None
-            elif self._sensor_type in ["supply_fan_intensity", "extract_fan_intensity"]:
-                # Fan intensity values are stored as actual value * 10
-                if isinstance(value, (int, float)):
-                    value = float(value) / 10
-                    if 0 <= value <= 100:
-                        return value
-                return None
-                
             elif self._sensor_type in ["aq_sensor1_value", "aq_sensor2_value"]:
                 if not isinstance(value, (int, float)):
                     return None
