@@ -40,7 +40,7 @@ class KomfoventModbusClient:
         """Read holding registers."""
         async with self._lock:
             try:
-                result = await self.client.read_holding_registers(address, count, slave=1)
+                result = await self.client.read_holding_registers(address, count=count, slave=1)
                 if result.isError():
                     raise ModbusException(f"Error reading registers at {address}")
                 return result.registers
