@@ -56,7 +56,7 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
             "identifiers": {(DOMAIN, coordinator.config_entry.entry_id)},
             "name": coordinator.config_entry.title,
             "manufacturer": "Komfovent",
-            "model": "Modbus",
+            "model": None,
         }
         self._eco_mode = False
         self._auto_mode = False

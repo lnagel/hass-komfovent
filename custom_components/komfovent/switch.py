@@ -84,7 +84,7 @@ class KomfoventSwitch(CoordinatorEntity, SwitchEntity):
             "identifiers": {(DOMAIN, coordinator.config_entry.entry_id)},
             "name": coordinator.config_entry.title,
             "manufacturer": "Komfovent",
-            "model": "Modbus",
+            "model": None,
         }
 
     @property
