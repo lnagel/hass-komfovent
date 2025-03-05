@@ -10,6 +10,7 @@ from homeassistant.components.climate import (
     ClimateEntityFeature,
     HVACMode,
 )
+from homeassistant.helpers.entity import ToggleEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
 from homeassistant.core import HomeAssistant
@@ -45,6 +46,8 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
     _attr_supported_features = (
         ClimateEntityFeature.TARGET_TEMPERATURE
         | ClimateEntityFeature.PRESET_MODE
+        | ClimateEntityFeature.TURN_ECO_ON
+        | ClimateEntityFeature.TURN_AUTO_ON
     )
     _attr_preset_modes = [mode.name.lower() for mode in OperationMode]
 
@@ -61,16 +64,24 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
         self._eco_mode = False
         self._auto_mode = False
 
-    async def async_set_eco_mode(self, eco_mode: bool) -> None:
-        """Set ECO mode."""
-        await self.coordinator.client.write_register(registers.REG_ECO_MODE, 1 if eco_mode else 0)
-        self._eco_mode = eco_mode
+    async def async_turn_eco_on(self) -> None:
+        """Turn on eco mode."""
+        await self.coordinator.client.write_register(registers.REG_ECO_MODE, 1)
         await self.coordinator.async_request_refresh()
 
-    async def async_set_auto_mode(self, auto_mode: bool) -> None:
-        """Set AUTO mode."""
-        await self.coordinator.client.write_register(registers.REG_AUTO_MODE, 1 if auto_mode else 0)
-        self._auto_mode = auto_mode
+    async def async_turn_eco_off(self) -> None:
+        """Turn off eco mode."""
+        await self.coordinator.client.write_register(registers.REG_ECO_MODE, 0)
+        await self.coordinator.async_request_refresh()
+
+    async def async_turn_auto_on(self) -> None:
+        """Turn on auto mode."""
+        await self.coordinator.client.write_register(registers.REG_AUTO_MODE, 1)
+        await self.coordinator.async_request_refresh()
+
+    async def async_turn_auto_off(self) -> None:
+        """Turn off auto mode."""
+        await self.coordinator.client.write_register(registers.REG_AUTO_MODE, 0)
         await self.coordinator.async_request_refresh()
 
     @property
@@ -118,6 +129,20 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
         if not power or operation_mode == OperationMode.OFF:
             return HVACMode.OFF
         return HVACMode.HEAT_COOL
+
+    @property
+    def is_eco_mode(self) -> bool:
+        """Return if ECO mode is active."""
+        if not self.coordinator.data:
+            return False
+        return bool(self.coordinator.data.get(registers.REG_ECO_MODE, 0))
+
+    @property
+    def is_auto_mode(self) -> bool:
+        """Return if AUTO mode is active."""
+        if not self.coordinator.data:
+            return False
+        return bool(self.coordinator.data.get(registers.REG_AUTO_MODE, 0))
 
     @property
     def preset_mode(self) -> str | None:
