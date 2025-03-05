@@ -201,6 +201,28 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             ),
             KomfoventSensor(
                 coordinator=coordinator,
+                register_id=registers.REG_SUPPLY_PRESSURE,
+                entity_description=SensorEntityDescription(
+                    key="supply_pressure",
+                    name="Supply Pressure",
+                    native_unit_of_measurement="Pa",
+                    state_class=SensorStateClass.MEASUREMENT,
+                    suggested_display_precision=0,
+                ),
+            ),
+            KomfoventSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_EXTRACT_PRESSURE,
+                entity_description=SensorEntityDescription(
+                    key="extract_pressure", 
+                    name="Extract Pressure",
+                    native_unit_of_measurement="Pa",
+                    state_class=SensorStateClass.MEASUREMENT,
+                    suggested_display_precision=0,
+                ),
+            ),
+            KomfoventSensor(
+                coordinator=coordinator,
                 register_id=registers.REG_POWER_CONSUMPTION,
                 entity_description=SensorEntityDescription(
                     key="power_consumption",
