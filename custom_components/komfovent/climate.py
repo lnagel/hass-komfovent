@@ -14,24 +14,22 @@ from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import registers
+from .const import (
+    DOMAIN,
+    OperationMode,
+    TemperatureControl,
+)
 
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
-
     from .coordinator import KomfoventCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
 MIN_TEMP: Final = 5  # Minimum temperature supported by device (raw value 50)
 MAX_TEMP: Final = 40  # Maximum temperature supported by device (raw value 400)
-from .const import (
-    DOMAIN,
-    OperationMode,
-    TemperatureControl,
-)
-from .coordinator import KomfoventCoordinator
 
 
 async def async_setup_entry(
@@ -54,7 +52,9 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
     _attr_supported_features: ClassVar[int] = (
         ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.PRESET_MODE
     )
-    _attr_preset_modes: ClassVar[list[str]] = [mode.name.lower() for mode in OperationMode]
+    _attr_preset_modes: ClassVar[list[str]] = [
+        mode.name.lower() for mode in OperationMode
+    ]
 
     def __init__(self, coordinator: KomfoventCoordinator) -> None:
         """Initialize the climate device."""
