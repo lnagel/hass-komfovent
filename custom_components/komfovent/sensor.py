@@ -15,10 +15,6 @@ X10_PERCENTAGE_FIELDS = {
     "water_heater",
     "water_cooler",
     "dx_unit",
-    "filter_impurity",
-    "air_dampers",
-    "heat_efficiency",
-    "energy_saving",
 }
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
