@@ -16,6 +16,7 @@ from homeassistant.const import (
     PERCENTAGE,
     UnitOfEnergy,
     UnitOfPower,
+    UnitOfPressure,
     UnitOfTemperature,
 )
 from homeassistant.core import HomeAssistant
@@ -205,7 +206,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="supply_pressure",
                     name="Supply Pressure",
-                    native_unit_of_measurement="Pa",
+                    native_unit_of_measurement=UnitOfPressure.PA,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
                 ),
@@ -216,7 +217,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="extract_pressure", 
                     name="Extract Pressure",
-                    native_unit_of_measurement="Pa",
+                    native_unit_of_measurement=UnitOfPressure.PA,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
                 ),
