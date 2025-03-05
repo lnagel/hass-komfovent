@@ -176,6 +176,10 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
                     if 0 <= value <= 100:
                         return value
                 return None
+            elif self._sensor_type in X100_FIELDS:
+                if isinstance(value, (int, float)):
+                    return float(value) / 100
+                return None
             elif self._attr_device_class == SensorDeviceClass.HUMIDITY:
                 # Validate RH values (0-125%)
                 if 0 <= float(value) <= 125:
