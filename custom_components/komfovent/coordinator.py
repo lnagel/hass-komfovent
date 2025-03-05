@@ -43,6 +43,17 @@ async def read_32bit_register(hub: ModbusHub, register: int) -> int:
     regs = await hub.async_read_holding_registers(register, 2)
     return (regs[0] << 16) + regs[1]
 
+
+# Based on _async_read_register in ModbusThermostat class
+async def read_int16_from_register(hub: ModbusHub, register: int) -> int:
+    """Read register using the Modbus hub slave."""
+    result = await hub.async_pb_call(self._slave, register, 1, register_type)
+    if result is None:
+        _LOGGER.error("Error reading value from Flexit modbus adapter")
+        return -1
+
+    return int(result.registers[0])
+
 class KomfoventCoordinator(DataUpdateCoordinator):
     """Class to manage fetching Komfovent data."""
 

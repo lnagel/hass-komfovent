@@ -1,8 +1,8 @@
 """The Komfovent integration."""
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import Platform
+from homeassistant.const import Platform, CONF_HOST, CONF_PORT, CONF_NAME, CONF_TYPE, CONF_DELAY, CONF_TIMEOUT
 from homeassistant.core import HomeAssistant
-from homeassistant.components.modbus import get_hub
+from homeassistant.components.modbus import get_hub, ModbusHub
 
 from .const import DOMAIN, DEFAULT_NAME
 from .coordinator import KomfoventCoordinator
@@ -11,7 +11,8 @@ PLATFORMS = [Platform.CLIMATE, Platform.SENSOR]
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Komfovent from a config entry."""
-    hub = get_hub(hass, DEFAULT_NAME)
+    conf_hub = {CONF_HOST: entry.data[CONF_HOST], CONF_PORT: entry.data[CONF_PORT],CONF_NAME: "Komfovent",CONF_TYPE: 'tcp',CONF_DELAY:0, CONF_TIMEOUT: 500}
+    hub = ModbusHub(hass, conf_hub)
     coordinator = KomfoventCoordinator(hass, hub)
     
     await coordinator.async_config_entry_first_refresh()
