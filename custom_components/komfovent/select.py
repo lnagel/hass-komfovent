@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+from enum import IntEnum
 from typing import TYPE_CHECKING, Any, ClassVar, Final
 
 from homeassistant.components.select import SelectEntity, SelectEntityDescription
@@ -33,6 +34,7 @@ async def async_setup_entry(
             KomfoventSelect(
                 coordinator=coordinator,
                 register_id=registers.REG_OPERATION_MODE,
+                enum_class=OperationMode,
                 entity_description=SelectEntityDescription(
                     key="operation_mode",
                     name="Current mode",
@@ -53,11 +55,13 @@ class KomfoventSelect(CoordinatorEntity, SelectEntity):
         self,
         coordinator: KomfoventCoordinator,
         register_id: int,
+        enum_class: type[IntEnum],
         entity_description: SelectEntityDescription,
     ) -> None:
         """Initialize the select entity."""
         super().__init__(coordinator)
         self.register_id = register_id
+        self.enum_class = enum_class
         self.entity_description = entity_description
         self._attr_unique_id = f"{coordinator.config_entry.entry_id}_{register_id}"
         self._attr_device_info = {
@@ -75,14 +79,14 @@ class KomfoventSelect(CoordinatorEntity, SelectEntity):
 
         mode = self.coordinator.data.get(self.register_id, 0)
         try:
-            return OperationMode(mode).name.lower()
+            return self.enum_class(mode).name.lower()
         except ValueError:
             return None
 
     async def async_select_option(self, option: str) -> None:
         """Change the selected option."""
         try:
-            mode = OperationMode[option.upper()]
+            mode = self.enum_class[option.upper()]
         except ValueError:
             _LOGGER.warning("Invalid operation mode: %s", option)
             return
