@@ -80,7 +80,7 @@ def create_aq_sensor(
     if sensor_type == AirQualitySensorType.NOT_INSTALLED:
         return None
 
-    name = f"Air Quality {sensor_type.name.title()}"
+    name = f"Air Quality {sensor_type.name.upper()}"
 
     if sensor_type == AirQualitySensorType.CO2:
         unit, device_class = "ppm", SensorDeviceClass.CO2
