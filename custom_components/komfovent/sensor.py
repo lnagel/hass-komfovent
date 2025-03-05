@@ -7,7 +7,7 @@ from . import registers
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
-    SensorStateClass,
+    SensorStateClass, SensorEntityDescription,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
@@ -289,10 +289,12 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
         unit: str | None,
         device_class: str | None,
         state_class: SensorStateClass | None = None,
+        entity_description: SensorEntityDescription | None = None,
     ) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator)
         self._register_id = register_id
+        self.entity_description = entity_description
         self._attr_name = name
         self._attr_native_unit_of_measurement = unit
         self._attr_device_class = device_class

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from homeassistant.components.switch import SwitchEntity
+from homeassistant.components.switch import SwitchEntity, SwitchEntityDescription
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -66,12 +66,14 @@ class KomfoventSwitch(CoordinatorEntity, SwitchEntity):
         register_id: int,
         description: str,
         icon: str,
+        entity_description: SwitchEntityDescription | None = None,
     ) -> None:
         """Initialize the switch."""
         super().__init__(coordinator)
+        self._register_id = register_id
+        self.entity_description = entity_description
         self._attr_name = name
         self._key = key
-        self._register_id = register_id
         self._attr_device_class = None
         self._attr_unique_id = f"{coordinator.config_entry.entry_id}_{key}"
         self._attr_device_info = {
