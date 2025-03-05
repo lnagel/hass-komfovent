@@ -7,6 +7,8 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 
+X100_FIELDS = {"indoor_abs_humidity"}
+
 X10_PERCENTAGE_FIELDS = {
     "supply_fan_intensity",
     "extract_fan_intensity", 
@@ -15,6 +17,7 @@ X10_PERCENTAGE_FIELDS = {
     "water_heater",
     "water_cooler",
     "dx_unit",
+    "filter_impurity",
 }
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
