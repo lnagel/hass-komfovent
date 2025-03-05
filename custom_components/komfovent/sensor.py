@@ -143,8 +143,6 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
     """Representation of a Komfovent sensor."""
 
     _attr_has_entity_name = True
-    _attr_state_class = SensorStateClass.MEASUREMENT
-
     def __init__(
         self,
         coordinator: KomfoventCoordinator,
