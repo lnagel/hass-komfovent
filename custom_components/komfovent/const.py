@@ -51,8 +51,8 @@ class TemperatureControl(IntEnum):
 
     SUPPLY = 0
     EXTRACT = 1
-    BALANCE = 2
-    ROOM = 3
+    ROOM = 2
+    BALANCE = 3
 
 
 class FlowControl(IntEnum):
