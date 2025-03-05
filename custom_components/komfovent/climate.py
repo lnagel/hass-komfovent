@@ -1,6 +1,9 @@
 """Climate platform for Komfovent."""
 from __future__ import annotations
 from typing import Any
+import logging
+
+_LOGGER = logging.getLogger(__name__)
 
 from homeassistant.components.climate import (
     ClimateEntity,
@@ -158,7 +161,9 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
             await self.coordinator.client.write_register(
                 REG_OPERATION_MODE, mode.value
             )
-        await self.coordinator.async_request_refresh()
+            await self.coordinator.async_request_refresh()
+        except ValueError:
+            _LOGGER.warning("Invalid preset mode: %s", preset_mode)
 
     @property
     def fan_mode(self) -> str | None:
