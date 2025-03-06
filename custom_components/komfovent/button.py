@@ -5,6 +5,7 @@ from homeassistant.components.button import ButtonEntity, ButtonEntityDescriptio
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import KomfoventCoordinator
 from .const import DOMAIN
@@ -33,23 +34,27 @@ async def async_setup_entry(
     )
 
 
-class KomfoventSetTimeButton(ButtonEntity):
+class KomfoventSetTimeButton(CoordinatorEntity, ButtonEntity):
     """Representation of a Komfovent set time button."""
+
+    _attr_has_entity_name = True
 
     def __init__(
         self,
         coordinator: KomfoventCoordinator,
-        description: ButtonEntityDescription,
+        entity_description: ButtonEntityDescription,
     ) -> None:
         """Initialize the button."""
-        self.coordinator = coordinator
-        self.entity_description = description
-        self._attr_unique_id = f"{coordinator.config_entry.entry_id}_set_system_time"
+        super().__init__(coordinator)
+        self.entity_description = entity_description
+        self._attr_unique_id = (
+            f"{coordinator.config_entry.entry_id}_{entity_description.key}"
+        )
         self._attr_device_info = {
             "identifiers": {(DOMAIN, coordinator.config_entry.entry_id)},
-            "name": "Komfovent",
+            "name": coordinator.config_entry.title,
             "manufacturer": "Komfovent",
-            "model": "C6",
+            "model": None,
         }
 
     async def async_press(self) -> None:
