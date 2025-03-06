@@ -10,7 +10,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import KomfoventCoordinator
 from .const import DOMAIN
-from .services import set_system_time
+from .services import set_system_time, clean_filters_calibration
 
 
 async def async_setup_entry(
@@ -31,7 +31,16 @@ async def async_setup_entry(
                     icon="mdi:clock",
                     entity_category=EntityCategory.CONFIG,
                 ),
-            )
+            ),
+            KomfoventSetTimeButton(
+                coordinator,
+                ButtonEntityDescription(
+                    key="clean_filters",
+                    name="Clean Filters Calibration",
+                    icon="mdi:air-filter",
+                    entity_category=EntityCategory.CONFIG,
+                ),
+            ),
         ]
     )
 
@@ -61,4 +70,7 @@ class KomfoventSetTimeButton(CoordinatorEntity, ButtonEntity):
 
     async def async_press(self) -> None:
         """Handle the button press."""
-        await set_system_time(self.coordinator)
+        if self.entity_description.key == "set_system_time":
+            await set_system_time(self.coordinator)
+        elif self.entity_description.key == "clean_filters":
+            await clean_filters_calibration(self.coordinator)

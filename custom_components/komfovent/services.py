@@ -7,9 +7,14 @@ from homeassistant.core import HomeAssistant, ServiceCall
 
 from . import KomfoventCoordinator
 from .const import DOMAIN
-from .registers import REG_EPOCH_TIME
+from .registers import REG_EPOCH_TIME, REG_CLEAN_FILTERS
 
 ATTR_CONFIG_ENTRY: Final = "config_entry"
+
+async def clean_filters_calibration(coordinator: KomfoventCoordinator) -> None:
+    """Reset filters counter."""
+    await coordinator.client.write_register(REG_CLEAN_FILTERS, 1)
+
 
 async def set_system_time(coordinator: KomfoventCoordinator) -> None:
     """Set system time on the Komfovent unit."""
