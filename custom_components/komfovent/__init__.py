@@ -40,7 +40,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         local_time = datetime.now(local_tz)
         # Get local epoch (seconds since 1970-01-01 00:00:00 in local timezone)
         local_epoch = int((local_time - datetime(1970, 1, 1, tzinfo=local_tz)).total_seconds())
-        await coordinator.client.write_register(REG_EPOCH_TIME, epoch_time)
+        await coordinator.client.write_register(REG_EPOCH_TIME, local_epoch)
 
     hass.services.async_register(DOMAIN, "set_system_time", set_system_time)
 
