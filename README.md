@@ -40,18 +40,43 @@ A climate entity that provides:
 
 ### Sensors
 Multiple sensor entities including:
-- Supply air temperature
-- Extract air temperature
-- Outdoor air temperature
-- Room temperature
-- Supply fan speed
-- Extract fan speed
-- Filter impurity
-- Heat exchanger efficiency
-- Specific fan power
-- Air quality (CO2, VOC, or RH depending on installed sensors)
-- Energy consumption
-- Power consumption
+
+Temperature sensors:
+- Supply air temperature (°C)
+- Extract air temperature (°C)
+- Outdoor air temperature (°C)
+- Panel 1/2 temperature (°C, if panels connected)
+
+Air quality sensors:
+- CO2 level (ppm, if installed)
+- VOC level (ppb, if installed)
+- Humidity level (%, if installed)
+- Indoor absolute humidity (g/m³)
+- Panel 1/2 humidity (%, if panels connected)
+
+Performance sensors:
+- Supply fan intensity (%)
+- Extract fan intensity (%)
+- Heat exchanger efficiency (%)
+- Electric heater (%)
+- Filter impurity (%)
+- Supply pressure (Pa)
+- Extract pressure (Pa)
+- Specific power input (W/(m³/s))
+
+Power/Energy sensors:
+- Power consumption (W)
+- Heater power (W)
+- Heat recovery (W)
+- Total AHU energy (kWh)
+- Total heater energy (kWh)
+- Total recovered energy (kWh)
+
+Diagnostic sensors:
+- Connected panels status
+- Heat exchanger type
+- Controller firmware version
+- Panel 1/2 firmware version (if connected)
 
 ### Switches
 Control switches for:
