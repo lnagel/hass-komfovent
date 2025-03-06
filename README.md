@@ -33,11 +33,21 @@ The integration creates several types of entities for each Komfovent device:
 
 ### Climate
 A climate entity that provides:
-- Temperature control
+- Temperature control (5-40°C)
 - Current and target temperature readings
-- Operation mode control (Comfort, Economy, Special, Auto)
-- Fan speed control
-- Current device state
+- HVAC mode control (Off, Heat/Cool)
+- Preset modes:
+  - standby
+  - away
+  - normal
+  - intensive
+  - boost
+  - kitchen
+  - fireplace
+  - override
+  - holiday
+  - air_quality
+  - off
 
 ### Sensors
 Multiple sensor entities including:
