@@ -7,6 +7,8 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from pymodbus.client import AsyncModbusTcpClient
 from pymodbus.exceptions import ModbusException
 
+from .registers import REGISTERS_16BIT, REGISTERS_32BIT
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -58,9 +60,24 @@ class KomfoventModbusClient:
         """Write to holding register."""
         async with self._lock:
             try:
-                result = await self.client.write_register(address, value, slave=1)
-                if result.isError():
-                    raise ModbusException(f"Error writing register at {address}")
+                if address in REGISTERS_32BIT:
+                    # Split 32-bit value into two 16-bit values
+                    high_word = (value >> 16) & 0xFFFF
+                    low_word = value & 0xFFFF
+                    
+                    # Write both words in a single transaction
+                    result = await self.client.write_registers(address, [high_word, low_word], slave=1)
+                    if result.isError():
+                        raise ModbusException(f"Error writing 32-bit value at {address}")
+                
+                elif address in REGISTERS_16BIT:
+                    result = await self.client.write_register(address, value, slave=1)
+                    if result.isError():
+                        raise ModbusException(f"Error writing register at {address}")
+                
+                else:
+                    raise ValueError(f"Register {address} not found in either 16-bit or 32-bit register sets")
+                    
             except Exception as error:
                 _LOGGER.error("Failed to write register at %s: %s", address, error)
                 raise ConfigEntryNotReady from error
