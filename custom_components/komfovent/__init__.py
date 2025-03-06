@@ -34,11 +34,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     async def set_system_time(call: ServiceCall) -> None:
         """Service to set system time on the Komfovent unit."""
         coordinator = hass.data[DOMAIN][entry.entry_id]
-        # Get current UTC time and convert to local timestamp
-        utc_time = datetime.now(datetime.UTC)
+        # Get local timezone
         local_tz = zoneinfo.ZoneInfo(str(hass.config.time_zone))
-        local_time = utc_time.astimezone(local_tz)
-        epoch_time = int(local_time.timestamp())  # Local time as epoch seconds
+        # Get current time in local timezone
+        local_time = datetime.now(local_tz)
+        # Convert to naive datetime to get timestamp in local time
+        naive_local = local_time.replace(tzinfo=None)
+        epoch_time = int(naive_local.timestamp())  # Local time as epoch seconds
         await coordinator.client.write_register(REG_EPOCH_TIME, epoch_time)
 
     hass.services.async_register(DOMAIN, "set_system_time", set_system_time)
