@@ -38,9 +38,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         local_tz = zoneinfo.ZoneInfo(str(hass.config.time_zone))
         # Get current time in local timezone
         local_time = datetime.now(local_tz)
-        # Convert to naive datetime to get timestamp in local time
-        naive_local = local_time.replace(tzinfo=None)
-        epoch_time = int(naive_local.timestamp())  # Local time as epoch seconds
+        # Get local epoch (seconds since 1970-01-01 00:00:00 in local timezone)
+        local_epoch = int((local_time - datetime(1970, 1, 1, tzinfo=local_tz)).total_seconds())
         await coordinator.client.write_register(REG_EPOCH_TIME, epoch_time)
 
     hass.services.async_register(DOMAIN, "set_system_time", set_system_time)
