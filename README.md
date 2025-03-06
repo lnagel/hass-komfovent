@@ -1,12 +1,25 @@
-# Komfovent Integration for Home Assistant
+# Komfovent C6/C6M integration for Home Assistant
 
-A Home Assistant integration that connects to Komfovent devices through Modbus TCP.
+A Home Assistant integration that connects to Komfovent C6/C6M devices through Modbus TCP.
 
 ## Installation
 
 1. Add this repository to HACS or copy the `custom_components/komfovent` folder to your Home Assistant configuration directory.
 2. Restart Home Assistant.
 3. Add the integration through the Home Assistant UI.
+4. Configure the integration with the IP address of your Komfovent device.
+
+## Device support
+
+Currently only the Komfovent C6/C6M devices are supported, however due to the large variety of configurations,
+not every combination has been tested yet. If you have issues seeing the data correctly, then please
+open a new ticket with a data dump taken with the `nodbus_dump.py` tool.
+
+## ModBus tools
+
+The `nodbus_dump.py` tool can be used to dump the ModBus data from the Komfovent device. Usage:
+
+The `nodbus_server.py` tool can be used to simulate a Komfovent ModBus server for testing purposes. Usage:
 
 ## Repository Overview
 
