@@ -65,14 +65,10 @@ class KomfoventModbusClient:
                     high_word = (value >> 16) & 0xFFFF
                     low_word = value & 0xFFFF
                     
-                    # Write low word first, then high word
-                    result = await self.client.write_register(address + 1, low_word, slave=1)
+                    # Write both words in a single transaction
+                    result = await self.client.write_registers(address, [high_word, low_word], slave=1)
                     if result.isError():
-                        raise ModbusException(f"Error writing low word at {address + 1}")
-                    
-                    result = await self.client.write_register(address, high_word, slave=1)
-                    if result.isError():
-                        raise ModbusException(f"Error writing high word at {address}")
+                        raise ModbusException(f"Error writing 32-bit value at {address}")
                 
                 elif address in REGISTERS_16BIT:
                     result = await self.client.write_register(address, value, slave=1)
