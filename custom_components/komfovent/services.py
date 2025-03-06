@@ -4,7 +4,7 @@ import zoneinfo
 
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers.config_validation import PLATFORM_SCHEMA, PLATFORM_SCHEMA_BASE
-from homeassistant.helpers.service import async_get_all_descriptions
+from homeassistant.helpers.service import async_get_all_descriptions, get_config_entry
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.const import ATTR_CONFIG_ENTRY
 
