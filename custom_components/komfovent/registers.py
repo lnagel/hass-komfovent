@@ -152,6 +152,11 @@ REG_FILTER_IMPURITY = 916  # Filter clogging
 REG_AIR_DAMPERS = 917  # Air dampers
 REG_SUPPLY_PRESSURE = 918  # Supply pressure
 REG_EXTRACT_PRESSURE = 919  # Extract pressure
+REG_AQ_SENSOR1_VALUE = 951  # Air quality sensor 1 value
+REG_AQ_SENSOR2_VALUE = 952  # Air quality sensor 2 value
+REG_HEAT_EXCHANGER_TYPE = 954  # Heat exchanger type
+REG_INDOOR_ABS_HUMIDITY = 955  # Indoor absolute humidity
+REG_EXHAUST_TEMP = 960  # Exhaust temperature
 
 # Efficiency status
 REG_POWER_CONSUMPTION = 920  # Power consumption
@@ -180,11 +185,12 @@ REG_PANEL1_AQ = 947  # Panel 1 air quality
 REG_PANEL2_TEMP = 948  # Panel 2 temperature
 REG_PANEL2_RH = 949  # Panel 2 relative humidity
 REG_PANEL2_AQ = 950  # Panel 2 air quality
+REG_CONNECTED_PANELS = 953  # Connected panels
 
-# Air quality sensor registers
-REG_AQ_SENSOR1_VALUE = 951  # Air quality sensor 1 value
-REG_AQ_SENSOR2_VALUE = 952  # Air quality sensor 2 value
-REG_INDOOR_ABS_HUMIDITY = 955  # Indoor absolute humidity
+# Digital Outputs
+REG_DO_ALARM = 957  # Digital Output: Alarm
+REG_DO_HEATING = 958  # Digital Output: Heating
+REG_DO_COOLING = 959  # Digital Output: Cooling
 
 # Firmware registers
 REG_FIRMWARE = 999  # Firmware version (32-bit)
@@ -306,7 +312,13 @@ REGISTERS_16BIT = {
     REG_PANEL2_AQ,
     REG_AQ_SENSOR1_VALUE,
     REG_AQ_SENSOR2_VALUE,
+    REG_CONNECTED_PANELS,
+    REG_HEAT_EXCHANGER_TYPE,
     REG_INDOOR_ABS_HUMIDITY,
+    REG_DO_ALARM,
+    REG_DO_HEATING,
+    REG_DO_COOLING,
+    REG_EXHAUST_TEMP,
     REG_RESET_SETTINGS,
     REG_CLEAN_FILTERS,
 }
