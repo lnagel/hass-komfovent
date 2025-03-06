@@ -1,6 +1,6 @@
-# Komfovent C6/C6M integration for Home Assistant
+# Komfovent integration for Home Assistant
 
-A Home Assistant integration that connects to Komfovent C6/C6M devices through Modbus TCP.
+A Home Assistant integration that connects to Komfovent devices through Modbus TCP.
 
 ## Installation
 
@@ -14,6 +14,10 @@ A Home Assistant integration that connects to Komfovent C6/C6M devices through M
 Currently only the Komfovent C6/C6M devices are supported, however due to the large variety of configurations,
 not every combination has been tested yet. If you have issues seeing the data correctly, then please
 open a new ticket with a data dump taken with the `modbus_dump.py` tool.
+
+Support for Komfovent C8 devices could easily be added, but I don't have access to one for testing. Since the 
+C8 register layout is extremely similar to the C6, it might work out of the box. If you have a C8 device and are 
+willing to help, please open a new ticket with a data dump taken with the `modbus_dump.py` tool.
 
 ## ModBus tools
 
