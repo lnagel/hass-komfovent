@@ -19,6 +19,10 @@ Support for Komfovent C8 devices could easily be added, but I don't have access 
 C8 register layout is extremely similar to the C6, it might work out of the box. If you have a C8 device and are 
 willing to help, please open a new ticket with a data dump taken with the `modbus_dump.py` tool.
 
+## Configuration
+
+The integration can be configured through the Home Assistant UI. The following options are available: ...
+
 ## ModBus tools
 
 The `modbus_dump.py` tool can be used to dump the ModBus data from the Komfovent device. Usage:
