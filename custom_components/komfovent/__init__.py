@@ -11,7 +11,7 @@ from .const import DOMAIN
 from .coordinator import KomfoventCoordinator
 from .services import async_register_services
 
-PLATFORMS = [Platform.CLIMATE, Platform.SELECT, Platform.SENSOR, Platform.SWITCH]
+PLATFORMS = [Platform.BUTTON, Platform.CLIMATE, Platform.SELECT, Platform.SENSOR, Platform.SWITCH]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
