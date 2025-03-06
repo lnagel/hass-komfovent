@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from homeassistant.components.button import ButtonEntity, ButtonEntityDescription
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -28,6 +29,7 @@ async def async_setup_entry(
                     key="set_system_time",
                     name="Set System Time",
                     icon="mdi:clock",
+                    entity_category=EntityCategory.CONFIG,
                 ),
             )
         ]
