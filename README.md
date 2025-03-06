@@ -29,7 +29,52 @@ The integration can be configured through the Home Assistant UI. The following o
 
 ## Entities
 
-The integration creates a number of entities for each Komfovent device. The following entities are created: ...
+The integration creates several types of entities for each Komfovent device:
+
+### Climate
+A climate entity that provides:
+- Temperature control
+- Current and target temperature readings
+- Operation mode control (Comfort, Economy, Special, Auto)
+- Fan speed control
+- Current device state
+
+### Sensors
+Multiple sensor entities including:
+- Supply air temperature
+- Extract air temperature
+- Outdoor air temperature
+- Room temperature
+- Supply fan speed
+- Extract fan speed
+- Filter impurity
+- Heat exchanger efficiency
+- Specific fan power
+- Air quality (CO2, VOC, or RH depending on installed sensors)
+- Energy consumption
+- Power consumption
+
+### Switches
+Control switches for:
+- Override mode
+- Kitchen hood mode
+- Fireplace mode
+- Holiday mode
+- Microventilation mode
+
+### Buttons
+One-time action buttons for:
+- Reset filter timer
+- Set system time
+
+### Select
+Drop-down selectors for:
+- Operation mode (Comfort, Economy, Special, Auto)
+- Control mode (Flow, Power)
+- Temperature control mode
+- Air quality control mode
+
+All entities are prefixed with "Komfovent" and use clear, descriptive names. Entity availability is dependent on your specific device model and configuration.
 
 ## ModBus tools
 
