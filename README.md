@@ -23,19 +23,13 @@ willing to help, please open a new ticket with a data dump taken with the `modbu
 
 The integration can be configured through the Home Assistant UI. The following options are available:
 
+- **name**: The name of your Komfovent device
 - **Host**: The IP address of your Komfovent device
 - **Port**: The Modbus TCP port (default: 502)
-- **Scan Interval**: How often to poll the device for updates (default: 30 seconds)
 
-The integration will automatically discover all available entities based on your device's capabilities. These may include:
+## Entities
 
-- Climate entity for temperature control and operation mode
-- Sensors for temperature, humidity, and air quality
-- Switches for various device functions
-- Buttons for one-time actions like filter reset
-- Select entities for operation modes and schedules
-
-All entities will be prefixed with "Komfovent" for easy identification in the UI.
+The integration creates a number of entities for each Komfovent device. The following entities are created: ...
 
 ## ModBus tools
 
