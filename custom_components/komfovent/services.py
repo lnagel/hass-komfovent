@@ -1,31 +1,31 @@
 """Services for Komfovent integration."""
-from datetime import datetime
 import zoneinfo
+from datetime import datetime
+from typing import Final
 
 from homeassistant.core import HomeAssistant, ServiceCall
-from homeassistant.helpers.config_validation import PLATFORM_SCHEMA, PLATFORM_SCHEMA_BASE
-from homeassistant.helpers.service import async_get_all_descriptions, get_config_entry
-from homeassistant.helpers.typing import ConfigType
-from homeassistant.const import ATTR_CONFIG_ENTRY
 
+from . import KomfoventCoordinator
 from .const import DOMAIN
 from .registers import REG_EPOCH_TIME
 
+ATTR_CONFIG_ENTRY: Final = "config_entry"
 
 async def async_register_services(hass: HomeAssistant) -> None:
     """Register services for Komfovent integration."""
 
     async def set_system_time(call: ServiceCall) -> None:
         """Service to set system time on the Komfovent unit."""
-        entry = get_config_entry(hass, call.data[ATTR_CONFIG_ENTRY])
-        coordinator = hass.data[DOMAIN][entry.entry_id]
-        
-        # Get local timezone
+        coordinator: KomfoventCoordinator = hass.data[DOMAIN][call.data[ATTR_CONFIG_ENTRY]]
+
+        # Initialize local epoch (1970-01-01 00:00:00 in local timezone)
         local_tz = zoneinfo.ZoneInfo(str(hass.config.time_zone))
-        # Get current time in local timezone
-        local_time = datetime.now(local_tz)
-        # Get local epoch (seconds since 1970-01-01 00:00:00 in local timezone)
-        local_epoch = int((local_time - datetime(1970, 1, 1, tzinfo=local_tz)).total_seconds())
-        await coordinator.client.write_register(REG_EPOCH_TIME, local_epoch)
+        local_epoch = datetime(1970, 1, 1, tzinfo=local_tz)
+
+        # Calculate local time as seconds since local epoch
+        local_time = int((datetime.now(tz=local_tz) - local_epoch).total_seconds())
+
+        # Write local time to the Komfovent unit
+        await coordinator.client.write_register(REG_EPOCH_TIME, local_time)
 
     hass.services.async_register(DOMAIN, "set_system_time", set_system_time)
