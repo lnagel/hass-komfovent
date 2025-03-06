@@ -294,6 +294,15 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             ),
             KomfoventSensor(
                 coordinator=coordinator,
+                register_id=registers.REG_CONNECTED_PANELS,
+                entity_description=SensorEntityDescription(
+                    key="connected_panels",
+                    name="Connected Panels",
+                    entity_category=EntityCategory.DIAGNOSTIC,
+                ),
+            ),
+            KomfoventSensor(
+                coordinator=coordinator,
                 register_id=registers.REG_HEAT_EXCHANGER_TYPE,
                 entity_description=SensorEntityDescription(
                     key="heat_exchanger_type",
@@ -544,6 +553,11 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
             if self.register_id == registers.REG_HEAT_EXCHANGER_TYPE:
                 try:
                     return HeatExchangerType(value).name
+                except ValueError:
+                    return None
+            if self.register_id == registers.REG_CONNECTED_PANELS:
+                try:
+                    return ConnectedPanels(value).name
                 except ValueError:
                     return None
 
