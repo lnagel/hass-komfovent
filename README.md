@@ -13,13 +13,33 @@ A Home Assistant integration that connects to Komfovent C6/C6M devices through M
 
 Currently only the Komfovent C6/C6M devices are supported, however due to the large variety of configurations,
 not every combination has been tested yet. If you have issues seeing the data correctly, then please
-open a new ticket with a data dump taken with the `nodbus_dump.py` tool.
+open a new ticket with a data dump taken with the `modbus_dump.py` tool.
 
 ## ModBus tools
 
-The `nodbus_dump.py` tool can be used to dump the ModBus data from the Komfovent device. Usage:
+The `modbus_dump.py` tool can be used to dump the ModBus data from the Komfovent device. Usage:
 
-The `nodbus_server.py` tool can be used to simulate a Komfovent ModBus server for testing purposes. Usage:
+```bash
+python3 modbus_dump.py --host <device_ip> [--port 502] [--output registers.json]
+```
+
+This will scan all known register ranges and save the results to a JSON file. The tool supports these arguments:
+- `--host`: Required. IP address of your Komfovent device
+- `--port`: Optional. ModBus TCP port (default: 502)
+- `--output`: Optional. Output JSON file path (default: registers.json)
+
+The `modbus_server.py` tool can be used to simulate a Komfovent ModBus server for testing purposes. Usage:
+
+```bash
+python3 modbus_server.py [--host 0.0.0.0] [--port 502] [--input registers.json]
+```
+
+This will start a ModBus TCP server that simulates a Komfovent device using register values from a JSON file. The tool supports these arguments:
+- `--host`: Optional. Network interface to listen on (default: 0.0.0.0)
+- `--port`: Optional. ModBus TCP port to listen on (default: 502)
+- `--input`: Optional. Input JSON file with register values (default: registers.json)
+
+You can use this tool for development and testing without needing a physical device. First dump the registers from a real device, then use that JSON file to run the simulator.
 
 ## Repository Overview
 
