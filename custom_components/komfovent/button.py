@@ -45,7 +45,12 @@ class KomfoventSetTimeButton(ButtonEntity):
         self.coordinator = coordinator
         self.entity_description = description
         self._attr_unique_id = f"{coordinator.config_entry.entry_id}_set_system_time"
-        self._attr_device_info = coordinator.device_info
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, coordinator.config_entry.entry_id)},
+            "name": "Komfovent",
+            "manufacturer": "Komfovent",
+            "model": "C6",
+        }
 
     async def async_press(self) -> None:
         """Handle the button press."""
