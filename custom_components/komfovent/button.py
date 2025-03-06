@@ -32,11 +32,11 @@ async def async_setup_entry(
                     entity_category=EntityCategory.CONFIG,
                 ),
             ),
-            KomfoventSetTimeButton(
+            KomfoventCleanFiltersButton(
                 coordinator,
                 ButtonEntityDescription(
                     key="clean_filters",
-                    name="Clean Filters Calibration",
+                    name="Clean Filters Calibration", 
                     icon="mdi:air-filter",
                     entity_category=EntityCategory.CONFIG,
                 ),
@@ -45,8 +45,8 @@ async def async_setup_entry(
     )
 
 
-class KomfoventSetTimeButton(CoordinatorEntity, ButtonEntity):
-    """Representation of a Komfovent set time button."""
+class KomfoventButtonEntity(CoordinatorEntity, ButtonEntity):
+    """Base class for Komfovent button entities."""
 
     _attr_has_entity_name = True
 
@@ -68,9 +68,18 @@ class KomfoventSetTimeButton(CoordinatorEntity, ButtonEntity):
             "model": None,
         }
 
+
+class KomfoventSetTimeButton(KomfoventButtonEntity):
+    """Button to set system time on Komfovent device."""
+
     async def async_press(self) -> None:
         """Handle the button press."""
-        if self.entity_description.key == "set_system_time":
-            await set_system_time(self.coordinator)
-        elif self.entity_description.key == "clean_filters":
-            await clean_filters_calibration(self.coordinator)
+        await set_system_time(self.coordinator)
+
+
+class KomfoventCleanFiltersButton(KomfoventButtonEntity):
+    """Button to calibrate clean filters on Komfovent device."""
+
+    async def async_press(self) -> None:
+        """Handle the button press."""
+        await clean_filters_calibration(self.coordinator)
