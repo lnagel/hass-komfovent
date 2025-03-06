@@ -339,7 +339,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
     )
 
     # Add panel 1 sensors if panel is present
-    if coordinator.data and coordinator.data.get(registers.REG_PANEL1_FW, 0) != 0:
+    if coordinator.data and coordinator.data.get(registers.REG_CONNECTED_PANELS, 0) in [1, 3]:
         entities.extend(
             [
                 KomfoventSensor(
@@ -378,8 +378,8 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             ]
         )
 
-    # Add panel 2 firmware sensor if panel is present
-    if coordinator.data and coordinator.data.get(registers.REG_PANEL2_FW, 0) != 0:
+    # Add panel 2 sensors if panel is present
+    if coordinator.data and coordinator.data.get(registers.REG_CONNECTED_PANELS, 0) in [2, 3]:
         entities.extend(
             [
                 KomfoventSensor(
