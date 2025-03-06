@@ -107,6 +107,13 @@ class ConnectedPanels(IntEnum):
     BOTH = 3
 
 
+class HeatExchangerType(IntEnum):
+    """Heat exchanger types."""
+
+    PLATE = 0
+    ROTARY = 1
+
+
 class ResetSettings(IntEnum):
     """Reset settings options."""
 

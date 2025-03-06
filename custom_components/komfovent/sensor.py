@@ -29,6 +29,7 @@ from . import registers
 from .const import (
     DOMAIN,
     AirQualitySensorType,
+    HeatExchangerType,
 )
 from .coordinator import KomfoventCoordinator
 
@@ -292,6 +293,15 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             ),
             KomfoventSensor(
                 coordinator=coordinator,
+                register_id=registers.REG_HEAT_EXCHANGER_TYPE,
+                entity_description=SensorEntityDescription(
+                    key="heat_exchanger_type",
+                    name="Heat Exchanger Type",
+                    entity_category=EntityCategory.DIAGNOSTIC,
+                ),
+            ),
+            KomfoventSensor(
+                coordinator=coordinator,
                 register_id=registers.REG_AHU_TOTAL,
                 entity_description=SensorEntityDescription(
                     key="total_ahu_energy",
@@ -530,6 +540,11 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
                 if 0 <= value <= 2000:
                     return value
                 return None
+            if self.register_id == registers.REG_HEAT_EXCHANGER_TYPE:
+                try:
+                    return HeatExchangerType(value).name
+                except ValueError:
+                    return None
 
             return float(value)
         except (ValueError, TypeError):
