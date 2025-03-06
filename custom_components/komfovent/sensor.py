@@ -29,6 +29,7 @@ from . import registers
 from .const import (
     DOMAIN,
     AirQualitySensorType,
+    ConnectedPanels,
     HeatExchangerType,
 )
 from .coordinator import KomfoventCoordinator
@@ -349,7 +350,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
     )
 
     # Add panel 1 sensors if panel is present
-    if coordinator.data and coordinator.data.get(registers.REG_CONNECTED_PANELS, 0) in [1, 3]:
+    if coordinator.data and coordinator.data.get(registers.REG_CONNECTED_PANELS, 0) in [ConnectedPanels.PANEL1, ConnectedPanels.BOTH]:
         entities.extend(
             [
                 KomfoventSensor(
@@ -389,7 +390,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
         )
 
     # Add panel 2 sensors if panel is present
-    if coordinator.data and coordinator.data.get(registers.REG_CONNECTED_PANELS, 0) in [2, 3]:
+    if coordinator.data and coordinator.data.get(registers.REG_CONNECTED_PANELS, 0) in [ConnectedPanels.PANEL2, ConnectedPanels.BOTH]:
         entities.extend(
             [
                 KomfoventSensor(
