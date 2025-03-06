@@ -3,6 +3,10 @@ from datetime import datetime
 import zoneinfo
 
 from homeassistant.core import HomeAssistant, ServiceCall
+from homeassistant.helpers.config_validation import PLATFORM_SCHEMA, PLATFORM_SCHEMA_BASE
+from homeassistant.helpers.service import async_get_all_descriptions
+from homeassistant.helpers.typing import ConfigType
+from homeassistant.const import ATTR_CONFIG_ENTRY
 
 from .const import DOMAIN
 from .registers import REG_EPOCH_TIME
@@ -13,9 +17,8 @@ async def async_register_services(hass: HomeAssistant) -> None:
 
     async def set_system_time(call: ServiceCall) -> None:
         """Service to set system time on the Komfovent unit."""
-        # Get the coordinator from the first config entry
-        entry_id = list(hass.data[DOMAIN].keys())[0]
-        coordinator = hass.data[DOMAIN][entry_id]
+        entry = get_config_entry(hass, call.data[ATTR_CONFIG_ENTRY])
+        coordinator = hass.data[DOMAIN][entry.entry_id]
         
         # Get local timezone
         local_tz = zoneinfo.ZoneInfo(str(hass.config.time_zone))

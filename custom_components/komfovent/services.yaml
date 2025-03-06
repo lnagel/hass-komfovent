@@ -1,3 +1,11 @@
 set_system_time:
   name: Set System Time
   description: Set the system time on the Komfovent unit to match the local time
+  fields:
+    config_entry:
+      name: Config Entry
+      description: The config entry ID of the Komfovent unit
+      required: true
+      selector:
+        config_entry:
+          integration: komfovent
