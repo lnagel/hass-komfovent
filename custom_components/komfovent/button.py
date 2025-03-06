@@ -24,7 +24,7 @@ async def async_setup_entry(
             KomfoventSetTimeButton(
                 coordinator,
                 ButtonEntityDescription(
-                    key="set_time",
+                    key="set_system_time",
                     name="Set System Time",
                     icon="mdi:clock",
                 ),
@@ -44,7 +44,7 @@ class KomfoventSetTimeButton(ButtonEntity):
         """Initialize the button."""
         self.coordinator = coordinator
         self.entity_description = description
-        self._attr_unique_id = f"{coordinator.unique_id}_set_time"
+        self._attr_unique_id = f"{coordinator.unique_id}_set_system_time"
         self._attr_device_info = coordinator.device_info
 
     async def async_press(self) -> None:
