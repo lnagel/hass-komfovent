@@ -1,5 +1,7 @@
 """The Komfovent integration."""
+from datetime import datetime
 import time
+import zoneinfo
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
@@ -32,7 +34,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     async def set_system_time(call: ServiceCall) -> None:
         """Service to set system time on the Komfovent unit."""
         coordinator = hass.data[DOMAIN][entry.entry_id]
-        epoch_time = int(time.time())  # Local time as epoch seconds
+        local_tz = zoneinfo.ZoneInfo(str(hass.config.time_zone))
+        local_time = datetime.now(local_tz)
+        epoch_time = int(local_time.timestamp())  # Local time as epoch seconds
         await coordinator.client.write_register(REG_EPOCH_TIME, epoch_time)
 
     hass.services.async_register(DOMAIN, "set_system_time", set_system_time)
