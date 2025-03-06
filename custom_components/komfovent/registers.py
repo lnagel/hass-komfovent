@@ -193,6 +193,7 @@ REG_PANEL2_FW = 1003  # Panel 2 firmware version (32-bit)
 
 # Reset register
 REG_RESET_SETTINGS = 1049  # Reset settings
+REG_CLEAN_FILTERS = 1050  # Clean filters calibration
 
 # Sets of 16-bit and 32-bit registers
 REGISTERS_16BIT = {
@@ -307,6 +308,7 @@ REGISTERS_16BIT = {
     REG_AQ_SENSOR2_VALUE,
     REG_INDOOR_ABS_HUMIDITY,
     REG_RESET_SETTINGS,
+    REG_CLEAN_FILTERS,
 }
 REGISTERS_32BIT = {
     REG_MAX_SUPPLY_FLOW,
