@@ -1,0 +1,3 @@
+set_system_time:
+  name: Set System Time
+  description: Set the system time on the Komfovent unit to match the local time
