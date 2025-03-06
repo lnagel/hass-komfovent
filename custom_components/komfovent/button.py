@@ -25,7 +25,7 @@ async def async_setup_entry(
                 coordinator,
                 ButtonEntityDescription(
                     key="set_time",
-                    name="Set Time",
+                    name="Set System Time",
                     icon="mdi:clock",
                 ),
             )
