@@ -98,6 +98,15 @@ class HolidayMicroventilation(IntEnum):
     FOUR_TIMES_PER_DAY = 4
 
 
+class ConnectedPanels(IntEnum):
+    """Connected control panels."""
+
+    NONE = 0
+    PANEL1 = 1
+    PANEL2 = 2
+    BOTH = 3
+
+
 class ResetSettings(IntEnum):
     """Reset settings options."""
 
