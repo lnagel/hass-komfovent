@@ -1,16 +1,19 @@
 """Diagnostics support for Komfovent."""
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
 from homeassistant.const import CONF_HOST, CONF_PORT
 
 from .const import DOMAIN
-from .coordinator import KomfoventCoordinator
+
 from modbus_dump import dump_registers
 
+if TYPE_CHECKING:
+    from homeassistant.core import HomeAssistant
+    from homeassistant.config_entries import ConfigEntry
+
+    from .coordinator import KomfoventCoordinator
 
 async def async_get_config_entry_diagnostics(
     hass: HomeAssistant, entry: ConfigEntry
