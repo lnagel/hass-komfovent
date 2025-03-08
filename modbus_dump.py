@@ -87,7 +87,7 @@ async def dump_registers(host: str, port: int) -> dict[int, list[int]]:
                 logger.exception("Register %d: Modbus error", address)
 
     finally:
-        await client.close()
+        client.close()
 
     return results
 
