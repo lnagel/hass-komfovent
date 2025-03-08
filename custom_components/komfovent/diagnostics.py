@@ -24,7 +24,7 @@ async def async_get_config_entry_diagnostics(
     host = entry.data[CONF_HOST]
     port = entry.data[CONF_PORT]
 
-    registers = await hass.async_add_executor_job(dump_registers, host, port)
+    registers = await dump_registers(host, port)
 
     return {
         "config_entry": entry.as_dict(),

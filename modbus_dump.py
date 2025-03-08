@@ -5,10 +5,10 @@ import argparse
 import json
 import logging
 import sys
-import time
+import asyncio
 from pathlib import Path
 
-from pymodbus.client import ModbusTcpClient
+from pymodbus.client import AsyncModbusTcpClient
 from pymodbus.exceptions import ModbusException
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -49,7 +49,7 @@ MOBILE_APP_RANGES = [
 RANGES = INTEGRATION_RANGES + MOBILE_APP_RANGES
 
 
-def dump_registers(host: str, port: int) -> dict[int, list[int]]:
+async def dump_registers(host: str, port: int) -> dict[int, list[int]]:
     """
     Query all holding registers one by one and return values as dictionary.
 
@@ -65,10 +65,10 @@ def dump_registers(host: str, port: int) -> dict[int, list[int]]:
         ModbusException: If there is an error reading registers
 
     """
-    client = ModbusTcpClient(host=host, port=port)
+    client = AsyncModbusTcpClient(host=host, port=port)
 
     error_msg = f"Failed to connect to {host}:{port}"
-    if not client.connect():
+    if not await client.connect():
         raise ConnectionError(error_msg)
 
     results: dict[int, list[int]] = {}
@@ -76,24 +76,23 @@ def dump_registers(host: str, port: int) -> dict[int, list[int]]:
         for address, count in RANGES:
             try:
                 # Try reading single register first
-                response = client.read_holding_registers(address=address, count=count)
+                response = await client.read_holding_registers(address=address, count=count)
 
                 results[address] = response.registers
                 logger.info("Register %d: %s", address, response.registers)
 
-                # Small delay to avoid overwhelming the device
-                time.sleep(0.1)
+                await asyncio.sleep(0.1)
 
             except ModbusException:
                 logger.exception("Register %d: Modbus error", address)
 
     finally:
-        client.close()
+        await client.close()
 
     return results
 
 
-def main() -> None:
+async def main() -> None:
     """Run the Modbus register dump tool."""
     parser = argparse.ArgumentParser(description="Dump Modbus TCP registers to JSON")
     parser.add_argument("--host", required=True, help="Modbus TCP host")
@@ -105,7 +104,7 @@ def main() -> None:
     try:
         logger.info("Connecting to %s:%d...", args.host, args.port)
         logger.info("Starting register scan (this may take a few minutes)...")
-        registers = dump_registers(args.host, args.port)
+        registers = await dump_registers(args.host, args.port)
 
         output_path = Path(args.output)
         with output_path.open("w") as f:
@@ -121,4 +120,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
