@@ -92,7 +92,7 @@ async def dump_registers(host: str, port: int) -> dict[int, list[int]]:
     return results
 
 
-async def main() -> None:
+def main() -> None:
     """Run the Modbus register dump tool."""
     parser = argparse.ArgumentParser(description="Dump Modbus TCP registers to JSON")
     parser.add_argument("--host", required=True, help="Modbus TCP host")
@@ -104,7 +104,7 @@ async def main() -> None:
     try:
         logger.info("Connecting to %s:%d...", args.host, args.port)
         logger.info("Starting register scan (this may take a few minutes)...")
-        registers = await dump_registers(args.host, args.port)
+        registers = asyncio.run(dump_registers(args.host, args.port))
 
         output_path = Path(args.output)
         with output_path.open("w") as f:
@@ -120,4 +120,4 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
