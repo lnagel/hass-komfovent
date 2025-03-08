@@ -75,16 +75,15 @@ async def dump_registers(host: str, port: int) -> dict[int, list[int]]:
     try:
         for address, count in RANGES:
             try:
-                # Try reading single register first
-                response = await client.read_holding_registers(address=address, count=count)
-
+                response = await client.read_holding_registers(
+                    address=address, count=count
+                )
                 results[address] = response.registers
                 logger.info("Register %d: %s", address, response.registers)
-
-                await asyncio.sleep(0.1)
-
             except ModbusException:
-                logger.exception("Register %d: Modbus error", address)
+                logger.error("Register %d: Modbus error", address)
+
+            await asyncio.sleep(0.1)
 
     finally:
         client.close()
