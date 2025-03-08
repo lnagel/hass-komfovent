@@ -56,7 +56,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Modbus TCP server for Komfovent simulation"
     )
-    parser.add_argument("--host", default="0.0.0.0", help="Listen address")
+    parser.add_argument("--host", default="127.0.0.1", help="Listen address")
     parser.add_argument("--port", type=int, default=502, help="Listen port")
     parser.add_argument(
         "--input", default="registers.json", help="Input JSON file with register values"
