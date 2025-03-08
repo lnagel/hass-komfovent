@@ -1,10 +1,12 @@
 """The Komfovent integration."""
+from __future__ import annotations
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     CONF_HOST,
     CONF_PORT,
     Platform,
 )
+from homeassistant.helpers.typing import ConfigType
 from homeassistant.core import HomeAssistant
 
 from .const import DOMAIN
@@ -12,6 +14,8 @@ from .coordinator import KomfoventCoordinator
 from .services import async_register_services
 
 PLATFORMS = [Platform.BUTTON, Platform.CLIMATE, Platform.SELECT, Platform.SENSOR, Platform.SWITCH]
+
+CONFIG_SCHEMA: ConfigType = cv.empty_config_schema(DOMAIN)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
