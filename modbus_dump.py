@@ -2,10 +2,10 @@
 """Tool to dump Modbus TCP registers from Komfovent devices to JSON."""
 
 import argparse
+import asyncio
 import json
 import logging
 import sys
-import asyncio
 from pathlib import Path
 
 from pymodbus.client import AsyncModbusTcpClient
@@ -81,7 +81,7 @@ async def dump_registers(host: str, port: int) -> dict[int, list[int]]:
                 results[address] = response.registers
                 logger.info("Register %d: %s", address, response.registers)
             except ModbusException:
-                logger.error("Register %d: Modbus error", address)
+                logger.error("Register %d: Modbus error", address) # noqa: TRY400
 
             await asyncio.sleep(0.1)
 
