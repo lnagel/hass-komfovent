@@ -217,7 +217,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 coordinator=coordinator,
                 register_id=registers.REG_EXTRACT_PRESSURE,
                 entity_description=SensorEntityDescription(
-                    key="extract_pressure", 
+                    key="extract_pressure",
                     name="Extract Pressure",
                     native_unit_of_measurement=UnitOfPressure.PA,
                     state_class=SensorStateClass.MEASUREMENT,
@@ -359,7 +359,10 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
     )
 
     # Add panel 1 sensors if panel is present
-    if coordinator.data and coordinator.data.get(registers.REG_CONNECTED_PANELS, 0) in [ConnectedPanels.PANEL1, ConnectedPanels.BOTH]:
+    if coordinator.data and coordinator.data.get(registers.REG_CONNECTED_PANELS, 0) in [
+        ConnectedPanels.PANEL1,
+        ConnectedPanels.BOTH,
+    ]:
         entities.extend(
             [
                 KomfoventSensor(
@@ -399,7 +402,10 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
         )
 
     # Add panel 2 sensors if panel is present
-    if coordinator.data and coordinator.data.get(registers.REG_CONNECTED_PANELS, 0) in [ConnectedPanels.PANEL2, ConnectedPanels.BOTH]:
+    if coordinator.data and coordinator.data.get(registers.REG_CONNECTED_PANELS, 0) in [
+        ConnectedPanels.PANEL2,
+        ConnectedPanels.BOTH,
+    ]:
         entities.extend(
             [
                 KomfoventSensor(

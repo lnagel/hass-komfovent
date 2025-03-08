@@ -1,4 +1,5 @@
 """Services for Komfovent integration."""
+
 import zoneinfo
 from datetime import datetime
 from typing import Final
@@ -10,6 +11,7 @@ from .const import DOMAIN
 from .registers import REG_EPOCH_TIME, REG_CLEAN_FILTERS
 
 ATTR_CONFIG_ENTRY: Final = "config_entry"
+
 
 async def clean_filters_calibration(coordinator: KomfoventCoordinator) -> None:
     """Reset filters counter."""
@@ -34,7 +36,9 @@ async def async_register_services(hass: HomeAssistant) -> None:
 
     async def handle_set_system_time(call: ServiceCall) -> None:
         """Handle the set system time service call."""
-        coordinator: KomfoventCoordinator = hass.data[DOMAIN][call.data[ATTR_CONFIG_ENTRY]]
+        coordinator: KomfoventCoordinator = hass.data[DOMAIN][
+            call.data[ATTR_CONFIG_ENTRY]
+        ]
         await set_system_time(coordinator)
 
     hass.services.async_register(DOMAIN, "set_system_time", handle_set_system_time)

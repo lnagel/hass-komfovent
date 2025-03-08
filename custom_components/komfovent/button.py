@@ -1,4 +1,5 @@
 """Button platform for Komfovent integration."""
+
 from __future__ import annotations
 
 from homeassistant.components.button import ButtonEntity, ButtonEntityDescription
@@ -36,7 +37,7 @@ async def async_setup_entry(
                 coordinator,
                 ButtonEntityDescription(
                     key="clean_filters",
-                    name="Clean Filters Calibration", 
+                    name="Clean Filters Calibration",
                     icon="mdi:air-filter",
                     entity_category=EntityCategory.CONFIG,
                 ),

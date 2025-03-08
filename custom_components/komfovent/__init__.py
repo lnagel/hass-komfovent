@@ -1,4 +1,5 @@
 """The Komfovent integration."""
+
 from __future__ import annotations
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
@@ -16,7 +17,13 @@ from .const import DEFAULT_NAME, DEFAULT_PORT, DOMAIN
 from .coordinator import KomfoventCoordinator
 from .services import async_register_services
 
-PLATFORMS = [Platform.BUTTON, Platform.CLIMATE, Platform.SELECT, Platform.SENSOR, Platform.SWITCH]
+PLATFORMS = [
+    Platform.BUTTON,
+    Platform.CLIMATE,
+    Platform.SELECT,
+    Platform.SENSOR,
+    Platform.SWITCH,
+]
 
 CONFIG_SCHEMA = vol.Schema(
     {
