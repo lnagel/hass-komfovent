@@ -33,7 +33,9 @@ INTEGRATION_RANGES = [
     (699, 100),  # alarm history 610-868
     (799, 62),  # alarm history 610-860
     (899, 57),  # detailed information 899-955
-    (999, 6),  # firmware 999-1004
+    (999, 2),  # controller firmware 999-1000
+    (1001, 2),  # panel 1 firmware 1001-1002
+    (1003, 2),  # panel 2 firmware 1003-1004
     # reset settings 1049
 ]
 MOBILE_APP_RANGES = [
