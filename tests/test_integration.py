@@ -25,6 +25,7 @@ async def test_setup_entry(hass: HomeAssistant, mock_config_entry, mock_modbus_c
     # Initialize HomeAssistant mocks
     hass.data.setdefault(DOMAIN, {})
     hass.services = AsyncMock()
+    hass.services.async_register = MagicMock()  # Use sync mock for register
     hass.config_entries = AsyncMock()
     hass.config_entries.async_forward_entry_setups = AsyncMock(return_value=True)
 
