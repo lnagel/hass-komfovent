@@ -1,15 +1,11 @@
 """The Komfovent integration."""
 
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 import voluptuous as vol
-from homeassistant.const import (
-    CONF_HOST,
-    CONF_NAME,
-    CONF_PORT,
-    Platform,
-)
+from homeassistant.const import CONF_HOST, CONF_NAME, CONF_PORT, Platform
 
 from .const import DEFAULT_NAME, DEFAULT_PORT, DOMAIN
 from .coordinator import KomfoventCoordinator
