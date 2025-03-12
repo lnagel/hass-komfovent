@@ -1,21 +1,22 @@
 """The Komfovent integration."""
-
 from __future__ import annotations
-from homeassistant.config_entries import ConfigEntry
+
+import voluptuous as vol
+
 from homeassistant.const import (
     CONF_HOST,
     CONF_NAME,
     CONF_PORT,
     Platform,
 )
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers import config_validation as cv
-from homeassistant.helpers.typing import ConfigType
-import voluptuous as vol
 
 from .const import DEFAULT_NAME, DEFAULT_PORT, DOMAIN
 from .coordinator import KomfoventCoordinator
 from .services import async_register_services
+
+if TYPE_CHECKING:
+    from homeassistant.config_entries import ConfigEntry
+    from homeassistant.core import HomeAssistant
 
 PLATFORMS = [
     Platform.BUTTON,
