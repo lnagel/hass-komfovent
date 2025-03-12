@@ -4,6 +4,8 @@ import asyncio
 import json
 from pathlib import Path
 
+from modbus_server import run_server
+
 import pytest
 from homeassistant.core import HomeAssistant
 
@@ -19,11 +21,19 @@ async def test_live_modbus_connection(hass: HomeAssistant):
     This test requires a running modbus server and will be skipped by default.
     To run with socket connections enabled: pytest tests/test_live_modbus.py -v --socket-enabled
     """
-    # Start a mock modbus server in a subprocess
-    # This would require the modbus_server.py script to be available and running separately
+    # Load test data
+    test_data_path = Path("documentation/C6M_holding_registers.json")
+    with test_data_path.open() as f:
+        register_data = json.load(f)
+        registers = {int(k) + 1: v for k, v in register_data.items()}
 
+    # Start server in background task
+    server_task = asyncio.create_task(
+        run_server("localhost", 502, registers)
+    )
+    
     # Wait for server to start
-    await asyncio.sleep(1)
+    await asyncio.sleep(2)
 
     # Create and connect to the server
     client = KomfoventModbusClient("localhost", 502)
@@ -43,6 +53,11 @@ async def test_live_modbus_connection(hass: HomeAssistant):
     finally:
         # Clean up
         await client.close()
+        server_task.cancel()
+        try:
+            await server_task
+        except asyncio.CancelledError:
+            pass
 
 
 @pytest.mark.enable_socket
@@ -72,3 +87,8 @@ async def test_live_coordinator(hass: HomeAssistant):
         # Ensure client is closed
         if hasattr(coordinator, "client") and coordinator.client:
             await coordinator.client.close()
+        server_task.cancel()
+        try:
+            await server_task
+        except asyncio.CancelledError:
+            pass
