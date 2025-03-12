@@ -1,12 +1,16 @@
 {
   "domain": "komfovent",
   "name": "Komfovent",
-  "codeowners": ["@lnagel"],
+  "codeowners": [
+    "@lnagel"
+  ],
   "config_flow": true,
+  "dependencies": [
+    "modbus"
+  ],
   "documentation": "https://github.com/lnagel/hass-komfovent",
-  "dependencies": ["modbus"],
+  "integration_type": "device",
   "iot_class": "local_polling",
-  "issue_tracker": "https://github.com/lnagel/hass-komfovent/issues",
-  "version": "0.1.0",
-  "platforms": ["climate", "sensor", "switch"]
+  "issue_tracker": "https://github.com/lnagel/hass-eaton-ups/issues",
+  "version": "0.1.0"
 }
