@@ -1,3 +1,10 @@
+"""
+Modbus register definitions for Komfovent devices.
+
+This module contains the register addresses and register sets used for communicating
+with Komfovent ventilation units via Modbus TCP.
+"""
+
 from __future__ import annotations
 
 # Modbus registers - Basic Control
@@ -41,45 +48,45 @@ REG_MONTH_DAY = 30  # Month/Day
 REG_WEEK_DAY = 31  # Week day
 REG_EPOCH_TIME = 32  # Time since 1970 (32-bit)
 
-# Mode: Away
+# Away mode registers
 REG_AWAY_FAN_SUPPLY = 99  # Supply flow (32-bit)
 REG_AWAY_FAN_EXTRACT = 101  # Extract flow (32-bit)
 REG_AWAY_TEMP = 103  # Setpoint
 REG_AWAY_HEATING = 104  # Heating
 
-# Mode: Normal
+# Normal mode registers
 REG_NORMAL_FAN_SUPPLY = 105  # Supply flow (32-bit)
 REG_NORMAL_FAN_EXTRACT = 107  # Extract flow (32-bit)
 REG_NORMAL_SETPOINT = 109  # Setpoint
 REG_NORMAL_HEATING = 110  # Heating
 
-# Mode: Intensive
+# Intensive mode registers
 REG_INTENSIVE_FAN_SUPPLY = 111  # Supply flow (32-bit)
 REG_INTENSIVE_FAN_EXTRACT = 113  # Extract flow (32-bit)
 REG_INTENSIVE_TEMP = 115  # Setpoint
 REG_INTENSIVE_HEATING = 116  # Heating
 
-# Mode: Boost
+# Boost mode registers
 REG_BOOST_FAN_SUPPLY = 117  # Supply flow (32-bit)
 REG_BOOST_FAN_EXTRACT = 119  # Extract flow (32-bit)
 REG_BOOST_TEMP = 121  # Setpoint
 REG_BOOST_HEATING = 122  # Heating
 
-# Mode: Kitchen
+# Kitchen mode registers
 REG_KITCHEN_SUPPLY = 123  # Supply flow (32-bit)
 REG_KITCHEN_EXTRACT = 125  # Extract flow (32-bit)
 REG_KITCHEN_TEMP = 127  # Setpoint
 REG_KITCHEN_HEATING = 128  # Heating
 REG_KITCHEN_TIMER = 129  # Timer time
 
-# Mode: Fireplace
+# Fireplace mode registers
 REG_FIREPLACE_SUPPLY = 130  # Supply flow (32-bit)
 REG_FIREPLACE_EXTRACT = 132  # Extract flow (32-bit)
 REG_FIREPLACE_TEMP = 134  # Setpoint
 REG_FIREPLACE_HEATING = 135  # Heating
 REG_FIREPLACE_TIMER = 136  # Timer time
 
-# Mode: Override
+# Override mode registers
 REG_OVERRIDE_SUPPLY = 137  # Supply flow (32-bit)
 REG_OVERRIDE_EXTRACT = 139  # Extract flow (32-bit)
 REG_OVERRIDE_TEMP = 141  # Setpoint
@@ -87,7 +94,7 @@ REG_OVERRIDE_HEATING = 142  # Heating
 REG_OVERRIDE_MODE = 143  # Mode
 REG_OVERRIDE_TIMER = 144  # Timer time
 
-# Mode: Holidays
+# Holiday mode registers
 REG_HOLIDAYS_MICROVENT = 145  # Microventilation
 REG_HOLIDAYS_TEMP = 146  # Setpoint
 REG_HOLIDAYS_HEATING = 147  # Heating
@@ -133,7 +140,11 @@ REG_ACTIVE_ALARM9 = 608  # Active alarm 9 code
 REG_ACTIVE_ALARM10 = 609  # Active alarm 10 code
 
 # Sensor registers
-REG_STATUS = 899  # Unit status bitmask (Starting=0, Stopping=1, Fan=2, Rotor=3, Heating=4, Cooling=5, HeatingDenied=6, CoolingDenied=7, FlowDown=8, FreeHeating=9, FreeCooling=10, AlarmF=11, AlarmW=12)
+# Unit status bitmask values:
+# Starting=0, Stopping=1, Fan=2, Rotor=3, Heating=4, Cooling=5,
+# HeatingDenied=6, CoolingDenied=7, FlowDown=8, FreeHeating=9,
+# FreeCooling=10, AlarmF=11, AlarmW=12
+REG_STATUS = 899  # Unit status bitmask
 REG_HEATING_CONFIG = 900  # Heating/cooling config
 REG_SUPPLY_TEMP = 901  # Supply air temperature (x10 °C)
 REG_EXTRACT_TEMP = 902  # Extract air temperature (x10 °C)

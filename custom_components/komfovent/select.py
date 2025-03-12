@@ -1,10 +1,12 @@
-"""Select platform for Komfovent."""
+"""Select platform for Komfovent."""  # noqa: A005
 
 from __future__ import annotations
 
 import logging
-from enum import IntEnum
 from typing import TYPE_CHECKING, ClassVar
+
+if TYPE_CHECKING:
+    from enum import IntEnum
 
 from homeassistant.components.select import SelectEntity, SelectEntityDescription
 from homeassistant.const import EntityCategory
@@ -159,6 +161,8 @@ class KomfoventSelect(CoordinatorEntity, SelectEntity):
 
 
 class KomfoventOperationModeSelect(KomfoventSelect):
+    """Special select entity for operation mode that handles power and auto mode."""
+
     async def async_select_option(self, option: str) -> None:
         """Change the selected option."""
         try:

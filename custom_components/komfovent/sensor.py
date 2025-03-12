@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import date, datetime
-from decimal import Decimal
+from typing import TYPE_CHECKING
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -11,7 +10,6 @@ from homeassistant.components.sensor import (
     SensorEntityDescription,
     SensorStateClass,
 )
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     PERCENTAGE,
     UnitOfEnergy,
@@ -19,11 +17,19 @@ from homeassistant.const import (
     UnitOfPressure,
     UnitOfTemperature,
 )
-from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.typing import StateType
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+
+if TYPE_CHECKING:
+    from datetime import date, datetime
+    from decimal import Decimal
+
+    from homeassistant.config_entries import ConfigEntry
+    from homeassistant.core import HomeAssistant
+    from homeassistant.helpers.entity_platform import AddEntitiesCallback
+    from homeassistant.helpers.typing import StateType
+
+    from .coordinator import KomfoventCoordinator
 
 from . import registers
 from .const import (
@@ -32,7 +38,13 @@ from .const import (
     ConnectedPanels,
     HeatExchangerType,
 )
-from .coordinator import KomfoventCoordinator
+
+# Constants for value validation
+MAX_PERCENTAGE = 100
+MAX_HUMIDITY = 125
+MAX_CO2_PPM = 2500
+MAX_SPI = 5
+MAX_VOC_PPB = 2000
 
 X100_FIELDS = {
     registers.REG_INDOOR_ABS_HUMIDITY,
@@ -82,15 +94,19 @@ def create_aq_sensor(
     name = f"Air Quality {sensor_type.name.upper()}"
 
     if sensor_type == AirQualitySensorType.CO2:
-        unit, device_class = "ppm", SensorDeviceClass.CO2
+        sensor_class, unit, device_class = CO2Sensor, "ppm", SensorDeviceClass.CO2
     elif sensor_type == AirQualitySensorType.VOC:
-        unit, device_class = "ppb", None
+        sensor_class, unit, device_class = VOCSensor, "ppb", None
     elif sensor_type == AirQualitySensorType.RH:
-        unit, device_class = PERCENTAGE, SensorDeviceClass.HUMIDITY
+        sensor_class, unit, device_class = (
+            RelativeHumiditySensor,
+            PERCENTAGE,
+            SensorDeviceClass.HUMIDITY,
+        )
     else:
         return None
 
-    return KomfoventSensor(
+    return sensor_class(
         coordinator=coordinator,
         register_id=register_id,
         entity_description=SensorEntityDescription(
@@ -111,7 +127,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
     # Add core sensors
     entities.extend(
         [
-            KomfoventSensor(
+            FloatX10Sensor(
                 coordinator=coordinator,
                 register_id=registers.REG_SUPPLY_TEMP,
                 entity_description=SensorEntityDescription(
@@ -123,7 +139,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=1,
                 ),
             ),
-            KomfoventSensor(
+            FloatX10Sensor(
                 coordinator=coordinator,
                 register_id=registers.REG_EXTRACT_TEMP,
                 entity_description=SensorEntityDescription(
@@ -135,7 +151,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=1,
                 ),
             ),
-            KomfoventSensor(
+            FloatX10Sensor(
                 coordinator=coordinator,
                 register_id=registers.REG_OUTDOOR_TEMP,
                 entity_description=SensorEntityDescription(
@@ -147,7 +163,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=1,
                 ),
             ),
-            KomfoventSensor(
+            FloatX10Sensor(
                 coordinator=coordinator,
                 register_id=registers.REG_SUPPLY_FAN_INTENSITY,
                 entity_description=SensorEntityDescription(
@@ -158,7 +174,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=0,
                 ),
             ),
-            KomfoventSensor(
+            FloatX10Sensor(
                 coordinator=coordinator,
                 register_id=registers.REG_EXTRACT_FAN_INTENSITY,
                 entity_description=SensorEntityDescription(
@@ -169,7 +185,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=0,
                 ),
             ),
-            KomfoventSensor(
+            FloatX10Sensor(
                 coordinator=coordinator,
                 register_id=registers.REG_HEAT_EXCHANGER,
                 entity_description=SensorEntityDescription(
@@ -180,7 +196,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=0,
                 ),
             ),
-            KomfoventSensor(
+            FloatX10Sensor(
                 coordinator=coordinator,
                 register_id=registers.REG_ELECTRIC_HEATER,
                 entity_description=SensorEntityDescription(
@@ -271,7 +287,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=0,
                 ),
             ),
-            KomfoventSensor(
+            SPISensor(
                 coordinator=coordinator,
                 register_id=registers.REG_SPI,
                 entity_description=SensorEntityDescription(
@@ -281,7 +297,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=2,
                 ),
             ),
-            KomfoventSensor(
+            FloatX100Sensor(
                 coordinator=coordinator,
                 register_id=registers.REG_INDOOR_ABS_HUMIDITY,
                 entity_description=SensorEntityDescription(
@@ -292,7 +308,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=2,
                 ),
             ),
-            KomfoventSensor(
+            ConnectedPanelsSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_CONNECTED_PANELS,
                 entity_description=SensorEntityDescription(
@@ -301,7 +317,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_category=EntityCategory.DIAGNOSTIC,
                 ),
             ),
-            KomfoventSensor(
+            HeatExchangerTypeSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_HEAT_EXCHANGER_TYPE,
                 entity_description=SensorEntityDescription(
@@ -310,7 +326,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_category=EntityCategory.DIAGNOSTIC,
                 ),
             ),
-            KomfoventSensor(
+            FloatX1000Sensor(
                 coordinator=coordinator,
                 register_id=registers.REG_AHU_TOTAL,
                 entity_description=SensorEntityDescription(
@@ -322,7 +338,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=3,
                 ),
             ),
-            KomfoventSensor(
+            FloatX1000Sensor(
                 coordinator=coordinator,
                 register_id=registers.REG_HEATER_TOTAL,
                 entity_description=SensorEntityDescription(
@@ -334,7 +350,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=3,
                 ),
             ),
-            KomfoventSensor(
+            FloatX1000Sensor(
                 coordinator=coordinator,
                 register_id=registers.REG_RECOVERY_TOTAL,
                 entity_description=SensorEntityDescription(
@@ -346,7 +362,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=3,
                 ),
             ),
-            KomfoventSensor(
+            FirmwareVersionSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_FIRMWARE,
                 entity_description=SensorEntityDescription(
@@ -365,7 +381,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
     ]:
         entities.extend(
             [
-                KomfoventSensor(
+                FloatX10Sensor(
                     coordinator=coordinator,
                     register_id=registers.REG_PANEL1_TEMP,
                     entity_description=SensorEntityDescription(
@@ -377,7 +393,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                         suggested_display_precision=1,
                     ),
                 ),
-                KomfoventSensor(
+                RelativeHumiditySensor(
                     coordinator=coordinator,
                     register_id=registers.REG_PANEL1_RH,
                     entity_description=SensorEntityDescription(
@@ -389,7 +405,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                         suggested_display_precision=0,
                     ),
                 ),
-                KomfoventSensor(
+                FirmwareVersionSensor(
                     coordinator=coordinator,
                     register_id=registers.REG_PANEL1_FW,
                     entity_description=SensorEntityDescription(
@@ -408,7 +424,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
     ]:
         entities.extend(
             [
-                KomfoventSensor(
+                FloatX10Sensor(
                     coordinator=coordinator,
                     register_id=registers.REG_PANEL2_TEMP,
                     entity_description=SensorEntityDescription(
@@ -420,7 +436,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                         suggested_display_precision=1,
                     ),
                 ),
-                KomfoventSensor(
+                RelativeHumiditySensor(
                     coordinator=coordinator,
                     register_id=registers.REG_PANEL2_RH,
                     entity_description=SensorEntityDescription(
@@ -432,7 +448,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                         suggested_display_precision=0,
                     ),
                 ),
-                KomfoventSensor(
+                FirmwareVersionSensor(
                     coordinator=coordinator,
                     register_id=registers.REG_PANEL2_FW,
                     entity_description=SensorEntityDescription(
@@ -465,7 +481,7 @@ async def async_setup_entry(
 
 
 class KomfoventSensor(CoordinatorEntity, SensorEntity):
-    """Representation of a Komfovent sensor."""
+    """Base representation of a Komfovent sensor."""
 
     _attr_has_entity_name = True
 
@@ -493,80 +509,170 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
         if not self.coordinator.data:
             return None
 
-        value = self.coordinator.data.get(self.register_id)
+        return self.coordinator.data.get(self.register_id)
+
+
+class FloatSensor(KomfoventSensor):
+    """Temperature sensor with x10 scaling."""
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the float value of the sensor."""
+        value = super().native_value
         if value is None:
             return None
 
         try:
-            # Apply transforms based on sensor type and register format
-            if self.entity_description.device_class == SensorDeviceClass.TEMPERATURE:
-                # All temperatures are x10 in Modbus registers
-                if isinstance(value, (int, float)):
-                    return float(value) / 10
-                return None
-            if self.register_id in X10_PERCENTAGE_FIELDS:
-                # These percentage fields are stored as actual value * 10
-                if isinstance(value, (int, float)):
-                    value = float(value) / 10
-                    if 0 <= value <= 100:
-                        return value
-                return None
-            if self.register_id in X100_FIELDS:
-                if isinstance(value, (int, float)):
-                    return float(value) / 100
-                return None
-            if self.register_id in WH_TO_KWH_FIELDS:
-                if isinstance(value, (int, float)):
-                    return float(value) / 1000  # Convert Wh to kWh
-                return None
-            if self.register_id in {
-                registers.REG_FIRMWARE,
-                registers.REG_PANEL1_FW,
-                registers.REG_PANEL2_FW,
-            }:
-                if isinstance(value, int):
-                    # Extract version numbers using bit shifts
-                    v1 = (value >> 24) & 0xFF  # First number (8 bits)
-                    v2 = (value >> 20) & 0xF  # Second number (4 bits)
-                    v3 = (value >> 12) & 0xFF  # Third number (8 bits)
-                    v4 = value & 0xFFF  # Fourth number (12 bits)
-                    if any([v1, v2, v3, v4]):
-                        return f"{v1}.{v2}.{v3}.{v4}"
-                return None
-            if self.entity_description.device_class == SensorDeviceClass.HUMIDITY:
-                # Validate RH values (0-125%)
-                if 0 <= float(value) <= 125:
-                    return float(value)
-                return None
-            if self.entity_description.device_class == SensorDeviceClass.CO2:
-                # Validate CO2 values (0-2500 ppm)
-                if 0 <= float(value) <= 2500:
-                    return float(value)
-                return None
-            if self.register_id == registers.REG_SPI:
-                # Validate SPI values (0-5)
-                value = float(value) / 1000
-                if 0 <= value <= 5:
-                    return value
-                return None
-            if self.entity_description.native_unit_of_measurement == "ppb":  # VOC
-                if not isinstance(value, (int, float)):
-                    return None
-                value = float(value)
-                if 0 <= value <= 2000:
-                    return value
-                return None
-            if self.register_id == registers.REG_HEAT_EXCHANGER_TYPE:
-                try:
-                    return HeatExchangerType(value).name
-                except ValueError:
-                    return None
-            if self.register_id == registers.REG_CONNECTED_PANELS:
-                try:
-                    return ConnectedPanels(value).name
-                except ValueError:
-                    return None
-
             return float(value)
         except (ValueError, TypeError):
+            return None
+
+
+class FloatX10Sensor(FloatSensor):
+    """Sensor that divides its value by 10."""
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the sensor value divided by 10."""
+        value = super().native_value
+        if value is None:
+            return None
+
+        return value / 10
+
+
+class FloatX100Sensor(FloatSensor):
+    """Sensor that divides its value by 100."""
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the value divided by 100."""
+        value = super().native_value
+        if value is None:
+            return None
+
+        return value / 100
+
+
+class FloatX1000Sensor(KomfoventSensor):
+    """Sensor that divides its value by 1000."""
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the energy value in kWh."""
+        value = super().native_value
+        if value is None:
+            return None
+
+        return value / 1000
+
+
+class FirmwareVersionSensor(KomfoventSensor):
+    """Firmware version sensor."""
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the firmware version string."""
+        value = super().native_value
+        if value is None:
+            return None
+
+        v1 = (value >> 24) & 0xFF
+        v2 = (value >> 20) & 0xF
+        v3 = (value >> 12) & 0xFF
+        v4 = value & 0xFFF
+        if any([v1, v2, v3, v4]):
+            return f"{v1}.{v2}.{v3}.{v4}"
+        return None
+
+
+class RelativeHumiditySensor(KomfoventSensor):
+    """Humidity sensor with range validation."""
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the humidity value if within valid range."""
+        value = super().native_value
+        if value is None:
+            return None
+
+        if 0 <= value <= MAX_HUMIDITY:
+            return value
+        return None
+
+
+class CO2Sensor(KomfoventSensor):
+    """CO2 sensor with range validation."""
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the CO2 value if within valid range."""
+        value = super().native_value
+        if value is None:
+            return None
+
+        if 0 <= value <= MAX_CO2_PPM:
+            return value
+        return None
+
+
+class SPISensor(FloatX1000Sensor):
+    """SPI sensor with scaling and range validation."""
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the SPI value if within valid range."""
+        value = super().native_value
+        if value is None:
+            return None
+
+        if 0 <= value <= MAX_SPI:
+            return value
+        return None
+
+
+class VOCSensor(KomfoventSensor):
+    """VOC sensor with range validation."""
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the VOC value if within valid range."""
+        value = super().native_value
+        if value is None:
+            return None
+
+        if 0 <= value <= MAX_VOC_PPB:
+            return value
+        return None
+
+
+class HeatExchangerTypeSensor(KomfoventSensor):
+    """Heat exchanger type sensor."""
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the heat exchanger type name."""
+        value = super().native_value
+        if value is None:
+            return None
+
+        try:
+            return HeatExchangerType(value).name
+        except ValueError:
+            return None
+
+
+class ConnectedPanelsSensor(KomfoventSensor):
+    """Connected panels sensor."""
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the connected panels state name."""
+        value = super().native_value
+        if value is None:
+            return None
+
+        try:
+            return ConnectedPanels(value).name
+        except ValueError:
             return None
