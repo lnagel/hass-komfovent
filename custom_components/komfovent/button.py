@@ -11,7 +11,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import KomfoventCoordinator
 from .const import DOMAIN
-from .services import set_system_time, clean_filters_calibration
+from .services import clean_filters_calibration, set_system_time
 
 
 async def async_setup_entry(

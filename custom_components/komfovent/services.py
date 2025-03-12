@@ -8,7 +8,7 @@ from homeassistant.core import HomeAssistant, ServiceCall
 
 from . import KomfoventCoordinator
 from .const import DOMAIN
-from .registers import REG_EPOCH_TIME, REG_CLEAN_FILTERS
+from .registers import REG_CLEAN_FILTERS, REG_EPOCH_TIME
 
 ATTR_CONFIG_ENTRY: Final = "config_entry"
 
