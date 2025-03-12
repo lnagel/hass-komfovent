@@ -1,8 +1,7 @@
 """Tests for Komfovent integration initialization."""
 
 from unittest.mock import patch
-
-from unittest.mock import MagicMock, patch
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 import pytest
 from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import HomeAssistant
@@ -14,10 +13,11 @@ from custom_components.komfovent.const import DOMAIN
 @pytest.fixture
 def mock_config_entry():
     """Create a mock config entry."""
-    entry = MagicMock()
-    entry.data = {CONF_HOST: "localhost", CONF_PORT: 502}
-    entry.entry_id = "test_entry_id"
-    return entry
+    return MockConfigEntry(
+        domain=DOMAIN,
+        data={CONF_HOST: "localhost", CONF_PORT: 502},
+        entry_id="test_entry_id",
+    )
 
 
 async def test_setup_entry(hass: HomeAssistant, mock_config_entry, mock_modbus_client):
