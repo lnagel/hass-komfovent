@@ -25,11 +25,14 @@ async def test_setup_entry(hass: HomeAssistant, mock_config_entry, mock_modbus_c
     hass.data.setdefault(DOMAIN, {})
 
     # Patch both the modbus client class and the pymodbus client
-    with patch(
-        "custom_components.komfovent.modbus.KomfoventModbusClient",
-        return_value=mock_modbus_client,
-    ), patch(
-        "custom_components.komfovent.modbus.AsyncModbusTcpClient",
+    with (
+        patch(
+            "custom_components.komfovent.modbus.KomfoventModbusClient",
+            return_value=mock_modbus_client,
+        ),
+        patch(
+            "custom_components.komfovent.modbus.AsyncModbusTcpClient",
+        ),
     ):
         # Setup the entry
         assert await async_setup_entry(hass, mock_config_entry)
