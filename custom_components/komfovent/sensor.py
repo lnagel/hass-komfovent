@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import date, datetime
-from decimal import Decimal
+from typing import TYPE_CHECKING
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -11,7 +10,6 @@ from homeassistant.components.sensor import (
     SensorEntityDescription,
     SensorStateClass,
 )
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     PERCENTAGE,
     UnitOfEnergy,
@@ -19,11 +17,17 @@ from homeassistant.const import (
     UnitOfPressure,
     UnitOfTemperature,
 )
-from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.typing import StateType
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+
+if TYPE_CHECKING:
+    from datetime import date, datetime
+    from decimal import Decimal
+    from homeassistant.config_entries import ConfigEntry
+    from homeassistant.core import HomeAssistant
+    from homeassistant.helpers.entity_platform import AddEntitiesCallback
+    from homeassistant.helpers.typing import StateType
+    from .coordinator import KomfoventCoordinator
 
 from . import registers
 from .const import (
@@ -32,7 +36,12 @@ from .const import (
     ConnectedPanels,
     HeatExchangerType,
 )
-from .coordinator import KomfoventCoordinator
+# Constants for value validation
+MAX_PERCENTAGE = 100
+MAX_HUMIDITY = 125
+MAX_CO2_PPM = 2500
+MAX_SPI = 5
+MAX_VOC_PPB = 2000
 
 X100_FIELDS = {
     registers.REG_INDOOR_ABS_HUMIDITY,
@@ -501,18 +510,18 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
             # Apply transforms based on sensor type and register format
             if self.entity_description.device_class == SensorDeviceClass.TEMPERATURE:
                 # All temperatures are x10 in Modbus registers
-                if isinstance(value, (int, float)):
+                if isinstance(value, int | float):
                     return float(value) / 10
                 return None
             if self.register_id in X10_PERCENTAGE_FIELDS:
                 # These percentage fields are stored as actual value * 10
-                if isinstance(value, (int, float)):
+                if isinstance(value, int | float):
                     value = float(value) / 10
-                    if 0 <= value <= 100:
+                    if 0 <= value <= MAX_PERCENTAGE:
                         return value
                 return None
             if self.register_id in X100_FIELDS:
-                if isinstance(value, (int, float)):
+                if isinstance(value, int | float):
                     return float(value) / 100
                 return None
             if self.register_id in WH_TO_KWH_FIELDS:
@@ -535,25 +544,25 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
                 return None
             if self.entity_description.device_class == SensorDeviceClass.HUMIDITY:
                 # Validate RH values (0-125%)
-                if 0 <= float(value) <= 125:
+                if 0 <= float(value) <= MAX_HUMIDITY:
                     return float(value)
                 return None
             if self.entity_description.device_class == SensorDeviceClass.CO2:
                 # Validate CO2 values (0-2500 ppm)
-                if 0 <= float(value) <= 2500:
+                if 0 <= float(value) <= MAX_CO2_PPM:
                     return float(value)
                 return None
             if self.register_id == registers.REG_SPI:
                 # Validate SPI values (0-5)
                 value = float(value) / 1000
-                if 0 <= value <= 5:
+                if 0 <= value <= MAX_SPI:
                     return value
                 return None
             if self.entity_description.native_unit_of_measurement == "ppb":  # VOC
-                if not isinstance(value, (int, float)):
+                if not isinstance(value, int | float):
                     return None
                 value = float(value)
-                if 0 <= value <= 2000:
+                if 0 <= value <= MAX_VOC_PPB:
                     return value
                 return None
             if self.register_id == registers.REG_HEAT_EXCHANGER_TYPE:
