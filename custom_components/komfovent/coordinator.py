@@ -56,15 +56,17 @@ STATIC_DATA_ADDRESSES = {
 class KomfoventCoordinator(DataUpdateCoordinator):
     """Class to manage fetching Komfovent data."""
 
-    def __init__(self, hass: HomeAssistant, host: str, port: int) -> None:
+    def __init__(self, hass: HomeAssistant, host: str, port: int, **kwargs) -> None:
         """Initialize."""
         from .modbus import KomfoventModbusClient # easier to mock
+
+        kwargs.setdefault("name", DOMAIN)
+        kwargs.setdefault("update_interval", timedelta(seconds=DEFAULT_SCAN_INTERVAL))
 
         super().__init__(
             hass,
             _LOGGER,
-            name=DOMAIN,
-            update_interval=timedelta(seconds=DEFAULT_SCAN_INTERVAL),
+            **kwargs
         )
         self.client = KomfoventModbusClient(host, port)
 
