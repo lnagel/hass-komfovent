@@ -110,19 +110,19 @@ async def async_get_dashboard() -> LovelaceConfig:
                                 "cards": [
                                     {
                                         "type": "sensor",
-                                        "entity": "sensor.komfovent_supply_temperature_c",
+                                        "entity": "sensor.komfovent_supply_temperature_c",  # noqa: E501
                                         "name": "Supply",
                                         "icon": "mdi:home-import-outline",
                                     },
                                     {
                                         "type": "sensor",
-                                        "entity": "sensor.komfovent_extract_temperature_c",
+                                        "entity": "sensor.komfovent_extract_temperature_c",  # noqa: E501
                                         "name": "Extract",
                                         "icon": "mdi:home-export-outline",
                                     },
                                     {
                                         "type": "sensor",
-                                        "entity": "sensor.komfovent_outdoor_temperature_c",
+                                        "entity": "sensor.komfovent_outdoor_temperature_c",  # noqa: E501
                                         "name": "Outside",
                                         "icon": "mdi:thermometer",
                                     },
