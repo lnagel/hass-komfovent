@@ -6,12 +6,13 @@ from typing import Any
 
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from . import registers
 from .const import (
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
+    ConnectedPanels,
 )
 from .modbus import KomfoventModbusClient
 
@@ -44,6 +45,13 @@ def process_register_block(block: dict[int, int]) -> dict[int, int]:
 
 _LOGGER = logging.getLogger(__name__)
 
+STATIC_DATA_ADDRESSES = {
+    registers.REG_CONNECTED_PANELS,
+    registers.REG_FIRMWARE,
+    registers.REG_PANEL1_FW,
+    registers.REG_PANEL2_FW,
+}
+
 
 class KomfoventCoordinator(DataUpdateCoordinator):
     """Class to manage fetching Komfovent data."""
@@ -60,13 +68,71 @@ class KomfoventCoordinator(DataUpdateCoordinator):
 
     async def connect(self) -> bool:
         """Connect to the Modbus device."""
-        return await self.client.connect()
+        await self.client.connect()
+
+        data = {}
+
+        # Read connected panels
+        try:
+            connected_panels_block = await self.client.read_holding_registers(
+                registers.REG_CONNECTED_PANELS, 1
+            )
+            data.update(process_register_block(connected_panels_block))
+        except Exception as error:
+            _LOGGER.warning("Failed to read connected panels: %s", error)
+            raise ConfigEntryNotReady from error
+
+        # Read controller firmware version
+        try:
+            firmware_block = await self.client.read_holding_registers(
+                registers.REG_FIRMWARE, 2
+            )
+            data.update(process_register_block(firmware_block))
+        except Exception as error:
+            _LOGGER.warning("Failed to read controller firmware version: %s", error)
+            # raise ConfigEntryNotReady from error
+
+        # Read panel 1 firmware version
+        if data.get(registers.REG_CONNECTED_PANELS, 0) in [
+            ConnectedPanels.PANEL1,
+            ConnectedPanels.BOTH,
+        ]:
+            try:
+                panel1_block = await self.client.read_holding_registers(
+                    registers.REG_PANEL1_FW, 2
+                )
+                data.update(process_register_block(panel1_block))
+            except Exception as error:
+                _LOGGER.warning("Failed to read panel 1 firmware version: %s", error)
+                # raise ConfigEntryNotReady from error
+
+        # Read panel 2 firmware version
+        if data.get(registers.REG_CONNECTED_PANELS, 0) in [
+            ConnectedPanels.PANEL2,
+            ConnectedPanels.BOTH,
+        ]:
+            try:
+                panel2_block = await self.client.read_holding_registers(
+                    registers.REG_PANEL2_FW, 2
+                )
+                data.update(process_register_block(panel2_block))
+            except Exception as error:
+                _LOGGER.warning("Failed to read panel 2 firmware version: %s", error)
+                # raise ConfigEntryNotReady from error
+
+        self.data = data
+
+        return True
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Fetch data from Komfovent."""
-        try:
-            data = {}
+        data = {}
 
+        for address in STATIC_DATA_ADDRESSES:
+            if self.data and address in self.data:
+                data[address] = self.data[address]
+
+        try:
             # Read basic control block (0-33)
             basic_control = await self.client.read_holding_registers(
                 registers.REG_POWER, 34
@@ -97,14 +163,8 @@ class KomfoventCoordinator(DataUpdateCoordinator):
             )
             data.update(process_register_block(sensor_block))
 
-            # Read firmware version
-            firmware_block = await self.client.read_holding_registers(
-                registers.REG_FIRMWARE, 6
-            )
-            data.update(process_register_block(firmware_block))
-
-            return data
-
         except Exception as error:
-            _LOGGER.error("Error communicating with Komfovent: %s", error)
-            raise ConfigEntryNotReady from error
+            _LOGGER.warning("Error communicating with Komfovent: %s", error)
+            raise UpdateFailed from error
+
+        return data
