@@ -43,10 +43,7 @@ async def test_setup_entry(hass: HomeAssistant, mock_config_entry, mock_modbus_c
 
         # Verify data structures were created
         assert mock_config_entry.entry_id in hass.data[DOMAIN]
-        assert "coordinator" in hass.data[DOMAIN][mock_config_entry.entry_id]
-
-        # Get the coordinator
-        coordinator = hass.data[DOMAIN][mock_config_entry.entry_id]["coordinator"]
+        coordinator = hass.data[DOMAIN][mock_config_entry.entry_id]
 
         # Verify coordinator has data
         assert coordinator.data is not None
