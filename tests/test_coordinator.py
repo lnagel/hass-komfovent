@@ -1,6 +1,6 @@
 """Tests for the Komfovent coordinator."""
 
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, create_autospec, patch
 
 import pytest
 from homeassistant.core import HomeAssistant
@@ -10,15 +10,14 @@ from custom_components.komfovent.coordinator import KomfoventCoordinator
 
 async def test_coordinator_updates_data(hass: HomeAssistant, mock_modbus_client):
     """Test that the coordinator can update and process data."""
-    # Patch both the modbus client class and the pymodbus client
-    with (
-        patch(
-            "custom_components.komfovent.modbus.KomfoventModbusClient",
-            return_value=mock_modbus_client,
-        ),
-        patch(
-            "custom_components.komfovent.modbus.AsyncModbusTcpClient",
-        ),
+    # Create async mock for connect method
+    mock_modbus_client.connect = AsyncMock(return_value=True)
+    mock_modbus_client.read_holding_registers = AsyncMock(return_value={1: 42})
+
+    # Patch the client
+    with patch(
+        "custom_components.komfovent.modbus.KomfoventModbusClient",
+        return_value=mock_modbus_client,
     ):
         # Create and initialize coordinator
         coordinator = KomfoventCoordinator(hass, "localhost", 502)

@@ -2,6 +2,7 @@
 
 from unittest.mock import patch
 
+from unittest.mock import MagicMock, patch
 import pytest
 from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import HomeAssistant
@@ -13,7 +14,7 @@ from custom_components.komfovent.const import DOMAIN
 @pytest.fixture
 def mock_config_entry():
     """Create a mock config entry."""
-    entry = pytest.MagicMock()
+    entry = MagicMock()
     entry.data = {CONF_HOST: "localhost", CONF_PORT: 502}
     entry.entry_id = "test_entry_id"
     return entry

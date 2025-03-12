@@ -11,7 +11,7 @@ from custom_components.komfovent.coordinator import KomfoventCoordinator
 from custom_components.komfovent.modbus import KomfoventModbusClient
 
 
-@pytest.mark.socket_enabled
+@pytest.mark.enable_socket
 @pytest.mark.asyncio
 async def test_live_modbus_connection(hass: HomeAssistant):
     """Test actual connection to modbus server.
@@ -45,7 +45,7 @@ async def test_live_modbus_connection(hass: HomeAssistant):
         await client.close()
 
 
-@pytest.mark.socket_enabled
+@pytest.mark.enable_socket
 @pytest.mark.asyncio
 async def test_live_coordinator(hass: HomeAssistant):
     """Test coordinator with actual modbus server.
