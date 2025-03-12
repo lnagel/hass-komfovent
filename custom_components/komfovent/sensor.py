@@ -517,6 +517,7 @@ class FloatSensor(KomfoventSensor):
 
     @property
     def native_value(self) -> StateType:
+        """Return the float value of the sensor."""
         value = super().native_value
         if value is None:
             return None
@@ -528,8 +529,11 @@ class FloatSensor(KomfoventSensor):
 
 
 class FloatX10Sensor(FloatSensor):
+    """Sensor that divides its value by 10."""
+
     @property
     def native_value(self) -> StateType:
+        """Return the sensor value divided by 10."""
         value = super().native_value
         if value is None:
             return None
@@ -538,6 +542,8 @@ class FloatX10Sensor(FloatSensor):
 
 
 class FloatX100Sensor(FloatSensor):
+    """Sensor that divides its value by 100."""
+
     @property
     def native_value(self) -> StateType:
         """Return the value divided by 100."""
@@ -549,6 +555,8 @@ class FloatX100Sensor(FloatSensor):
 
 
 class FloatX1000Sensor(KomfoventSensor):
+    """Sensor that divides its value by 1000."""
+
     @property
     def native_value(self) -> StateType:
         """Return the energy value in kWh."""
