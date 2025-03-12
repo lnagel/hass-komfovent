@@ -22,9 +22,11 @@ def mock_config_entry():
 
 async def test_setup_entry(hass: HomeAssistant, mock_config_entry, mock_modbus_client):
     """Test the integration sets up successfully."""
-    # Initialize HomeAssistant data and services
+    # Initialize HomeAssistant mocks
     hass.data.setdefault(DOMAIN, {})
     hass.services = AsyncMock()
+    hass.config_entries = AsyncMock()
+    hass.config_entries.async_forward_entry_setups = AsyncMock(return_value=True)
 
     # Create mock client with required async methods
     mock_client = AsyncMock()
