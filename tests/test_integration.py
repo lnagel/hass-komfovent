@@ -1,6 +1,6 @@
 """Tests for Komfovent integration initialization."""
 
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 import pytest
 from homeassistant.const import CONF_HOST, CONF_PORT
@@ -25,15 +25,14 @@ async def test_setup_entry(hass: HomeAssistant, mock_config_entry, mock_modbus_c
     # Initialize HomeAssistant data
     hass.data.setdefault(DOMAIN, {})
 
-    # Patch both the modbus client class and the pymodbus client
-    with (
-        patch(
-            "custom_components.komfovent.modbus.KomfoventModbusClient",
-            return_value=mock_modbus_client,
-        ),
-        patch(
-            "custom_components.komfovent.modbus.AsyncModbusTcpClient",
-        ),
+    # Setup async mocks
+    mock_modbus_client.connect = AsyncMock(return_value=True)
+    mock_modbus_client.read_holding_registers = AsyncMock(return_value={1: 42})
+
+    # Patch the modbus client
+    with patch(
+        "custom_components.komfovent.modbus.KomfoventModbusClient",
+        return_value=mock_modbus_client,
     ):
         # Setup the entry
         assert await async_setup_entry(hass, mock_config_entry)
