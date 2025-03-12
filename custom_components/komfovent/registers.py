@@ -1,10 +1,11 @@
-from __future__ import annotations
-
-"""Modbus register definitions for Komfovent devices.
+"""
+Modbus register definitions for Komfovent devices.
 
 This module contains the register addresses and register sets used for communicating
 with Komfovent ventilation units via Modbus TCP.
 """
+
+from __future__ import annotations
 
 # Modbus registers - Basic Control
 REG_POWER = 0  # ON/OFF status
