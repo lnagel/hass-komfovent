@@ -164,7 +164,7 @@ class KomfoventCoordinator(DataUpdateCoordinator):
             )
             data.update(process_register_block(sensor_block))
 
-        except Exception as error:
+        except (ConnectionError, ModbusException) as error:
             _LOGGER.warning("Error communicating with Komfovent: %s", error)
             raise UpdateFailed from error
 

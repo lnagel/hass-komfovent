@@ -3,7 +3,6 @@
 import asyncio
 import logging
 
-from homeassistant.exceptions import ConfigEntryNotReady
 from pymodbus.client import AsyncModbusTcpClient
 from pymodbus.exceptions import ModbusException
 
@@ -29,11 +28,7 @@ class KomfoventModbusClient:
 
     async def connect(self) -> bool:
         """Connect to the Modbus device."""
-        try:
-            return await self.client.connect()
-        except Exception as error:
-            _LOGGER.error("Error connecting to Komfovent: %s", error)
-            raise ConfigEntryNotReady from error
+        return await self.client.connect()
 
     async def close(self) -> None:
         """Close the Modbus connection."""
@@ -42,48 +37,34 @@ class KomfoventModbusClient:
     async def read_holding_registers(self, address: int, count: int) -> dict[int, int]:
         """Read holding registers and return dict keyed by absolute register addresses."""
         async with self._lock:
-            try:
-                result = await self.client.read_holding_registers(
-                    address, count=count, slave=1
-                )
-                if result.isError():
-                    raise ModbusException(f"Error reading registers at {address}")
+            result = await self.client.read_holding_registers(
+                address, count=count, slave=1
+            )
 
-                # Create dictionary with absolute register addresses as keys
-                return {address + i: value for i, value in enumerate(result.registers)}
+        if result.isError():
+            raise ModbusException(f"Error reading registers at {address}")
 
-            except Exception as error:
-                _LOGGER.error("Failed to read registers at %s: %s", address, error)
-                raise ConfigEntryNotReady from error
+        # Create dictionary with absolute register addresses as keys
+        return {address + i: value for i, value in enumerate(result.registers)}
 
     async def write_register(self, address: int, value: int) -> None:
         """Write to holding register."""
         async with self._lock:
-            try:
-                if address in REGISTERS_32BIT:
-                    # Split 32-bit value into two 16-bit values
-                    high_word = (value >> 16) & 0xFFFF
-                    low_word = value & 0xFFFF
+            if address in REGISTERS_16BIT:
+                result = await self.client.write_register(address, value, slave=1)
+            elif address in REGISTERS_32BIT:
+                # Split 32-bit value into two 16-bit values
+                high_word = (value >> 16) & 0xFFFF
+                low_word = value & 0xFFFF
 
-                    # Write both words in a single transaction
-                    result = await self.client.write_registers(
-                        address, [high_word, low_word], slave=1
-                    )
-                    if result.isError():
-                        raise ModbusException(
-                            f"Error writing 32-bit value at {address}"
-                        )
+                # Write both words in a single transaction
+                result = await self.client.write_registers(
+                    address, [high_word, low_word], slave=1
+                )
+            else:
+                raise NotImplementedError(
+                    f"Register {address} not found in either 16-bit or 32-bit register sets"
+                )
 
-                elif address in REGISTERS_16BIT:
-                    result = await self.client.write_register(address, value, slave=1)
-                    if result.isError():
-                        raise ModbusException(f"Error writing register at {address}")
-
-                else:
-                    raise ValueError(
-                        f"Register {address} not found in either 16-bit or 32-bit register sets"
-                    )
-
-            except Exception as error:
-                _LOGGER.error("Failed to write register at %s: %s", address, error)
-                raise ConfigEntryNotReady from error
+        if result.isError():
+            raise ModbusException(f"Error writing register at {address}")
