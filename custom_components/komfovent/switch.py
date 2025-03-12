@@ -2,18 +2,24 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from homeassistant.components.switch import SwitchEntity, SwitchEntityDescription
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+
+if TYPE_CHECKING:
+    from homeassistant.config_entries import ConfigEntry
+    from homeassistant.core import HomeAssistant
+    from homeassistant.helpers.entity_platform import AddEntitiesCallback
+
+    from .coordinator import KomfoventCoordinator
 
 from . import registers
 from .const import DOMAIN
-from .coordinator import KomfoventCoordinator
 
 
-async def create_switches(coordinator):
+async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSwitch]:
+    """Create switch entities for Komfovent device."""
     return [
         KomfoventSwitch(
             coordinator=coordinator,
@@ -94,12 +100,12 @@ class KomfoventSwitch(CoordinatorEntity, SwitchEntity):
             return None
         return bool(self.coordinator.data.get(self.register_id, 0))
 
-    async def async_turn_on(self, **kwargs) -> None:
+    async def async_turn_on(self, **_kwargs: dict) -> None:
         """Turn the entity on."""
         await self.coordinator.client.write_register(self.register_id, 1)
         await self.coordinator.async_request_refresh()
 
-    async def async_turn_off(self, **kwargs) -> None:
+    async def async_turn_off(self, **_kwargs: dict) -> None:
         """Turn the entity off."""
         await self.coordinator.client.write_register(self.register_id, 0)
         await self.coordinator.async_request_refresh()
