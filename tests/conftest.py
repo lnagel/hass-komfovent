@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path
+from typing import Any
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
@@ -9,7 +10,7 @@ from homeassistant.core import HomeAssistant
 
 
 @pytest.fixture
-def hass():
+def hass() -> HomeAssistant:
     """Create a Home Assistant instance for testing."""
     hass_obj = MagicMock(spec=HomeAssistant)
     hass_obj.data = {}
@@ -22,7 +23,7 @@ def hass():
 
 
 @pytest.fixture
-def register_data():
+def register_data() -> dict[int, int]:
     """Load register data from JSON file."""
     json_file = Path("documentation/C6_holding_registers.json")
 
@@ -40,7 +41,7 @@ def register_data():
 
 
 @pytest.fixture
-def mock_pymodbus_client():
+def mock_pymodbus_client() -> MagicMock:
     """Create a mock for the AsyncModbusTcpClient."""
     mock_client = MagicMock()
     mock_client.connect = AsyncMock(return_value=True)
@@ -56,14 +57,16 @@ def mock_pymodbus_client():
 
 
 @pytest.fixture
-def mock_modbus_client(register_data, mock_pymodbus_client):
+def mock_modbus_client(
+    register_data: dict[int, int], mock_pymodbus_client: MagicMock
+) -> MagicMock:
     """Create a mock KomfoventModbusClient."""
     mock_client = MagicMock()
     mock_client.connect = AsyncMock(return_value=True)
     mock_client.close = AsyncMock()
 
     # Set up read_holding_registers to return data from our fixture
-    async def mock_read_registers(address, count):
+    async def mock_read_registers(address: int, count: int) -> dict[int, int]:
         result = {}
         for reg in range(address, address + count):
             if reg in register_data:
