@@ -7,6 +7,7 @@ from typing import Any
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from pymodbus.exceptions import ModbusException
 
 from . import registers
 from .const import (
@@ -56,7 +57,7 @@ STATIC_DATA_ADDRESSES = {
 class KomfoventCoordinator(DataUpdateCoordinator):
     """Class to manage fetching Komfovent data."""
 
-    def __init__(self, hass: HomeAssistant, host: str, port: int):
+    def __init__(self, hass: HomeAssistant, host: str, port: int) -> None:
         """Initialize."""
         super().__init__(
             hass,
@@ -78,7 +79,7 @@ class KomfoventCoordinator(DataUpdateCoordinator):
                 registers.REG_CONNECTED_PANELS, 1
             )
             data.update(process_register_block(connected_panels_block))
-        except Exception as error:
+        except (ConnectionError, ModbusException) as error:
             _LOGGER.warning("Failed to read connected panels: %s", error)
             raise ConfigEntryNotReady from error
 
@@ -88,7 +89,7 @@ class KomfoventCoordinator(DataUpdateCoordinator):
                 registers.REG_FIRMWARE, 2
             )
             data.update(process_register_block(firmware_block))
-        except Exception as error:
+        except (ConnectionError, ModbusException) as error:
             _LOGGER.warning("Failed to read controller firmware version: %s", error)
             # raise ConfigEntryNotReady from error
 
@@ -102,7 +103,7 @@ class KomfoventCoordinator(DataUpdateCoordinator):
                     registers.REG_PANEL1_FW, 2
                 )
                 data.update(process_register_block(panel1_block))
-            except Exception as error:
+            except (ConnectionError, ModbusException) as error:
                 _LOGGER.warning("Failed to read panel 1 firmware version: %s", error)
                 # raise ConfigEntryNotReady from error
 
@@ -116,7 +117,7 @@ class KomfoventCoordinator(DataUpdateCoordinator):
                     registers.REG_PANEL2_FW, 2
                 )
                 data.update(process_register_block(panel2_block))
-            except Exception as error:
+            except (ConnectionError, ModbusException) as error:
                 _LOGGER.warning("Failed to read panel 2 firmware version: %s", error)
                 # raise ConfigEntryNotReady from error
 
