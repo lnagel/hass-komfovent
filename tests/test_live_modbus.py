@@ -4,19 +4,19 @@ import asyncio
 import json
 from pathlib import Path
 
-from modbus_server import run_server
-
 import pytest
 from homeassistant.core import HomeAssistant
 
 from custom_components.komfovent.coordinator import KomfoventCoordinator
 from custom_components.komfovent.modbus import KomfoventModbusClient
+from modbus_server import run_server
 
 
 @pytest.mark.enable_socket
 @pytest.mark.asyncio
 async def test_live_modbus_connection(hass: HomeAssistant):
-    """Test actual connection to modbus server.
+    """
+    Test actual connection to modbus server.
 
     This test requires a running modbus server and will be skipped by default.
     To run with socket connections enabled: pytest tests/test_live_modbus.py -v --socket-enabled
@@ -62,7 +62,8 @@ async def test_live_modbus_connection(hass: HomeAssistant):
 @pytest.mark.enable_socket
 @pytest.mark.asyncio
 async def test_live_coordinator(hass: HomeAssistant):
-    """Test coordinator with actual modbus server.
+    """
+    Test coordinator with actual modbus server.
 
     This test requires a running modbus server and will be skipped by default.
     To run with socket connections enabled: pytest tests/test_live_modbus.py -v --socket-enabled

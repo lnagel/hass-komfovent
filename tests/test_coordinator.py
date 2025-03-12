@@ -1,8 +1,7 @@
 """Tests for the Komfovent coordinator."""
 
-from unittest.mock import AsyncMock, create_autospec, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
-import pytest
 from homeassistant.core import HomeAssistant
 
 from custom_components.komfovent.coordinator import KomfoventCoordinator
