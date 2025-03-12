@@ -123,7 +123,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
     # Add core sensors
     entities.extend(
         [
-            KomfoventSensor(
+            TemperatureSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_SUPPLY_TEMP,
                 entity_description=SensorEntityDescription(
@@ -477,7 +477,255 @@ async def async_setup_entry(
 
 
 class KomfoventSensor(CoordinatorEntity, SensorEntity):
-    """Representation of a Komfovent sensor."""
+    """Base representation of a Komfovent sensor."""
+
+    _attr_has_entity_name = True
+
+    def __init__(
+        self,
+        coordinator: KomfoventCoordinator,
+        register_id: int,
+        entity_description: SensorEntityDescription,
+    ) -> None:
+        """Initialize the sensor."""
+        super().__init__(coordinator)
+        self.register_id = register_id
+        self.entity_description = entity_description
+        self._attr_unique_id = f"{coordinator.config_entry.entry_id}_{register_id}"
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, coordinator.config_entry.entry_id)},
+            "name": coordinator.config_entry.title,
+            "manufacturer": "Komfovent",
+            "model": None,
+        }
+
+    @property
+    def native_value(self) -> StateType | date | datetime | Decimal:
+        """Return the state of the sensor."""
+        if not self.coordinator.data:
+            return None
+
+        value = self.coordinator.data.get(self.register_id)
+        if value is None:
+            return None
+
+        try:
+            return float(value)
+        except (ValueError, TypeError):
+            return None
+
+
+class TemperatureSensor(KomfoventSensor):
+    """Temperature sensor with x10 scaling."""
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the temperature value divided by 10."""
+        if not self.coordinator.data:
+            return None
+
+        value = self.coordinator.data.get(self.register_id)
+        if not isinstance(value, (int, float)):
+            return None
+
+        try:
+            return float(value) / 10
+        except (ValueError, TypeError):
+            return None
+
+
+class X10PercentageSensor(KomfoventSensor):
+    """Percentage sensor with x10 scaling."""
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the percentage value divided by 10."""
+        if not self.coordinator.data:
+            return None
+
+        value = self.coordinator.data.get(self.register_id)
+        if not isinstance(value, (int, float)):
+            return None
+
+        try:
+            value = float(value) / 10
+            if 0 <= value <= MAX_PERCENTAGE:
+                return value
+            return None
+        except (ValueError, TypeError):
+            return None
+
+
+class X100Sensor(KomfoventSensor):
+    """Sensor with x100 scaling."""
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the value divided by 100."""
+        if not self.coordinator.data:
+            return None
+
+        value = self.coordinator.data.get(self.register_id)
+        if not isinstance(value, (int, float)):
+            return None
+
+        try:
+            return float(value) / 100
+        except (ValueError, TypeError):
+            return None
+
+
+class EnergyTotalSensor(KomfoventSensor):
+    """Energy sensor converting Wh to kWh."""
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the energy value in kWh."""
+        if not self.coordinator.data:
+            return None
+
+        value = self.coordinator.data.get(self.register_id)
+        if not isinstance(value, (int, float)):
+            return None
+
+        try:
+            return float(value) / 1000
+        except (ValueError, TypeError):
+            return None
+
+
+class FirmwareVersionSensor(KomfoventSensor):
+    """Firmware version sensor."""
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the firmware version string."""
+        if not self.coordinator.data:
+            return None
+
+        value = self.coordinator.data.get(self.register_id)
+        if not isinstance(value, int):
+            return None
+
+        try:
+            v1 = (value >> 24) & 0xFF
+            v2 = (value >> 20) & 0xF
+            v3 = (value >> 12) & 0xFF
+            v4 = value & 0xFFF
+            if any([v1, v2, v3, v4]):
+                return f"{v1}.{v2}.{v3}.{v4}"
+            return None
+        except (ValueError, TypeError):
+            return None
+
+
+class HumiditySensor(KomfoventSensor):
+    """Humidity sensor with range validation."""
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the humidity value if within valid range."""
+        if not self.coordinator.data:
+            return None
+
+        value = self.coordinator.data.get(self.register_id)
+        try:
+            if 0 <= float(value) <= MAX_HUMIDITY:
+                return float(value)
+            return None
+        except (ValueError, TypeError):
+            return None
+
+
+class CO2Sensor(KomfoventSensor):
+    """CO2 sensor with range validation."""
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the CO2 value if within valid range."""
+        if not self.coordinator.data:
+            return None
+
+        value = self.coordinator.data.get(self.register_id)
+        try:
+            if 0 <= float(value) <= MAX_CO2_PPM:
+                return float(value)
+            return None
+        except (ValueError, TypeError):
+            return None
+
+
+class SPISensor(KomfoventSensor):
+    """SPI sensor with scaling and range validation."""
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the SPI value if within valid range."""
+        if not self.coordinator.data:
+            return None
+
+        value = self.coordinator.data.get(self.register_id)
+        try:
+            value = float(value) / 1000
+            if 0 <= value <= MAX_SPI:
+                return value
+            return None
+        except (ValueError, TypeError):
+            return None
+
+
+class VOCSensor(KomfoventSensor):
+    """VOC sensor with range validation."""
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the VOC value if within valid range."""
+        if not self.coordinator.data:
+            return None
+
+        value = self.coordinator.data.get(self.register_id)
+        if not isinstance(value, (int, float)):
+            return None
+
+        try:
+            value = float(value)
+            if 0 <= value <= MAX_VOC_PPB:
+                return value
+            return None
+        except (ValueError, TypeError):
+            return None
+
+
+class HeatExchangerTypeSensor(KomfoventSensor):
+    """Heat exchanger type sensor."""
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the heat exchanger type name."""
+        if not self.coordinator.data:
+            return None
+
+        value = self.coordinator.data.get(self.register_id)
+        try:
+            return HeatExchangerType(value).name
+        except ValueError:
+            return None
+
+
+class ConnectedPanelsSensor(KomfoventSensor):
+    """Connected panels sensor."""
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the connected panels state name."""
+        if not self.coordinator.data:
+            return None
+
+        value = self.coordinator.data.get(self.register_id)
+        try:
+            return ConnectedPanels(value).name
+        except ValueError:
+            return None
 
     _attr_has_entity_name = True
 
