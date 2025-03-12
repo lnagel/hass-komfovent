@@ -94,6 +94,9 @@ async def test_live_coordinator(hass: HomeAssistant):
         # Verify data
         assert coordinator.data is not None
         assert len(coordinator.data) > 0
+        assert coordinator.data[0] == 1
+        assert coordinator.data[999] == 289542195
+        assert coordinator.data[1001] == 17838114
 
     finally:
         # Ensure client is closed
