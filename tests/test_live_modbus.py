@@ -66,6 +66,18 @@ async def test_live_coordinator(hass: HomeAssistant):
     This test requires a running modbus server and will be skipped by default.
     To run with socket connections enabled: pytest tests/test_live_modbus.py -v --socket-enabled
     """
+    # Load test data
+    test_data_path = Path("documentation/C6M_holding_registers.json")
+    with test_data_path.open() as f:
+        register_data = json.load(f)
+        registers = {int(k) + 1: v for k, v in register_data.items()}
+
+    # Start server in background task
+    server_task = asyncio.create_task(run_server("localhost", 502, registers))
+
+    # Wait for server to start
+    await asyncio.sleep(2)
+
     # Create coordinator
     coordinator = KomfoventCoordinator(hass, "localhost", 502)
 
