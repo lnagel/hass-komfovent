@@ -28,10 +28,8 @@ async def test_live_modbus_connection(hass: HomeAssistant):
         registers = {int(k) + 1: v for k, v in register_data.items()}
 
     # Start server in background task
-    server_task = asyncio.create_task(
-        run_server("localhost", 502, registers)
-    )
-    
+    server_task = asyncio.create_task(run_server("localhost", 502, registers))
+
     # Wait for server to start
     await asyncio.sleep(2)
 
