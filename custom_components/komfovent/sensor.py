@@ -94,15 +94,19 @@ def create_aq_sensor(
     name = f"Air Quality {sensor_type.name.upper()}"
 
     if sensor_type == AirQualitySensorType.CO2:
-        unit, device_class = "ppm", SensorDeviceClass.CO2
+        sensor_class, unit, device_class = CO2Sensor, "ppm", SensorDeviceClass.CO2
     elif sensor_type == AirQualitySensorType.VOC:
-        unit, device_class = "ppb", None
+        sensor_class, unit, device_class = VOCSensor, "ppb", None
     elif sensor_type == AirQualitySensorType.RH:
-        unit, device_class = PERCENTAGE, SensorDeviceClass.HUMIDITY
+        sensor_class, unit, device_class = (
+            RelativeHumiditySensor,
+            PERCENTAGE,
+            SensorDeviceClass.HUMIDITY,
+        )
     else:
         return None
 
-    return KomfoventSensor(
+    return sensor_class(
         coordinator=coordinator,
         register_id=register_id,
         entity_description=SensorEntityDescription(
@@ -159,7 +163,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=1,
                 ),
             ),
-            X10PercentageSensor(
+            PercentageX10Sensor(
                 coordinator=coordinator,
                 register_id=registers.REG_SUPPLY_FAN_INTENSITY,
                 entity_description=SensorEntityDescription(
@@ -170,7 +174,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=0,
                 ),
             ),
-            X10PercentageSensor(
+            PercentageX10Sensor(
                 coordinator=coordinator,
                 register_id=registers.REG_EXTRACT_FAN_INTENSITY,
                 entity_description=SensorEntityDescription(
@@ -181,7 +185,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=0,
                 ),
             ),
-            X10PercentageSensor(
+            PercentageX10Sensor(
                 coordinator=coordinator,
                 register_id=registers.REG_HEAT_EXCHANGER,
                 entity_description=SensorEntityDescription(
@@ -192,7 +196,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=0,
                 ),
             ),
-            X10PercentageSensor(
+            PercentageX10Sensor(
                 coordinator=coordinator,
                 register_id=registers.REG_ELECTRIC_HEATER,
                 entity_description=SensorEntityDescription(
@@ -293,7 +297,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=2,
                 ),
             ),
-            X100Sensor(
+            AbsoluteHumiditySensor(
                 coordinator=coordinator,
                 register_id=registers.REG_INDOOR_ABS_HUMIDITY,
                 entity_description=SensorEntityDescription(
@@ -322,7 +326,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_category=EntityCategory.DIAGNOSTIC,
                 ),
             ),
-            EnergyTotalSensor(
+            EnergySensor(
                 coordinator=coordinator,
                 register_id=registers.REG_AHU_TOTAL,
                 entity_description=SensorEntityDescription(
@@ -334,7 +338,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=3,
                 ),
             ),
-            EnergyTotalSensor(
+            EnergySensor(
                 coordinator=coordinator,
                 register_id=registers.REG_HEATER_TOTAL,
                 entity_description=SensorEntityDescription(
@@ -346,7 +350,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=3,
                 ),
             ),
-            EnergyTotalSensor(
+            EnergySensor(
                 coordinator=coordinator,
                 register_id=registers.REG_RECOVERY_TOTAL,
                 entity_description=SensorEntityDescription(
@@ -389,7 +393,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                         suggested_display_precision=1,
                     ),
                 ),
-                HumiditySensor(
+                RelativeHumiditySensor(
                     coordinator=coordinator,
                     register_id=registers.REG_PANEL1_RH,
                     entity_description=SensorEntityDescription(
@@ -432,7 +436,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                         suggested_display_precision=1,
                     ),
                 ),
-                HumiditySensor(
+                RelativeHumiditySensor(
                     coordinator=coordinator,
                     register_id=registers.REG_PANEL2_RH,
                     entity_description=SensorEntityDescription(
@@ -505,7 +509,15 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
         if not self.coordinator.data:
             return None
 
-        value = self.coordinator.data.get(self.register_id)
+        return self.coordinator.data.get(self.register_id)
+
+
+class FloatSensor(KomfoventSensor):
+    """Temperature sensor with x10 scaling."""
+
+    @property
+    def native_value(self) -> StateType:
+        value = super().native_value
         if value is None:
             return None
 
@@ -515,83 +527,57 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
             return None
 
 
-class TemperatureSensor(KomfoventSensor):
+class TemperatureSensor(FloatSensor):
     """Temperature sensor with x10 scaling."""
 
     @property
     def native_value(self) -> StateType:
-        """Return the temperature value divided by 10."""
-        if not self.coordinator.data:
+        value = super().native_value
+        if value is None:
             return None
 
-        value = self.coordinator.data.get(self.register_id)
-        if not isinstance(value, (int, float)):
-            return None
-
-        try:
-            return float(value) / 10
-        except (ValueError, TypeError):
-            return None
+        return value / 10
 
 
-class X10PercentageSensor(KomfoventSensor):
+class PercentageX10Sensor(FloatSensor):
     """Percentage sensor with x10 scaling."""
 
     @property
     def native_value(self) -> StateType:
-        """Return the percentage value divided by 10."""
-        if not self.coordinator.data:
+        value = super().native_value
+        if value is None:
             return None
 
-        value = self.coordinator.data.get(self.register_id)
-        if not isinstance(value, (int, float)):
-            return None
-
-        try:
-            value = float(value) / 10
-            if 0 <= value <= MAX_PERCENTAGE:
-                return value
-            return None
-        except (ValueError, TypeError):
-            return None
+        value = value / 10
+        if 0 <= value <= MAX_PERCENTAGE:
+            return value
+        return None
 
 
-class X100Sensor(KomfoventSensor):
+class AbsoluteHumiditySensor(FloatSensor):
     """Sensor with x100 scaling."""
 
     @property
     def native_value(self) -> StateType:
         """Return the value divided by 100."""
-        if not self.coordinator.data:
+        value = super().native_value
+        if value is None:
             return None
 
-        value = self.coordinator.data.get(self.register_id)
-        if not isinstance(value, (int, float)):
-            return None
-
-        try:
-            return float(value) / 100
-        except (ValueError, TypeError):
-            return None
+        return value / 100
 
 
-class EnergyTotalSensor(KomfoventSensor):
+class EnergySensor(KomfoventSensor):
     """Energy sensor converting Wh to kWh."""
 
     @property
     def native_value(self) -> StateType:
         """Return the energy value in kWh."""
-        if not self.coordinator.data:
+        value = super().native_value
+        if value is None:
             return None
 
-        value = self.coordinator.data.get(self.register_id)
-        if not isinstance(value, (int, float)):
-            return None
-
-        try:
-            return float(value) / 1000
-        except (ValueError, TypeError):
-            return None
+        return value / 1000
 
 
 class FirmwareVersionSensor(KomfoventSensor):
@@ -600,59 +586,47 @@ class FirmwareVersionSensor(KomfoventSensor):
     @property
     def native_value(self) -> StateType:
         """Return the firmware version string."""
-        if not self.coordinator.data:
+        value = super().native_value
+        if value is None:
             return None
 
-        value = self.coordinator.data.get(self.register_id)
-        if not isinstance(value, int):
-            return None
-
-        try:
-            v1 = (value >> 24) & 0xFF
-            v2 = (value >> 20) & 0xF
-            v3 = (value >> 12) & 0xFF
-            v4 = value & 0xFFF
-            if any([v1, v2, v3, v4]):
-                return f"{v1}.{v2}.{v3}.{v4}"
-            return None
-        except (ValueError, TypeError):
-            return None
+        v1 = (value >> 24) & 0xFF
+        v2 = (value >> 20) & 0xF
+        v3 = (value >> 12) & 0xFF
+        v4 = value & 0xFFF
+        if any([v1, v2, v3, v4]):
+            return f"{v1}.{v2}.{v3}.{v4}"
+        return None
 
 
-class HumiditySensor(KomfoventSensor):
+class RelativeHumiditySensor(FloatSensor):
     """Humidity sensor with range validation."""
 
     @property
     def native_value(self) -> StateType:
         """Return the humidity value if within valid range."""
-        if not self.coordinator.data:
+        value = super().native_value
+        if value is None:
             return None
 
-        value = self.coordinator.data.get(self.register_id)
-        try:
-            if 0 <= float(value) <= MAX_HUMIDITY:
-                return float(value)
-            return None
-        except (ValueError, TypeError):
-            return None
+        if 0 <= value <= MAX_HUMIDITY:
+            return value
+        return None
 
 
-class CO2Sensor(KomfoventSensor):
+class CO2Sensor(FloatSensor):
     """CO2 sensor with range validation."""
 
     @property
     def native_value(self) -> StateType:
         """Return the CO2 value if within valid range."""
-        if not self.coordinator.data:
+        value = super().native_value
+        if value is None:
             return None
 
-        value = self.coordinator.data.get(self.register_id)
-        try:
-            if 0 <= float(value) <= MAX_CO2_PPM:
-                return float(value)
-            return None
-        except (ValueError, TypeError):
-            return None
+        if 0 <= value <= MAX_CO2_PPM:
+            return value
+        return None
 
 
 class SPISensor(KomfoventSensor):
@@ -661,17 +635,14 @@ class SPISensor(KomfoventSensor):
     @property
     def native_value(self) -> StateType:
         """Return the SPI value if within valid range."""
-        if not self.coordinator.data:
+        value = super().native_value
+        if value is None:
             return None
 
-        value = self.coordinator.data.get(self.register_id)
-        try:
-            value = float(value) / 1000
-            if 0 <= value <= MAX_SPI:
-                return value
-            return None
-        except (ValueError, TypeError):
-            return None
+        value = value / 1000
+        if 0 <= value <= MAX_SPI:
+            return value
+        return None
 
 
 class VOCSensor(KomfoventSensor):
@@ -680,20 +651,13 @@ class VOCSensor(KomfoventSensor):
     @property
     def native_value(self) -> StateType:
         """Return the VOC value if within valid range."""
-        if not self.coordinator.data:
+        value = super().native_value
+        if value is None:
             return None
 
-        value = self.coordinator.data.get(self.register_id)
-        if not isinstance(value, (int, float)):
-            return None
-
-        try:
-            value = float(value)
-            if 0 <= value <= MAX_VOC_PPB:
-                return value
-            return None
-        except (ValueError, TypeError):
-            return None
+        if 0 <= value <= MAX_VOC_PPB:
+            return value
+        return None
 
 
 class HeatExchangerTypeSensor(KomfoventSensor):
@@ -702,10 +666,10 @@ class HeatExchangerTypeSensor(KomfoventSensor):
     @property
     def native_value(self) -> StateType:
         """Return the heat exchanger type name."""
-        if not self.coordinator.data:
+        value = super().native_value
+        if value is None:
             return None
 
-        value = self.coordinator.data.get(self.register_id)
         try:
             return HeatExchangerType(value).name
         except ValueError:
@@ -718,12 +682,11 @@ class ConnectedPanelsSensor(KomfoventSensor):
     @property
     def native_value(self) -> StateType:
         """Return the connected panels state name."""
-        if not self.coordinator.data:
+        value = super().native_value
+        if value is None:
             return None
 
-        value = self.coordinator.data.get(self.register_id)
         try:
             return ConnectedPanels(value).name
         except ValueError:
             return None
-
