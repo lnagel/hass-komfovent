@@ -35,14 +35,15 @@ class KomfoventModbusClient:
         self.client.close()
 
     async def read_holding_registers(self, address: int, count: int) -> dict[int, int]:
-        """Read holding registers and return dict keyed by absolute register addresses."""
+        """Read holding registers and return dict keyed by absolute register addresses."""  # noqa: E501
         async with self._lock:
             result = await self.client.read_holding_registers(
                 address, count=count, slave=1
             )
 
         if result.isError():
-            raise ModbusException(f"Error reading registers at {address}")
+            msg = f"Error reading registers at {address}"
+            raise ModbusException(msg)
 
         # Create dictionary with absolute register addresses as keys
         return {address + i: value for i, value in enumerate(result.registers)}
@@ -62,9 +63,12 @@ class KomfoventModbusClient:
                     address, [high_word, low_word], slave=1
                 )
             else:
-                raise NotImplementedError(
-                    f"Register {address} not found in either 16-bit or 32-bit register sets"
+                msg = (
+                    f"Register {address} not found in either "
+                    "16-bit or 32-bit register sets"
                 )
+                raise NotImplementedError(msg)
 
         if result.isError():
-            raise ModbusException(f"Error writing register at {address}")
+            msg = f"Error writing register at {address}"
+            raise ModbusException(msg)
