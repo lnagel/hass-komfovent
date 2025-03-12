@@ -58,16 +58,12 @@ class KomfoventCoordinator(DataUpdateCoordinator):
 
     def __init__(self, hass: HomeAssistant, host: str, port: int, **kwargs) -> None:
         """Initialize."""
-        from .modbus import KomfoventModbusClient # easier to mock
+        from .modbus import KomfoventModbusClient  # easier to mock
 
         kwargs.setdefault("name", DOMAIN)
         kwargs.setdefault("update_interval", timedelta(seconds=DEFAULT_SCAN_INTERVAL))
 
-        super().__init__(
-            hass,
-            _LOGGER,
-            **kwargs
-        )
+        super().__init__(hass, _LOGGER, **kwargs)
         self.client = KomfoventModbusClient(host, port)
 
     async def connect(self) -> bool:
