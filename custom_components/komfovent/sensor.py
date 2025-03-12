@@ -23,10 +23,12 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 if TYPE_CHECKING:
     from datetime import date, datetime
     from decimal import Decimal
+
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
     from homeassistant.helpers.typing import StateType
+
     from .coordinator import KomfoventCoordinator
 
 from . import registers
@@ -36,6 +38,7 @@ from .const import (
     ConnectedPanels,
     HeatExchangerType,
 )
+
 # Constants for value validation
 MAX_PERCENTAGE = 100
 MAX_HUMIDITY = 125
