@@ -1,6 +1,6 @@
 """Tests for Komfovent integration initialization."""
 
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 import pytest
 from homeassistant.const import CONF_HOST, CONF_PORT
