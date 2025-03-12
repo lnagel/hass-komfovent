@@ -16,7 +16,7 @@ def mock_config_entry():
     """Create a mock config entry."""
     return MockConfigEntry(
         domain=DOMAIN,
-        data={CONF_HOST: "localhost", CONF_PORT: 502},
+        data={CONF_HOST: "127.0.0.1", CONF_PORT: 502},
         entry_id="test_entry_id",
     )
 

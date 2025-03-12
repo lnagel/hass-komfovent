@@ -29,13 +29,13 @@ async def test_live_modbus_connection(hass: HomeAssistant):
 
     # Use non-privileged port for testing
     test_port = 5502
-    server_task = asyncio.create_task(run_server("localhost", test_port, registers))
+    server_task = asyncio.create_task(run_server("127.0.0.1", test_port, registers))
 
     # Wait for server to start
     await asyncio.sleep(0.1)
 
     # Create and connect to the server
-    client = KomfoventModbusClient("localhost", test_port)
+    client = KomfoventModbusClient("127.0.0.1", test_port)
 
     try:
         # Test connection
@@ -76,13 +76,13 @@ async def test_live_coordinator(hass: HomeAssistant):
 
     # Use non-privileged port for testing
     test_port = 5503
-    server_task = asyncio.create_task(run_server("localhost", test_port, registers))
+    server_task = asyncio.create_task(run_server("127.0.0.1", test_port, registers))
 
     # Wait for server to start
     await asyncio.sleep(0.1)
 
     # Create coordinator
-    coordinator = KomfoventCoordinator(hass, "localhost", test_port)
+    coordinator = KomfoventCoordinator(hass, "127.0.0.1", test_port)
 
     try:
         # Connect

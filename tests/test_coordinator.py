@@ -20,7 +20,7 @@ async def test_coordinator_updates_data(hass: HomeAssistant, mock_modbus_client)
         return_value=mock_client,
     ):
         # Create and initialize coordinator
-        coordinator = KomfoventCoordinator(hass, "localhost", 502)
+        coordinator = KomfoventCoordinator(hass, "127.0.0.1", 502)
 
         # Test connection
         assert await coordinator.connect()
@@ -49,7 +49,7 @@ async def test_coordinator_handles_connection_failure(hass: HomeAssistant):
         return_value=mock_client,
     ):
         # Create coordinator
-        coordinator = KomfoventCoordinator(hass, "localhost", 502)
+        coordinator = KomfoventCoordinator(hass, "127.0.0.1", 502)
 
         # Test connection - should fail
         assert not await coordinator.connect()
