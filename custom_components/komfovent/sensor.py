@@ -135,7 +135,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=1,
                 ),
             ),
-            KomfoventSensor(
+            TemperatureSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_EXTRACT_TEMP,
                 entity_description=SensorEntityDescription(
@@ -147,7 +147,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=1,
                 ),
             ),
-            KomfoventSensor(
+            TemperatureSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_OUTDOOR_TEMP,
                 entity_description=SensorEntityDescription(
@@ -159,7 +159,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=1,
                 ),
             ),
-            KomfoventSensor(
+            X10PercentageSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_SUPPLY_FAN_INTENSITY,
                 entity_description=SensorEntityDescription(
@@ -170,7 +170,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=0,
                 ),
             ),
-            KomfoventSensor(
+            X10PercentageSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_EXTRACT_FAN_INTENSITY,
                 entity_description=SensorEntityDescription(
@@ -181,7 +181,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=0,
                 ),
             ),
-            KomfoventSensor(
+            X10PercentageSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_HEAT_EXCHANGER,
                 entity_description=SensorEntityDescription(
@@ -192,7 +192,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=0,
                 ),
             ),
-            KomfoventSensor(
+            X10PercentageSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_ELECTRIC_HEATER,
                 entity_description=SensorEntityDescription(
@@ -293,7 +293,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=2,
                 ),
             ),
-            KomfoventSensor(
+            X100Sensor(
                 coordinator=coordinator,
                 register_id=registers.REG_INDOOR_ABS_HUMIDITY,
                 entity_description=SensorEntityDescription(
@@ -304,7 +304,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=2,
                 ),
             ),
-            KomfoventSensor(
+            ConnectedPanelsSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_CONNECTED_PANELS,
                 entity_description=SensorEntityDescription(
@@ -313,7 +313,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_category=EntityCategory.DIAGNOSTIC,
                 ),
             ),
-            KomfoventSensor(
+            HeatExchangerTypeSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_HEAT_EXCHANGER_TYPE,
                 entity_description=SensorEntityDescription(
@@ -322,7 +322,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_category=EntityCategory.DIAGNOSTIC,
                 ),
             ),
-            KomfoventSensor(
+            EnergyTotalSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_AHU_TOTAL,
                 entity_description=SensorEntityDescription(
@@ -334,7 +334,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=3,
                 ),
             ),
-            KomfoventSensor(
+            EnergyTotalSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_HEATER_TOTAL,
                 entity_description=SensorEntityDescription(
@@ -346,7 +346,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=3,
                 ),
             ),
-            KomfoventSensor(
+            EnergyTotalSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_RECOVERY_TOTAL,
                 entity_description=SensorEntityDescription(
@@ -358,7 +358,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=3,
                 ),
             ),
-            KomfoventSensor(
+            FirmwareVersionSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_FIRMWARE,
                 entity_description=SensorEntityDescription(
@@ -377,7 +377,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
     ]:
         entities.extend(
             [
-                KomfoventSensor(
+                TemperatureSensor(
                     coordinator=coordinator,
                     register_id=registers.REG_PANEL1_TEMP,
                     entity_description=SensorEntityDescription(
@@ -389,7 +389,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                         suggested_display_precision=1,
                     ),
                 ),
-                KomfoventSensor(
+                HumiditySensor(
                     coordinator=coordinator,
                     register_id=registers.REG_PANEL1_RH,
                     entity_description=SensorEntityDescription(
@@ -401,7 +401,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                         suggested_display_precision=0,
                     ),
                 ),
-                KomfoventSensor(
+                FirmwareVersionSensor(
                     coordinator=coordinator,
                     register_id=registers.REG_PANEL1_FW,
                     entity_description=SensorEntityDescription(
@@ -420,7 +420,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
     ]:
         entities.extend(
             [
-                KomfoventSensor(
+                TemperatureSensor(
                     coordinator=coordinator,
                     register_id=registers.REG_PANEL2_TEMP,
                     entity_description=SensorEntityDescription(
@@ -432,7 +432,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                         suggested_display_precision=1,
                     ),
                 ),
-                KomfoventSensor(
+                HumiditySensor(
                     coordinator=coordinator,
                     register_id=registers.REG_PANEL2_RH,
                     entity_description=SensorEntityDescription(
@@ -444,7 +444,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                         suggested_display_precision=0,
                     ),
                 ),
-                KomfoventSensor(
+                FirmwareVersionSensor(
                     coordinator=coordinator,
                     register_id=registers.REG_PANEL2_FW,
                     entity_description=SensorEntityDescription(
@@ -727,106 +727,3 @@ class ConnectedPanelsSensor(KomfoventSensor):
         except ValueError:
             return None
 
-    _attr_has_entity_name = True
-
-    def __init__(
-        self,
-        coordinator: KomfoventCoordinator,
-        register_id: int,
-        entity_description: SensorEntityDescription,
-    ) -> None:
-        """Initialize the sensor."""
-        super().__init__(coordinator)
-        self.register_id = register_id
-        self.entity_description = entity_description
-        self._attr_unique_id = f"{coordinator.config_entry.entry_id}_{register_id}"
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, coordinator.config_entry.entry_id)},
-            "name": coordinator.config_entry.title,
-            "manufacturer": "Komfovent",
-            "model": None,
-        }
-
-    @property
-    def native_value(self) -> StateType | date | datetime | Decimal:
-        """Return the state of the sensor."""
-        if not self.coordinator.data:
-            return None
-
-        value = self.coordinator.data.get(self.register_id)
-        if value is None:
-            return None
-
-        try:
-            # Apply transforms based on sensor type and register format
-            if self.entity_description.device_class == SensorDeviceClass.TEMPERATURE:
-                # All temperatures are x10 in Modbus registers
-                if isinstance(value, int | float):
-                    return float(value) / 10
-                return None
-            if self.register_id in X10_PERCENTAGE_FIELDS:
-                # These percentage fields are stored as actual value * 10
-                if isinstance(value, int | float):
-                    value = float(value) / 10
-                    if 0 <= value <= MAX_PERCENTAGE:
-                        return value
-                return None
-            if self.register_id in X100_FIELDS:
-                if isinstance(value, int | float):
-                    return float(value) / 100
-                return None
-            if self.register_id in WH_TO_KWH_FIELDS:
-                if isinstance(value, (int, float)):
-                    return float(value) / 1000  # Convert Wh to kWh
-                return None
-            if self.register_id in {
-                registers.REG_FIRMWARE,
-                registers.REG_PANEL1_FW,
-                registers.REG_PANEL2_FW,
-            }:
-                if isinstance(value, int):
-                    # Extract version numbers using bit shifts
-                    v1 = (value >> 24) & 0xFF  # First number (8 bits)
-                    v2 = (value >> 20) & 0xF  # Second number (4 bits)
-                    v3 = (value >> 12) & 0xFF  # Third number (8 bits)
-                    v4 = value & 0xFFF  # Fourth number (12 bits)
-                    if any([v1, v2, v3, v4]):
-                        return f"{v1}.{v2}.{v3}.{v4}"
-                return None
-            if self.entity_description.device_class == SensorDeviceClass.HUMIDITY:
-                # Validate RH values (0-125%)
-                if 0 <= float(value) <= MAX_HUMIDITY:
-                    return float(value)
-                return None
-            if self.entity_description.device_class == SensorDeviceClass.CO2:
-                # Validate CO2 values (0-2500 ppm)
-                if 0 <= float(value) <= MAX_CO2_PPM:
-                    return float(value)
-                return None
-            if self.register_id == registers.REG_SPI:
-                # Validate SPI values (0-5)
-                value = float(value) / 1000
-                if 0 <= value <= MAX_SPI:
-                    return value
-                return None
-            if self.entity_description.native_unit_of_measurement == "ppb":  # VOC
-                if not isinstance(value, int | float):
-                    return None
-                value = float(value)
-                if 0 <= value <= MAX_VOC_PPB:
-                    return value
-                return None
-            if self.register_id == registers.REG_HEAT_EXCHANGER_TYPE:
-                try:
-                    return HeatExchangerType(value).name
-                except ValueError:
-                    return None
-            if self.register_id == registers.REG_CONNECTED_PANELS:
-                try:
-                    return ConnectedPanels(value).name
-                except ValueError:
-                    return None
-
-            return float(value)
-        except (ValueError, TypeError):
-            return None
