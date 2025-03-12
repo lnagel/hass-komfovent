@@ -1,4 +1,5 @@
 """Configure pytest for Home Assistant test suite."""
+
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
