@@ -1,4 +1,5 @@
 """The Komfovent integration."""
+
 from __future__ import annotations
 
 import voluptuous as vol
