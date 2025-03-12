@@ -25,14 +25,15 @@ async def test_setup_entry(hass: HomeAssistant, mock_config_entry, mock_modbus_c
     # Initialize HomeAssistant data
     hass.data.setdefault(DOMAIN, {})
 
-    # Setup async mocks
-    mock_modbus_client.connect = AsyncMock(return_value=True)
-    mock_modbus_client.read_holding_registers = AsyncMock(return_value={1: 42})
+    # Create mock client with required async methods
+    mock_client = AsyncMock()
+    mock_client.connect = AsyncMock(return_value=True)
+    mock_client.read_holding_registers = AsyncMock(return_value={1: 42})
 
-    # Patch the modbus client
+    # Patch the client class
     with patch(
         "custom_components.komfovent.modbus.KomfoventModbusClient",
-        return_value=mock_modbus_client,
+        return_value=mock_client,
     ):
         # Setup the entry
         assert await async_setup_entry(hass, mock_config_entry)
@@ -48,5 +49,5 @@ async def test_setup_entry(hass: HomeAssistant, mock_config_entry, mock_modbus_c
         assert coordinator.data is not None
 
         # Verify connection methods were called
-        assert mock_modbus_client.connect.called
-        assert mock_modbus_client.read_holding_registers.called
+        assert mock_client.connect.called
+        assert mock_client.read_holding_registers.called
