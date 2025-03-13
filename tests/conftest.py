@@ -57,7 +57,7 @@ def mock_pymodbus_client() -> MagicMock:
 
 @pytest.fixture
 def mock_modbus_client(
-    register_data: dict[int, int], mock_pymodbus_client: MagicMock
+    register_data: dict[int, int]
 ) -> MagicMock:
     """Create a mock KomfoventModbusClient."""
     mock_client = MagicMock()
@@ -68,10 +68,7 @@ def mock_modbus_client(
     async def mock_read_registers(address: int, count: int) -> dict[int, int]:
         result = {}
         for reg in range(address, address + count):
-            if reg in register_data:
-                result[reg] = register_data[reg]
-            else:
-                result[reg] = 0
+            result[reg] = register_data.get(reg, 0)
         return result
 
     mock_client.read_holding_registers = AsyncMock(side_effect=mock_read_registers)
