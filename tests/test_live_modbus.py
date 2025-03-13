@@ -23,7 +23,7 @@ async def test_live_modbus_connection(hass: HomeAssistant):
     To run with socket connections enabled: pytest tests/test_live_modbus.py -v --socket-enabled
     """
     # Load test data
-    test_data_path = Path("documentation/C6M_holding_registers.json")
+    test_data_path = Path("documentation/C6_holding_registers.json")
     with test_data_path.open() as f:
         register_data = json.load(f)
         registers = {int(k) + 1: v for k, v in register_data.items()}
@@ -70,7 +70,7 @@ async def test_live_coordinator(hass: HomeAssistant):
     To run with socket connections enabled: pytest tests/test_live_modbus.py -v --socket-enabled
     """
     # Load test data
-    test_data_path = Path("documentation/C6M_holding_registers.json")
+    test_data_path = Path("documentation/C6_holding_registers.json")
     with test_data_path.open() as f:
         register_data = json.load(f)
         registers = {int(k) + 1: v for k, v in register_data.items()}
@@ -97,8 +97,8 @@ async def test_live_coordinator(hass: HomeAssistant):
         assert coordinator.data is not None
         assert len(coordinator.data) > 0
         assert coordinator.data[0] == 1
-        assert coordinator.data[999] == 289542195
-        assert coordinator.data[1001] == 17838114
+        assert coordinator.data[999] == 20037670
+        assert coordinator.data[1001] == 17838105
 
     finally:
         # Ensure client is closed
