@@ -40,22 +40,6 @@ def register_data() -> dict[int, int]:
 
 
 @pytest.fixture
-def mock_pymodbus_client() -> MagicMock:
-    """Create a mock for the AsyncModbusTcpClient."""
-    mock_client = MagicMock()
-    mock_client.connect = AsyncMock(return_value=True)
-    mock_client.close = AsyncMock()
-
-    # Create mock methods needed by the modbus implementation
-    mock_client.read_holding_registers = AsyncMock()
-    mock_client.read_holding_registers.return_value = MagicMock(registers=[0] * 10)
-
-    mock_client.write_register = AsyncMock()
-
-    return mock_client
-
-
-@pytest.fixture
 def mock_modbus_client(register_data: dict[int, int]) -> MagicMock:
     """Create a mock KomfoventModbusClient."""
     mock_client = MagicMock()
