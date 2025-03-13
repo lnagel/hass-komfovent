@@ -14,6 +14,6 @@ exclude = '''
 [tool.pytest.ini_options]
 pythonpath = "."
 asyncio_mode = "auto"
-testpaths = ["custom_components/komfovent/tests"]
+testpaths = ["tests"]
 norecursedirs = [".git", "testing_config"]
 asyncio_default_fixture_loop_scope = "function"
