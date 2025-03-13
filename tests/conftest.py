@@ -21,36 +21,37 @@ def hass() -> HomeAssistant:
     return hass_obj
 
 
-@pytest.fixture
-def register_data() -> dict[int, int]:
-    """Load register data from JSON file."""
-    json_file = Path("documentation/C6_holding_registers.json")
-
-    with json_file.open() as f:
-        data = json.load(f)
-
-    # Transform data to match expected format (address+1 for Modbus offset)
-    transformed_data = {}
-    for block_start, values in data.items():
-        block_start_int = int(block_start)
-        for i, value in enumerate(values):
-            transformed_data[block_start_int + i + 1] = value
-
-    return transformed_data
+@pytest.fixture(
+    params=list(Path(__file__).parent.glob("fixtures/*_registers_*.json")),
+)
+def mock_registers(request):
+    json_path = request.param
+    with open(json_path) as f:
+        return json_path.name, json.load(f)
 
 
 @pytest.fixture
-def mock_modbus_client(register_data: dict[int, int]) -> MagicMock:
+def mock_modbus_client() -> MagicMock:
     """Create a mock KomfoventModbusClient."""
     mock_client = MagicMock()
     mock_client.connect = AsyncMock(return_value=True)
     mock_client.close = AsyncMock()
 
+    json_file = Path(__file__).parent / Path("fixtures/C6_registers_0.json")
+
+    with json_file.open() as f:
+        register_data = json.load(f)
+        transformed_data = {}
+        for block_start, values in register_data.items():
+            block_start_int = int(block_start)
+            for i, value in enumerate(values):
+                transformed_data[block_start_int + i + 1] = value
+
     # Set up read_holding_registers to return data from our fixture
     async def mock_read_registers(address: int, count: int) -> dict[int, int]:
         result = {}
         for reg in range(address, address + count):
-            result[reg] = register_data.get(reg, 0)
+            result[reg] = transformed_data.get(reg, 0)
         return result
 
     mock_client.read_holding_registers = AsyncMock(side_effect=mock_read_registers)
