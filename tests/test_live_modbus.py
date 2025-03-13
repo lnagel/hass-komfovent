@@ -26,11 +26,10 @@ async def test_live_modbus_connection(hass: HomeAssistant):
     test_data_path = Path("documentation/C6_holding_registers.json")
     with test_data_path.open() as f:
         register_data = json.load(f)
-        registers = {int(k) + 1: v for k, v in register_data.items()}
 
     # Use non-privileged port for testing
     test_port = 5502
-    server_task = asyncio.create_task(run_server("127.0.0.1", test_port, registers))
+    server_task = asyncio.create_task(run_server("127.0.0.1", test_port, register_data))
 
     # Wait for server to start
     await asyncio.sleep(0.1)
@@ -73,11 +72,10 @@ async def test_live_coordinator(hass: HomeAssistant):
     test_data_path = Path("documentation/C6_holding_registers.json")
     with test_data_path.open() as f:
         register_data = json.load(f)
-        registers = {int(k) + 1: v for k, v in register_data.items()}
 
     # Use non-privileged port for testing
     test_port = 5503
-    server_task = asyncio.create_task(run_server("127.0.0.1", test_port, registers))
+    server_task = asyncio.create_task(run_server("127.0.0.1", test_port, register_data))
 
     # Wait for server to start
     await asyncio.sleep(0.1)

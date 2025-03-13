@@ -21,18 +21,21 @@ logging.basicConfig(level=logging.INFO)
 _LOGGER = logging.getLogger(__name__)
 
 
-async def run_server(host: str, port: int, registers: dict[str, int]) -> None:
+async def run_server(host: str, port: int, register_data: dict[str, [int]]) -> None:
     """
     Start the Modbus TCP server.
 
     Args:
         host: Network interface to bind to
         port: TCP port to listen on
-        registers: Dictionary of register addresses and values
+        register_data: Dictionary of register addresses and values
 
     """
+    # Convert register data to Modbus block format
+    block_values = {int(k) + 1: v for k, v in register_data.items()}
+
     # Initialize data storage
-    block = ModbusSparseDataBlock(registers)
+    block = ModbusSparseDataBlock(block_values)
     store = ModbusSlaveContext(hr=block)
     context = ModbusServerContext(slaves=store, single=True)
 
@@ -71,12 +74,9 @@ def main() -> None:
         input_path = Path(args.input)
         with input_path.open() as f:
             register_data = json.load(f)
-            registers = {int(k) + 1: v for k, v in register_data.items()}
-
-        _LOGGER.info("Loaded %d registers from %s", len(registers), args.input)
 
         # Run server
-        asyncio.run(run_server(args.host, args.port, registers))
+        asyncio.run(run_server(args.host, args.port, register_data))
 
     except (FileNotFoundError, json.JSONDecodeError, ValueError):
         _LOGGER.exception("Failed to load register data")
