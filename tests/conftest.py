@@ -56,9 +56,7 @@ def mock_pymodbus_client() -> MagicMock:
 
 
 @pytest.fixture
-def mock_modbus_client(
-    register_data: dict[int, int]
-) -> MagicMock:
+def mock_modbus_client(register_data: dict[int, int]) -> MagicMock:
     """Create a mock KomfoventModbusClient."""
     mock_client = MagicMock()
     mock_client.connect = AsyncMock(return_value=True)
