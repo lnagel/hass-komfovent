@@ -17,3 +17,6 @@ asyncio_mode = "auto"
 testpaths = ["tests"]
 norecursedirs = [".git", "testing_config"]
 asyncio_default_fixture_loop_scope = "function"
+markers = [
+    "enable_socket: mark test to run with real socket connections"
+]
