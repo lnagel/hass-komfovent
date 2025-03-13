@@ -1,6 +1,7 @@
 """Integration tests that use actual socket connections."""
 
 import asyncio
+import contextlib
 import json
 from pathlib import Path
 

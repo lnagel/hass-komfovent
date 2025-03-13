@@ -1,6 +1,6 @@
 """Tests for the Komfovent coordinator."""
 
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 from homeassistant.core import HomeAssistant
 
