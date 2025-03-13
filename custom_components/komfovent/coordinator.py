@@ -15,7 +15,6 @@ from .const import (
     DOMAIN,
     ConnectedPanels,
 )
-from .modbus import KomfoventModbusClient
 
 
 def process_register_block(block: dict[int, int]) -> dict[int, int]:
@@ -57,19 +56,29 @@ STATIC_DATA_ADDRESSES = {
 class KomfoventCoordinator(DataUpdateCoordinator):
     """Class to manage fetching Komfovent data."""
 
-    def __init__(self, hass: HomeAssistant, host: str, port: int) -> None:
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        host: str,
+        port: int,
+        **kwargs: Any,
+    ) -> None:
         """Initialize."""
-        super().__init__(
-            hass,
-            _LOGGER,
-            name=DOMAIN,
-            update_interval=timedelta(seconds=DEFAULT_SCAN_INTERVAL),
-        )
+        from .modbus import KomfoventModbusClient  # easier to mock
+
+        kwargs.setdefault("name", DOMAIN)
+        kwargs.setdefault("update_interval", timedelta(seconds=DEFAULT_SCAN_INTERVAL))
+
+        super().__init__(hass, _LOGGER, **kwargs)
         self.client = KomfoventModbusClient(host, port)
 
     async def connect(self) -> bool:
         """Connect to the Modbus device."""
-        await self.client.connect()
+        connected = await self.client.connect()
+
+        if not connected:
+            _LOGGER.error("Failed to connect")
+            return False
 
         data = {}
 

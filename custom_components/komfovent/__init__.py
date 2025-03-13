@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 import voluptuous as vol
 from homeassistant.const import CONF_HOST, CONF_NAME, CONF_PORT, Platform
+from homeassistant.exceptions import ConfigEntryNotReady
 
 from .const import DEFAULT_NAME, DEFAULT_PORT, DOMAIN
 from .coordinator import KomfoventCoordinator
@@ -42,7 +43,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     coordinator = KomfoventCoordinator(
         hass, entry.data[CONF_HOST], entry.data[CONF_PORT]
     )
-    await coordinator.connect()
+
+    connected = await coordinator.connect()
+    connection_error = "Failed to connect to Komfovent device"
+    if not connected:
+        raise ConfigEntryNotReady(connection_error)
 
     await coordinator.async_config_entry_first_refresh()
 
