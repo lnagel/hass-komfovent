@@ -23,13 +23,11 @@ async def test_live_modbus_connection(hass: HomeAssistant, mock_registers):
     This test requires a running modbus server and will be skipped by default.
     To run with socket connections enabled: pytest tests/test_live_modbus.py -v --socket-enabled
     """
-    mock_register_name, mock_register_data = mock_registers
+    register_name, register_data = mock_registers
 
     # Use non-privileged port for testing
     test_port = random.randint(1000, 50000)
-    server_task = asyncio.create_task(
-        run_server("127.0.0.1", test_port, mock_register_data)
-    )
+    server_task = asyncio.create_task(run_server("127.0.0.1", test_port, register_data))
 
     # Wait for server to start
     await asyncio.sleep(0.1)
@@ -68,13 +66,11 @@ async def test_live_coordinator(hass: HomeAssistant, mock_registers):
     This test requires a running modbus server and will be skipped by default.
     To run with socket connections enabled: pytest tests/test_live_modbus.py -v --socket-enabled
     """
-    mock_register_name, mock_register_data = mock_registers
+    register_name, register_data = mock_registers
 
     # Use non-privileged port for testing
     test_port = random.randint(1000, 50000)
-    server_task = asyncio.create_task(
-        run_server("127.0.0.1", test_port, mock_register_data)
-    )
+    server_task = asyncio.create_task(run_server("127.0.0.1", test_port, register_data))
 
     # Wait for server to start
     await asyncio.sleep(0.1)
@@ -93,9 +89,18 @@ async def test_live_coordinator(hass: HomeAssistant, mock_registers):
         # Verify data
         assert coordinator.data is not None
         assert len(coordinator.data) > 0
-        assert coordinator.data[0] == 1
-        # assert coordinator.data[999] == mock_register_data[999]
-        # assert coordinator.data[1001] == mock_register_data[1001]
+
+        # Verify 16-bit register
+        assert coordinator.data[0] == register_data["0"][0]
+
+        # Verify 32-bit register
+        if register_data["999"]:
+            assert (
+                coordinator.data[999]
+                == (register_data["999"][0] << 16) + register_data["999"][1]
+            )
+        else:
+            assert 999 not in coordinator.data
 
     finally:
         # Ensure client is closed
