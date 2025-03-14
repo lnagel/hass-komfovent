@@ -29,8 +29,8 @@ INTEGRATION_RANGES = [
     (399, 100),  # scheduler 299-554
     (499, 56),  # scheduler 299-554
     (599, 11),  # active alarms 599-609
-    (610, 89),  # alarm history 610-868
-    (699, 100),  # alarm history 610-868
+    (610, 89),  # alarm history 610-860
+    (699, 100),  # alarm history 610-860
     (799, 62),  # alarm history 610-860
     (899, 57),  # detailed information 899-955
     (999, 2),  # controller firmware 999-1000
