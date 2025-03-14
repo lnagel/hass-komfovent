@@ -37,6 +37,7 @@ INTEGRATION_RANGES = [
     (1001, 2),  # panel 1 firmware 1001-1002
     (1003, 2),  # panel 2 firmware 1003-1004
     # reset settings 1049
+    # clean filters calibration 1050
 ]
 MOBILE_APP_RANGES = [
     (10802, 1),
