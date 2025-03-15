@@ -328,7 +328,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     key="supply_flow",
                     name="Supply Flow",
                     state_class=SensorStateClass.MEASUREMENT,
-                    suggested_display_precision=1,
+                    suggested_display_precision=0,
                 ),
             ),
             FlowSensor(
@@ -338,7 +338,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     key="extract_flow",
                     name="Extract Flow",
                     state_class=SensorStateClass.MEASUREMENT,
-                    suggested_display_precision=1,
+                    suggested_display_precision=0,
                 ),
             ),
             FloatX1000Sensor(
