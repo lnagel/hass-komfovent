@@ -162,7 +162,7 @@ class KomfoventCoordinator(DataUpdateCoordinator):
             )
             data.update(process_register_block(alarms_block))
 
-            # Read sensor block (900-961)
+            # Read sensor block (900-956)
             sensor_block = await self.client.read_registers(registers.REG_STATUS, 57)
             data.update(process_register_block(sensor_block))
 
