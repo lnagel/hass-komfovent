@@ -23,7 +23,8 @@ logger = logging.getLogger(__name__)
 INTEGRATION_RANGES = [
     (1, 34),  # primary control block 1-34
     (100, 57),  # modes 100-156
-    (200, 18),  # eco and air quality 200-216 + 1 unknown
+    (200, 17),  # eco and air quality 200-216
+    (217, 1),  # unknown
     (300, 100),  # scheduler 300-555
     (400, 100),  # scheduler 400-555
     (500, 56),  # scheduler 500-555
