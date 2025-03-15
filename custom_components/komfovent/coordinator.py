@@ -140,29 +140,29 @@ class KomfoventCoordinator(DataUpdateCoordinator):
                 data[reg] = self.data[reg]
 
         try:
-            # Read basic control block (0-33)
+            # Read basic control block (1-34)
             basic_control = await self.client.read_registers(registers.REG_POWER, 34)
             data.update(process_register_block(basic_control))
 
-            # Read modes (99-155)
+            # Read modes (100-156)
             modes_block = await self.client.read_registers(
                 registers.REG_AWAY_FAN_SUPPLY, 57
             )
             data.update(process_register_block(modes_block))
 
-            # Read Eco and air quality blocks (199-213)
+            # Read Eco and air quality blocks (200-214)
             eco_auto_block = await self.client.read_registers(
                 registers.REG_ECO_MIN_TEMP, 15
             )
             data.update(process_register_block(eco_auto_block))
 
-            # Read active alarms block (599-609)
+            # Read active alarms block (600-610)
             alarms_block = await self.client.read_registers(
                 registers.REG_ACTIVE_ALARMS_COUNT, 11
             )
             data.update(process_register_block(alarms_block))
 
-            # Read sensor block (899-955)
+            # Read sensor block (900-961)
             sensor_block = await self.client.read_registers(registers.REG_STATUS, 57)
             data.update(process_register_block(sensor_block))
 
