@@ -683,7 +683,7 @@ class HeatExchangerTypeSensor(KomfoventSensor):
             return None
 
         try:
-            return HeatExchangerType(value).name
+            return HeatExchangerType(value).name.lower()
         except ValueError:
             return None
 
@@ -699,7 +699,7 @@ class ConnectedPanelsSensor(KomfoventSensor):
             return None
 
         try:
-            return ConnectedPanels(value).name
+            return ConnectedPanels(value).name.lower()
         except ValueError:
             return None
 
@@ -715,6 +715,6 @@ class FlowUnitSensor(KomfoventSensor):
             return None
 
         try:
-            return FlowUnit(value).name
+            return FlowUnit(value).name.lower()
         except ValueError:
             return None
