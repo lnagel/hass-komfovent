@@ -22,41 +22,41 @@ logger = logging.getLogger(__name__)
 
 
 INTEGRATION_RANGES = [
-    (0, 34),  # primary control block 0-33
-    (99, 57),  # modes 99-155
-    (199, 15),  # eco and air quality 199-213
-    (299, 100),  # scheduler 299-554
-    (399, 100),  # scheduler 299-554
-    (499, 56),  # scheduler 299-554
-    (599, 11),  # active alarms 599-609
-    (610, 89),  # alarm history 610-860
-    (699, 100),  # alarm history 610-860
-    (799, 62),  # alarm history 610-860
-    (899, 57),  # detailed information 899-955
-    (957, 3),  # digital outputs 957-959
-    (960, 1),  # exhaust temperature 960
-    (999, 2),  # controller firmware 999-1000
-    (1001, 2),  # panel 1 firmware 1001-1002
-    (1003, 2),  # panel 2 firmware 1003-1004
-    # reset settings 1049
-    # clean filters calibration 1050
+    (1, 34),  # primary control block 1-34
+    (100, 57),  # modes 100-156
+    (200, 15),  # eco and air quality 200-214
+    (300, 100),  # scheduler 300-555
+    (400, 100),  # scheduler 400-555
+    (500, 56),  # scheduler 500-555
+    (600, 11),  # active alarms 600-610
+    (611, 89),  # alarm history 611-861
+    (700, 100),  # alarm history 700-861
+    (800, 62),  # alarm history 800-861
+    (900, 57),  # detailed information 900-956
+    (958, 3),  # digital outputs 958-960
+    (961, 1),  # exhaust temperature 961
+    (1000, 2),  # controller firmware 1000-1001
+    (1002, 2),  # panel 1 firmware 1002-1003
+    (1004, 2),  # panel 2 firmware 1004-1005
+    # reset settings 1050
+    # clean filters calibration 1051
 ]
 MOBILE_APP_RANGES = [
-    (10802, 1),
-    (4999, 47),
-    (5199, 49),
-    (5099, 65),
-    (5599, 8),
-    (6100, 21),
-    (5999, 6),
-    (5579, 11),
-    (7001, 2),
-    (5699, 65),
-    (5764, 64),
-    (5828, 64),
-    (5892, 64),
-    (5299, 125),
-    (5424, 125),
+    (10803, 1),
+    (5000, 47),
+    (5200, 49),
+    (5100, 65),
+    (5600, 8),
+    (6101, 21),
+    (6000, 6),
+    (5580, 11),
+    (7002, 2),
+    (5700, 65),
+    (5765, 64),
+    (5829, 64),
+    (5893, 64),
+    (5300, 125),
+    (5425, 125),
 ]
 RANGES = INTEGRATION_RANGES + MOBILE_APP_RANGES
 
@@ -70,7 +70,7 @@ async def dump_registers(host: str, port: int) -> dict[int, list[int]]:
         port: Modbus TCP port number
 
     Returns:
-        Dictionary mapping register addresses to list of register values
+        Dictionary mapping register numbers to list of register values
 
     Raises:
         ConnectionError: If connection to device fails
@@ -85,15 +85,15 @@ async def dump_registers(host: str, port: int) -> dict[int, list[int]]:
 
     results: dict[int, list[int]] = {}
     try:
-        for address, count in RANGES:
+        for start, count in RANGES:
             try:
                 response = await client.read_holding_registers(
-                    address=address, count=count
+                    address=start - 1, count=count
                 )
-                results[address] = response.registers
-                logger.info("Register %d: %s", address, response.registers)
+                results[start] = response.registers
+                logger.info("Register %d: %s", start, response.registers)
             except ModbusException:
-                logger.error("Register %d: Modbus error", address)  # noqa: TRY400
+                logger.error("Register %d: Modbus error", start)  # noqa: TRY400
 
             await asyncio.sleep(0.1)
 

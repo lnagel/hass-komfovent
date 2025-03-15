@@ -44,13 +44,13 @@ def mock_modbus_client() -> MagicMock:
         transformed_data = {}
         for block_start, values in register_data.items():
             block_start_int = int(block_start)
-            for i, value in enumerate(values):
-                transformed_data[block_start_int + i + 1] = value
+            for reg, value in enumerate(values, start=block_start_int):
+                transformed_data[reg] = value
 
     # Set up read_holding_registers to return data from our fixture
-    async def mock_read_registers(address: int, count: int) -> dict[int, int]:
+    async def mock_read_registers(register: int, count: int) -> dict[int, int]:
         result = {}
-        for reg in range(address, address + count):
+        for reg in range(register, register + count):
             result[reg] = transformed_data.get(reg, 0)
         return result
 
