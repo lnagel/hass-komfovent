@@ -36,7 +36,7 @@ from .const import (
     DOMAIN,
     AirQualitySensorType,
     ConnectedPanels,
-    FlowUnits,
+    FlowUnit,
     HeatExchangerType,
 )
 
@@ -311,12 +311,12 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_category=EntityCategory.DIAGNOSTIC,
                 ),
             ),
-            FlowUnitsSensor(
+            FlowUnitSensor(
                 coordinator=coordinator,
-                register_id=registers.REG_FLOW_UNITS,
+                register_id=registers.REG_FLOW_UNIT,
                 entity_description=SensorEntityDescription(
-                    key="flow_units",
-                    name="Flow Units",
+                    key="flow_unit",
+                    name="Flow Unit",
                     entity_category=EntityCategory.DIAGNOSTIC,
                 ),
             ),
@@ -704,8 +704,8 @@ class ConnectedPanelsSensor(KomfoventSensor):
             return None
 
 
-class FlowUnitsSensor(KomfoventSensor):
-    """Flow units sensor."""
+class FlowUnitSensor(KomfoventSensor):
+    """Flow unit sensor."""
 
     @property
     def native_value(self) -> StateType:
@@ -715,6 +715,6 @@ class FlowUnitsSensor(KomfoventSensor):
             return None
 
         try:
-            return FlowUnits(value).name
+            return FlowUnit(value).name
         except ValueError:
             return None
