@@ -40,32 +40,15 @@ from .const import (
 )
 
 # Constants for value validation
+MIN_DUTY_CYCLE = 0
+MAX_DUTY_CYCLE = 100
+MIN_TEMPERATURE = -50
+MAX_TEMPERATURE = 120
 MAX_PERCENTAGE = 100
 MAX_HUMIDITY = 125
 MAX_CO2_PPM = 2500
 MAX_SPI = 5
 MAX_VOC_PPB = 2000
-
-X100_FIELDS = {
-    registers.REG_INDOOR_ABS_HUMIDITY,
-}
-
-# Fields that need to be converted from Wh to kWh (divide by 1000)
-WH_TO_KWH_FIELDS = {
-    registers.REG_AHU_TOTAL,
-    registers.REG_HEATER_TOTAL,
-    registers.REG_RECOVERY_TOTAL,
-}
-
-X10_PERCENTAGE_FIELDS = {
-    registers.REG_SUPPLY_FAN_INTENSITY,
-    registers.REG_EXTRACT_FAN_INTENSITY,
-    registers.REG_HEAT_EXCHANGER,
-    registers.REG_ELECTRIC_HEATER,
-    registers.REG_WATER_HEATER,
-    registers.REG_WATER_COOLER,
-    registers.REG_DX_UNIT,
-}
 
 
 def create_aq_sensor(
@@ -128,7 +111,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
     # Add core sensors
     entities.extend(
         [
-            FloatX10Sensor(
+            TemperatureSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_SUPPLY_TEMP,
                 entity_description=SensorEntityDescription(
@@ -140,7 +123,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=1,
                 ),
             ),
-            FloatX10Sensor(
+            TemperatureSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_EXTRACT_TEMP,
                 entity_description=SensorEntityDescription(
@@ -152,7 +135,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=1,
                 ),
             ),
-            FloatX10Sensor(
+            TemperatureSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_OUTDOOR_TEMP,
                 entity_description=SensorEntityDescription(
@@ -164,7 +147,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=1,
                 ),
             ),
-            FloatX10Sensor(
+            DutyCycleSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_SUPPLY_FAN_INTENSITY,
                 entity_description=SensorEntityDescription(
@@ -175,7 +158,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=0,
                 ),
             ),
-            FloatX10Sensor(
+            DutyCycleSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_EXTRACT_FAN_INTENSITY,
                 entity_description=SensorEntityDescription(
@@ -186,7 +169,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=0,
                 ),
             ),
-            FloatX10Sensor(
+            DutyCycleSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_HEAT_EXCHANGER,
                 entity_description=SensorEntityDescription(
@@ -197,7 +180,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=0,
                 ),
             ),
-            FloatX10Sensor(
+            DutyCycleSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_ELECTRIC_HEATER,
                 entity_description=SensorEntityDescription(
@@ -382,7 +365,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
     ]:
         entities.extend(
             [
-                FloatX10Sensor(
+                TemperatureSensor(
                     coordinator=coordinator,
                     register_id=registers.REG_PANEL1_TEMP,
                     entity_description=SensorEntityDescription(
@@ -425,7 +408,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
     ]:
         entities.extend(
             [
-                FloatX10Sensor(
+                TemperatureSensor(
                     coordinator=coordinator,
                     register_id=registers.REG_PANEL2_TEMP,
                     entity_description=SensorEntityDescription(
@@ -586,6 +569,36 @@ class FirmwareVersionSensor(KomfoventSensor):
         v4 = value & 0xFFF
         if any([v1, v2, v3, v4]):
             return f"{v1}.{v2}.{v3}.{v4}"
+        return None
+
+
+class DutyCycleSensor(FloatX10Sensor):
+    """Temperature sensor with range validation."""
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the temperature value if within valid range."""
+        value = super().native_value
+        if value is None:
+            return None
+
+        if MIN_DUTY_CYCLE <= value <= MAX_DUTY_CYCLE:
+            return value
+        return None
+
+
+class TemperatureSensor(FloatX10Sensor):
+    """Temperature sensor with range validation."""
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the temperature value if within valid range."""
+        value = super().native_value
+        if value is None:
+            return None
+
+        if MIN_TEMPERATURE <= value <= MAX_TEMPERATURE:
+            return value
         return None
 
 

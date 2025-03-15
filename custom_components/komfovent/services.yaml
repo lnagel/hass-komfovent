@@ -9,3 +9,15 @@ set_system_time:
       selector:
         config_entry:
           integration: komfovent
+
+clean_filters_calibration:
+  name: Clean Filters Calibration
+  description: Calibrate clean filters on the Komfovent unit
+  fields:
+    config_entry:
+      name: Config Entry
+      description: The config entry ID of the Komfovent unit
+      required: true
+      selector:
+        config_entry:
+          integration: komfovent

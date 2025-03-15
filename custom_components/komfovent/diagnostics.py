@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import logging
 from typing import TYPE_CHECKING, Any
 
@@ -94,8 +93,6 @@ async def dump_registers(host: str, port: int) -> dict[int, list[int]]:
                 logger.info("Register %d: %s", start, response.registers)
             except ModbusException:
                 logger.error("Register %d: Modbus error", start)  # noqa: TRY400
-
-            await asyncio.sleep(0.1)
 
     finally:
         client.close()

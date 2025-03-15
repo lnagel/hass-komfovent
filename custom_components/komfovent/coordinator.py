@@ -22,7 +22,7 @@ def process_register_block(block: dict[int, int]) -> dict[int, int]:
     Process a block of register values handling 16/32 bit registers.
 
     Args:
-        block: Dictionary of register values from read_holding_registers
+        block: Dictionary of register values from read_registers
 
     Returns:
         Dictionary of processed register values
@@ -83,7 +83,7 @@ class KomfoventCoordinator(DataUpdateCoordinator):
 
         # Read connected panels
         try:
-            connected_panels_block = await self.client.read_holding_registers(
+            connected_panels_block = await self.client.read_registers(
                 registers.REG_CONNECTED_PANELS, 1
             )
             data.update(process_register_block(connected_panels_block))
@@ -93,9 +93,7 @@ class KomfoventCoordinator(DataUpdateCoordinator):
 
         # Read controller firmware version
         try:
-            firmware_block = await self.client.read_holding_registers(
-                registers.REG_FIRMWARE, 2
-            )
+            firmware_block = await self.client.read_registers(registers.REG_FIRMWARE, 2)
             data.update(process_register_block(firmware_block))
         except (ConnectionError, ModbusException) as error:
             _LOGGER.warning("Failed to read controller firmware version: %s", error)
@@ -107,7 +105,7 @@ class KomfoventCoordinator(DataUpdateCoordinator):
             ConnectedPanels.BOTH,
         ]:
             try:
-                panel1_block = await self.client.read_holding_registers(
+                panel1_block = await self.client.read_registers(
                     registers.REG_PANEL1_FW, 2
                 )
                 data.update(process_register_block(panel1_block))
@@ -121,7 +119,7 @@ class KomfoventCoordinator(DataUpdateCoordinator):
             ConnectedPanels.BOTH,
         ]:
             try:
-                panel2_block = await self.client.read_holding_registers(
+                panel2_block = await self.client.read_registers(
                     registers.REG_PANEL2_FW, 2
                 )
                 data.update(process_register_block(panel2_block))
@@ -143,33 +141,29 @@ class KomfoventCoordinator(DataUpdateCoordinator):
 
         try:
             # Read basic control block (0-33)
-            basic_control = await self.client.read_holding_registers(
-                registers.REG_POWER, 34
-            )
+            basic_control = await self.client.read_registers(registers.REG_POWER, 34)
             data.update(process_register_block(basic_control))
 
             # Read modes (99-155)
-            modes_block = await self.client.read_holding_registers(
+            modes_block = await self.client.read_registers(
                 registers.REG_AWAY_FAN_SUPPLY, 57
             )
             data.update(process_register_block(modes_block))
 
             # Read Eco and air quality blocks (199-213)
-            eco_auto_block = await self.client.read_holding_registers(
+            eco_auto_block = await self.client.read_registers(
                 registers.REG_ECO_MIN_TEMP, 15
             )
             data.update(process_register_block(eco_auto_block))
 
             # Read active alarms block (599-609)
-            alarms_block = await self.client.read_holding_registers(
+            alarms_block = await self.client.read_registers(
                 registers.REG_ACTIVE_ALARMS_COUNT, 11
             )
             data.update(process_register_block(alarms_block))
 
             # Read sensor block (899-955)
-            sensor_block = await self.client.read_holding_registers(
-                registers.REG_STATUS, 57
-            )
+            sensor_block = await self.client.read_registers(registers.REG_STATUS, 57)
             data.update(process_register_block(sensor_block))
 
         except (ConnectionError, ModbusException) as error:
