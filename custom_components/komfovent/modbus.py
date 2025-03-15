@@ -52,7 +52,7 @@ class KomfoventModbusClient:
         """Write to holding register."""
         async with self._lock:
             if register in REGISTERS_16BIT:
-                result = await self.client.write_register(register, value, slave=1)
+                result = await self.client.write_register(register - 1, value, slave=1)
             elif register in REGISTERS_32BIT:
                 # Split 32-bit value into two 16-bit values
                 high_word = (value >> 16) & 0xFFFF
