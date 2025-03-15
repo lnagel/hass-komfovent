@@ -310,6 +310,15 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_category=EntityCategory.DIAGNOSTIC,
                 ),
             ),
+            FlowUnitsSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_FLOW_UNITS,
+                entity_description=SensorEntityDescription(
+                    key="flow_units",
+                    name="Flow Units",
+                    entity_category=EntityCategory.DIAGNOSTIC,
+                ),
+            ),
             FloatX1000Sensor(
                 coordinator=coordinator,
                 register_id=registers.REG_AHU_TOTAL,
