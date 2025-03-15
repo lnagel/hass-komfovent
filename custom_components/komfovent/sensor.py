@@ -324,6 +324,28 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             ),
             FlowSensor(
                 coordinator=coordinator,
+                register_id=registers.REG_MAX_SUPPLY_FLOW,
+                entity_description=SensorEntityDescription(
+                    key="max_supply_flow",
+                    name="Maximum Supply Flow",
+                    state_class=SensorStateClass.MEASUREMENT,
+                    suggested_display_precision=0,
+                    entity_category=EntityCategory.DIAGNOSTIC,
+                ),
+            ),
+            FlowSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_MAX_EXTRACT_FLOW,
+                entity_description=SensorEntityDescription(
+                    key="max_extract_flow",
+                    name="Maximum Extract Flow",
+                    state_class=SensorStateClass.MEASUREMENT,
+                    suggested_display_precision=0,
+                    entity_category=EntityCategory.DIAGNOSTIC,
+                ),
+            ),
+            FlowSensor(
+                coordinator=coordinator,
                 register_id=registers.REG_SUPPLY_FLOW,
                 entity_description=SensorEntityDescription(
                     key="supply_flow",
