@@ -710,16 +710,8 @@ class FlowSensor(FloatSensor):
 
     @property
     def native_value(self) -> StateType:
-        """Return the flow value with unit conversion if needed."""
-        value = super().native_value
-        if value is None:
-            return None
-
-        flow_unit = self.coordinator.data.get(registers.REG_FLOW_UNIT)
-        if flow_unit == FlowUnit.LS:
-            # Convert from m³/h to l/s
-            return round(value / 3.6, 1)
-        return value
+        """Return the flow value."""
+        return super().native_value
 
 
 class HeatExchangerTypeSensor(KomfoventSensor):
