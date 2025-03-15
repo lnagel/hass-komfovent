@@ -113,7 +113,7 @@ REG_HEATING_DENIED = 203  # Heating enable denied
 REG_COOLING_DENIED = 204  # Cooling enable denied
 
 # Air quality settings
-REG_AQ_ENABLE = 205  # Air quality Enable
+REG_AQ_IMPURITY_CONTROL = 205  # Impurity control
 REG_AQ_TEMP_SETPOINT = 206  # Temperature setpoint
 REG_CO2_SETPOINT = 207  # CO2 setpoint
 REG_HUMIDITY_SETPOINT = 208  # Humidity setpoint
@@ -123,6 +123,8 @@ REG_AQ_HEATING = 211  # Air quality heating
 REG_AQ_CHECK_PERIOD = 212  # Air quality check period
 REG_AQ_SENSOR1_TYPE = 213  # Air quality sensor 1 type
 REG_AQ_SENSOR2_TYPE = 214  # Air quality sensor 2 type
+REG_AQ_HUMIDITY_CONTROL = 215  # Humidity control
+REG_AQ_OUTDOOR_HUMIDITY = 216  # Outdoor humidity sensor
 
 # Alarm registers
 REG_ACTIVE_ALARMS_COUNT = (
@@ -270,7 +272,7 @@ REGISTERS_16BIT = {
     REG_FREE_HEATING,
     REG_HEATING_DENIED,
     REG_COOLING_DENIED,
-    REG_AQ_ENABLE,
+    REG_AQ_IMPURITY_CONTROL,
     REG_AQ_TEMP_SETPOINT,
     REG_CO2_SETPOINT,
     REG_HUMIDITY_SETPOINT,
@@ -280,6 +282,8 @@ REGISTERS_16BIT = {
     REG_AQ_CHECK_PERIOD,
     REG_AQ_SENSOR1_TYPE,
     REG_AQ_SENSOR2_TYPE,
+    REG_AQ_HUMIDITY_CONTROL,
+    REG_AQ_OUTDOOR_HUMIDITY,
     REG_ACTIVE_ALARMS_COUNT,
     REG_ACTIVE_ALARM1,
     REG_ACTIVE_ALARM2,

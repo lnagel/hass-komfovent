@@ -88,9 +88,9 @@ class KomfoventCoordinator(DataUpdateCoordinator):
             )
             data.update(process_register_block(modes_block))
 
-            # Read Eco and air quality blocks (200-214)
+            # Read Eco and air quality blocks (200-216)
             eco_auto_block = await self.client.read_registers(
-                registers.REG_ECO_MIN_TEMP, 15
+                registers.REG_ECO_MIN_TEMP, 17
             )
             data.update(process_register_block(eco_auto_block))
 
