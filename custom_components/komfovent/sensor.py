@@ -334,7 +334,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 coordinator=coordinator,
                 register_id=registers.REG_EXTRACT_FLOW,
                 entity_description=SensorEntityDescription(
-                    key="extract_flow", 
+                    key="extract_flow",
                     name="Extract Flow",
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=1,
