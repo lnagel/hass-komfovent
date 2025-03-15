@@ -36,6 +36,7 @@ from .const import (
     DOMAIN,
     AirQualitySensorType,
     ConnectedPanels,
+    FlowUnits,
     HeatExchangerType,
 )
 
