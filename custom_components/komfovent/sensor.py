@@ -708,10 +708,6 @@ class FlowSensor(FloatSensor):
             return "l/s"
         return None
 
-    @property
-    def native_value(self) -> StateType:
-        """Return the flow value."""
-        return super().native_value
 
 
 class HeatExchangerTypeSensor(KomfoventSensor):
