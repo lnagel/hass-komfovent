@@ -37,6 +37,7 @@ from .const import (
     DOMAIN,
     AirQualitySensorType,
     ConnectedPanels,
+    FlowControl,
     FlowUnit,
     HeatExchangerType,
 )
@@ -702,11 +703,16 @@ class FlowSensor(FloatSensor):
         if not self.coordinator.data:
             return None
 
+        flow_control = self.coordinator.data.get(registers.REG_FLOW_CONTROL)
+        if flow_control == FlowControl.OFF:
+            return PERCENTAGE
+
         flow_unit = self.coordinator.data.get(registers.REG_FLOW_UNIT)
         if flow_unit == FlowUnit.M3H:
             return UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR
         if flow_unit == FlowUnit.LS:
             return UnitOfVolumeFlowRate.LITERS_PER_SECOND
+
         return None
 
 
