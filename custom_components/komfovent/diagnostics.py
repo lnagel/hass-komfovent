@@ -24,13 +24,12 @@ INTEGRATION_RANGES = [
     (1, 34),  # primary control block 1-34
     (100, 57),  # modes 100-156
     (200, 17),  # eco and air quality 200-216
-    (217, 1),  # unknown
     (300, 100),  # scheduler 300-555
     (400, 100),  # scheduler 400-555
     (500, 56),  # scheduler 500-555
     (600, 11),  # active alarms 600-610
-    (611, 89),  # alarm history 611-861
-    (700, 100),  # alarm history 700-861
+    (611, 89),  # alarm history 611-699
+    (700, 100),  # alarm history 700-799
     (800, 62),  # alarm history 800-861
     (900, 57),  # detailed information 900-956
     (958, 3),  # digital outputs 958-960
@@ -58,7 +57,13 @@ MOBILE_APP_RANGES = [
     (5300, 125),
     (5425, 125),
 ]
-RANGES = INTEGRATION_RANGES + MOBILE_APP_RANGES
+UNKNOWN_RANGES = [
+    (35, 10),  # unknown 35-44
+    (157, 6),  # unknown 157-162
+    (217, 1),  # unknown 217
+    (957, 1),  # unknown 957
+]
+RANGES = INTEGRATION_RANGES + MOBILE_APP_RANGES + UNKNOWN_RANGES
 
 
 async def dump_registers(host: str, port: int) -> dict[int, list[int]]:
