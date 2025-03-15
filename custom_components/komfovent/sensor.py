@@ -40,6 +40,8 @@ from .const import (
 )
 
 # Constants for value validation
+MIN_TEMPERATURE = -50
+MAX_TEMPERATURE = 120
 MAX_PERCENTAGE = 100
 MAX_HUMIDITY = 125
 MAX_CO2_PPM = 2500
@@ -599,7 +601,7 @@ class TemperatureSensor(FloatX10Sensor):
         if value is None:
             return None
 
-        if -50 <= value <= 120:
+        if MIN_TEMPERATURE <= value <= MAX_TEMPERATURE:
             return value
         return None
 
