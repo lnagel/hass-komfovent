@@ -40,6 +40,8 @@ from .const import (
 )
 
 # Constants for value validation
+MIN_DUTY_CYCLE = 0
+MAX_DUTY_CYCLE = 100
 MIN_TEMPERATURE = -50
 MAX_TEMPERATURE = 120
 MAX_PERCENTAGE = 100
@@ -145,7 +147,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=1,
                 ),
             ),
-            FloatX10Sensor(
+            DutyCycleSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_SUPPLY_FAN_INTENSITY,
                 entity_description=SensorEntityDescription(
@@ -156,7 +158,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=0,
                 ),
             ),
-            FloatX10Sensor(
+            DutyCycleSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_EXTRACT_FAN_INTENSITY,
                 entity_description=SensorEntityDescription(
@@ -167,7 +169,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=0,
                 ),
             ),
-            FloatX10Sensor(
+            DutyCycleSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_HEAT_EXCHANGER,
                 entity_description=SensorEntityDescription(
@@ -178,7 +180,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=0,
                 ),
             ),
-            FloatX10Sensor(
+            DutyCycleSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_ELECTRIC_HEATER,
                 entity_description=SensorEntityDescription(
@@ -567,6 +569,21 @@ class FirmwareVersionSensor(KomfoventSensor):
         v4 = value & 0xFFF
         if any([v1, v2, v3, v4]):
             return f"{v1}.{v2}.{v3}.{v4}"
+        return None
+
+
+class DutyCycleSensor(FloatX10Sensor):
+    """Temperature sensor with range validation."""
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the temperature value if within valid range."""
+        value = super().native_value
+        if value is None:
+            return None
+
+        if MIN_DUTY_CYCLE <= value <= MAX_DUTY_CYCLE:
+            return value
         return None
 
 
