@@ -48,27 +48,6 @@ MAX_CO2_PPM = 2500
 MAX_SPI = 5
 MAX_VOC_PPB = 2000
 
-X100_FIELDS = {
-    registers.REG_INDOOR_ABS_HUMIDITY,
-}
-
-# Fields that need to be converted from Wh to kWh (divide by 1000)
-WH_TO_KWH_FIELDS = {
-    registers.REG_AHU_TOTAL,
-    registers.REG_HEATER_TOTAL,
-    registers.REG_RECOVERY_TOTAL,
-}
-
-X10_PERCENTAGE_FIELDS = {
-    registers.REG_SUPPLY_FAN_INTENSITY,
-    registers.REG_EXTRACT_FAN_INTENSITY,
-    registers.REG_HEAT_EXCHANGER,
-    registers.REG_ELECTRIC_HEATER,
-    registers.REG_WATER_HEATER,
-    registers.REG_WATER_COOLER,
-    registers.REG_DX_UNIT,
-}
-
 
 def create_aq_sensor(
     coordinator: KomfoventCoordinator, register_id: int
