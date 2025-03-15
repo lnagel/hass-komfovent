@@ -692,3 +692,19 @@ class ConnectedPanelsSensor(KomfoventSensor):
             return ConnectedPanels(value).name
         except ValueError:
             return None
+
+
+class FlowUnitsSensor(KomfoventSensor):
+    """Flow units sensor."""
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the flow units state name."""
+        value = super().native_value
+        if value is None:
+            return None
+
+        try:
+            return FlowUnits(value).name
+        except ValueError:
+            return None

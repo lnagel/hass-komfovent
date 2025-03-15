@@ -114,6 +114,13 @@ class HeatExchangerType(IntEnum):
     ROTARY = 1
 
 
+class FlowUnits(IntEnum):
+    """Flow measurement units."""
+
+    M3H = 0  # m³/h
+    LS = 1   # l/s
+
+
 class ResetSettings(IntEnum):
     """Reset settings options."""
 
