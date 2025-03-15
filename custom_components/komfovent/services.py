@@ -41,4 +41,14 @@ async def async_register_services(hass: HomeAssistant) -> None:
         ]
         await set_system_time(coordinator)
 
+    async def handle_clean_filters_calibration(call: ServiceCall) -> None:
+        """Handle the clean filters calibration service call."""
+        coordinator: KomfoventCoordinator = hass.data[DOMAIN][
+            call.data[ATTR_CONFIG_ENTRY]
+        ]
+        await clean_filters_calibration(coordinator)
+
     hass.services.async_register(DOMAIN, "set_system_time", handle_set_system_time)
+    hass.services.async_register(
+        DOMAIN, "clean_filters_calibration", handle_clean_filters_calibration
+    )
