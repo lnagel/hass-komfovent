@@ -58,9 +58,9 @@ class TemperatureControl(IntEnum):
 class FlowControl(IntEnum):
     """Flow control types."""
 
-    CAV = 0
-    VAV = 1
-    DCV = 2
+    CONSTANT = 0
+    VARIABLE = 1
+    DIRECT = 2
     OFF = 3
 
 
@@ -112,6 +112,13 @@ class HeatExchangerType(IntEnum):
 
     PLATE = 0
     ROTARY = 1
+
+
+class FlowUnit(IntEnum):
+    """Flow measurement units."""
+
+    M3H = 0  # m³/h
+    LS = 1  # l/s
 
 
 class ResetSettings(IntEnum):

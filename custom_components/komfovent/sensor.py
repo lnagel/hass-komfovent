@@ -16,6 +16,7 @@ from homeassistant.const import (
     UnitOfPower,
     UnitOfPressure,
     UnitOfTemperature,
+    UnitOfVolumeFlowRate,
 )
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -36,6 +37,8 @@ from .const import (
     DOMAIN,
     AirQualitySensorType,
     ConnectedPanels,
+    FlowControl,
+    FlowUnit,
     HeatExchangerType,
 )
 
@@ -310,6 +313,81 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_category=EntityCategory.DIAGNOSTIC,
                 ),
             ),
+            FlowUnitSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_FLOW_UNIT,
+                entity_description=SensorEntityDescription(
+                    key="flow_unit",
+                    name="Flow Unit",
+                    entity_category=EntityCategory.DIAGNOSTIC,
+                ),
+            ),
+            FlowSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_MAX_SUPPLY_FLOW,
+                entity_description=SensorEntityDescription(
+                    key="max_supply_flow",
+                    name="Maximum Supply Flow",
+                    state_class=SensorStateClass.MEASUREMENT,
+                    suggested_display_precision=0,
+                    entity_category=EntityCategory.DIAGNOSTIC,
+                ),
+            ),
+            FlowSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_MAX_EXTRACT_FLOW,
+                entity_description=SensorEntityDescription(
+                    key="max_extract_flow",
+                    name="Maximum Extract Flow",
+                    state_class=SensorStateClass.MEASUREMENT,
+                    suggested_display_precision=0,
+                    entity_category=EntityCategory.DIAGNOSTIC,
+                ),
+            ),
+            KomfoventSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_MAX_SUPPLY_PRESSURE,
+                entity_description=SensorEntityDescription(
+                    key="max_supply_pressure",
+                    name="Maximum Supply Pressure",
+                    native_unit_of_measurement=UnitOfPressure.PA,
+                    state_class=SensorStateClass.MEASUREMENT,
+                    suggested_display_precision=0,
+                    entity_category=EntityCategory.DIAGNOSTIC,
+                ),
+            ),
+            KomfoventSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_MAX_EXTRACT_PRESSURE,
+                entity_description=SensorEntityDescription(
+                    key="max_extract_pressure",
+                    name="Maximum Extract Pressure",
+                    native_unit_of_measurement=UnitOfPressure.PA,
+                    state_class=SensorStateClass.MEASUREMENT,
+                    suggested_display_precision=0,
+                    entity_category=EntityCategory.DIAGNOSTIC,
+                ),
+            ),
+            FlowSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_SUPPLY_FLOW,
+                entity_description=SensorEntityDescription(
+                    key="supply_flow",
+                    name="Supply Flow",
+                    state_class=SensorStateClass.MEASUREMENT,
+                    suggested_display_precision=0,
+                ),
+            ),
+            FlowSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_EXTRACT_FLOW,
+                entity_description=SensorEntityDescription(
+                    key="extract_flow",
+                    name="Extract Flow",
+                    state_class=SensorStateClass.MEASUREMENT,
+                    suggested_display_precision=0,
+                ),
+            ),
             FloatX1000Sensor(
                 coordinator=coordinator,
                 register_id=registers.REG_AHU_TOTAL,
@@ -563,6 +641,12 @@ class FirmwareVersionSensor(KomfoventSensor):
         if value is None:
             return None
 
+        # 1st number 8bit <<24
+        # 2nd number 4bit <<20
+        # 3rd number 8bit <<12
+        # 4th number 12bit <<0
+        # Example: 18886660 => 1.2.3.4
+
         v1 = (value >> 24) & 0xFF
         v2 = (value >> 20) & 0xF
         v3 = (value >> 12) & 0xFF
@@ -662,6 +746,28 @@ class VOCSensor(KomfoventSensor):
         return None
 
 
+class FlowSensor(FloatSensor):
+    """Flow sensor with dynamic units based on flow unit setting."""
+
+    @property
+    def native_unit_of_measurement(self) -> str | None:
+        """Return the unit of measurement."""
+        if not self.coordinator.data:
+            return None
+
+        flow_control = self.coordinator.data.get(registers.REG_FLOW_CONTROL)
+        if flow_control == FlowControl.OFF:
+            return PERCENTAGE
+
+        flow_unit = self.coordinator.data.get(registers.REG_FLOW_UNIT)
+        if flow_unit == FlowUnit.M3H:
+            return UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR
+        if flow_unit == FlowUnit.LS:
+            return UnitOfVolumeFlowRate.LITERS_PER_SECOND
+
+        return None
+
+
 class HeatExchangerTypeSensor(KomfoventSensor):
     """Heat exchanger type sensor."""
 
@@ -673,7 +779,7 @@ class HeatExchangerTypeSensor(KomfoventSensor):
             return None
 
         try:
-            return HeatExchangerType(value).name
+            return HeatExchangerType(value).name.lower()
         except ValueError:
             return None
 
@@ -689,6 +795,22 @@ class ConnectedPanelsSensor(KomfoventSensor):
             return None
 
         try:
-            return ConnectedPanels(value).name
+            return ConnectedPanels(value).name.lower()
+        except ValueError:
+            return None
+
+
+class FlowUnitSensor(KomfoventSensor):
+    """Flow unit sensor."""
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the flow units state name."""
+        value = super().native_value
+        if value is None:
+            return None
+
+        try:
+            return FlowUnit(value).name.lower()
         except ValueError:
             return None

@@ -39,7 +39,7 @@ REG_MASK = 25  # Network mask (32-bit)
 
 # Settings
 REG_LANGUAGE = 27  # Language
-REG_FLOW_UNITS = 28  # Flow units
+REG_FLOW_UNIT = 28  # Flow unit
 
 # Time and date
 REG_TIME = 29  # Time HH:MM
@@ -233,7 +233,7 @@ REGISTERS_16BIT = {
     REG_STAGE3,
     REG_COIL_TYPE,
     REG_LANGUAGE,
-    REG_FLOW_UNITS,
+    REG_FLOW_UNIT,
     REG_TIME,
     REG_YEAR,
     REG_MONTH_DAY,
