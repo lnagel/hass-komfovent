@@ -91,6 +91,7 @@ def create_aq_sensor(
     if sensor_type == AirQualitySensorType.NOT_INSTALLED:
         return None
 
+    key = f"air_quality_{sensor_type.name.lower()}"
     name = f"Air Quality {sensor_type.name.upper()}"
 
     if sensor_type == AirQualitySensorType.CO2:
@@ -110,7 +111,7 @@ def create_aq_sensor(
         coordinator=coordinator,
         register_id=register_id,
         entity_description=SensorEntityDescription(
-            key=f"aq_sensor_{register_id}",
+            key=key,
             name=name,
             native_unit_of_measurement=unit,
             device_class=device_class,
@@ -495,7 +496,9 @@ class KomfoventSensor(CoordinatorEntity, SensorEntity):
         super().__init__(coordinator)
         self.register_id = register_id
         self.entity_description = entity_description
-        self._attr_unique_id = f"{coordinator.config_entry.entry_id}_{register_id}"
+        self._attr_unique_id = (
+            f"{coordinator.config_entry.entry_id}_{entity_description.key}"
+        )
         self._attr_device_info = {
             "identifiers": {(DOMAIN, coordinator.config_entry.entry_id)},
             "name": coordinator.config_entry.title,
