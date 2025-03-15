@@ -12,7 +12,6 @@ from homeassistant.helpers import (
     entity_registry as er,
 )
 
-from . import registers
 from .const import DEFAULT_NAME, DEFAULT_PORT, DOMAIN
 from .coordinator import KomfoventCoordinator
 from .services import async_register_services
