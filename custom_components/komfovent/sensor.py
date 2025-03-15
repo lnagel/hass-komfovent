@@ -128,7 +128,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
     # Add core sensors
     entities.extend(
         [
-            FloatX10Sensor(
+            TemperatureSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_SUPPLY_TEMP,
                 entity_description=SensorEntityDescription(
@@ -140,7 +140,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=1,
                 ),
             ),
-            FloatX10Sensor(
+            TemperatureSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_EXTRACT_TEMP,
                 entity_description=SensorEntityDescription(
@@ -152,7 +152,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=1,
                 ),
             ),
-            FloatX10Sensor(
+            TemperatureSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_OUTDOOR_TEMP,
                 entity_description=SensorEntityDescription(
@@ -382,7 +382,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
     ]:
         entities.extend(
             [
-                FloatX10Sensor(
+                TemperatureSensor(
                     coordinator=coordinator,
                     register_id=registers.REG_PANEL1_TEMP,
                     entity_description=SensorEntityDescription(
@@ -425,7 +425,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
     ]:
         entities.extend(
             [
-                FloatX10Sensor(
+                TemperatureSensor(
                     coordinator=coordinator,
                     register_id=registers.REG_PANEL2_TEMP,
                     entity_description=SensorEntityDescription(
@@ -586,6 +586,21 @@ class FirmwareVersionSensor(KomfoventSensor):
         v4 = value & 0xFFF
         if any([v1, v2, v3, v4]):
             return f"{v1}.{v2}.{v3}.{v4}"
+        return None
+
+
+class TemperatureSensor(FloatX10Sensor):
+    """Temperature sensor with range validation."""
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the temperature value if within valid range."""
+        value = super().native_value
+        if value is None:
+            return None
+
+        if -50 <= value <= 120:
+            return value
         return None
 
 
