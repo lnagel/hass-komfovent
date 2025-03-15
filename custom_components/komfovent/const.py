@@ -58,9 +58,9 @@ class TemperatureControl(IntEnum):
 class FlowControl(IntEnum):
     """Flow control types."""
 
-    CAV = 0
-    VAV = 1
-    DCV = 2
+    CONSTANT = 0
+    VARIABLE = 1
+    DIRECT = 2
     OFF = 3
 
 
