@@ -709,7 +709,6 @@ class FlowSensor(FloatSensor):
         return None
 
 
-
 class HeatExchangerTypeSensor(KomfoventSensor):
     """Heat exchanger type sensor."""
 
