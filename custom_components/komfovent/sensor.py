@@ -320,6 +320,26 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_category=EntityCategory.DIAGNOSTIC,
                 ),
             ),
+            FlowSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_SUPPLY_FLOW,
+                entity_description=SensorEntityDescription(
+                    key="supply_flow",
+                    name="Supply Flow",
+                    state_class=SensorStateClass.MEASUREMENT,
+                    suggested_display_precision=1,
+                ),
+            ),
+            FlowSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_EXTRACT_FLOW,
+                entity_description=SensorEntityDescription(
+                    key="extract_flow", 
+                    name="Extract Flow",
+                    state_class=SensorStateClass.MEASUREMENT,
+                    suggested_display_precision=1,
+                ),
+            ),
             FloatX1000Sensor(
                 coordinator=coordinator,
                 register_id=registers.REG_AHU_TOTAL,
@@ -670,6 +690,36 @@ class VOCSensor(KomfoventSensor):
         if 0 <= value <= MAX_VOC_PPB:
             return value
         return None
+
+
+class FlowSensor(FloatSensor):
+    """Flow sensor with dynamic units based on flow unit setting."""
+
+    @property
+    def native_unit_of_measurement(self) -> str | None:
+        """Return the unit of measurement."""
+        if not self.coordinator.data:
+            return None
+
+        flow_unit = self.coordinator.data.get(registers.REG_FLOW_UNIT)
+        if flow_unit == FlowUnit.M3H:
+            return "m³/h"
+        if flow_unit == FlowUnit.LS:
+            return "l/s"
+        return None
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the flow value with unit conversion if needed."""
+        value = super().native_value
+        if value is None:
+            return None
+
+        flow_unit = self.coordinator.data.get(registers.REG_FLOW_UNIT)
+        if flow_unit == FlowUnit.LS:
+            # Convert from m³/h to l/s
+            return round(value / 3.6, 1)
+        return value
 
 
 class HeatExchangerTypeSensor(KomfoventSensor):
