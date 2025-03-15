@@ -16,6 +16,7 @@ from homeassistant.const import (
     UnitOfPower,
     UnitOfPressure,
     UnitOfTemperature,
+    UnitOfVolumeFlowRate,
 )
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -703,9 +704,9 @@ class FlowSensor(FloatSensor):
 
         flow_unit = self.coordinator.data.get(registers.REG_FLOW_UNIT)
         if flow_unit == FlowUnit.M3H:
-            return "m³/h"
+            return UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR
         if flow_unit == FlowUnit.LS:
-            return "l/s"
+            return UnitOfVolumeFlowRate.LITERS_PER_SECOND
         return None
 
 
