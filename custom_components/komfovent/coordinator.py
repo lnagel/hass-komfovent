@@ -105,9 +105,10 @@ class KomfoventCoordinator(DataUpdateCoordinator):
             data.update(process_register_block(sensor_block))
 
             # Read digital outputs block (958-960)
+            # This has not been tested yet, it may be implemented in the future
 
             # Read exhaust temperature block (961)
-            # TODO: this read fails on all devices seen until now, it may be implemented in the future
+            # This fails on devices seen until now, it may be implemented in the future
 
             # Read controller firmware version (1000-1001)
             try:
