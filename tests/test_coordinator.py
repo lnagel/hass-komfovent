@@ -12,7 +12,7 @@ async def test_coordinator_updates_data(hass: HomeAssistant, mock_modbus_client)
     # Create mock client with required async methods
     mock_client = AsyncMock()
     mock_client.connect = AsyncMock(return_value=True)
-    mock_client.read_holding_registers = AsyncMock(return_value={1: 42})
+    mock_client.read_registers = AsyncMock(return_value={1: 42})
 
     # Patch the client class
     with patch(
@@ -33,7 +33,7 @@ async def test_coordinator_updates_data(hass: HomeAssistant, mock_modbus_client)
 
         # Verify the client was called correctly
         assert mock_client.connect.called
-        assert mock_client.read_holding_registers.called
+        assert mock_client.read_registers.called
 
 
 async def test_coordinator_handles_connection_failure(hass: HomeAssistant):
@@ -41,7 +41,7 @@ async def test_coordinator_handles_connection_failure(hass: HomeAssistant):
     # Create mock client that fails to connect
     mock_client = AsyncMock()
     mock_client.connect = AsyncMock(return_value=False)
-    mock_client.read_holding_registers = AsyncMock(return_value={1: 42})
+    mock_client.read_registers = AsyncMock(return_value={1: 42})
 
     # Patch the client class
     with patch(

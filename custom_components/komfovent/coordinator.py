@@ -22,7 +22,7 @@ def process_register_block(block: dict[int, int]) -> dict[int, int]:
     Process a block of register values handling 16/32 bit registers.
 
     Args:
-        block: Dictionary of register values from read_holding_registers
+        block: Dictionary of register values from read_registers
 
     Returns:
         Dictionary of processed register values
