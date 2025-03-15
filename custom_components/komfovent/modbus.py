@@ -34,41 +34,41 @@ class KomfoventModbusClient:
         """Close the Modbus connection."""
         self.client.close()
 
-    async def read_holding_registers(self, address: int, count: int) -> dict[int, int]:
-        """Read holding registers and return dict keyed by absolute register addresses."""  # noqa: E501
+    async def read_holding_registers(self, register: int, count: int) -> dict[int, int]:
+        """Read holding registers and return dict keyed by absolute register numbers."""
         async with self._lock:
             result = await self.client.read_holding_registers(
-                address, count=count, slave=1
+                address=register - 1, count=count, slave=1
             )
 
         if result.isError():
-            msg = f"Error reading registers at {address}"
+            msg = f"Error reading registers at {register}"
             raise ModbusException(msg)
 
-        # Create dictionary with absolute register addresses as keys
-        return {address + i: value for i, value in enumerate(result.registers)}
+        # Create dictionary with absolute register numbers as keys
+        return dict(enumerate(result.registers, start=register))
 
-    async def write_register(self, address: int, value: int) -> None:
+    async def write_register(self, register: int, value: int) -> None:
         """Write to holding register."""
         async with self._lock:
-            if address in REGISTERS_16BIT:
-                result = await self.client.write_register(address, value, slave=1)
-            elif address in REGISTERS_32BIT:
+            if register in REGISTERS_16BIT:
+                result = await self.client.write_register(register, value, slave=1)
+            elif register in REGISTERS_32BIT:
                 # Split 32-bit value into two 16-bit values
                 high_word = (value >> 16) & 0xFFFF
                 low_word = value & 0xFFFF
 
                 # Write both words in a single transaction
                 result = await self.client.write_registers(
-                    address, [high_word, low_word], slave=1
+                    address=register - 1, values=[high_word, low_word], slave=1
                 )
             else:
                 msg = (
-                    f"Register {address} not found in either "
+                    f"Register {register} not found in either "
                     "16-bit or 32-bit register sets"
                 )
                 raise NotImplementedError(msg)
 
         if result.isError():
-            msg = f"Error writing register at {address}"
+            msg = f"Error writing register at {register}"
             raise ModbusException(msg)

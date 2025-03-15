@@ -28,11 +28,11 @@ async def run_server(host: str, port: int, register_data: dict[str, [int]]) -> N
     Args:
         host: Network interface to bind to
         port: TCP port to listen on
-        register_data: Dictionary of register addresses and values
+        register_data: Dictionary of register numbers and values
 
     """
     # Convert register data to Modbus block format
-    block_values = {int(k) + 1: v for k, v in register_data.items()}
+    block_values = {int(k): v for k, v in register_data.items()}
 
     # Initialize data storage
     block = ModbusSparseDataBlock(block_values)

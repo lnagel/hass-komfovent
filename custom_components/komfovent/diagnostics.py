@@ -70,7 +70,7 @@ async def dump_registers(host: str, port: int) -> dict[int, list[int]]:
         port: Modbus TCP port number
 
     Returns:
-        Dictionary mapping register addresses to list of register values
+        Dictionary mapping register numbers to list of register values
 
     Raises:
         ConnectionError: If connection to device fails
@@ -85,15 +85,15 @@ async def dump_registers(host: str, port: int) -> dict[int, list[int]]:
 
     results: dict[int, list[int]] = {}
     try:
-        for address, count in RANGES:
+        for start, count in RANGES:
             try:
                 response = await client.read_holding_registers(
-                    address=address, count=count
+                    address=start - 1, count=count
                 )
-                results[address] = response.registers
-                logger.info("Register %d: %s", address, response.registers)
+                results[start] = response.registers
+                logger.info("Register %d: %s", start, response.registers)
             except ModbusException:
-                logger.error("Register %d: Modbus error", address)  # noqa: TRY400
+                logger.error("Register %d: Modbus error", start)  # noqa: TRY400
 
             await asyncio.sleep(0.1)
 

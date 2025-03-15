@@ -23,7 +23,6 @@ def process_register_block(block: dict[int, int]) -> dict[int, int]:
 
     Args:
         block: Dictionary of register values from read_holding_registers
-        start_address: Starting address of the block
 
     Returns:
         Dictionary of processed register values
@@ -31,21 +30,21 @@ def process_register_block(block: dict[int, int]) -> dict[int, int]:
     """
     data = {}
 
-    for reg_address, value in block.items():
-        if reg_address in registers.REGISTERS_32BIT:
+    for reg, value in block.items():
+        if reg in registers.REGISTERS_32BIT:
             # For 32-bit registers, combine with next register
-            if reg_address + 1 in block:
-                data[reg_address] = (value << 16) + block[reg_address + 1]
-        elif reg_address in registers.REGISTERS_16BIT:
+            if reg + 1 in block:
+                data[reg] = (value << 16) + block[reg + 1]
+        elif reg in registers.REGISTERS_16BIT:
             # For 16-bit registers, use value directly
-            data[reg_address] = value
+            data[reg] = value
 
     return data
 
 
 _LOGGER = logging.getLogger(__name__)
 
-STATIC_DATA_ADDRESSES = {
+STATIC_DATA_REGISTERS = {
     registers.REG_CONNECTED_PANELS,
     registers.REG_FIRMWARE,
     registers.REG_PANEL1_FW,
@@ -138,9 +137,9 @@ class KomfoventCoordinator(DataUpdateCoordinator):
         """Fetch data from Komfovent."""
         data = {}
 
-        for address in STATIC_DATA_ADDRESSES:
-            if self.data and address in self.data:
-                data[address] = self.data[address]
+        for reg in STATIC_DATA_REGISTERS:
+            if self.data and reg in self.data:
+                data[reg] = self.data[reg]
 
         try:
             # Read basic control block (0-33)

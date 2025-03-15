@@ -9,6 +9,7 @@ from pathlib import Path
 import pytest
 from homeassistant.core import HomeAssistant
 
+from custom_components.komfovent import registers
 from custom_components.komfovent.coordinator import KomfoventCoordinator
 from custom_components.komfovent.modbus import KomfoventModbusClient
 from modbus_server import run_server
@@ -41,7 +42,7 @@ async def test_live_modbus_connection(hass: HomeAssistant, mock_registers):
         assert connected
 
         # Read some registers
-        data = await client.read_holding_registers(0, 34)
+        data = await client.read_holding_registers(registers.REG_POWER, 34)
 
         # Verify we got data back
         assert data
@@ -91,16 +92,16 @@ async def test_live_coordinator(hass: HomeAssistant, mock_registers):
         assert len(coordinator.data) > 0
 
         # Verify 16-bit register
-        assert coordinator.data[0] == register_data["0"][0]
+        assert coordinator.data[1] == register_data["1"][0]
 
         # Verify 32-bit register
-        if register_data["999"]:
+        if register_data["1000"]:
             assert (
-                coordinator.data[999]
-                == (register_data["999"][0] << 16) + register_data["999"][1]
+                coordinator.data[1000]
+                == (register_data["1000"][0] << 16) + register_data["1000"][1]
             )
         else:
-            assert 999 not in coordinator.data
+            assert 1000 not in coordinator.data
 
     finally:
         # Ensure client is closed
