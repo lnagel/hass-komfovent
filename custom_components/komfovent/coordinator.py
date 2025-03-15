@@ -166,6 +166,16 @@ class KomfoventCoordinator(DataUpdateCoordinator):
             sensor_block = await self.client.read_registers(registers.REG_STATUS, 57)
             data.update(process_register_block(sensor_block))
 
+            # Read digital outputs block (958-960)
+
+            # Read exhaust temperature block (961)
+
+            # Read controller firmware version (1000-1001)
+
+            # Read panel 1 firmware version (1002-1003)
+
+            # Read panel 2 firmware version (1004-1005)
+
         except (ConnectionError, ModbusException) as error:
             _LOGGER.warning("Error communicating with Komfovent: %s", error)
             raise UpdateFailed from error
