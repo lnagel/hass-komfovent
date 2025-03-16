@@ -6,7 +6,7 @@ import logging
 from pymodbus.client import AsyncModbusTcpClient
 from pymodbus.exceptions import ModbusException
 
-from .registers import REGISTERS_16BIT, REGISTERS_32BIT
+from .registers import REGISTERS_16BIT_SIGNED, REGISTERS_16BIT_UNSIGNED, REGISTERS_32BIT
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -51,8 +51,15 @@ class KomfoventModbusClient:
     async def write_register(self, register: int, value: int) -> None:
         """Write to holding register."""
         async with self._lock:
-            if register in REGISTERS_16BIT:
+            if register in REGISTERS_16BIT_UNSIGNED:
+                # Write unsigned value as-is
                 result = await self.client.write_register(register - 1, value, slave=1)
+            elif register in REGISTERS_16BIT_SIGNED:
+                # Convert signed value to 16-bit unsigned for Modbus
+                unsigned_value = value & 0xFFFF
+                result = await self.client.write_register(
+                    register - 1, unsigned_value, slave=1
+                )
             elif register in REGISTERS_32BIT:
                 # Split 32-bit value into two 16-bit values
                 high_word = (value >> 16) & 0xFFFF
