@@ -209,28 +209,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             ),
             KomfoventSensor(
                 coordinator=coordinator,
-                register_id=registers.REG_SUPPLY_PRESSURE,
-                entity_description=SensorEntityDescription(
-                    key="supply_pressure",
-                    name="Supply Pressure",
-                    native_unit_of_measurement=UnitOfPressure.PA,
-                    state_class=SensorStateClass.MEASUREMENT,
-                    suggested_display_precision=0,
-                ),
-            ),
-            KomfoventSensor(
-                coordinator=coordinator,
-                register_id=registers.REG_EXTRACT_PRESSURE,
-                entity_description=SensorEntityDescription(
-                    key="extract_pressure",
-                    name="Extract Pressure",
-                    native_unit_of_measurement=UnitOfPressure.PA,
-                    state_class=SensorStateClass.MEASUREMENT,
-                    suggested_display_precision=0,
-                ),
-            ),
-            KomfoventSensor(
-                coordinator=coordinator,
                 register_id=registers.REG_POWER_CONSUMPTION,
                 entity_description=SensorEntityDescription(
                     key="power_consumption",
@@ -346,30 +324,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_category=EntityCategory.DIAGNOSTIC,
                 ),
             ),
-            KomfoventSensor(
-                coordinator=coordinator,
-                register_id=registers.REG_MAX_SUPPLY_PRESSURE,
-                entity_description=SensorEntityDescription(
-                    key="max_supply_pressure",
-                    name="Maximum Supply Pressure",
-                    native_unit_of_measurement=UnitOfPressure.PA,
-                    state_class=SensorStateClass.MEASUREMENT,
-                    suggested_display_precision=0,
-                    entity_category=EntityCategory.DIAGNOSTIC,
-                ),
-            ),
-            KomfoventSensor(
-                coordinator=coordinator,
-                register_id=registers.REG_MAX_EXTRACT_PRESSURE,
-                entity_description=SensorEntityDescription(
-                    key="max_extract_pressure",
-                    name="Maximum Extract Pressure",
-                    native_unit_of_measurement=UnitOfPressure.PA,
-                    state_class=SensorStateClass.MEASUREMENT,
-                    suggested_display_precision=0,
-                    entity_category=EntityCategory.DIAGNOSTIC,
-                ),
-            ),
             FlowSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_SUPPLY_FLOW,
@@ -437,6 +391,61 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             ),
         ]
     )
+
+    # Add pressure sensors if using a flow control mode is variable air volume
+    if coordinator.data and coordinator.data.get(registers.REG_FLOW_CONTROL) in [
+        FlowControl.VARIABLE
+    ]:
+        entities.extend(
+            [
+                KomfoventSensor(
+                    coordinator=coordinator,
+                    register_id=registers.REG_MAX_SUPPLY_PRESSURE,
+                    entity_description=SensorEntityDescription(
+                        key="max_supply_pressure",
+                        name="Maximum Supply Pressure",
+                        native_unit_of_measurement=UnitOfPressure.PA,
+                        state_class=SensorStateClass.MEASUREMENT,
+                        suggested_display_precision=0,
+                        entity_category=EntityCategory.DIAGNOSTIC,
+                    ),
+                ),
+                KomfoventSensor(
+                    coordinator=coordinator,
+                    register_id=registers.REG_MAX_EXTRACT_PRESSURE,
+                    entity_description=SensorEntityDescription(
+                        key="max_extract_pressure",
+                        name="Maximum Extract Pressure",
+                        native_unit_of_measurement=UnitOfPressure.PA,
+                        state_class=SensorStateClass.MEASUREMENT,
+                        suggested_display_precision=0,
+                        entity_category=EntityCategory.DIAGNOSTIC,
+                    ),
+                ),
+                KomfoventSensor(
+                    coordinator=coordinator,
+                    register_id=registers.REG_SUPPLY_PRESSURE,
+                    entity_description=SensorEntityDescription(
+                        key="supply_pressure",
+                        name="Supply Pressure",
+                        native_unit_of_measurement=UnitOfPressure.PA,
+                        state_class=SensorStateClass.MEASUREMENT,
+                        suggested_display_precision=0,
+                    ),
+                ),
+                KomfoventSensor(
+                    coordinator=coordinator,
+                    register_id=registers.REG_EXTRACT_PRESSURE,
+                    entity_description=SensorEntityDescription(
+                        key="extract_pressure",
+                        name="Extract Pressure",
+                        native_unit_of_measurement=UnitOfPressure.PA,
+                        state_class=SensorStateClass.MEASUREMENT,
+                        suggested_display_precision=0,
+                    ),
+                ),
+            ]
+        )
 
     # Add exhaust temperature if value is present
     if coordinator.data and registers.REG_EXHAUST_TEMP in coordinator.data:
