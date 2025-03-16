@@ -30,13 +30,18 @@ def process_register_block(block: dict[int, int]) -> dict[int, int]:
     data = {}
 
     for reg, value in block.items():
-        if reg in registers.REGISTERS_32BIT:
+        if reg in registers.REGISTERS_16BIT_UNSIGNED:
+            # For 16-bit unsigned registers, use value directly
+            data[reg] = value
+        elif reg in registers.REGISTERS_16BIT_SIGNED:
+            # For 16-bit signed registers, use need to convert uint16 to int16
+            data[reg] = value - (value >> 15 << 16)
+        elif reg in registers.REGISTERS_32BIT:
             # For 32-bit registers, combine with next register
             if reg + 1 in block:
                 data[reg] = (value << 16) + block[reg + 1]
-        elif reg in registers.REGISTERS_16BIT:
-            # For 16-bit registers, use value directly
-            data[reg] = value
+            else:
+                _LOGGER.warning("Missing low word value for 32-bit register %d", reg)
 
     return data
 
