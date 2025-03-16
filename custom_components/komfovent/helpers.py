@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Helper functions for Komfovent integration."""
+
+from __future__ import annotations
 
 
 def get_version_from_int(value: int) -> tuple[int, int, int, int]:
