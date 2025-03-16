@@ -14,6 +14,9 @@ from .const import (
     DOMAIN,
     ConnectedPanels,
 )
+from .helpers import get_version_from_int
+
+FUNC_VER_EXHAUST_TEMP = 67
 
 
 def process_register_block(block: dict[int, int]) -> dict[int, int]:
@@ -83,6 +86,19 @@ class KomfoventCoordinator(DataUpdateCoordinator):
         data = {}
 
         try:
+            # Read controller firmware version (1000-1001)
+            try:
+                firmware_block = await self.client.read_registers(
+                    registers.REG_FIRMWARE, 2
+                )
+                data.update(process_register_block(firmware_block))
+            except (ConnectionError, ModbusException) as error:
+                _LOGGER.warning("Failed to read controller firmware version: %s", error)
+
+            # Get firmware version and extract functional version from it
+            fw_version = get_version_from_int(data.get(registers.REG_FIRMWARE, 0))
+            func_version = fw_version[3]
+
             # Read basic control block (1-34)
             basic_control = await self.client.read_registers(registers.REG_POWER, 34)
             data.update(process_register_block(basic_control))
@@ -113,22 +129,14 @@ class KomfoventCoordinator(DataUpdateCoordinator):
             # This has not been tested yet, it may be implemented in the future
 
             # Read exhaust temperature block (961)
-            try:
-                exhaust_temp_block = await self.client.read_registers(
-                    registers.REG_EXHAUST_TEMP, 1
-                )
-                data.update(process_register_block(exhaust_temp_block))
-            except (ConnectionError, ModbusException) as error:
-                _LOGGER.debug("Failed to read exhaust temperature: %s", error)
-
-            # Read controller firmware version (1000-1001)
-            try:
-                firmware_block = await self.client.read_registers(
-                    registers.REG_FIRMWARE, 2
-                )
-                data.update(process_register_block(firmware_block))
-            except (ConnectionError, ModbusException) as error:
-                _LOGGER.warning("Failed to read controller firmware version: %s", error)
+            if func_version >= FUNC_VER_EXHAUST_TEMP:
+                try:
+                    exhaust_temp_block = await self.client.read_registers(
+                        registers.REG_EXHAUST_TEMP, 1
+                    )
+                    data.update(process_register_block(exhaust_temp_block))
+                except (ConnectionError, ModbusException) as error:
+                    _LOGGER.debug("Failed to read exhaust temperature: %s", error)
 
             # Read panel 1 firmware version (1002-1003)
             if data.get(registers.REG_CONNECTED_PANELS, 0) in [
