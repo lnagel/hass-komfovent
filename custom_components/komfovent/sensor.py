@@ -152,10 +152,10 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             ),
             DutyCycleSensor(
                 coordinator=coordinator,
-                register_id=registers.REG_SUPPLY_FAN_INTENSITY,
+                register_id=registers.REG_SUPPLY_FAN,
                 entity_description=SensorEntityDescription(
-                    key="supply_fan_intensity",
-                    name="Supply Fan Intensity",
+                    key="supply_fan",
+                    name="Supply Fan",
                     native_unit_of_measurement=PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
@@ -163,10 +163,10 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             ),
             DutyCycleSensor(
                 coordinator=coordinator,
-                register_id=registers.REG_EXTRACT_FAN_INTENSITY,
+                register_id=registers.REG_EXTRACT_FAN,
                 entity_description=SensorEntityDescription(
-                    key="extract_fan_intensity",
-                    name="Extract Fan Intensity",
+                    key="extract_fan",
+                    name="Extract Fan",
                     native_unit_of_measurement=PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,

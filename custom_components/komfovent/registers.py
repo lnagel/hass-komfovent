@@ -154,8 +154,8 @@ REG_OUTDOOR_TEMP = 904  # Outdoor air temperature (x10 °C)
 REG_WATER_TEMP = 905  # Water temperature (x10 °C)
 REG_SUPPLY_FLOW = 906  # Supply air flow (32-bit)
 REG_EXTRACT_FLOW = 908  # Extract air flow (32-bit)
-REG_SUPPLY_FAN_INTENSITY = 910  # Supply fan speed
-REG_EXTRACT_FAN_INTENSITY = 911  # Extract fan speed
+REG_SUPPLY_FAN = 910  # Supply fan speed
+REG_EXTRACT_FAN = 911  # Extract fan speed
 REG_HEAT_EXCHANGER = 912  # Heat exchanger signal
 REG_ELECTRIC_HEATER = 913  # Electric heater signal (x10 %)
 REG_WATER_HEATER = 914  # Water heater signal
@@ -288,8 +288,8 @@ REGISTERS_16BIT_UNSIGNED = {
     REG_ACTIVE_ALARM10,
     REG_STATUS,
     REG_HEATING_CONFIG,
-    REG_SUPPLY_FAN_INTENSITY,
-    REG_EXTRACT_FAN_INTENSITY,
+    REG_SUPPLY_FAN,
+    REG_EXTRACT_FAN,
     REG_HEAT_EXCHANGER,
     REG_ELECTRIC_HEATER,
     REG_WATER_HEATER,
