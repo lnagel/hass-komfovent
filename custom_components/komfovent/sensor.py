@@ -21,6 +21,8 @@ from homeassistant.const import (
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
+from .helpers import get_version_from_int
+
 if TYPE_CHECKING:
     from datetime import date, datetime
     from decimal import Decimal
@@ -436,6 +438,25 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
         ]
     )
 
+    # Add exhaust temperature if value is present
+    if coordinator.data and registers.REG_EXHAUST_TEMP in coordinator.data:
+        entities.extend(
+            [
+                TemperatureSensor(
+                    coordinator=coordinator,
+                    register_id=registers.REG_EXHAUST_TEMP,
+                    entity_description=SensorEntityDescription(
+                        key="exhaust_temperature",
+                        name="Exhaust Temperature",
+                        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                        device_class=SensorDeviceClass.TEMPERATURE,
+                        state_class=SensorStateClass.MEASUREMENT,
+                        suggested_display_precision=1,
+                    ),
+                ),
+            ]
+        )
+
     # Add panel 1 sensors if panel is present
     if coordinator.data and coordinator.data.get(registers.REG_CONNECTED_PANELS, 0) in [
         ConnectedPanels.PANEL1,
@@ -641,19 +662,11 @@ class FirmwareVersionSensor(KomfoventSensor):
         if value is None:
             return None
 
-        # 1st number 8bit <<24
-        # 2nd number 4bit <<20
-        # 3rd number 8bit <<12
-        # 4th number 12bit <<0
-        # Example: 18886660 => 1.2.3.4
+        if value == 0:
+            return None
 
-        v1 = (value >> 24) & 0xFF
-        v2 = (value >> 20) & 0xF
-        v3 = (value >> 12) & 0xFF
-        v4 = value & 0xFFF
-        if any([v1, v2, v3, v4]):
-            return f"{v1}.{v2}.{v3}.{v4}"
-        return None
+        v1, v2, v3, v4 = get_version_from_int(value)
+        return f"{v1}.{v2}.{v3}.{v4}"
 
 
 class DutyCycleSensor(FloatX10Sensor):
