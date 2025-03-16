@@ -6,7 +6,11 @@ import logging
 from pymodbus.client import AsyncModbusTcpClient
 from pymodbus.exceptions import ModbusException
 
-from .registers import REGISTERS_16BIT_SIGNED, REGISTERS_16BIT_UNSIGNED, REGISTERS_32BIT
+from .registers import (
+    REGISTERS_16BIT_SIGNED,
+    REGISTERS_16BIT_UNSIGNED,
+    REGISTERS_32BIT_UNSIGNED,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -60,7 +64,7 @@ class KomfoventModbusClient:
                 result = await self.client.write_register(
                     register - 1, unsigned_value, slave=1
                 )
-            elif register in REGISTERS_32BIT:
+            elif register in REGISTERS_32BIT_UNSIGNED:
                 # Split 32-bit value into two 16-bit values
                 high_word = (value >> 16) & 0xFFFF
                 low_word = value & 0xFFFF

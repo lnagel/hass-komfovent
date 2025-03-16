@@ -36,7 +36,7 @@ def process_register_block(block: dict[int, int]) -> dict[int, int]:
         elif reg in registers.REGISTERS_16BIT_SIGNED:
             # For 16-bit signed registers, use need to convert uint16 to int16
             data[reg] = value - (value >> 15 << 16)
-        elif reg in registers.REGISTERS_32BIT:
+        elif reg in registers.REGISTERS_32BIT_UNSIGNED:
             # For 32-bit registers, combine with next register
             if reg + 1 in block:
                 data[reg] = (value << 16) + block[reg + 1]
