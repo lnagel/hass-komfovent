@@ -11,7 +11,7 @@ def get_version_from_int(value: int) -> tuple[int, int, int, int]:
         value: Integer containing version information packed as bitfields
 
     Returns:
-        Tuple of (major, minor, patch, build) version numbers
+        Tuple of (v1, v2, v3, v4) version numbers
 
     """
     # 1st number 8bit <<24
