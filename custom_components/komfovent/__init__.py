@@ -54,8 +54,8 @@ ENTITY_ID_MIGRATIONS = {
     "901": "supply_temperature",
     "902": "extract_temperature",
     "903": "outdoor_temperature",
-    "909": "supply_fan_intensity",
-    "910": "extract_fan_intensity",
+    "909": "supply_fan",
+    "910": "extract_fan",
     "911": "heat_exchanger",
     "912": "electric_heater",
     "916": "filter_impurity",
@@ -79,6 +79,8 @@ ENTITY_ID_MIGRATIONS = {
     "999": "controller_firmware",
     "1001": "panel_1_firmware",
     "1003": "panel_2_firmware",
+    "supply_fan_intensity": "supply_fan",
+    "extract_fan_intensity": "extract_fan",
 }
 
 
