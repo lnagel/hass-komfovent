@@ -113,7 +113,13 @@ class KomfoventCoordinator(DataUpdateCoordinator):
             # This has not been tested yet, it may be implemented in the future
 
             # Read exhaust temperature block (961)
-            # This fails on devices seen until now, it may be implemented in the future
+            try:
+                exhaust_temp_block = await self.client.read_registers(
+                    registers.REG_EXHAUST_TEMP, 1
+                )
+                data.update(process_register_block(exhaust_temp_block))
+            except (ConnectionError, ModbusException) as error:
+                _LOGGER.debug("Failed to read exhaust temperature: %s", error)
 
             # Read controller firmware version (1000-1001)
             try:

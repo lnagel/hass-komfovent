@@ -436,6 +436,25 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
         ]
     )
 
+    # Add exhaust temperature if value is present
+    if coordinator.data and registers.REG_EXHAUST_TEMP in coordinator.data:
+        entities.extend(
+            [
+                TemperatureSensor(
+                    coordinator=coordinator,
+                    register_id=registers.REG_EXHAUST_TEMP,
+                    entity_description=SensorEntityDescription(
+                        key="exhaust_temperature",
+                        name="Exhaust Temperature",
+                        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                        device_class=SensorDeviceClass.TEMPERATURE,
+                        state_class=SensorStateClass.MEASUREMENT,
+                        suggested_display_precision=1,
+                    ),
+                ),
+            ]
+        )
+
     # Add panel 1 sensors if panel is present
     if coordinator.data and coordinator.data.get(registers.REG_CONNECTED_PANELS, 0) in [
         ConnectedPanels.PANEL1,
