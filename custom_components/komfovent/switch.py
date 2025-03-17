@@ -69,7 +69,7 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
             coordinator=coordinator,
             register_id=registers.REG_AQ_HUMIDITY_CONTROL,
             entity_description=SwitchEntityDescription(
-                key="humidity_control", 
+                key="humidity_control",
                 name="Humidity Control",
                 icon="mdi:water-percent",
                 entity_registry_enabled_default=True,

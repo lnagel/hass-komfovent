@@ -1,4 +1,5 @@
 """Number platform for Komfovent."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -49,7 +50,7 @@ async def async_setup_entry(
                 register_id=registers.REG_AQ_MAX_INTENSITY,
                 entity_description=NumberEntityDescription(
                     key="maximum_intensity",
-                    name="Maximum Intensity", 
+                    name="Maximum Intensity",
                     native_min_value=20,
                     native_max_value=100,
                     native_step=1,
@@ -107,7 +108,5 @@ class KomfoventNumber(CoordinatorEntity, NumberEntity):
 
     async def async_set_native_value(self, value: float) -> None:
         """Update the current value."""
-        await self.coordinator.client.write_register(
-            self.register_id, int(value)
-        )
+        await self.coordinator.client.write_register(self.register_id, int(value))
         await self.coordinator.async_request_refresh()
