@@ -198,10 +198,10 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             ),
             KomfoventSensor(
                 coordinator=coordinator,
-                register_id=registers.REG_FILTER_IMPURITY,
+                register_id=registers.REG_FILTER_CLOGGING,
                 entity_description=SensorEntityDescription(
-                    key="filter_impurity",
-                    name="Filter Impurity",
+                    key="filter_clogging",
+                    name="Filter Clogging",
                     native_unit_of_measurement=PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,

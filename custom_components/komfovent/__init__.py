@@ -81,6 +81,7 @@ ENTITY_ID_MIGRATIONS = {
     "1003": "panel_2_firmware",
     "supply_fan_intensity": "supply_fan",
     "extract_fan_intensity": "extract_fan",
+    "filter_impurity": "filter_clogging",
 }
 
 
