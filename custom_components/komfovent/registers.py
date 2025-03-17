@@ -161,7 +161,7 @@ REG_ELECTRIC_HEATER = 913  # Electric heater signal (x10 %)
 REG_WATER_HEATER = 914  # Water heater signal
 REG_WATER_COOLER = 915  # Water cooler signal
 REG_DX_UNIT = 916  # DX unit signal
-REG_FILTER_IMPURITY = 917  # Filter clogging
+REG_FILTER_CLOGGING = 917  # Filter clogging
 REG_AIR_DAMPERS = 918  # Air dampers
 REG_SUPPLY_PRESSURE = 919  # Supply pressure
 REG_EXTRACT_PRESSURE = 920  # Extract pressure
@@ -294,7 +294,7 @@ REGISTERS_16BIT_UNSIGNED = {
     REG_ELECTRIC_HEATER,
     REG_WATER_HEATER,
     REG_WATER_COOLER,
-    REG_FILTER_IMPURITY,
+    REG_FILTER_CLOGGING,
     REG_AIR_DAMPERS,
     REG_SUPPLY_PRESSURE,
     REG_EXTRACT_PRESSURE,

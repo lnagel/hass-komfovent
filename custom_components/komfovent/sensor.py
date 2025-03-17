@@ -198,10 +198,21 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             ),
             KomfoventSensor(
                 coordinator=coordinator,
-                register_id=registers.REG_FILTER_IMPURITY,
+                register_id=registers.REG_FILTER_CLOGGING,
                 entity_description=SensorEntityDescription(
-                    key="filter_impurity",
-                    name="Filter Impurity",
+                    key="filter_clogging",
+                    name="Filter Clogging",
+                    native_unit_of_measurement=PERCENTAGE,
+                    state_class=SensorStateClass.MEASUREMENT,
+                    suggested_display_precision=0,
+                ),
+            ),
+            KomfoventSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_AIR_DAMPERS,
+                entity_description=SensorEntityDescription(
+                    key="air_dampers",
+                    name="Air Dampers",
                     native_unit_of_measurement=PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
@@ -249,6 +260,17 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="heat_exchanger_efficiency",
                     name="Heat Exchanger Efficiency",
+                    native_unit_of_measurement=PERCENTAGE,
+                    state_class=SensorStateClass.MEASUREMENT,
+                    suggested_display_precision=0,
+                ),
+            ),
+            KomfoventSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_ENERGY_SAVING,
+                entity_description=SensorEntityDescription(
+                    key="energy_saving",
+                    name="Energy Saving",
                     native_unit_of_measurement=PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
