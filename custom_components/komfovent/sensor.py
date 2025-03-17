@@ -265,6 +265,17 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=0,
                 ),
             ),
+            KomfoventSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_ENERGY_SAVING,
+                entity_description=SensorEntityDescription(
+                    key="energy_saving",
+                    name="Energy Saving",
+                    native_unit_of_measurement=PERCENTAGE,
+                    state_class=SensorStateClass.MEASUREMENT,
+                    suggested_display_precision=0,
+                ),
+            ),
             SPISensor(
                 coordinator=coordinator,
                 register_id=registers.REG_SPI,
