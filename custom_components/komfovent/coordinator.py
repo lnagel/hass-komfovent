@@ -97,7 +97,7 @@ class KomfoventCoordinator(DataUpdateCoordinator):
 
             # Get firmware version and extract functional version from it
             fw_version = get_version_from_int(data.get(registers.REG_FIRMWARE, 0))
-            func_version = fw_version[3]
+            func_version = fw_version[4]
 
             # Read basic control block (1-34)
             basic_control = await self.client.read_registers(registers.REG_POWER, 34)

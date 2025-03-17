@@ -674,8 +674,8 @@ class FirmwareVersionSensor(KomfoventSensor):
         if value == 0:
             return None
 
-        v1, v2, v3, v4 = get_version_from_int(value)
-        return f"{v1}.{v2}.{v3}.{v4}"
+        controller, v1, v2, v3, v4 = get_version_from_int(value)
+        return f"{controller.name} {v1}.{v2}.{v3}.{v4}"
 
 
 class DutyCycleSensor(FloatX10Sensor):
