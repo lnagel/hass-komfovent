@@ -37,7 +37,7 @@
 - [x] Humidity control
 - [x] Sensor 1: None / CO2 / VOC / RH
 - [x] Sensor 2: None / CO2 / VOC / RH
-- [x] Outdoor humidity: None / Sensor 1 / Sensor 2
+- [ ] Outdoor humidity: None / Sensor 1 / Sensor 2
 - [x] Minimum intensivity
 - [x] Maximum intensivity
 - [x] Check period
