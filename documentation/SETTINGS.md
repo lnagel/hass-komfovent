@@ -33,14 +33,14 @@
 - [ ] Stage 3
 
 ## Air Quality
-- [ ] Impurity control
-- [ ] Humidity control
+- [x] Impurity control
+- [x] Humidity control
 - [x] Sensor 1: None / CO2 / VOC / RH
 - [x] Sensor 2: None / CO2 / VOC / RH
-- [ ] Outdoor humidity: None / Sensor 1 / Sensor 2
-- [ ] Minimum intensivity
-- [ ] Maximum intensivity
-- [ ] Check period
+- [x] Outdoor humidity: None / Sensor 1 / Sensor 2
+- [x] Minimum intensivity
+- [x] Maximum intensivity
+- [x] Check period
 
 ## Filters
 - [ ] Outdoor air quality: Poor / Moderate / Good
