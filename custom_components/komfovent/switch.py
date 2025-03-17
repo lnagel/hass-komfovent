@@ -54,6 +54,28 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
                 entity_category=None,
             ),
         ),
+        KomfoventSwitch(
+            coordinator=coordinator,
+            register_id=registers.REG_AQ_IMPURITY_CONTROL,
+            entity_description=SwitchEntityDescription(
+                key="impurity_control",
+                name="Impurity Control",
+                icon="mdi:air-filter",
+                entity_registry_enabled_default=True,
+                entity_category=None,
+            ),
+        ),
+        KomfoventSwitch(
+            coordinator=coordinator,
+            register_id=registers.REG_AQ_HUMIDITY_CONTROL,
+            entity_description=SwitchEntityDescription(
+                key="humidity_control", 
+                name="Humidity Control",
+                icon="mdi:water-percent",
+                entity_registry_enabled_default=True,
+                entity_category=None,
+            ),
+        ),
     ]
 
 
