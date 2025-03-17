@@ -14,6 +14,14 @@ DEFAULT_SLAVE_ID: Final = 254
 DEFAULT_SCAN_INTERVAL = 30
 
 
+class Controller(IntEnum):
+    """Controllers."""
+
+    C6 = 0
+    C6M = 1
+    NA = 15
+
+
 class OperationMode(IntEnum):
     """Operation modes."""
 
