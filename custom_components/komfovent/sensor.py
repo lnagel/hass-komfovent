@@ -63,11 +63,11 @@ def create_aq_sensor(
     if not coordinator.data:
         return None
 
-    if register_id == registers.REG_AQ_SENSOR1_VALUE:
+    if register_id == registers.REG_EXTRACT_AQ_1:
         sensor_type_int = coordinator.data.get(
             registers.REG_AQ_SENSOR1_TYPE, AirQualitySensorType.NOT_INSTALLED
         )
-    elif register_id == registers.REG_AQ_SENSOR2_VALUE:
+    elif register_id == registers.REG_EXTRACT_AQ_2:
         sensor_type_int = coordinator.data.get(
             registers.REG_AQ_SENSOR2_TYPE, AirQualitySensorType.NOT_INSTALLED
         )
@@ -79,19 +79,23 @@ def create_aq_sensor(
     if sensor_type == AirQualitySensorType.NOT_INSTALLED:
         return None
 
-    key = f"air_quality_{sensor_type.name.lower()}"
-    name = f"Air Quality {sensor_type.name.upper()}"
+    key = f"extract_{sensor_type.name.lower()}"
 
     if sensor_type == AirQualitySensorType.CO2:
-        sensor_class, unit, device_class = CO2Sensor, "ppm", SensorDeviceClass.CO2
+        name = "Extract CO2"
+        sensor_class = CO2Sensor
+        unit = "ppm"
+        device_class = SensorDeviceClass.CO2
     elif sensor_type == AirQualitySensorType.VOC:
-        sensor_class, unit, device_class = VOCSensor, "ppb", None
-    elif sensor_type == AirQualitySensorType.RH:
-        sensor_class, unit, device_class = (
-            RelativeHumiditySensor,
-            PERCENTAGE,
-            SensorDeviceClass.HUMIDITY,
-        )
+        name = "Extract VOC"
+        sensor_class = VOCSensor
+        unit = "ppb"
+        device_class = None
+    elif sensor_type == AirQualitySensorType.HUMIDITY:
+        name = "Extract Humidity"
+        sensor_class = RelativeHumiditySensor
+        unit = PERCENTAGE
+        device_class = SensorDeviceClass.HUMIDITY
     else:
         return None
 
@@ -575,9 +579,9 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
         )
 
     # Add AQ sensors if installed
-    if aq_sensor := create_aq_sensor(coordinator, registers.REG_AQ_SENSOR1_VALUE):
+    if aq_sensor := create_aq_sensor(coordinator, registers.REG_EXTRACT_AQ_1):
         entities.append(aq_sensor)
-    if aq_sensor := create_aq_sensor(coordinator, registers.REG_AQ_SENSOR2_VALUE):
+    if aq_sensor := create_aq_sensor(coordinator, registers.REG_EXTRACT_AQ_2):
         entities.append(aq_sensor)
 
     return entities

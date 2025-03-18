@@ -165,8 +165,8 @@ REG_FILTER_CLOGGING = 917  # Filter clogging
 REG_AIR_DAMPERS = 918  # Air dampers
 REG_SUPPLY_PRESSURE = 919  # Supply pressure
 REG_EXTRACT_PRESSURE = 920  # Extract pressure
-REG_AQ_SENSOR1_VALUE = 952  # Air quality sensor 1 value
-REG_AQ_SENSOR2_VALUE = 953  # Air quality sensor 2 value
+REG_EXTRACT_AQ_1 = 952  # Air quality sensor 1 value
+REG_EXTRACT_AQ_2 = 953  # Air quality sensor 2 value
 REG_HEAT_EXCHANGER_TYPE = 955  # Heat exchanger type
 REG_INDOOR_ABS_HUMIDITY = 956  # Indoor absolute humidity
 REG_EXHAUST_TEMP = 961  # Exhaust temperature
@@ -307,8 +307,8 @@ REGISTERS_16BIT_UNSIGNED = {
     REG_SPI_DAY,
     REG_PANEL1_AQ,
     REG_PANEL2_AQ,
-    REG_AQ_SENSOR1_VALUE,
-    REG_AQ_SENSOR2_VALUE,
+    REG_EXTRACT_AQ_1,
+    REG_EXTRACT_AQ_2,
     REG_CONNECTED_PANELS,
     REG_HEAT_EXCHANGER_TYPE,
     REG_INDOOR_ABS_HUMIDITY,

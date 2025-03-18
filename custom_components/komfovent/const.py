@@ -86,7 +86,7 @@ class AirQualitySensorType(IntEnum):
     NOT_INSTALLED = 0
     CO2 = 1
     VOC = 2
-    RH = 3
+    HUMIDITY = 3
 
 
 class OutdoorHumiditySensor(IntEnum):
