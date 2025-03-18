@@ -89,6 +89,14 @@ class AirQualitySensorType(IntEnum):
     RH = 3
 
 
+class OutdoorHumiditySensor(IntEnum):
+    """Outdoor humidity sensor options."""
+
+    NONE = 0
+    SENSOR1 = 1
+    SENSOR2 = 2
+
+
 class OverrideMode(IntEnum):
     """Override mode types."""
 
