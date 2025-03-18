@@ -104,7 +104,16 @@ class KomfoventNumber(CoordinatorEntity, NumberEntity):
         """Return the current value."""
         if not self.coordinator.data:
             return None
-        return float(self.coordinator.data.get(self.register_id, 0))
+
+        value = self.coordinator.data.get(self.register_id, 0)
+
+        if value is None:
+            return None
+
+        try:
+            return float(value)
+        except (ValueError, TypeError):
+            return None
 
     async def async_set_native_value(self, value: float) -> None:
         """Update the current value."""
