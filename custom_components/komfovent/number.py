@@ -126,7 +126,7 @@ async def async_setup_entry(
             max_val = VOC_MAX
 
         entities.append(
-            AirQualityNumber(
+            KomfoventNumber(
                 coordinator=coordinator,
                 register_id=registers.REG_AQ_IMPURITY_SETPOINT,
                 entity_description=NumberEntityDescription(
@@ -209,5 +209,3 @@ class TemperatureNumber(KomfoventNumber):
         await super().async_set_native_value(value * 10)
 
 
-class AirQualityNumber(KomfoventNumber):
-    """Air quality number."""
