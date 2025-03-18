@@ -142,6 +142,28 @@ async def async_setup_entry(
             ),
         )
 
+    # Check if either sensor is a humidity sensor
+    if (
+        sensor1_type == AirQualitySensorType.HUMIDITY
+        or sensor2_type == AirQualitySensorType.HUMIDITY
+    ):
+        entities.append(
+            KomfoventNumber(
+                coordinator=coordinator,
+                register_id=registers.REG_AQ_HUMIDITY_SETPOINT,
+                entity_description=NumberEntityDescription(
+                    key="aq_humidity_setpoint",
+                    name="AQ Humidity Setpoint",
+                    entity_category=EntityCategory.CONFIG,
+                    native_step=1,
+                    native_unit_of_measurement=PERCENTAGE,
+                    native_min_value=0,
+                    native_max_value=100,
+                    device_class=NumberDeviceClass.HUMIDITY,
+                ),
+            ),
+        )
+
     async_add_entities(entities)
 
 
