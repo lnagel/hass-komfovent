@@ -115,8 +115,8 @@ REG_COOLING_DENIED = 204  # Cooling enable denied
 # Air quality settings
 REG_AQ_IMPURITY_CONTROL = 205  # Impurity control
 REG_AQ_TEMP_SETPOINT = 206  # Temperature setpoint
-REG_CO2_SETPOINT = 207  # CO2 setpoint
-REG_HUMIDITY_SETPOINT = 208  # Humidity setpoint
+REG_AQ_IMPURITY_SETPOINT = 207  # CO2/VOC setpoint
+REG_AQ_HUMIDITY_SETPOINT = 208  # Humidity setpoint
 REG_AQ_MIN_INTENSITY = 209  # Air quality minimum intensity
 REG_AQ_MAX_INTENSITY = 210  # Air quality maximum intensity
 REG_AQ_HEATING = 211  # Air quality heating
@@ -265,8 +265,8 @@ REGISTERS_16BIT_UNSIGNED = {
     REG_HEATING_DENIED,
     REG_COOLING_DENIED,
     REG_AQ_IMPURITY_CONTROL,
-    REG_CO2_SETPOINT,
-    REG_HUMIDITY_SETPOINT,
+    REG_AQ_IMPURITY_SETPOINT,
+    REG_AQ_HUMIDITY_SETPOINT,
     REG_AQ_MIN_INTENSITY,
     REG_AQ_MAX_INTENSITY,
     REG_AQ_HEATING,
