@@ -180,6 +180,21 @@ class KomfoventNumber(CoordinatorEntity, NumberEntity):
 
 
 class TemperatureNumber(KomfoventNumber):
+    """Temperature number with x10 scaling."""
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the current value."""
+        value = super().native_value
+
+        if value is None:
+            return None
+
+        return value / 10
+
+    async def async_set_native_value(self, value: float) -> None:
+        """Update the current value."""
+        await super().async_set_native_value(value * 10)
 
 
 class AirQualityNumber(KomfoventNumber):
