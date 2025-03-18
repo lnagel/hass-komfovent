@@ -21,7 +21,7 @@ from .const import DOMAIN
 
 async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSwitch]:
     """Create switch entities for Komfovent device."""
-    entities = [
+    return [
         KomfoventSwitch(
             coordinator=coordinator,
             register_id=registers.REG_POWER,
@@ -89,8 +89,6 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
             ),
         ),
     ]
-
-    return entities
 
 
 async def async_setup_entry(

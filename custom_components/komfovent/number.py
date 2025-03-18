@@ -143,10 +143,7 @@ async def async_setup_entry(
         )
 
     # Check if either sensor is a humidity sensor
-    if (
-        sensor1_type == AirQualitySensorType.HUMIDITY
-        or sensor2_type == AirQualitySensorType.HUMIDITY
-    ):
+    if sensor1_type in {AirQualitySensorType.HUMIDITY} or sensor2_type in {AirQualitySensorType.HUMIDITY}:
         entities.append(
             KomfoventNumber(
                 coordinator=coordinator,
