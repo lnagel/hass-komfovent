@@ -84,7 +84,7 @@ def create_aq_sensor(
     if sensor_type == AirQualitySensorType.CO2:
         name = "Extract CO2"
         sensor_class = CO2Sensor
-        unit = "ppm"
+        unit = CONCENTRATION_PARTS_PER_MILLION
         device_class = SensorDeviceClass.CO2
     elif sensor_type == AirQualitySensorType.VOC:
         name = "Extract VOC"
