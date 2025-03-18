@@ -9,7 +9,12 @@ from homeassistant.components.number import (
     NumberEntity,
     NumberEntityDescription,
 )
-from homeassistant.const import PERCENTAGE, UnitOfTemperature, UnitOfTime, EntityCategory
+from homeassistant.const import (
+    PERCENTAGE,
+    UnitOfTemperature,
+    UnitOfTime,
+    EntityCategory,
+)
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 if TYPE_CHECKING:
