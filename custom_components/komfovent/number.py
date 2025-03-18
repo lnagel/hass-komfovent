@@ -9,7 +9,7 @@ from homeassistant.components.number import (
     NumberEntity,
     NumberEntityDescription,
 )
-from homeassistant.const import PERCENTAGE, UnitOfTime, EntityCategory
+from homeassistant.const import PERCENTAGE, UnitOfTemperature, UnitOfTime, EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 if TYPE_CHECKING:
@@ -83,7 +83,7 @@ async def async_setup_entry(
                     native_min_value=5,  # Min temp per MODBUS spec
                     native_max_value=40,  # Max temp per MODBUS spec
                     native_step=0.1,  # 0.1°C steps since value is x10
-                    native_unit_of_measurement="°C",
+                    native_unit_of_measurement=UnitOfTemperature.CELSIUS,
                     device_class=NumberDeviceClass.TEMPERATURE,
                 ),
             ),
