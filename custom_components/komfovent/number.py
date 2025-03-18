@@ -34,7 +34,7 @@ AQ_TEMP_SETPOINT_MAX = 40
 
 CO2_MIN = 0
 CO2_MAX = 2000
-VOC_MIN = 0 
+VOC_MIN = 0
 VOC_MAX = 100
 
 
@@ -242,6 +242,7 @@ class AirQualityNumber(KomfoventNumber):
         if sensor_type == AirQualitySensorType.VOC:
             return VOC_MAX
         return 100
+
     """Temperature number with x10 scaling."""
 
     @property
