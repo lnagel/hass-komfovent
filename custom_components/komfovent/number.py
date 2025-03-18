@@ -207,5 +207,3 @@ class TemperatureNumber(KomfoventNumber):
     async def async_set_native_value(self, value: float) -> None:
         """Update the current value."""
         await super().async_set_native_value(value * 10)
-
-
