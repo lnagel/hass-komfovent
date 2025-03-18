@@ -47,7 +47,7 @@ async def async_setup_entry(
     coordinator: KomfoventCoordinator = hass.data[DOMAIN][entry.entry_id]
 
     entities = [
-            KomfoventNumber(
+        KomfoventNumber(
                 coordinator=coordinator,
                 register_id=registers.REG_AQ_MIN_INTENSITY,
                 entity_description=NumberEntityDescription(
@@ -102,7 +102,6 @@ async def async_setup_entry(
                 ),
             ),
         ]
-    ]
 
     # Check AQ sensor types to determine if we should add the impurity setpoint
     sensor1_type = coordinator.data.get(registers.REG_AQ_SENSOR1_TYPE)
