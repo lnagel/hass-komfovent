@@ -10,6 +10,7 @@ from homeassistant.components.number import (
     NumberEntityDescription,
 )
 from homeassistant.const import (
+    CONCENTRATION_PARTS_PER_MILLION,
     PERCENTAGE,
     EntityCategory,
     UnitOfTemperature,
@@ -117,7 +118,7 @@ async def async_setup_entry(
     if aq_type is not None:
         # Configure entity based on sensor type
         if aq_type == AirQualitySensorType.CO2:
-            native_unit = "ppm"
+            native_unit = CONCENTRATION_PARTS_PER_MILLION
             min_val = CO2_MIN
             max_val = CO2_MAX
         else:  # VOC
