@@ -11,9 +11,9 @@ from homeassistant.components.number import (
 )
 from homeassistant.const import (
     PERCENTAGE,
+    EntityCategory,
     UnitOfTemperature,
     UnitOfTime,
-    EntityCategory,
 )
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -26,6 +26,11 @@ if TYPE_CHECKING:
 
 from . import registers
 from .const import DOMAIN
+
+AQ_INTENSITY_MIN = 20
+AQ_INTENSITY_MAX = 100
+AQ_TEMP_SETPOINT_MIN = 5
+AQ_TEMP_SETPOINT_MAX = 40
 
 
 async def async_setup_entry(
@@ -45,8 +50,8 @@ async def async_setup_entry(
                     key="aq_minimum_intensity",
                     name="AQ Minimum Intensity",
                     entity_category=EntityCategory.CONFIG,
-                    native_min_value=20,
-                    native_max_value=100,
+                    native_min_value=AQ_INTENSITY_MIN,
+                    native_max_value=AQ_INTENSITY_MAX,
                     native_step=1,
                     native_unit_of_measurement=PERCENTAGE,
                 ),
@@ -58,8 +63,8 @@ async def async_setup_entry(
                     key="aq_maximum_intensity",
                     name="AQ Maximum Intensity",
                     entity_category=EntityCategory.CONFIG,
-                    native_min_value=20,
-                    native_max_value=100,
+                    native_min_value=AQ_INTENSITY_MIN,
+                    native_max_value=AQ_INTENSITY_MAX,
                     native_step=1,
                     native_unit_of_measurement=PERCENTAGE,
                 ),
@@ -85,8 +90,8 @@ async def async_setup_entry(
                     key="aq_temperature_setpoint",
                     name="AQ Temperature Setpoint",
                     entity_category=EntityCategory.CONFIG,
-                    native_min_value=5,  # Min temp per MODBUS spec
-                    native_max_value=40,  # Max temp per MODBUS spec
+                    native_min_value=AQ_TEMP_SETPOINT_MIN,  # Min temp per MODBUS spec
+                    native_max_value=AQ_TEMP_SETPOINT_MAX,  # Max temp per MODBUS spec
                     native_step=0.1,  # 0.1°C steps since value is x10
                     native_unit_of_measurement=UnitOfTemperature.CELSIUS,
                     device_class=NumberDeviceClass.TEMPERATURE,
