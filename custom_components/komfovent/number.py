@@ -80,9 +80,9 @@ async def async_setup_entry(
                     key="aq_temperature_setpoint",
                     name="AQ Temperature Setpoint",
                     entity_category=EntityCategory.CONFIG,
-                    native_min_value=10,  # Typical min temp for ventilation
-                    native_max_value=30,  # Typical max temp for ventilation
-                    native_step=0.1,  # 0.1°C steps since value is x10
+                    native_min_value=5,   # Min temp per MODBUS spec
+                    native_max_value=40,  # Max temp per MODBUS spec
+                    native_step=0.1,      # 0.1°C steps since value is x10
                     native_unit_of_measurement="°C",
                     device_class=NumberDeviceClass.TEMPERATURE,
                 ),
