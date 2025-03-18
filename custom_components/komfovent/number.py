@@ -209,5 +209,5 @@ class TemperatureNumber(KomfoventNumber):
         await super().async_set_native_value(value * 10)
 
 
-class AirQualityNumber(TemperatureNumber):
-    """Air quality number with x10 scaling."""
+class AirQualityNumber(KomfoventNumber):
+    """Air quality number."""
