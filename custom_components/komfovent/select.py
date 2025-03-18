@@ -18,6 +18,7 @@ from .const import (
     AirQualitySensorType,
     FlowControl,
     OperationMode,
+    OutdoorHumiditySensor,
     SchedulerMode,
     TemperatureControl,
 )
@@ -104,6 +105,18 @@ async def async_setup_entry(
                     name="Air quality sensor 2 type",
                     entity_category=EntityCategory.CONFIG,
                     options=[mode.name.lower() for mode in AirQualitySensorType],
+                ),
+            ),
+            KomfoventSelect(
+                coordinator=coordinator,
+                register_id=registers.REG_AQ_OUTDOOR_HUMIDITY,
+                enum_class=OutdoorHumiditySensor,
+                entity_description=SelectEntityDescription(
+                    key="outdoor_humidity_sensor",
+                    name="Outdoor humidity sensor",
+                    entity_category=EntityCategory.CONFIG,
+                    icon="mdi:water-percent",
+                    options=[mode.name.lower() for mode in OutdoorHumiditySensor],
                 ),
             ),
         ]
