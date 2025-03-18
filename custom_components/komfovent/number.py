@@ -115,6 +115,16 @@ async def async_setup_entry(
         aq_type = sensor2_type
 
     if aq_type is not None:
+        # Configure entity based on sensor type
+        if aq_type == AirQualitySensorType.CO2:
+            native_unit = "ppm"
+            min_val = CO2_MIN
+            max_val = CO2_MAX
+        else:  # VOC
+            native_unit = PERCENTAGE
+            min_val = VOC_MIN
+            max_val = VOC_MAX
+
         entities.append(
             AirQualityNumber(
                 coordinator=coordinator,
@@ -124,8 +134,10 @@ async def async_setup_entry(
                     name="AQ Impurity Setpoint",
                     entity_category=EntityCategory.CONFIG,
                     native_step=1,
+                    native_unit_of_measurement=native_unit,
+                    native_min_value=min_val,
+                    native_max_value=max_val,
                 ),
-                sensor_type=aq_type,
             ),
         )
 
@@ -197,75 +209,5 @@ class TemperatureNumber(KomfoventNumber):
         await super().async_set_native_value(value * 10)
 
 
-class AirQualityNumber(KomfoventNumber):
-    """Air quality number that adapts to sensor type."""
-
-    def __init__(
-        self,
-        coordinator: KomfoventCoordinator,
-        register_id: int,
-        entity_description: NumberEntityDescription,
-        sensor_type: AirQualitySensorType,
-    ) -> None:
-        """Initialize the air quality number entity."""
-        super().__init__(coordinator, register_id, entity_description)
-        self._sensor_type = sensor_type
-
-    @property
-    def native_value(self) -> float | None:
-        """Return the current value."""
-        if not self.coordinator.data:
-            return None
-
-        value = self.coordinator.data.get(self.register_id)
-
-        if value is None:
-            return None
-
-        try:
-            return float(value)
-        except (ValueError, TypeError):
-            return None
-
-    @property
-    def native_unit_of_measurement(self) -> str | None:
-        """Return the unit of measurement."""
-        if self._sensor_type == AirQualitySensorType.CO2:
-            return "ppm"
-        if self._sensor_type == AirQualitySensorType.VOC:
-            return PERCENTAGE
-        return None
-
-    @property
-    def native_min_value(self) -> float:
-        """Return the minimum value."""
-        if self._sensor_type == AirQualitySensorType.CO2:
-            return CO2_MIN
-        if self._sensor_type == AirQualitySensorType.VOC:
-            return VOC_MIN
-        return 0
-
-    @property
-    def native_max_value(self) -> float:
-        """Return the maximum value."""
-        if self._sensor_type == AirQualitySensorType.CO2:
-            return CO2_MAX
-        if self._sensor_type == AirQualitySensorType.VOC:
-            return VOC_MAX
-        return 100
-
-    """Temperature number with x10 scaling."""
-
-    @property
-    def native_value(self) -> float | None:
-        """Return the current value."""
-        value = super().native_value
-
-        if value is None:
-            return None
-
-        return value / 10
-
-    async def async_set_native_value(self, value: float) -> None:
-        """Update the current value."""
-        await super().async_set_native_value(value * 10)
+class AirQualityNumber(TemperatureNumber):
+    """Air quality number with x10 scaling."""
