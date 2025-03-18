@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from homeassistant.components.switch import SwitchEntity, SwitchEntityDescription
+from homeassistant.const import EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 if TYPE_CHECKING:
@@ -58,22 +59,22 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
             coordinator=coordinator,
             register_id=registers.REG_AQ_IMPURITY_CONTROL,
             entity_description=SwitchEntityDescription(
-                key="impurity_control",
-                name="Impurity Control",
+                key="aq_impurity_control",
+                name="AQ Impurity Control",
                 icon="mdi:air-filter",
                 entity_registry_enabled_default=True,
-                entity_category=None,
+                entity_category=EntityCategory.CONFIG,
             ),
         ),
         KomfoventSwitch(
             coordinator=coordinator,
             register_id=registers.REG_AQ_HUMIDITY_CONTROL,
             entity_description=SwitchEntityDescription(
-                key="humidity_control",
-                name="Humidity Control",
+                key="aq_humidity_control",
+                name="AQ Humidity Control",
                 icon="mdi:water-percent",
                 entity_registry_enabled_default=True,
-                entity_category=None,
+                entity_category=EntityCategory.CONFIG,
             ),
         ),
     ]

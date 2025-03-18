@@ -9,7 +9,7 @@ from homeassistant.components.number import (
     NumberEntity,
     NumberEntityDescription,
 )
-from homeassistant.const import PERCENTAGE, UnitOfTime
+from homeassistant.const import PERCENTAGE, UnitOfTime, EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 if TYPE_CHECKING:
@@ -37,8 +37,9 @@ async def async_setup_entry(
                 coordinator=coordinator,
                 register_id=registers.REG_AQ_MIN_INTENSITY,
                 entity_description=NumberEntityDescription(
-                    key="minimum_intensity",
-                    name="Minimum Intensity",
+                    key="aq_minimum_intensity",
+                    name="AQ Minimum Intensity",
+                    entity_category=EntityCategory.CONFIG,
                     native_min_value=20,
                     native_max_value=100,
                     native_step=1,
@@ -49,8 +50,9 @@ async def async_setup_entry(
                 coordinator=coordinator,
                 register_id=registers.REG_AQ_MAX_INTENSITY,
                 entity_description=NumberEntityDescription(
-                    key="maximum_intensity",
-                    name="Maximum Intensity",
+                    key="aq_maximum_intensity",
+                    name="AQ Maximum Intensity",
+                    entity_category=EntityCategory.CONFIG,
                     native_min_value=20,
                     native_max_value=100,
                     native_step=1,
@@ -61,8 +63,9 @@ async def async_setup_entry(
                 coordinator=coordinator,
                 register_id=registers.REG_AQ_CHECK_PERIOD,
                 entity_description=NumberEntityDescription(
-                    key="check_period",
-                    name="Check Period",
+                    key="aq_check_period",
+                    name="AQ Check Period",
+                    entity_category=EntityCategory.CONFIG,
                     native_min_value=1,
                     native_max_value=24,
                     native_step=1,
