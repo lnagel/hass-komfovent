@@ -108,16 +108,11 @@ async def async_setup_entry(
     sensor1_type = coordinator.data.get(registers.REG_AQ_SENSOR1_TYPE)
     sensor2_type = coordinator.data.get(registers.REG_AQ_SENSOR2_TYPE)
 
-    # Use first CO2/VOC sensor type found
-    aq_type = None
-    if sensor1_type in (AirQualitySensorType.CO2, AirQualitySensorType.VOC):
-        aq_type = sensor1_type
-    elif sensor2_type in (AirQualitySensorType.CO2, AirQualitySensorType.VOC):
-        aq_type = sensor2_type
-
-    if aq_type is not None:
+    if {AirQualitySensorType.CO2, AirQualitySensorType.VOC}.intersection(
+        {sensor1_type, sensor2_type}
+    ):
         # Configure entity based on sensor type
-        if aq_type == AirQualitySensorType.CO2:
+        if AirQualitySensorType.CO2 in {sensor1_type, sensor2_type}:
             native_unit = CONCENTRATION_PARTS_PER_MILLION
             min_val = CO2_MIN
             max_val = CO2_MAX
@@ -143,7 +138,7 @@ async def async_setup_entry(
         )
 
     # Check if either sensor is a humidity sensor
-    if sensor1_type in {AirQualitySensorType.HUMIDITY} or sensor2_type in {AirQualitySensorType.HUMIDITY}:
+    if AirQualitySensorType.HUMIDITY in {sensor1_type, sensor2_type}:
         entities.append(
             KomfoventNumber(
                 coordinator=coordinator,
