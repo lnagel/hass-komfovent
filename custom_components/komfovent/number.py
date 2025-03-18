@@ -149,64 +149,13 @@ class TemperatureNumber(KomfoventNumber):
     @property
     def native_value(self) -> float | None:
         """Return the current value."""
-        if not self.coordinator.data:
-            return None
-
-        value = self.coordinator.data.get(self.register_id)
+        value = super().native_value
 
         if value is None:
             return None
 
-        try:
-            return float(value) / 10
-        except (ValueError, TypeError):
-            return None
+        return value / 10
 
     async def async_set_native_value(self, value: float) -> None:
         """Update the current value."""
-        await self.coordinator.client.write_register(self.register_id, int(value * 10))
-        await self.coordinator.async_request_refresh()
-    """Base representation of a Komfovent number entity."""
-
-    _attr_has_entity_name: ClassVar[bool] = True
-
-    def __init__(
-        self,
-        coordinator: KomfoventCoordinator,
-        register_id: int,
-        entity_description: NumberEntityDescription,
-    ) -> None:
-        """Initialize the number entity."""
-        super().__init__(coordinator)
-        self.register_id = register_id
-        self.entity_description = entity_description
-        self._attr_unique_id = (
-            f"{coordinator.config_entry.entry_id}_{entity_description.key}"
-        )
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, coordinator.config_entry.entry_id)},
-            "name": coordinator.config_entry.title,
-            "manufacturer": "Komfovent",
-            "model": None,
-        }
-
-    @property
-    def native_value(self) -> float | None:
-        """Return the current value."""
-        if not self.coordinator.data:
-            return None
-
-        value = self.coordinator.data.get(self.register_id, 0)
-
-        if value is None:
-            return None
-
-        try:
-            return float(value)
-        except (ValueError, TypeError):
-            return None
-
-    async def async_set_native_value(self, value: float) -> None:
-        """Update the current value."""
-        await self.coordinator.client.write_register(self.register_id, int(value))
-        await self.coordinator.async_request_refresh()
+        await super().async_set_native_value(value * 10)
