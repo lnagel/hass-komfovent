@@ -11,6 +11,7 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.const import (
+    CONCENTRATION_PARTS_PER_BILLION,
     CONCENTRATION_PARTS_PER_MILLION,
     PERCENTAGE,
     UnitOfEnergy,
@@ -90,7 +91,7 @@ def create_aq_sensor(
     elif sensor_type == AirQualitySensorType.VOC:
         name = "Extract VOC"
         sensor_class = VOCSensor
-        unit = "ppb"
+        unit = CONCENTRATION_PARTS_PER_BILLION
         device_class = None
     elif sensor_type == AirQualitySensorType.HUMIDITY:
         name = "Extract Humidity"
