@@ -116,10 +116,12 @@ async def async_setup_entry(
             native_unit = CONCENTRATION_PARTS_PER_MILLION
             min_val = CO2_MIN
             max_val = CO2_MAX
+            device_class = NumberDeviceClass.CO2
         else:  # VOC
             native_unit = PERCENTAGE
             min_val = VOC_MIN
             max_val = VOC_MAX
+            device_class = None
 
         entities.append(
             KomfoventNumber(
@@ -133,6 +135,7 @@ async def async_setup_entry(
                     native_unit_of_measurement=native_unit,
                     native_min_value=min_val,
                     native_max_value=max_val,
+                    device_class=device_class,
                 ),
             ),
         )
