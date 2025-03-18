@@ -48,60 +48,60 @@ async def async_setup_entry(
 
     entities = [
         KomfoventNumber(
-                coordinator=coordinator,
-                register_id=registers.REG_AQ_MIN_INTENSITY,
-                entity_description=NumberEntityDescription(
-                    key="aq_minimum_intensity",
-                    name="AQ Minimum Intensity",
-                    entity_category=EntityCategory.CONFIG,
-                    native_min_value=AQ_INTENSITY_MIN,
-                    native_max_value=AQ_INTENSITY_MAX,
-                    native_step=1,
-                    native_unit_of_measurement=PERCENTAGE,
-                ),
+            coordinator=coordinator,
+            register_id=registers.REG_AQ_MIN_INTENSITY,
+            entity_description=NumberEntityDescription(
+                key="aq_minimum_intensity",
+                name="AQ Minimum Intensity",
+                entity_category=EntityCategory.CONFIG,
+                native_min_value=AQ_INTENSITY_MIN,
+                native_max_value=AQ_INTENSITY_MAX,
+                native_step=1,
+                native_unit_of_measurement=PERCENTAGE,
             ),
-            KomfoventNumber(
-                coordinator=coordinator,
-                register_id=registers.REG_AQ_MAX_INTENSITY,
-                entity_description=NumberEntityDescription(
-                    key="aq_maximum_intensity",
-                    name="AQ Maximum Intensity",
-                    entity_category=EntityCategory.CONFIG,
-                    native_min_value=AQ_INTENSITY_MIN,
-                    native_max_value=AQ_INTENSITY_MAX,
-                    native_step=1,
-                    native_unit_of_measurement=PERCENTAGE,
-                ),
+        ),
+        KomfoventNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_AQ_MAX_INTENSITY,
+            entity_description=NumberEntityDescription(
+                key="aq_maximum_intensity",
+                name="AQ Maximum Intensity",
+                entity_category=EntityCategory.CONFIG,
+                native_min_value=AQ_INTENSITY_MIN,
+                native_max_value=AQ_INTENSITY_MAX,
+                native_step=1,
+                native_unit_of_measurement=PERCENTAGE,
             ),
-            KomfoventNumber(
-                coordinator=coordinator,
-                register_id=registers.REG_AQ_CHECK_PERIOD,
-                entity_description=NumberEntityDescription(
-                    key="aq_check_period",
-                    name="AQ Check Period",
-                    entity_category=EntityCategory.CONFIG,
-                    native_min_value=1,
-                    native_max_value=24,
-                    native_step=1,
-                    native_unit_of_measurement=UnitOfTime.HOURS,
-                    device_class=NumberDeviceClass.DURATION,
-                ),
+        ),
+        KomfoventNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_AQ_CHECK_PERIOD,
+            entity_description=NumberEntityDescription(
+                key="aq_check_period",
+                name="AQ Check Period",
+                entity_category=EntityCategory.CONFIG,
+                native_min_value=1,
+                native_max_value=24,
+                native_step=1,
+                native_unit_of_measurement=UnitOfTime.HOURS,
+                device_class=NumberDeviceClass.DURATION,
             ),
-            TemperatureNumber(
-                coordinator=coordinator,
-                register_id=registers.REG_AQ_TEMP_SETPOINT,
-                entity_description=NumberEntityDescription(
-                    key="aq_temperature_setpoint",
-                    name="AQ Temperature Setpoint",
-                    entity_category=EntityCategory.CONFIG,
-                    native_min_value=AQ_TEMP_SETPOINT_MIN,  # Min temp per MODBUS spec
-                    native_max_value=AQ_TEMP_SETPOINT_MAX,  # Max temp per MODBUS spec
-                    native_step=0.1,  # 0.1°C steps since value is x10
-                    native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-                    device_class=NumberDeviceClass.TEMPERATURE,
-                ),
+        ),
+        TemperatureNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_AQ_TEMP_SETPOINT,
+            entity_description=NumberEntityDescription(
+                key="aq_temperature_setpoint",
+                name="AQ Temperature Setpoint",
+                entity_category=EntityCategory.CONFIG,
+                native_min_value=AQ_TEMP_SETPOINT_MIN,  # Min temp per MODBUS spec
+                native_max_value=AQ_TEMP_SETPOINT_MAX,  # Max temp per MODBUS spec
+                native_step=0.1,  # 0.1°C steps since value is x10
+                native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                device_class=NumberDeviceClass.TEMPERATURE,
             ),
-        ]
+        ),
+    ]
 
     # Check AQ sensor types to determine if we should add the impurity setpoint
     sensor1_type = coordinator.data.get(registers.REG_AQ_SENSOR1_TYPE)
