@@ -90,7 +90,6 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
         ),
     ]
 
-
     return entities
 
 
