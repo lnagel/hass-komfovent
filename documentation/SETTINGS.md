@@ -4,9 +4,9 @@
 
 - [x] Min supply temperature (REG 200)
 - [x] Max supply temperature (REG 201)
-- [ ] Free cooling
-- [ ] Heater blocking
-- [ ] Cooler blocking
+- [x] Free cooling (REG 202)
+- [x] Heater blocking (REG 203)
+- [x] Cooler blocking (REG 204)
 - [ ] Heat recovery control
 
 # Settings
