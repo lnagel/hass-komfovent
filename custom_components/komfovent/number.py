@@ -107,38 +107,39 @@ async def async_setup_entry(
     sensor1_type = coordinator.data.get(registers.REG_AQ_SENSOR1_TYPE)
     sensor2_type = coordinator.data.get(registers.REG_AQ_SENSOR2_TYPE)
 
-    if {AirQualitySensorType.CO2, AirQualitySensorType.VOC}.intersection(
-        {sensor1_type, sensor2_type}
-    ):
-        # Configure entity based on sensor type
-        if AirQualitySensorType.CO2 in {sensor1_type, sensor2_type}:
-            native_unit = CONCENTRATION_PARTS_PER_MILLION
-            min_val = CO2_MIN
-            max_val = CO2_MAX
-            device_class = NumberDeviceClass.CO2
-        else:  # VOC
-            native_unit = PERCENTAGE
-            min_val = VOC_MIN
-            max_val = VOC_MAX
-            device_class = None
-
+    # Check if either sensor is a CO2 sensor
+    if AirQualitySensorType.CO2 in {sensor1_type, sensor2_type}:
         entities.append(
             KomfoventNumber(
                 coordinator=coordinator,
                 register_id=registers.REG_AQ_IMPURITY_SETPOINT,
                 entity_description=NumberEntityDescription(
-                    key="aq_impurity_setpoint",
-                    name="AQ Impurity Setpoint",
+                    key="aq_co2_setpoint",
+                    name="AQ CO2 Setpoint",
                     native_step=1,
-                    native_unit_of_measurement=native_unit,
-                    native_min_value=min_val,
-                    native_max_value=max_val,
-                    device_class=device_class,
+                    native_unit_of_measurement=CONCENTRATION_PARTS_PER_MILLION,
+                    native_min_value=CO2_MIN,
+                    native_max_value=CO2_MAX,
+                    device_class=NumberDeviceClass.CO2,
+                ),
+            ),
+        )
+    # Check if either sensor is a VOC sensor (and CO2 sensor is not already added)
+    elif AirQualitySensorType.VOC in {sensor1_type, sensor2_type}:
+        entities.append(
+            KomfoventNumber(
+                coordinator=coordinator,
+                register_id=registers.REG_AQ_IMPURITY_SETPOINT,
+                entity_description=NumberEntityDescription(
+                    key="aq_voc_setpoint",
+                    name="AQ VOC Setpoint",
+                    native_step=1,
+                    native_unit_of_measurement=PERCENTAGE,
                 ),
             ),
         )
 
-    # Check if either sensor is a humidity sensor
+    # Check if either sensor is a humidity sensor (independent of CO2/VOC)
     if AirQualitySensorType.HUMIDITY in {sensor1_type, sensor2_type}:
         entities.append(
             KomfoventNumber(
