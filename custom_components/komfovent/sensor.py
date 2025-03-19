@@ -44,6 +44,7 @@ from .const import (
     FlowControl,
     FlowUnit,
     HeatExchangerType,
+    OutdoorHumiditySensor,
 )
 
 # Constants for value validation
@@ -94,8 +95,24 @@ def create_aq_sensor(
         unit = PERCENTAGE
         device_class = None
     elif sensor_type == AirQualitySensorType.HUMIDITY:
-        key = "extract_humidity"
-        name = "Extract Humidity"
+        outdoor_humidity_sensor = coordinator.data.get(
+            registers.REG_AQ_OUTDOOR_HUMIDITY, OutdoorHumiditySensor.NONE
+        )
+        is_outdoor = (
+            register_id == registers.REG_EXTRACT_AQ_1
+            and outdoor_humidity_sensor == OutdoorHumiditySensor.SENSOR1
+        ) or (
+            register_id == registers.REG_EXTRACT_AQ_2
+            and outdoor_humidity_sensor == OutdoorHumiditySensor.SENSOR2
+        )
+
+        if is_outdoor:
+            key = "outdoor_humidity"
+            name = "Outdoor Humidity"
+        else:
+            key = "extract_humidity"
+            name = "Extract Humidity"
+
         sensor_class = RelativeHumiditySensor
         unit = PERCENTAGE
         device_class = SensorDeviceClass.HUMIDITY
