@@ -27,6 +27,7 @@ if TYPE_CHECKING:
 
 from . import registers
 from .const import DOMAIN, AirQualitySensorType
+from .registers import REG_ECO_MIN_TEMP, REG_ECO_MAX_TEMP
 
 AQ_INTENSITY_MIN = 20
 AQ_INTENSITY_MAX = 100
@@ -48,6 +49,32 @@ async def async_setup_entry(
     coordinator: KomfoventCoordinator = hass.data[DOMAIN][entry.entry_id]
 
     entities = [
+        TemperatureNumber(
+            coordinator=coordinator,
+            register_id=REG_ECO_MIN_TEMP,
+            entity_description=NumberEntityDescription(
+                key="eco_min_temp",
+                name="ECO Minimum Supply Temperature",
+                native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                native_min_value=5.0,
+                native_max_value=40.0,
+                native_step=0.1,
+                device_class=NumberDeviceClass.TEMPERATURE,
+            ),
+        ),
+        TemperatureNumber(
+            coordinator=coordinator,
+            register_id=REG_ECO_MAX_TEMP,
+            entity_description=NumberEntityDescription(
+                key="eco_max_temp", 
+                name="ECO Maximum Supply Temperature",
+                native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                native_min_value=5.0,
+                native_max_value=40.0,
+                native_step=0.1,
+                device_class=NumberDeviceClass.TEMPERATURE,
+            ),
+        ),
         KomfoventNumber(
             coordinator=coordinator,
             register_id=registers.REG_AQ_MIN_INTENSITY,
