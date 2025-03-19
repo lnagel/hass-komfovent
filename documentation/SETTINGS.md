@@ -1,3 +1,14 @@
+# Control
+
+## ECO
+
+- [ ] Min supply temperature
+- [ ] Max supply temperature 
+- [ ] Free cooling
+- [ ] Heater blocking
+- [ ] Cooler blocking
+- [ ] Heat recovery control
+
 # Settings
 
 ## User Interface
