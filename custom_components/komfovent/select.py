@@ -17,6 +17,7 @@ from .const import (
     DOMAIN,
     AirQualitySensorType,
     FlowControl,
+    HeatRecoveryControl,
     OperationMode,
     OutdoorHumiditySensor,
     SchedulerMode,
@@ -116,6 +117,18 @@ async def async_setup_entry(
                     entity_category=EntityCategory.CONFIG,
                     icon="mdi:water-percent",
                     options=[mode.name.lower() for mode in OutdoorHumiditySensor],
+                ),
+            ),
+            KomfoventSelect(
+                coordinator=coordinator,
+                register_id=registers.REG_AQ_HEAT_RECOVERY,
+                enum_class=HeatRecoveryControl,
+                entity_description=SelectEntityDescription(
+                    key="aq_heat_recovery_control",
+                    name="Heat Recovery Control",
+                    entity_category=EntityCategory.CONFIG,
+                    icon="mdi:heat-wave",
+                    options=[mode.name.lower() for mode in HeatRecoveryControl],
                 ),
             ),
         ]
