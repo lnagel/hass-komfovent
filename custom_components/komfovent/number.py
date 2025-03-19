@@ -94,7 +94,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="aq_temperature_setpoint",
                 name="AQ Temperature Setpoint",
-                entity_category=EntityCategory.CONFIG,
                 native_min_value=AQ_TEMP_SETPOINT_MIN,  # Min temp per MODBUS spec
                 native_max_value=AQ_TEMP_SETPOINT_MAX,  # Max temp per MODBUS spec
                 native_step=0.1,  # 0.1°C steps since value is x10
@@ -130,7 +129,6 @@ async def async_setup_entry(
                 entity_description=NumberEntityDescription(
                     key="aq_impurity_setpoint",
                     name="AQ Impurity Setpoint",
-                    entity_category=EntityCategory.CONFIG,
                     native_step=1,
                     native_unit_of_measurement=native_unit,
                     native_min_value=min_val,
@@ -149,7 +147,6 @@ async def async_setup_entry(
                 entity_description=NumberEntityDescription(
                     key="aq_humidity_setpoint",
                     name="AQ Humidity Setpoint",
-                    entity_category=EntityCategory.CONFIG,
                     native_step=1,
                     native_unit_of_measurement=PERCENTAGE,
                     native_min_value=0,
