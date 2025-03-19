@@ -2,8 +2,8 @@
 
 ## ECO
 
-- [ ] Min supply temperature
-- [ ] Max supply temperature 
+- [x] Min supply temperature (REG 200)
+- [x] Max supply temperature (REG 201)
 - [ ] Free cooling
 - [ ] Heater blocking
 - [ ] Cooler blocking
