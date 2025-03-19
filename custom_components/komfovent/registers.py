@@ -119,7 +119,7 @@ REG_AQ_IMPURITY_SETPOINT = 207  # CO2/VOC setpoint
 REG_AQ_HUMIDITY_SETPOINT = 208  # Humidity setpoint
 REG_AQ_MIN_INTENSITY = 209  # Air quality minimum intensity
 REG_AQ_MAX_INTENSITY = 210  # Air quality maximum intensity
-REG_AQ_HEATING = 211  # Air quality heating
+REG_AQ_ELECTRIC_HEATER = 211  # Air quality heating
 REG_AQ_CHECK_PERIOD = 212  # Air quality check period
 REG_AQ_SENSOR1_TYPE = 213  # Air quality sensor 1 type
 REG_AQ_SENSOR2_TYPE = 214  # Air quality sensor 2 type
@@ -269,7 +269,7 @@ REGISTERS_16BIT_UNSIGNED = {
     REG_AQ_HUMIDITY_SETPOINT,
     REG_AQ_MIN_INTENSITY,
     REG_AQ_MAX_INTENSITY,
-    REG_AQ_HEATING,
+    REG_AQ_ELECTRIC_HEATER,
     REG_AQ_CHECK_PERIOD,
     REG_AQ_SENSOR1_TYPE,
     REG_AQ_SENSOR2_TYPE,
