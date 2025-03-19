@@ -1,3 +1,21 @@
+# Control
+
+## ECO
+
+- [x] Min supply temperature (REG 200)
+- [x] Max supply temperature (REG 201)
+- [x] Free cooling (REG 202)
+- [x] Heater blocking (REG 203)
+- [x] Cooler blocking (REG 204)
+- [ ] Heat recovery control
+
+## AUTO
+
+- [x] Supply temperature setpoint
+- [x] Air Impurity setpoint
+- [x] Air Humidity setpoint
+- [x] Electric heater 
+
 # Settings
 
 ## User Interface

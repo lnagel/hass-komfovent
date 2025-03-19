@@ -24,6 +24,7 @@ INTEGRATION_RANGES = [
     (1, 34),  # primary control block 1-34
     (100, 57),  # modes 100-156
     (200, 17),  # eco and air quality 200-216
+    (217, 1),  # heat recovery control 217
     (300, 100),  # scheduler 300-555
     (400, 100),  # scheduler 400-555
     (500, 56),  # scheduler 500-555
@@ -60,7 +61,6 @@ MOBILE_APP_RANGES = [
 UNKNOWN_RANGES = [
     (35, 10),  # unknown 35-44
     (157, 6),  # unknown 157-162
-    (217, 1),  # unknown 217
     (957, 1),  # unknown 957
 ]
 RANGES = INTEGRATION_RANGES + MOBILE_APP_RANGES + UNKNOWN_RANGES

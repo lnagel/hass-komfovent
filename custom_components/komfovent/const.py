@@ -137,6 +137,14 @@ class FlowUnit(IntEnum):
     LS = 1  # l/s
 
 
+class HeatRecoveryControl(IntEnum):
+    """Heat recovery control modes."""
+
+    AUTO = 0
+    CONSTANT = 1
+    NON_STOP = 2
+
+
 class ResetSettings(IntEnum):
     """Reset settings options."""
 

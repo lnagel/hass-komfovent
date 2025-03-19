@@ -27,11 +27,12 @@ if TYPE_CHECKING:
 
 from . import registers
 from .const import DOMAIN, AirQualitySensorType
+from .registers import REG_ECO_MAX_TEMP, REG_ECO_MIN_TEMP
 
 AQ_INTENSITY_MIN = 20
 AQ_INTENSITY_MAX = 100
-AQ_TEMP_SETPOINT_MIN = 5
-AQ_TEMP_SETPOINT_MAX = 40
+TEMP_SETPOINT_MIN = 5
+TEMP_SETPOINT_MAX = 40
 
 CO2_MIN = 0
 CO2_MAX = 2000
@@ -48,6 +49,32 @@ async def async_setup_entry(
     coordinator: KomfoventCoordinator = hass.data[DOMAIN][entry.entry_id]
 
     entities = [
+        TemperatureNumber(
+            coordinator=coordinator,
+            register_id=REG_ECO_MIN_TEMP,
+            entity_description=NumberEntityDescription(
+                key="eco_min_supply_temperature",
+                name="ECO Min Supply Temperature",
+                native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                native_min_value=TEMP_SETPOINT_MIN,
+                native_max_value=TEMP_SETPOINT_MAX,
+                native_step=0.1,
+                device_class=NumberDeviceClass.TEMPERATURE,
+            ),
+        ),
+        TemperatureNumber(
+            coordinator=coordinator,
+            register_id=REG_ECO_MAX_TEMP,
+            entity_description=NumberEntityDescription(
+                key="eco_max_supply_temperature",
+                name="ECO Max Supply Temperature",
+                native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                native_min_value=TEMP_SETPOINT_MIN,
+                native_max_value=TEMP_SETPOINT_MAX,
+                native_step=0.1,
+                device_class=NumberDeviceClass.TEMPERATURE,
+            ),
+        ),
         KomfoventNumber(
             coordinator=coordinator,
             register_id=registers.REG_AQ_MIN_INTENSITY,
@@ -94,9 +121,9 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="aq_temperature_setpoint",
                 name="AQ Temperature Setpoint",
-                native_min_value=AQ_TEMP_SETPOINT_MIN,  # Min temp per MODBUS spec
-                native_max_value=AQ_TEMP_SETPOINT_MAX,  # Max temp per MODBUS spec
-                native_step=0.1,  # 0.1°C steps since value is x10
+                native_min_value=TEMP_SETPOINT_MIN,
+                native_max_value=TEMP_SETPOINT_MAX,
+                native_step=0.1,
                 native_unit_of_measurement=UnitOfTemperature.CELSIUS,
                 device_class=NumberDeviceClass.TEMPERATURE,
             ),

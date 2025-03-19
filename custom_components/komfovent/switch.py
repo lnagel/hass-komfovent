@@ -87,6 +87,39 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
                 entity_registry_enabled_default=True,
             ),
         ),
+        KomfoventSwitch(
+            coordinator=coordinator,
+            register_id=registers.REG_FREE_HEATING,
+            entity_description=SwitchEntityDescription(
+                key="eco_free_cooling",
+                name="ECO Free Cooling",
+                icon="mdi:snowflake",
+                entity_registry_enabled_default=True,
+                entity_category=None,
+            ),
+        ),
+        KomfoventSwitch(
+            coordinator=coordinator,
+            register_id=registers.REG_HEATING_DENIED,
+            entity_description=SwitchEntityDescription(
+                key="eco_heater_blocking",
+                name="ECO Heater Blocking",
+                icon="mdi:radiator-off",
+                entity_registry_enabled_default=True,
+                entity_category=None,
+            ),
+        ),
+        KomfoventSwitch(
+            coordinator=coordinator,
+            register_id=registers.REG_COOLING_DENIED,
+            entity_description=SwitchEntityDescription(
+                key="eco_cooler_blocking",
+                name="ECO Cooler Blocking",
+                icon="mdi:snowflake-off",
+                entity_registry_enabled_default=True,
+                entity_category=None,
+            ),
+        ),
     ]
 
 
