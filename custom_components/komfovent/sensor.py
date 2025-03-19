@@ -55,7 +55,7 @@ MAX_PERCENTAGE = 100
 MAX_HUMIDITY = 125
 MAX_CO2_PPM = 2500
 MAX_SPI = 5
-MAX_VOC_PPB = 2000
+MAX_VOC = 125
 
 
 def create_aq_sensor(
@@ -91,7 +91,7 @@ def create_aq_sensor(
     elif sensor_type == AirQualitySensorType.VOC:
         name = "Extract VOC"
         sensor_class = VOCSensor
-        unit = CONCENTRATION_PARTS_PER_BILLION
+        unit = PERCENTAGE
         device_class = None
     elif sensor_type == AirQualitySensorType.HUMIDITY:
         name = "Extract Humidity"
@@ -791,7 +791,7 @@ class VOCSensor(KomfoventSensor):
         if value is None:
             return None
 
-        if 0 <= value <= MAX_VOC_PPB:
+        if 0 <= value <= MAX_VOC:
             return value
         return None
 
