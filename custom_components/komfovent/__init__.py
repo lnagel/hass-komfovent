@@ -26,6 +26,7 @@ _LOGGER = logging.getLogger(__name__)
 PLATFORMS = [
     Platform.BUTTON,
     Platform.CLIMATE,
+    Platform.NUMBER,
     Platform.SELECT,
     Platform.SENSOR,
     Platform.SWITCH,
@@ -82,6 +83,9 @@ ENTITY_ID_MIGRATIONS = {
     "supply_fan_intensity": "supply_fan",
     "extract_fan_intensity": "extract_fan",
     "filter_impurity": "filter_clogging",
+    "air_quality_co2": "extract_co2",
+    "air_quality_voc": "extract_voc",
+    "air_quality_rh": "extract_humidity",
 }
 
 

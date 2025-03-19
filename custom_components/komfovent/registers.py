@@ -115,11 +115,11 @@ REG_COOLING_DENIED = 204  # Cooling enable denied
 # Air quality settings
 REG_AQ_IMPURITY_CONTROL = 205  # Impurity control
 REG_AQ_TEMP_SETPOINT = 206  # Temperature setpoint
-REG_CO2_SETPOINT = 207  # CO2 setpoint
-REG_HUMIDITY_SETPOINT = 208  # Humidity setpoint
+REG_AQ_IMPURITY_SETPOINT = 207  # CO2/VOC setpoint
+REG_AQ_HUMIDITY_SETPOINT = 208  # Humidity setpoint
 REG_AQ_MIN_INTENSITY = 209  # Air quality minimum intensity
 REG_AQ_MAX_INTENSITY = 210  # Air quality maximum intensity
-REG_AQ_HEATING = 211  # Air quality heating
+REG_AQ_ELECTRIC_HEATER = 211  # Air quality heating
 REG_AQ_CHECK_PERIOD = 212  # Air quality check period
 REG_AQ_SENSOR1_TYPE = 213  # Air quality sensor 1 type
 REG_AQ_SENSOR2_TYPE = 214  # Air quality sensor 2 type
@@ -165,8 +165,8 @@ REG_FILTER_CLOGGING = 917  # Filter clogging
 REG_AIR_DAMPERS = 918  # Air dampers
 REG_SUPPLY_PRESSURE = 919  # Supply pressure
 REG_EXTRACT_PRESSURE = 920  # Extract pressure
-REG_AQ_SENSOR1_VALUE = 952  # Air quality sensor 1 value
-REG_AQ_SENSOR2_VALUE = 953  # Air quality sensor 2 value
+REG_EXTRACT_AQ_1 = 952  # Air quality sensor 1 value
+REG_EXTRACT_AQ_2 = 953  # Air quality sensor 2 value
 REG_HEAT_EXCHANGER_TYPE = 955  # Heat exchanger type
 REG_INDOOR_ABS_HUMIDITY = 956  # Indoor absolute humidity
 REG_EXHAUST_TEMP = 961  # Exhaust temperature
@@ -265,11 +265,11 @@ REGISTERS_16BIT_UNSIGNED = {
     REG_HEATING_DENIED,
     REG_COOLING_DENIED,
     REG_AQ_IMPURITY_CONTROL,
-    REG_CO2_SETPOINT,
-    REG_HUMIDITY_SETPOINT,
+    REG_AQ_IMPURITY_SETPOINT,
+    REG_AQ_HUMIDITY_SETPOINT,
     REG_AQ_MIN_INTENSITY,
     REG_AQ_MAX_INTENSITY,
-    REG_AQ_HEATING,
+    REG_AQ_ELECTRIC_HEATER,
     REG_AQ_CHECK_PERIOD,
     REG_AQ_SENSOR1_TYPE,
     REG_AQ_SENSOR2_TYPE,
@@ -307,8 +307,8 @@ REGISTERS_16BIT_UNSIGNED = {
     REG_SPI_DAY,
     REG_PANEL1_AQ,
     REG_PANEL2_AQ,
-    REG_AQ_SENSOR1_VALUE,
-    REG_AQ_SENSOR2_VALUE,
+    REG_EXTRACT_AQ_1,
+    REG_EXTRACT_AQ_2,
     REG_CONNECTED_PANELS,
     REG_HEAT_EXCHANGER_TYPE,
     REG_INDOOR_ABS_HUMIDITY,

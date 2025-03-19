@@ -11,6 +11,7 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.const import (
+    CONCENTRATION_PARTS_PER_MILLION,
     PERCENTAGE,
     UnitOfEnergy,
     UnitOfPower,
@@ -42,6 +43,7 @@ from .const import (
     FlowControl,
     FlowUnit,
     HeatExchangerType,
+    OutdoorHumiditySensor,
 )
 
 # Constants for value validation
@@ -53,7 +55,7 @@ MAX_PERCENTAGE = 100
 MAX_HUMIDITY = 125
 MAX_CO2_PPM = 2500
 MAX_SPI = 5
-MAX_VOC_PPB = 2000
+MAX_VOC = 125
 
 
 def create_aq_sensor(
@@ -63,11 +65,11 @@ def create_aq_sensor(
     if not coordinator.data:
         return None
 
-    if register_id == registers.REG_AQ_SENSOR1_VALUE:
+    if register_id == registers.REG_EXTRACT_AQ_1:
         sensor_type_int = coordinator.data.get(
             registers.REG_AQ_SENSOR1_TYPE, AirQualitySensorType.NOT_INSTALLED
         )
-    elif register_id == registers.REG_AQ_SENSOR2_VALUE:
+    elif register_id == registers.REG_EXTRACT_AQ_2:
         sensor_type_int = coordinator.data.get(
             registers.REG_AQ_SENSOR2_TYPE, AirQualitySensorType.NOT_INSTALLED
         )
@@ -79,19 +81,40 @@ def create_aq_sensor(
     if sensor_type == AirQualitySensorType.NOT_INSTALLED:
         return None
 
-    key = f"air_quality_{sensor_type.name.lower()}"
-    name = f"Air Quality {sensor_type.name.upper()}"
-
     if sensor_type == AirQualitySensorType.CO2:
-        sensor_class, unit, device_class = CO2Sensor, "ppm", SensorDeviceClass.CO2
+        key = "extract_co2"
+        name = "Extract CO2"
+        sensor_class = CO2Sensor
+        unit = CONCENTRATION_PARTS_PER_MILLION
+        device_class = SensorDeviceClass.CO2
     elif sensor_type == AirQualitySensorType.VOC:
-        sensor_class, unit, device_class = VOCSensor, "ppb", None
-    elif sensor_type == AirQualitySensorType.RH:
-        sensor_class, unit, device_class = (
-            RelativeHumiditySensor,
-            PERCENTAGE,
-            SensorDeviceClass.HUMIDITY,
+        key = "extract_voc"
+        name = "Extract VOC"
+        sensor_class = VOCSensor
+        unit = PERCENTAGE
+        device_class = None
+    elif sensor_type == AirQualitySensorType.HUMIDITY:
+        outdoor_humidity_sensor = coordinator.data.get(
+            registers.REG_AQ_OUTDOOR_HUMIDITY, OutdoorHumiditySensor.NONE
         )
+        is_outdoor = (
+            register_id == registers.REG_EXTRACT_AQ_1
+            and outdoor_humidity_sensor == OutdoorHumiditySensor.SENSOR1
+        ) or (
+            register_id == registers.REG_EXTRACT_AQ_2
+            and outdoor_humidity_sensor == OutdoorHumiditySensor.SENSOR2
+        )
+
+        if is_outdoor:
+            key = "outdoor_humidity"
+            name = "Outdoor Humidity"
+        else:
+            key = "extract_humidity"
+            name = "Extract Humidity"
+
+        sensor_class = RelativeHumiditySensor
+        unit = PERCENTAGE
+        device_class = SensorDeviceClass.HUMIDITY
     else:
         return None
 
@@ -575,9 +598,9 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
         )
 
     # Add AQ sensors if installed
-    if aq_sensor := create_aq_sensor(coordinator, registers.REG_AQ_SENSOR1_VALUE):
+    if aq_sensor := create_aq_sensor(coordinator, registers.REG_EXTRACT_AQ_1):
         entities.append(aq_sensor)
-    if aq_sensor := create_aq_sensor(coordinator, registers.REG_AQ_SENSOR2_VALUE):
+    if aq_sensor := create_aq_sensor(coordinator, registers.REG_EXTRACT_AQ_2):
         entities.append(aq_sensor)
 
     return entities
@@ -785,7 +808,7 @@ class VOCSensor(KomfoventSensor):
         if value is None:
             return None
 
-        if 0 <= value <= MAX_VOC_PPB:
+        if 0 <= value <= MAX_VOC:
             return value
         return None
 
