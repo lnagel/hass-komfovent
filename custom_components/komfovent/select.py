@@ -59,7 +59,7 @@ async def async_setup_entry(
                 enum_class=SchedulerMode,
                 entity_description=SelectEntityDescription(
                     key="scheduler_mode",
-                    name="Scheduler operation mode",
+                    name="Scheduler mode",
                     options=[mode.name.lower() for mode in SchedulerMode],
                 ),
             ),
