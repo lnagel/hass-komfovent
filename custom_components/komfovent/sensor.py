@@ -81,19 +81,20 @@ def create_aq_sensor(
     if sensor_type == AirQualitySensorType.NOT_INSTALLED:
         return None
 
-    key = f"extract_{sensor_type.name.lower()}"
-
     if sensor_type == AirQualitySensorType.CO2:
+        key = "extract_co2"
         name = "Extract CO2"
         sensor_class = CO2Sensor
         unit = CONCENTRATION_PARTS_PER_MILLION
         device_class = SensorDeviceClass.CO2
     elif sensor_type == AirQualitySensorType.VOC:
+        key = "extract_voc"
         name = "Extract VOC"
         sensor_class = VOCSensor
         unit = PERCENTAGE
         device_class = None
     elif sensor_type == AirQualitySensorType.HUMIDITY:
+        key = "extract_humidity"
         name = "Extract Humidity"
         sensor_class = RelativeHumiditySensor
         unit = PERCENTAGE
