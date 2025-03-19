@@ -9,6 +9,13 @@
 - [x] Cooler blocking (REG 204)
 - [ ] Heat recovery control
 
+## AUTO
+
+- [x] Supply temperature setpoint
+- [x] Air Impurity setpoint
+- [x] Air Humidity setpoint
+- [x] Electric heater 
+
 # Settings
 
 ## User Interface
