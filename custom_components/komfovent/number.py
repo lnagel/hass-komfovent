@@ -56,8 +56,8 @@ async def async_setup_entry(
                 key="eco_min_supply_temperature",
                 name="ECO Min Supply Temperature",
                 native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-                native_min_value=TEMP_SETPOINT_MIN,  # Min temp per MODBUS spec
-                native_max_value=TEMP_SETPOINT_MAX,  # Max temp per MODBUS spec
+                native_min_value=TEMP_SETPOINT_MIN,
+                native_max_value=TEMP_SETPOINT_MAX,
                 native_step=0.1,
                 device_class=NumberDeviceClass.TEMPERATURE,
             ),
@@ -69,8 +69,8 @@ async def async_setup_entry(
                 key="eco_max_supply_temperature",
                 name="ECO Max Supply Temperature",
                 native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-                native_min_value=TEMP_SETPOINT_MIN,  # Min temp per MODBUS spec
-                native_max_value=TEMP_SETPOINT_MAX,  # Max temp per MODBUS spec
+                native_min_value=TEMP_SETPOINT_MIN,
+                native_max_value=TEMP_SETPOINT_MAX,
                 native_step=0.1,
                 device_class=NumberDeviceClass.TEMPERATURE,
             ),
@@ -121,9 +121,9 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="aq_temperature_setpoint",
                 name="AQ Temperature Setpoint",
-                native_min_value=TEMP_SETPOINT_MIN,  # Min temp per MODBUS spec
-                native_max_value=TEMP_SETPOINT_MAX,  # Max temp per MODBUS spec
-                native_step=0.1,  # 0.1°C steps since value is x10
+                native_min_value=TEMP_SETPOINT_MIN,
+                native_max_value=TEMP_SETPOINT_MAX,
+                native_step=0.1,
                 native_unit_of_measurement=UnitOfTemperature.CELSIUS,
                 device_class=NumberDeviceClass.TEMPERATURE,
             ),
