@@ -17,11 +17,6 @@ if TYPE_CHECKING:
 
 from . import registers
 from .const import DOMAIN
-from .registers import (
-    REG_FREE_HEATING,
-    REG_HEATING_DENIED,
-    REG_COOLING_DENIED,
-)
 
 
 async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSwitch]:
