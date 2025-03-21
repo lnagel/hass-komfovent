@@ -16,7 +16,6 @@ from .const import (
 )
 from .helpers import get_version_from_int
 
-FUNC_VER_HEAT_RECOVERY = 67
 FUNC_VER_EXHAUST_TEMP = 67
 
 
@@ -110,21 +109,11 @@ class KomfoventCoordinator(DataUpdateCoordinator):
             )
             data.update(process_register_block(modes_block))
 
-            # Read Eco and air quality blocks (200-216)
+            # Read Eco and air quality blocks (200-217)
             eco_auto_block = await self.client.read_registers(
-                registers.REG_ECO_MIN_TEMP, 17
+                registers.REG_ECO_MIN_TEMP, 18
             )
             data.update(process_register_block(eco_auto_block))
-
-            # Read Heat recovery control (217)
-            if func_version >= FUNC_VER_HEAT_RECOVERY:
-                try:
-                    heat_recovery_block = await self.client.read_registers(
-                        registers.REG_AQ_HEAT_RECOVERY, 1
-                    )
-                    data.update(process_register_block(heat_recovery_block))
-                except (ConnectionError, ModbusException) as error:
-                    _LOGGER.debug("Failed to read heat recovery control: %s", error)
 
             # Read active alarms block (600-610)
             alarms_block = await self.client.read_registers(
