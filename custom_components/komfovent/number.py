@@ -57,6 +57,120 @@ async def async_setup_entry(
     coordinator: KomfoventCoordinator = hass.data[DOMAIN][entry.entry_id]
 
     entities = [
+        # Normal mode controls
+        KomfoventNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_NORMAL_FAN_SUPPLY,
+            entity_description=NumberEntityDescription(
+                key="normal_supply_fan",
+                name="Normal Supply Fan",
+                native_unit_of_measurement=PERCENTAGE,
+                native_min_value=FAN_SPEED_MIN,
+                native_max_value=FAN_SPEED_MAX,
+                native_step=1,
+            ),
+        ),
+        KomfoventNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_NORMAL_FAN_EXTRACT,
+            entity_description=NumberEntityDescription(
+                key="normal_extract_fan",
+                name="Normal Extract Fan",
+                native_unit_of_measurement=PERCENTAGE,
+                native_min_value=FAN_SPEED_MIN,
+                native_max_value=FAN_SPEED_MAX,
+                native_step=1,
+            ),
+        ),
+        TemperatureNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_NORMAL_SETPOINT,
+            entity_description=NumberEntityDescription(
+                key="normal_temperature",
+                name="Normal Temperature",
+                native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                native_min_value=TEMP_SETPOINT_MIN,
+                native_max_value=TEMP_SETPOINT_MAX,
+                native_step=0.1,
+                device_class=NumberDeviceClass.TEMPERATURE,
+            ),
+        ),
+        # Intensive mode controls
+        KomfoventNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_INTENSIVE_FAN_SUPPLY,
+            entity_description=NumberEntityDescription(
+                key="intensive_supply_fan",
+                name="Intensive Supply Fan",
+                native_unit_of_measurement=PERCENTAGE,
+                native_min_value=FAN_SPEED_MIN,
+                native_max_value=FAN_SPEED_MAX,
+                native_step=1,
+            ),
+        ),
+        KomfoventNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_INTENSIVE_FAN_EXTRACT,
+            entity_description=NumberEntityDescription(
+                key="intensive_extract_fan",
+                name="Intensive Extract Fan",
+                native_unit_of_measurement=PERCENTAGE,
+                native_min_value=FAN_SPEED_MIN,
+                native_max_value=FAN_SPEED_MAX,
+                native_step=1,
+            ),
+        ),
+        TemperatureNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_INTENSIVE_TEMP,
+            entity_description=NumberEntityDescription(
+                key="intensive_temperature",
+                name="Intensive Temperature",
+                native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                native_min_value=TEMP_SETPOINT_MIN,
+                native_max_value=TEMP_SETPOINT_MAX,
+                native_step=0.1,
+                device_class=NumberDeviceClass.TEMPERATURE,
+            ),
+        ),
+        # Boost mode controls
+        KomfoventNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_BOOST_FAN_SUPPLY,
+            entity_description=NumberEntityDescription(
+                key="boost_supply_fan",
+                name="Boost Supply Fan",
+                native_unit_of_measurement=PERCENTAGE,
+                native_min_value=FAN_SPEED_MIN,
+                native_max_value=FAN_SPEED_MAX,
+                native_step=1,
+            ),
+        ),
+        KomfoventNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_BOOST_FAN_EXTRACT,
+            entity_description=NumberEntityDescription(
+                key="boost_extract_fan",
+                name="Boost Extract Fan",
+                native_unit_of_measurement=PERCENTAGE,
+                native_min_value=FAN_SPEED_MIN,
+                native_max_value=FAN_SPEED_MAX,
+                native_step=1,
+            ),
+        ),
+        TemperatureNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_BOOST_TEMP,
+            entity_description=NumberEntityDescription(
+                key="boost_temperature",
+                name="Boost Temperature",
+                native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                native_min_value=TEMP_SETPOINT_MIN,
+                native_max_value=TEMP_SETPOINT_MAX,
+                native_step=0.1,
+                device_class=NumberDeviceClass.TEMPERATURE,
+            ),
+        ),
         # Away mode controls
         KomfoventNumber(
             coordinator=coordinator,
