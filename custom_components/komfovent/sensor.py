@@ -25,7 +25,8 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .helpers import get_version_from_int
 
 if TYPE_CHECKING:
-    from datetime import date, datetime, time
+    from datetime import date, datetime, time, timedelta
+    import zoneinfo
     from decimal import Decimal
 
     from homeassistant.config_entries import ConfigEntry
@@ -904,6 +905,11 @@ class SystemTimeSensor(KomfoventSensor):
             return None
 
         try:
-            return datetime.fromtimestamp(value)
+            # Initialize local epoch (1970-01-01 00:00:00 in local timezone)
+            local_tz = zoneinfo.ZoneInfo(str(self.coordinator.hass.config.time_zone))
+            local_epoch = datetime(1970, 1, 1, tzinfo=local_tz)
+            
+            # Convert seconds since local epoch to datetime
+            return local_epoch + timedelta(seconds=value)
         except (ValueError, TypeError, OSError):
             return None
