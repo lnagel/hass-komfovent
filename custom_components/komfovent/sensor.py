@@ -443,6 +443,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     name="System Time",
                     entity_category=EntityCategory.DIAGNOSTIC,
                     device_class=SensorDeviceClass.TIMESTAMP,
+                    entity_registry_enabled_default=False,
                 ),
             ),
         ]
