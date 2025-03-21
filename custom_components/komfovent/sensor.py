@@ -240,6 +240,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     native_unit_of_measurement=PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
+                    entity_registry_enabled_default=False,
                 ),
             ),
             KomfoventSensor(
@@ -298,6 +299,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     native_unit_of_measurement=PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
+                    entity_registry_enabled_default=False,
                 ),
             ),
             SPISensor(
@@ -328,6 +330,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     key="connected_panels",
                     name="Connected Panels",
                     entity_category=EntityCategory.DIAGNOSTIC,
+                    entity_registry_enabled_default=False,
                 ),
             ),
             HeatExchangerTypeSensor(
@@ -337,6 +340,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     key="heat_exchanger_type",
                     name="Heat Exchanger Type",
                     entity_category=EntityCategory.DIAGNOSTIC,
+                    entity_registry_enabled_default=False,
                 ),
             ),
             FlowUnitSensor(
@@ -346,6 +350,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     key="flow_unit",
                     name="Flow Unit",
                     entity_category=EntityCategory.DIAGNOSTIC,
+                    entity_registry_enabled_default=False,
                 ),
             ),
             FlowSensor(
@@ -357,6 +362,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
                     entity_category=EntityCategory.DIAGNOSTIC,
+                    entity_registry_enabled_default=False,
                 ),
             ),
             FlowSensor(
@@ -368,6 +374,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
                     entity_category=EntityCategory.DIAGNOSTIC,
+                    entity_registry_enabled_default=False,
                 ),
             ),
             FlowSensor(
