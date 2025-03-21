@@ -37,7 +37,7 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
             coordinator=coordinator,
             register_id=registers.REG_INTENSIVE_HEATING,
             entity_description=SwitchEntityDescription(
-                key="intensive_heating", 
+                key="intensive_heating",
                 name="Intensive Heating",
                 icon="mdi:radiator",
                 entity_registry_enabled_default=True,
