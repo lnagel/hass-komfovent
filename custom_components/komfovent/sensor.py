@@ -25,7 +25,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .helpers import get_version_from_int
 
 if TYPE_CHECKING:
-    from datetime import date, datetime
+    from datetime import date, datetime, time
     from decimal import Decimal
 
     from homeassistant.config_entries import ConfigEntry
@@ -432,6 +432,16 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     key="controller_firmware",
                     name="Controller firmware",
                     entity_category=EntityCategory.DIAGNOSTIC,
+                ),
+            ),
+            SystemTimeSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_TIME,
+                entity_description=SensorEntityDescription(
+                    key="system_time",
+                    name="System Time",
+                    entity_category=EntityCategory.DIAGNOSTIC,
+                    device_class=SensorDeviceClass.TIMESTAMP,
                 ),
             ),
         ]
@@ -881,3 +891,23 @@ class FlowUnitSensor(KomfoventSensor):
             return FlowUnit(value).name.lower()
         except ValueError:
             return None
+
+
+class SystemTimeSensor(KomfoventSensor):
+    """System time sensor."""
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the system time as HH:MM."""
+        value = super().native_value
+        if value is None:
+            return None
+
+        try:
+            hours = (value >> 8) & 0xFF  # MSB contains hours
+            minutes = value & 0xFF  # LSB contains minutes
+            if 0 <= hours <= 23 and 0 <= minutes <= 59:
+                return time(hours, minutes).isoformat(timespec="minutes")
+        except (ValueError, TypeError):
+            pass
+        return None
