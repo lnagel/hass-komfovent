@@ -72,6 +72,7 @@ async def async_setup_entry(
                     name="Temperature control",
                     entity_category=EntityCategory.CONFIG,
                     options=[mode.name.lower() for mode in TemperatureControl],
+                    entity_registry_enabled_default=False,
                 ),
             ),
             KomfoventSelect(
@@ -83,6 +84,7 @@ async def async_setup_entry(
                     name="Flow control",
                     entity_category=EntityCategory.CONFIG,
                     options=[mode.name.lower() for mode in FlowControl],
+                    entity_registry_enabled_default=False,
                 ),
             ),
             KomfoventSelect(
@@ -94,6 +96,7 @@ async def async_setup_entry(
                     name="AQ Sensor 1 Type",
                     entity_category=EntityCategory.CONFIG,
                     options=[mode.name.lower() for mode in AirQualitySensorType],
+                    entity_registry_enabled_default=False,
                 ),
             ),
             KomfoventSelect(
@@ -105,6 +108,7 @@ async def async_setup_entry(
                     name="AQ Sensor 2 Type",
                     entity_category=EntityCategory.CONFIG,
                     options=[mode.name.lower() for mode in AirQualitySensorType],
+                    entity_registry_enabled_default=False,
                 ),
             ),
             KomfoventSelect(
@@ -117,6 +121,7 @@ async def async_setup_entry(
                     entity_category=EntityCategory.CONFIG,
                     icon="mdi:water-percent",
                     options=[mode.name.lower() for mode in OutdoorHumiditySensor],
+                    entity_registry_enabled_default=False,
                 ),
             ),
             KomfoventSelect(
