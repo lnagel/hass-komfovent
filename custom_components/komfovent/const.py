@@ -130,6 +130,10 @@ class HeatExchangerType(IntEnum):
     ROTARY = 1
 
 
+# Fan speed limits
+FAN_SPEED_MIN: Final = 0
+FAN_SPEED_MAX: Final = 100
+
 class FlowUnit(IntEnum):
     """Flow measurement units."""
 

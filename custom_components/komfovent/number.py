@@ -44,9 +44,6 @@ CO2_MAX = 2000
 VOC_MIN = 0
 VOC_MAX = 100
 
-FAN_SPEED_MIN = 0
-FAN_SPEED_MAX = 100
-
 
 async def async_setup_entry(
     hass: HomeAssistant,
