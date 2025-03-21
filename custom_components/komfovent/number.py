@@ -75,7 +75,7 @@ async def async_setup_entry(
             register_id=registers.REG_AWAY_FAN_EXTRACT,
             entity_description=NumberEntityDescription(
                 key="away_extract_fan",
-                name="Away Extract Fan", 
+                name="Away Extract Fan",
                 native_unit_of_measurement=PERCENTAGE,
                 native_min_value=FAN_SPEED_MIN,
                 native_max_value=FAN_SPEED_MAX,
