@@ -436,9 +436,9 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             ),
             SystemTimeSensor(
                 coordinator=coordinator,
-                register_id=registers.REG_TIME,
+                register_id=registers.REG_EPOCH_TIME,
                 entity_description=SensorEntityDescription(
-                    key="system_time",
+                    key="system_time", 
                     name="System Time",
                     entity_category=EntityCategory.DIAGNOSTIC,
                     device_class=SensorDeviceClass.TIMESTAMP,
@@ -898,16 +898,12 @@ class SystemTimeSensor(KomfoventSensor):
 
     @property
     def native_value(self) -> StateType:
-        """Return the system time as HH:MM."""
+        """Return the system time as datetime from Unix timestamp."""
         value = super().native_value
         if value is None:
             return None
 
         try:
-            hours = (value >> 8) & 0xFF  # MSB contains hours
-            minutes = value & 0xFF  # LSB contains minutes
-            if 0 <= hours <= 23 and 0 <= minutes <= 59:
-                return time(hours, minutes).isoformat(timespec="minutes")
-        except (ValueError, TypeError):
-            pass
-        return None
+            return datetime.fromtimestamp(value)
+        except (ValueError, TypeError, OSError):
+            return None
