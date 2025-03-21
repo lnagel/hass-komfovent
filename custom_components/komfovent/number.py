@@ -26,7 +26,12 @@ if TYPE_CHECKING:
     from .coordinator import KomfoventCoordinator
 
 from . import registers
-from .const import DOMAIN, AirQualitySensorType
+from .const import (
+    DOMAIN,
+    AirQualitySensorType,
+    FAN_SPEED_MIN,
+    FAN_SPEED_MAX,
+)
 from .registers import REG_ECO_MAX_TEMP, REG_ECO_MIN_TEMP
 
 AQ_INTENSITY_MIN = 20
@@ -39,6 +44,9 @@ CO2_MAX = 2000
 VOC_MIN = 0
 VOC_MAX = 100
 
+FAN_SPEED_MIN = 0
+FAN_SPEED_MAX = 100
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -49,6 +57,44 @@ async def async_setup_entry(
     coordinator: KomfoventCoordinator = hass.data[DOMAIN][entry.entry_id]
 
     entities = [
+        # Away mode controls
+        KomfoventNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_AWAY_FAN_SUPPLY,
+            entity_description=NumberEntityDescription(
+                key="away_supply_fan",
+                name="Away Supply Fan",
+                native_unit_of_measurement=PERCENTAGE,
+                native_min_value=FAN_SPEED_MIN,
+                native_max_value=FAN_SPEED_MAX,
+                native_step=1,
+            ),
+        ),
+        KomfoventNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_AWAY_FAN_EXTRACT,
+            entity_description=NumberEntityDescription(
+                key="away_extract_fan",
+                name="Away Extract Fan", 
+                native_unit_of_measurement=PERCENTAGE,
+                native_min_value=FAN_SPEED_MIN,
+                native_max_value=FAN_SPEED_MAX,
+                native_step=1,
+            ),
+        ),
+        TemperatureNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_AWAY_TEMP,
+            entity_description=NumberEntityDescription(
+                key="away_temperature",
+                name="Away Temperature",
+                native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                native_min_value=TEMP_SETPOINT_MIN,
+                native_max_value=TEMP_SETPOINT_MAX,
+                native_step=0.1,
+                device_class=NumberDeviceClass.TEMPERATURE,
+            ),
+        ),
         TemperatureNumber(
             coordinator=coordinator,
             register_id=REG_ECO_MIN_TEMP,
