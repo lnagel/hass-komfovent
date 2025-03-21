@@ -438,7 +438,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 coordinator=coordinator,
                 register_id=registers.REG_EPOCH_TIME,
                 entity_description=SensorEntityDescription(
-                    key="system_time", 
+                    key="system_time",
                     name="System Time",
                     entity_category=EntityCategory.DIAGNOSTIC,
                     device_class=SensorDeviceClass.TIMESTAMP,
