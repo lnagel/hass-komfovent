@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import zoneinfo
+from datetime import date, datetime, timedelta
 from typing import TYPE_CHECKING
 
 from homeassistant.components.sensor import (
@@ -25,7 +27,6 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .helpers import get_version_from_int
 
 if TYPE_CHECKING:
-    from datetime import date, datetime
     from decimal import Decimal
 
     from homeassistant.config_entries import ConfigEntry
@@ -432,6 +433,18 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     key="controller_firmware",
                     name="Controller firmware",
                     entity_category=EntityCategory.DIAGNOSTIC,
+                ),
+            ),
+            SystemTimeSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_EPOCH_TIME,
+                entity_description=SensorEntityDescription(
+                    key="system_time",
+                    name="System Time",
+                    entity_category=EntityCategory.DIAGNOSTIC,
+                    device_class=SensorDeviceClass.TIMESTAMP,
+                    state_class=SensorStateClass.TOTAL_INCREASING,
+                    entity_registry_enabled_default=False,
                 ),
             ),
         ]
@@ -880,4 +893,25 @@ class FlowUnitSensor(KomfoventSensor):
         try:
             return FlowUnit(value).name.lower()
         except ValueError:
+            return None
+
+
+class SystemTimeSensor(KomfoventSensor):
+    """System time sensor."""
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the system time as datetime from Unix timestamp."""
+        value = super().native_value
+        if value is None:
+            return None
+
+        try:
+            # Initialize local epoch (1970-01-01 00:00:00 in local timezone)
+            local_tz = zoneinfo.ZoneInfo(str(self.coordinator.hass.config.time_zone))
+            local_epoch = datetime(1970, 1, 1, tzinfo=local_tz)
+
+            # Convert seconds since local epoch to datetime
+            return local_epoch + timedelta(seconds=value)
+        except (ValueError, TypeError, OSError):
             return None
