@@ -65,6 +65,8 @@ async def async_setup_entry(
                 native_min_value=FAN_SPEED_MIN,
                 native_max_value=FAN_SPEED_MAX,
                 native_step=1,
+                entity_category=EntityCategory.CONFIG,
+                entity_registry_enabled_default=False,
             ),
         ),
         KomfoventNumber(
@@ -77,6 +79,8 @@ async def async_setup_entry(
                 native_min_value=FAN_SPEED_MIN,
                 native_max_value=FAN_SPEED_MAX,
                 native_step=1,
+                entity_category=EntityCategory.CONFIG,
+                entity_registry_enabled_default=False,
             ),
         ),
         TemperatureNumber(
@@ -90,6 +94,8 @@ async def async_setup_entry(
                 native_max_value=TEMP_SETPOINT_MAX,
                 native_step=0.1,
                 device_class=NumberDeviceClass.TEMPERATURE,
+                entity_category=EntityCategory.CONFIG,
+                entity_registry_enabled_default=False,
             ),
         ),
         # Intensive mode controls
@@ -103,6 +109,8 @@ async def async_setup_entry(
                 native_min_value=FAN_SPEED_MIN,
                 native_max_value=FAN_SPEED_MAX,
                 native_step=1,
+                entity_category=EntityCategory.CONFIG,
+                entity_registry_enabled_default=False,
             ),
         ),
         KomfoventNumber(
@@ -115,6 +123,8 @@ async def async_setup_entry(
                 native_min_value=FAN_SPEED_MIN,
                 native_max_value=FAN_SPEED_MAX,
                 native_step=1,
+                entity_category=EntityCategory.CONFIG,
+                entity_registry_enabled_default=False,
             ),
         ),
         TemperatureNumber(
@@ -128,6 +138,8 @@ async def async_setup_entry(
                 native_max_value=TEMP_SETPOINT_MAX,
                 native_step=0.1,
                 device_class=NumberDeviceClass.TEMPERATURE,
+                entity_category=EntityCategory.CONFIG,
+                entity_registry_enabled_default=False,
             ),
         ),
         # Boost mode controls
@@ -141,6 +153,8 @@ async def async_setup_entry(
                 native_min_value=FAN_SPEED_MIN,
                 native_max_value=FAN_SPEED_MAX,
                 native_step=1,
+                entity_category=EntityCategory.CONFIG,
+                entity_registry_enabled_default=False,
             ),
         ),
         KomfoventNumber(
@@ -153,6 +167,8 @@ async def async_setup_entry(
                 native_min_value=FAN_SPEED_MIN,
                 native_max_value=FAN_SPEED_MAX,
                 native_step=1,
+                entity_category=EntityCategory.CONFIG,
+                entity_registry_enabled_default=False,
             ),
         ),
         TemperatureNumber(
@@ -166,6 +182,8 @@ async def async_setup_entry(
                 native_max_value=TEMP_SETPOINT_MAX,
                 native_step=0.1,
                 device_class=NumberDeviceClass.TEMPERATURE,
+                entity_category=EntityCategory.CONFIG,
+                entity_registry_enabled_default=False,
             ),
         ),
         # Away mode controls
@@ -179,6 +197,8 @@ async def async_setup_entry(
                 native_min_value=FAN_SPEED_MIN,
                 native_max_value=FAN_SPEED_MAX,
                 native_step=1,
+                entity_category=EntityCategory.CONFIG,
+                entity_registry_enabled_default=False,
             ),
         ),
         KomfoventNumber(
@@ -191,6 +211,8 @@ async def async_setup_entry(
                 native_min_value=FAN_SPEED_MIN,
                 native_max_value=FAN_SPEED_MAX,
                 native_step=1,
+                entity_category=EntityCategory.CONFIG,
+                entity_registry_enabled_default=False,
             ),
         ),
         TemperatureNumber(
@@ -204,6 +226,8 @@ async def async_setup_entry(
                 native_max_value=TEMP_SETPOINT_MAX,
                 native_step=0.1,
                 device_class=NumberDeviceClass.TEMPERATURE,
+                entity_category=EntityCategory.CONFIG,
+                entity_registry_enabled_default=False,
             ),
         ),
         TemperatureNumber(
