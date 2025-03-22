@@ -24,6 +24,61 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
     return [
         KomfoventSwitch(
             coordinator=coordinator,
+            register_id=registers.REG_NORMAL_HEATING,
+            entity_description=SwitchEntityDescription(
+                key="normal_heating",
+                name="Normal Heating",
+                icon="mdi:radiator",
+                entity_registry_enabled_default=True,
+                entity_category=None,
+            ),
+        ),
+        KomfoventSwitch(
+            coordinator=coordinator,
+            register_id=registers.REG_INTENSIVE_HEATING,
+            entity_description=SwitchEntityDescription(
+                key="intensive_heating",
+                name="Intensive Heating",
+                icon="mdi:radiator",
+                entity_registry_enabled_default=True,
+                entity_category=None,
+            ),
+        ),
+        KomfoventSwitch(
+            coordinator=coordinator,
+            register_id=registers.REG_BOOST_HEATING,
+            entity_description=SwitchEntityDescription(
+                key="boost_heating",
+                name="Boost Heating",
+                icon="mdi:radiator",
+                entity_registry_enabled_default=True,
+                entity_category=None,
+            ),
+        ),
+        KomfoventSwitch(
+            coordinator=coordinator,
+            register_id=registers.REG_KITCHEN_HEATING,
+            entity_description=SwitchEntityDescription(
+                key="kitchen_heating",
+                name="Kitchen Heating",
+                icon="mdi:radiator",
+                entity_registry_enabled_default=False,
+                entity_category=EntityCategory.CONFIG,
+            ),
+        ),
+        KomfoventSwitch(
+            coordinator=coordinator,
+            register_id=registers.REG_AWAY_HEATING,
+            entity_description=SwitchEntityDescription(
+                key="away_heating",
+                name="Away Heating",
+                icon="mdi:radiator",
+                entity_registry_enabled_default=True,
+                entity_category=None,
+            ),
+        ),
+        KomfoventSwitch(
+            coordinator=coordinator,
             register_id=registers.REG_POWER,
             entity_description=SwitchEntityDescription(
                 key="power",

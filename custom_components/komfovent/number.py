@@ -26,7 +26,12 @@ if TYPE_CHECKING:
     from .coordinator import KomfoventCoordinator
 
 from . import registers
-from .const import DOMAIN, AirQualitySensorType
+from .const import (
+    DOMAIN,
+    AirQualitySensorType,
+    FAN_SPEED_MIN,
+    FAN_SPEED_MAX,
+)
 from .registers import REG_ECO_MAX_TEMP, REG_ECO_MIN_TEMP
 
 AQ_INTENSITY_MIN = 20
@@ -49,6 +54,241 @@ async def async_setup_entry(
     coordinator: KomfoventCoordinator = hass.data[DOMAIN][entry.entry_id]
 
     entities = [
+        # Normal mode controls
+        KomfoventNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_NORMAL_FAN_SUPPLY,
+            entity_description=NumberEntityDescription(
+                key="normal_supply_fan",
+                name="Normal Supply Fan",
+                native_unit_of_measurement=PERCENTAGE,
+                native_min_value=FAN_SPEED_MIN,
+                native_max_value=FAN_SPEED_MAX,
+                native_step=1,
+                entity_category=EntityCategory.CONFIG,
+                entity_registry_enabled_default=False,
+            ),
+        ),
+        KomfoventNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_NORMAL_FAN_EXTRACT,
+            entity_description=NumberEntityDescription(
+                key="normal_extract_fan",
+                name="Normal Extract Fan",
+                native_unit_of_measurement=PERCENTAGE,
+                native_min_value=FAN_SPEED_MIN,
+                native_max_value=FAN_SPEED_MAX,
+                native_step=1,
+                entity_category=EntityCategory.CONFIG,
+                entity_registry_enabled_default=False,
+            ),
+        ),
+        TemperatureNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_NORMAL_SETPOINT,
+            entity_description=NumberEntityDescription(
+                key="normal_temperature",
+                name="Normal Temperature",
+                native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                native_min_value=TEMP_SETPOINT_MIN,
+                native_max_value=TEMP_SETPOINT_MAX,
+                native_step=0.1,
+                device_class=NumberDeviceClass.TEMPERATURE,
+                entity_category=EntityCategory.CONFIG,
+                entity_registry_enabled_default=False,
+            ),
+        ),
+        # Intensive mode controls
+        KomfoventNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_INTENSIVE_FAN_SUPPLY,
+            entity_description=NumberEntityDescription(
+                key="intensive_supply_fan",
+                name="Intensive Supply Fan",
+                native_unit_of_measurement=PERCENTAGE,
+                native_min_value=FAN_SPEED_MIN,
+                native_max_value=FAN_SPEED_MAX,
+                native_step=1,
+                entity_category=EntityCategory.CONFIG,
+                entity_registry_enabled_default=False,
+            ),
+        ),
+        KomfoventNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_INTENSIVE_FAN_EXTRACT,
+            entity_description=NumberEntityDescription(
+                key="intensive_extract_fan",
+                name="Intensive Extract Fan",
+                native_unit_of_measurement=PERCENTAGE,
+                native_min_value=FAN_SPEED_MIN,
+                native_max_value=FAN_SPEED_MAX,
+                native_step=1,
+                entity_category=EntityCategory.CONFIG,
+                entity_registry_enabled_default=False,
+            ),
+        ),
+        TemperatureNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_INTENSIVE_TEMP,
+            entity_description=NumberEntityDescription(
+                key="intensive_temperature",
+                name="Intensive Temperature",
+                native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                native_min_value=TEMP_SETPOINT_MIN,
+                native_max_value=TEMP_SETPOINT_MAX,
+                native_step=0.1,
+                device_class=NumberDeviceClass.TEMPERATURE,
+                entity_category=EntityCategory.CONFIG,
+                entity_registry_enabled_default=False,
+            ),
+        ),
+        # Boost mode controls
+        KomfoventNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_BOOST_FAN_SUPPLY,
+            entity_description=NumberEntityDescription(
+                key="boost_supply_fan",
+                name="Boost Supply Fan",
+                native_unit_of_measurement=PERCENTAGE,
+                native_min_value=FAN_SPEED_MIN,
+                native_max_value=FAN_SPEED_MAX,
+                native_step=1,
+                entity_category=EntityCategory.CONFIG,
+                entity_registry_enabled_default=False,
+            ),
+        ),
+        KomfoventNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_BOOST_FAN_EXTRACT,
+            entity_description=NumberEntityDescription(
+                key="boost_extract_fan",
+                name="Boost Extract Fan",
+                native_unit_of_measurement=PERCENTAGE,
+                native_min_value=FAN_SPEED_MIN,
+                native_max_value=FAN_SPEED_MAX,
+                native_step=1,
+                entity_category=EntityCategory.CONFIG,
+                entity_registry_enabled_default=False,
+            ),
+        ),
+        TemperatureNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_BOOST_TEMP,
+            entity_description=NumberEntityDescription(
+                key="boost_temperature",
+                name="Boost Temperature",
+                native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                native_min_value=TEMP_SETPOINT_MIN,
+                native_max_value=TEMP_SETPOINT_MAX,
+                native_step=0.1,
+                device_class=NumberDeviceClass.TEMPERATURE,
+                entity_category=EntityCategory.CONFIG,
+                entity_registry_enabled_default=False,
+            ),
+        ),
+        # Away mode controls
+        KomfoventNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_AWAY_FAN_SUPPLY,
+            entity_description=NumberEntityDescription(
+                key="away_supply_fan",
+                name="Away Supply Fan",
+                native_unit_of_measurement=PERCENTAGE,
+                native_min_value=FAN_SPEED_MIN,
+                native_max_value=FAN_SPEED_MAX,
+                native_step=1,
+                entity_category=EntityCategory.CONFIG,
+                entity_registry_enabled_default=False,
+            ),
+        ),
+        KomfoventNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_AWAY_FAN_EXTRACT,
+            entity_description=NumberEntityDescription(
+                key="away_extract_fan",
+                name="Away Extract Fan",
+                native_unit_of_measurement=PERCENTAGE,
+                native_min_value=FAN_SPEED_MIN,
+                native_max_value=FAN_SPEED_MAX,
+                native_step=1,
+                entity_category=EntityCategory.CONFIG,
+                entity_registry_enabled_default=False,
+            ),
+        ),
+        TemperatureNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_AWAY_TEMP,
+            entity_description=NumberEntityDescription(
+                key="away_temperature",
+                name="Away Temperature",
+                native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                native_min_value=TEMP_SETPOINT_MIN,
+                native_max_value=TEMP_SETPOINT_MAX,
+                native_step=0.1,
+                device_class=NumberDeviceClass.TEMPERATURE,
+                entity_category=EntityCategory.CONFIG,
+                entity_registry_enabled_default=False,
+            ),
+        ),
+        # Kitchen mode controls
+        KomfoventNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_KITCHEN_SUPPLY,
+            entity_description=NumberEntityDescription(
+                key="kitchen_supply_fan",
+                name="Kitchen Supply Fan",
+                native_unit_of_measurement=PERCENTAGE,
+                native_min_value=FAN_SPEED_MIN,
+                native_max_value=FAN_SPEED_MAX,
+                native_step=1,
+                entity_category=EntityCategory.CONFIG,
+                entity_registry_enabled_default=False,
+            ),
+        ),
+        KomfoventNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_KITCHEN_EXTRACT,
+            entity_description=NumberEntityDescription(
+                key="kitchen_extract_fan",
+                name="Kitchen Extract Fan",
+                native_unit_of_measurement=PERCENTAGE,
+                native_min_value=FAN_SPEED_MIN,
+                native_max_value=FAN_SPEED_MAX,
+                native_step=1,
+                entity_category=EntityCategory.CONFIG,
+                entity_registry_enabled_default=False,
+            ),
+        ),
+        TemperatureNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_KITCHEN_TEMP,
+            entity_description=NumberEntityDescription(
+                key="kitchen_temperature",
+                name="Kitchen Temperature",
+                native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                native_min_value=TEMP_SETPOINT_MIN,
+                native_max_value=TEMP_SETPOINT_MAX,
+                native_step=0.1,
+                device_class=NumberDeviceClass.TEMPERATURE,
+                entity_category=EntityCategory.CONFIG,
+                entity_registry_enabled_default=False,
+            ),
+        ),
+        KomfoventNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_KITCHEN_TIMER,
+            entity_description=NumberEntityDescription(
+                key="kitchen_timer",
+                name="Kitchen Timer",
+                native_unit_of_measurement=UnitOfTime.MINUTES,
+                native_min_value=0,
+                native_max_value=300,
+                native_step=1,
+                device_class=NumberDeviceClass.DURATION,
+                entity_category=EntityCategory.CONFIG,
+                entity_registry_enabled_default=False,
+            ),
+        ),
         TemperatureNumber(
             coordinator=coordinator,
             register_id=REG_ECO_MIN_TEMP,
