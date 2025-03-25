@@ -18,6 +18,7 @@ from .const import (
     AirQualitySensorType,
     FlowControl,
     HeatRecoveryControl,
+    HolidayMicroventilation,
     OperationMode,
     OutdoorHumiditySensor,
     SchedulerMode,
