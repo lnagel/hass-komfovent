@@ -130,6 +130,15 @@ class HeatExchangerType(IntEnum):
     ROTARY = 1
 
 
+class HolidayMicroventilation(IntEnum):
+    """Holiday mode microventilation frequency."""
+
+    ONCE = 1
+    TWICE = 2
+    THRICE = 3
+    FOUR = 4
+
+
 # Fan speed limits
 FAN_SPEED_MIN: Final = 0
 FAN_SPEED_MAX: Final = 100
