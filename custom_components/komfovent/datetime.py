@@ -104,13 +104,13 @@ class KomfoventDateTime(CoordinatorEntity, DateTimeEntity):
 
     async def async_set_value(self, value: datetime) -> None:
         """Update the datetime value."""
+        # Initialize local epoch (1970-01-01 00:00:00 in local timezone)
+        local_tz = zoneinfo.ZoneInfo(str(self.coordinator.hass.config.time_zone))
+        local_epoch = datetime(1970, 1, 1, tzinfo=local_tz)
+
         if not value.tzinfo:
             # If datetime has no timezone, assume local timezone
-            local_tz = zoneinfo.ZoneInfo(str(self.coordinator.hass.config.time_zone))
             value = value.replace(tzinfo=local_tz)
-
-        # Initialize local epoch (1970-01-01 00:00:00 in local timezone)
-        local_epoch = datetime(1970, 1, 1, tzinfo=value.tzinfo)
 
         # Calculate seconds since local epoch
         seconds = int((value - local_epoch).total_seconds())
