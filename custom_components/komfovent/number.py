@@ -543,8 +543,8 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="holiday_microventilation",
                 name="Holiday Microventilation",
-                native_min_value=1,
-                native_max_value=4,
+                native_min_value=HolidayMicroventilation.ONCE,
+                native_max_value=HolidayMicroventilation.FOUR,
                 native_step=1,
                 entity_category=EntityCategory.CONFIG,
             ),
