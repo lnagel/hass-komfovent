@@ -34,6 +34,7 @@ from .const import (
     FAN_SPEED_MAX,
     FlowControl,
     FlowUnit,
+    HolidayMicroventilation,
 )
 from .registers import REG_ECO_MAX_TEMP, REG_ECO_MIN_TEMP
 
