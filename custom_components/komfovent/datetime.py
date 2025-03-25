@@ -1,9 +1,9 @@
-"""DateTime platform for Komfovent."""
+"""DateTime platform for Komfovent."""  # NOQA: A005
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
 import zoneinfo
+from datetime import datetime, timedelta
 from typing import TYPE_CHECKING
 
 from homeassistant.components.datetime import DateTimeEntity, DateTimeEntityDescription

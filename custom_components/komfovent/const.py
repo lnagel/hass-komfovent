@@ -98,7 +98,8 @@ class OutdoorHumiditySensor(IntEnum):
 
 
 class OverrideActivation(IntEnum):
-    """Override mode types.
+    """
+    Override mode types.
 
     Determines when override mode can be activated:
     - ALL_TIME: Override can be activated at any time

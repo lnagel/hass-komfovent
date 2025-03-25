@@ -21,9 +21,9 @@ from .const import (
     MicroVentilation,
     OperationMode,
     OutdoorHumiditySensor,
+    OverrideActivation,
     SchedulerMode,
     TemperatureControl,
-    OverrideActivation,
 )
 
 if TYPE_CHECKING:
