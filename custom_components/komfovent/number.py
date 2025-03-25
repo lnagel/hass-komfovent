@@ -368,6 +368,59 @@ async def async_setup_entry(
                 device_class=NumberDeviceClass.TEMPERATURE,
             ),
         ),
+        # Kitchen mode controls
+        FlowNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_KITCHEN_SUPPLY,
+            entity_description=NumberEntityDescription(
+                key="kitchen_supply_flow",
+                name="Kitchen Supply Flow",
+                native_min_value=0,
+                native_max_value=200000,
+                native_step=1,
+                entity_category=EntityCategory.CONFIG,
+            ),
+        ),
+        FlowNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_KITCHEN_EXTRACT,
+            entity_description=NumberEntityDescription(
+                key="kitchen_extract_flow",
+                name="Kitchen Extract Flow",
+                native_min_value=0,
+                native_max_value=200000,
+                native_step=1,
+                entity_category=EntityCategory.CONFIG,
+            ),
+        ),
+        TemperatureNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_KITCHEN_TEMP,
+            entity_description=NumberEntityDescription(
+                key="kitchen_temperature",
+                name="Kitchen Temperature",
+                native_min_value=TEMP_SETPOINT_MIN,
+                native_max_value=TEMP_SETPOINT_MAX,
+                native_step=0.1,
+                native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                device_class=NumberDeviceClass.TEMPERATURE,
+                entity_category=EntityCategory.CONFIG,
+            ),
+        ),
+        KomfoventNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_KITCHEN_TIMER,
+            entity_description=NumberEntityDescription(
+                key="kitchen_timer",
+                name="Kitchen Timer",
+                native_unit_of_measurement=UnitOfTime.MINUTES,
+                native_min_value=0,
+                native_max_value=300,
+                native_step=1,
+                device_class=NumberDeviceClass.DURATION,
+                entity_category=EntityCategory.CONFIG,
+            ),
+        ),
     ]
 
     # Check AQ sensor types to determine if we should add the impurity setpoint
@@ -472,6 +525,28 @@ class KomfoventNumber(CoordinatorEntity, NumberEntity):
         """Update the current value."""
         await self.coordinator.client.write_register(self.register_id, int(value))
         await self.coordinator.async_request_refresh()
+
+
+class FlowNumber(KomfoventNumber):
+    """Flow number with dynamic units based on flow unit setting."""
+
+    @property
+    def native_unit_of_measurement(self) -> str | None:
+        """Return the unit of measurement."""
+        if not self.coordinator.data:
+            return None
+
+        flow_control = self.coordinator.data.get(registers.REG_FLOW_CONTROL)
+        if flow_control == FlowControl.OFF:
+            return PERCENTAGE
+
+        flow_unit = self.coordinator.data.get(registers.REG_FLOW_UNIT)
+        if flow_unit == FlowUnit.M3H:
+            return UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR
+        if flow_unit == FlowUnit.LS:
+            return UnitOfVolumeFlowRate.LITERS_PER_SECOND
+
+        return None
 
 
 class TemperatureNumber(KomfoventNumber):
