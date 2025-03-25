@@ -108,17 +108,19 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
         return None
 
     @property
-    def hvac_mode(self) -> HVACMode:
+    def hvac_mode(self) -> HVACMode | None:
         """Return hvac operation mode."""
         if not self.coordinator.data:
-            return HVACMode.OFF
+            return None
 
         power = self.coordinator.data.get(registers.REG_POWER)
-        operation_mode = self.coordinator.data.get(registers.REG_OPERATION_MODE)
 
-        if not power or operation_mode == OperationMode.OFF:
-            return HVACMode.OFF
-        return HVACMode.HEAT_COOL
+        if power is None:
+            return None
+
+        if power:
+            return HVACMode.HEAT_COOL
+        return HVACMode.OFF
 
     @property
     def preset_mode(self) -> str | None:
@@ -130,7 +132,7 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
         try:
             return OperationMode(mode).name.lower()
         except ValueError:
-            return "unknown"
+            return None
 
     async def async_set_temperature(self, **kwargs: Any) -> None:
         """Set new target temperature."""
