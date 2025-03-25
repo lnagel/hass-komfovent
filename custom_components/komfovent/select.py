@@ -18,7 +18,7 @@ from .const import (
     AirQualitySensorType,
     FlowControl,
     HeatRecoveryControl,
-    Microventilation,
+    MicroVentilation,
     OperationMode,
     OutdoorHumiditySensor,
     SchedulerMode,
@@ -152,12 +152,12 @@ async def async_setup_entry(
             KomfoventSelect(
                 coordinator=coordinator,
                 register_id=registers.REG_HOLIDAYS_MICRO_VENT,
-                enum_class=Microventilation,
+                enum_class=MicroVentilation,
                 entity_description=SelectEntityDescription(
                     key="holidays_micro_ventilation",
                     name="Holidays Micro-ventilation",
                     entity_category=EntityCategory.CONFIG,
-                    options=[mode.name.lower() for mode in Microventilation],
+                    options=[mode.name.lower() for mode in MicroVentilation],
                 ),
             ),
         ]

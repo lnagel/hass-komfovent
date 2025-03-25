@@ -136,8 +136,8 @@ class HeatExchangerType(IntEnum):
     ROTARY = 1
 
 
-class Microventilation(IntEnum):
-    """Holiday mode microventilation frequency."""
+class MicroVentilation(IntEnum):
+    """Holiday mode micro-ventilation frequency."""
 
     ONCE = 1
     TWICE = 2
