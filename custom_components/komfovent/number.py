@@ -58,29 +58,27 @@ async def async_setup_entry(
 
     entities = [
         # Normal mode controls
-        KomfoventNumber(
+        FlowNumber(
             coordinator=coordinator,
             register_id=registers.REG_NORMAL_FAN_SUPPLY,
             entity_description=NumberEntityDescription(
-                key="normal_supply_fan",
-                name="Normal Supply Fan",
-                native_unit_of_measurement=PERCENTAGE,
-                native_min_value=FAN_SPEED_MIN,
-                native_max_value=FAN_SPEED_MAX,
+                key="normal_supply_flow",
+                name="Normal Supply Flow",
+                native_min_value=0,
+                native_max_value=200000,
                 native_step=1,
                 entity_category=EntityCategory.CONFIG,
                 entity_registry_enabled_default=False,
             ),
         ),
-        KomfoventNumber(
+        FlowNumber(
             coordinator=coordinator,
             register_id=registers.REG_NORMAL_FAN_EXTRACT,
             entity_description=NumberEntityDescription(
-                key="normal_extract_fan",
-                name="Normal Extract Fan",
-                native_unit_of_measurement=PERCENTAGE,
-                native_min_value=FAN_SPEED_MIN,
-                native_max_value=FAN_SPEED_MAX,
+                key="normal_extract_flow",
+                name="Normal Extract Flow",
+                native_min_value=0,
+                native_max_value=200000,
                 native_step=1,
                 entity_category=EntityCategory.CONFIG,
                 entity_registry_enabled_default=False,
@@ -102,29 +100,27 @@ async def async_setup_entry(
             ),
         ),
         # Intensive mode controls
-        KomfoventNumber(
+        FlowNumber(
             coordinator=coordinator,
             register_id=registers.REG_INTENSIVE_FAN_SUPPLY,
             entity_description=NumberEntityDescription(
-                key="intensive_supply_fan",
-                name="Intensive Supply Fan",
-                native_unit_of_measurement=PERCENTAGE,
-                native_min_value=FAN_SPEED_MIN,
-                native_max_value=FAN_SPEED_MAX,
+                key="intensive_supply_flow",
+                name="Intensive Supply Flow",
+                native_min_value=0,
+                native_max_value=200000,
                 native_step=1,
                 entity_category=EntityCategory.CONFIG,
                 entity_registry_enabled_default=False,
             ),
         ),
-        KomfoventNumber(
+        FlowNumber(
             coordinator=coordinator,
             register_id=registers.REG_INTENSIVE_FAN_EXTRACT,
             entity_description=NumberEntityDescription(
-                key="intensive_extract_fan",
-                name="Intensive Extract Fan",
-                native_unit_of_measurement=PERCENTAGE,
-                native_min_value=FAN_SPEED_MIN,
-                native_max_value=FAN_SPEED_MAX,
+                key="intensive_extract_flow",
+                name="Intensive Extract Flow",
+                native_min_value=0,
+                native_max_value=200000,
                 native_step=1,
                 entity_category=EntityCategory.CONFIG,
                 entity_registry_enabled_default=False,
@@ -146,29 +142,27 @@ async def async_setup_entry(
             ),
         ),
         # Boost mode controls
-        KomfoventNumber(
+        FlowNumber(
             coordinator=coordinator,
             register_id=registers.REG_BOOST_FAN_SUPPLY,
             entity_description=NumberEntityDescription(
-                key="boost_supply_fan",
-                name="Boost Supply Fan",
-                native_unit_of_measurement=PERCENTAGE,
-                native_min_value=FAN_SPEED_MIN,
-                native_max_value=FAN_SPEED_MAX,
+                key="boost_supply_flow",
+                name="Boost Supply Flow",
+                native_min_value=0,
+                native_max_value=200000,
                 native_step=1,
                 entity_category=EntityCategory.CONFIG,
                 entity_registry_enabled_default=False,
             ),
         ),
-        KomfoventNumber(
+        FlowNumber(
             coordinator=coordinator,
             register_id=registers.REG_BOOST_FAN_EXTRACT,
             entity_description=NumberEntityDescription(
-                key="boost_extract_fan",
-                name="Boost Extract Fan",
-                native_unit_of_measurement=PERCENTAGE,
-                native_min_value=FAN_SPEED_MIN,
-                native_max_value=FAN_SPEED_MAX,
+                key="boost_extract_flow",
+                name="Boost Extract Flow",
+                native_min_value=0,
+                native_max_value=200000,
                 native_step=1,
                 entity_category=EntityCategory.CONFIG,
                 entity_registry_enabled_default=False,
@@ -190,29 +184,27 @@ async def async_setup_entry(
             ),
         ),
         # Away mode controls
-        KomfoventNumber(
+        FlowNumber(
             coordinator=coordinator,
             register_id=registers.REG_AWAY_FAN_SUPPLY,
             entity_description=NumberEntityDescription(
-                key="away_supply_fan",
-                name="Away Supply Fan",
-                native_unit_of_measurement=PERCENTAGE,
-                native_min_value=FAN_SPEED_MIN,
-                native_max_value=FAN_SPEED_MAX,
+                key="away_supply_flow",
+                name="Away Supply Flow",
+                native_min_value=0,
+                native_max_value=200000,
                 native_step=1,
                 entity_category=EntityCategory.CONFIG,
                 entity_registry_enabled_default=False,
             ),
         ),
-        KomfoventNumber(
+        FlowNumber(
             coordinator=coordinator,
             register_id=registers.REG_AWAY_FAN_EXTRACT,
             entity_description=NumberEntityDescription(
-                key="away_extract_fan",
-                name="Away Extract Fan",
-                native_unit_of_measurement=PERCENTAGE,
-                native_min_value=FAN_SPEED_MIN,
-                native_max_value=FAN_SPEED_MAX,
+                key="away_extract_flow",
+                name="Away Extract Flow",
+                native_min_value=0,
+                native_max_value=200000,
                 native_step=1,
                 entity_category=EntityCategory.CONFIG,
                 entity_registry_enabled_default=False,
