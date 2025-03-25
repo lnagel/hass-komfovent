@@ -9,6 +9,9 @@ from homeassistant.components.number import (
     NumberEntity,
     NumberEntityDescription,
 )
+from datetime import datetime
+import zoneinfo
+
 from homeassistant.const import (
     CONCENTRATION_PARTS_PER_MILLION,
     PERCENTAGE,
@@ -17,6 +20,7 @@ from homeassistant.const import (
     UnitOfTime,
     UnitOfVolumeFlowRate,
 )
+from homeassistant.components.datetime import DateTimeEntity, DateTimeEntityDescription
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 if TYPE_CHECKING:
