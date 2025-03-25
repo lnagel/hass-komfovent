@@ -369,6 +369,7 @@ async def async_setup_entry(
                 native_min_value=0,
                 native_max_value=300,
                 native_step=1,
+                device_class=NumberDeviceClass.DURATION,
                 entity_registry_enabled_default=True,
                 entity_registry_visible_default=False,
                 entity_category=EntityCategory.CONFIG,
