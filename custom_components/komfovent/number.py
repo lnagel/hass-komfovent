@@ -469,6 +469,59 @@ async def async_setup_entry(
                 entity_category=EntityCategory.CONFIG,
             ),
         ),
+        # Override mode controls
+        FlowNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_OVERRIDE_SUPPLY,
+            entity_description=NumberEntityDescription(
+                key="override_supply_flow",
+                name="Override Supply Flow",
+                native_min_value=0,
+                native_max_value=200000,
+                native_step=1,
+                entity_category=EntityCategory.CONFIG,
+            ),
+        ),
+        FlowNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_OVERRIDE_EXTRACT,
+            entity_description=NumberEntityDescription(
+                key="override_extract_flow",
+                name="Override Extract Flow",
+                native_min_value=0,
+                native_max_value=200000,
+                native_step=1,
+                entity_category=EntityCategory.CONFIG,
+            ),
+        ),
+        TemperatureNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_OVERRIDE_TEMP,
+            entity_description=NumberEntityDescription(
+                key="override_temperature",
+                name="Override Temperature",
+                native_min_value=TEMP_SETPOINT_MIN,
+                native_max_value=TEMP_SETPOINT_MAX,
+                native_step=0.1,
+                native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                device_class=NumberDeviceClass.TEMPERATURE,
+                entity_category=EntityCategory.CONFIG,
+            ),
+        ),
+        KomfoventNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_OVERRIDE_TIMER,
+            entity_description=NumberEntityDescription(
+                key="override_timer",
+                name="Override Timer",
+                native_unit_of_measurement=UnitOfTime.MINUTES,
+                native_min_value=0,
+                native_max_value=300,
+                native_step=1,
+                device_class=NumberDeviceClass.DURATION,
+                entity_category=EntityCategory.CONFIG,
+            ),
+        ),
     ]
 
     # Check AQ sensor types to determine if we should add the impurity setpoint
