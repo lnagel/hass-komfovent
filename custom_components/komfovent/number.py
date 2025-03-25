@@ -227,29 +227,27 @@ async def async_setup_entry(
             ),
         ),
         # Kitchen mode controls
-        KomfoventNumber(
+        FlowNumber(
             coordinator=coordinator,
             register_id=registers.REG_KITCHEN_SUPPLY,
             entity_description=NumberEntityDescription(
-                key="kitchen_supply_fan",
-                name="Kitchen Supply Fan",
-                native_unit_of_measurement=PERCENTAGE,
-                native_min_value=FAN_SPEED_MIN,
-                native_max_value=FAN_SPEED_MAX,
+                key="kitchen_supply_flow",
+                name="Kitchen Supply Flow",
+                native_min_value=0,
+                native_max_value=200000,
                 native_step=1,
                 entity_category=EntityCategory.CONFIG,
                 entity_registry_enabled_default=False,
             ),
         ),
-        KomfoventNumber(
+        FlowNumber(
             coordinator=coordinator,
             register_id=registers.REG_KITCHEN_EXTRACT,
             entity_description=NumberEntityDescription(
-                key="kitchen_extract_fan",
-                name="Kitchen Extract Fan",
-                native_unit_of_measurement=PERCENTAGE,
-                native_min_value=FAN_SPEED_MIN,
-                native_max_value=FAN_SPEED_MAX,
+                key="kitchen_extract_flow",
+                name="Kitchen Extract Flow",
+                native_min_value=0,
+                native_max_value=200000,
                 native_step=1,
                 entity_category=EntityCategory.CONFIG,
                 entity_registry_enabled_default=False,
