@@ -18,11 +18,12 @@ from .const import (
     AirQualitySensorType,
     FlowControl,
     HeatRecoveryControl,
-    HolidayMicroventilation,
+    Microventilation,
     OperationMode,
     OutdoorHumiditySensor,
     SchedulerMode,
     TemperatureControl,
+    OverrideActivation,
 )
 
 if TYPE_CHECKING:
@@ -138,25 +139,25 @@ async def async_setup_entry(
             ),
             KomfoventSelect(
                 coordinator=coordinator,
-                register_id=registers.REG_OVERRIDE_MODE,
-                enum_class=OverrideMode,
+                register_id=registers.REG_OVERRIDE_ACTIVATION,
+                enum_class=OverrideActivation,
                 entity_description=SelectEntityDescription(
-                    key="override_mode",
-                    name="Override Mode",
+                    key="override_activation",
+                    name="Override Activation",
                     entity_category=EntityCategory.CONFIG,
-                    options=[mode.name.lower() for mode in OverrideMode],
+                    options=[mode.name.lower() for mode in OverrideActivation],
                     entity_registry_enabled_default=False,
                 ),
             ),
             KomfoventSelect(
                 coordinator=coordinator,
                 register_id=registers.REG_HOLIDAYS_MICROVENT,
-                enum_class=HolidayMicroventilation,
+                enum_class=Microventilation,
                 entity_description=SelectEntityDescription(
                     key="holidays_microventilation",
                     name="Holidays Microventilation",
                     entity_category=EntityCategory.CONFIG,
-                    options=[mode.name.lower() for mode in HolidayMicroventilation],
+                    options=[mode.name.lower() for mode in Microventilation],
                 ),
             ),
         ]

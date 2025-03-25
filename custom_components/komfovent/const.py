@@ -97,7 +97,7 @@ class OutdoorHumiditySensor(IntEnum):
     SENSOR2 = 2
 
 
-class OverrideMode(IntEnum):
+class OverrideActivation(IntEnum):
     """Override mode types.
 
     Determines when override mode can be activated:
@@ -136,18 +136,13 @@ class HeatExchangerType(IntEnum):
     ROTARY = 1
 
 
-class HolidayMicroventilation(IntEnum):
+class Microventilation(IntEnum):
     """Holiday mode microventilation frequency."""
 
     ONCE = 1
     TWICE = 2
     THRICE = 3
     FOUR = 4
-
-
-# Fan speed limits
-FAN_SPEED_MIN: Final = 0
-FAN_SPEED_MAX: Final = 100
 
 
 class FlowUnit(IntEnum):

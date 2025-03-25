@@ -30,11 +30,8 @@ from . import registers
 from .const import (
     DOMAIN,
     AirQualitySensorType,
-    FAN_SPEED_MIN,
-    FAN_SPEED_MAX,
     FlowControl,
     FlowUnit,
-    HolidayMicroventilation,
 )
 from .registers import REG_ECO_MAX_TEMP, REG_ECO_MIN_TEMP
 
@@ -222,63 +219,6 @@ async def async_setup_entry(
                 native_max_value=TEMP_SETPOINT_MAX,
                 native_step=0.1,
                 device_class=NumberDeviceClass.TEMPERATURE,
-                entity_category=EntityCategory.CONFIG,
-                entity_registry_enabled_default=False,
-            ),
-        ),
-        # Kitchen mode controls
-        FlowNumber(
-            coordinator=coordinator,
-            register_id=registers.REG_KITCHEN_SUPPLY,
-            entity_description=NumberEntityDescription(
-                key="kitchen_supply_flow",
-                name="Kitchen Supply Flow",
-                native_min_value=0,
-                native_max_value=200000,
-                native_step=1,
-                entity_category=EntityCategory.CONFIG,
-                entity_registry_enabled_default=False,
-            ),
-        ),
-        FlowNumber(
-            coordinator=coordinator,
-            register_id=registers.REG_KITCHEN_EXTRACT,
-            entity_description=NumberEntityDescription(
-                key="kitchen_extract_flow",
-                name="Kitchen Extract Flow",
-                native_min_value=0,
-                native_max_value=200000,
-                native_step=1,
-                entity_category=EntityCategory.CONFIG,
-                entity_registry_enabled_default=False,
-            ),
-        ),
-        TemperatureNumber(
-            coordinator=coordinator,
-            register_id=registers.REG_KITCHEN_TEMP,
-            entity_description=NumberEntityDescription(
-                key="kitchen_temperature",
-                name="Kitchen Temperature",
-                native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-                native_min_value=TEMP_SETPOINT_MIN,
-                native_max_value=TEMP_SETPOINT_MAX,
-                native_step=0.1,
-                device_class=NumberDeviceClass.TEMPERATURE,
-                entity_category=EntityCategory.CONFIG,
-                entity_registry_enabled_default=False,
-            ),
-        ),
-        KomfoventNumber(
-            coordinator=coordinator,
-            register_id=registers.REG_KITCHEN_TIMER,
-            entity_description=NumberEntityDescription(
-                key="kitchen_timer",
-                name="Kitchen Timer",
-                native_unit_of_measurement=UnitOfTime.MINUTES,
-                native_min_value=0,
-                native_max_value=300,
-                native_step=1,
-                device_class=NumberDeviceClass.DURATION,
                 entity_category=EntityCategory.CONFIG,
                 entity_registry_enabled_default=False,
             ),
