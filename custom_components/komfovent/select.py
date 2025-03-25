@@ -135,6 +135,17 @@ async def async_setup_entry(
                     options=[mode.name.lower() for mode in HeatRecoveryControl],
                 ),
             ),
+            KomfoventSelect(
+                coordinator=coordinator,
+                register_id=registers.REG_HOLIDAYS_MICROVENT,
+                enum_class=HolidayMicroventilation,
+                entity_description=SelectEntityDescription(
+                    key="holiday_microventilation",
+                    name="Holiday Microventilation",
+                    entity_category=EntityCategory.CONFIG,
+                    options=[mode.name.lower() for mode in HolidayMicroventilation],
+                ),
+            ),
         ]
     )
 
