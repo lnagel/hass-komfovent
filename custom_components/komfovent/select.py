@@ -144,9 +144,10 @@ async def async_setup_entry(
                 entity_description=SelectEntityDescription(
                     key="override_activation",
                     name="Override Activation",
-                    entity_category=EntityCategory.CONFIG,
                     options=[mode.name.lower() for mode in OverrideActivation],
-                    entity_registry_enabled_default=False,
+                    entity_registry_enabled_default=True,
+                    entity_registry_visible_default=False,
+                    entity_category=EntityCategory.CONFIG,
                 ),
             ),
             KomfoventSelect(
@@ -156,8 +157,10 @@ async def async_setup_entry(
                 entity_description=SelectEntityDescription(
                     key="holidays_micro_ventilation",
                     name="Holidays Micro-ventilation",
-                    entity_category=EntityCategory.CONFIG,
                     options=[mode.name.lower() for mode in MicroVentilation],
+                    entity_registry_enabled_default=True,
+                    entity_registry_visible_default=False,
+                    entity_category=EntityCategory.CONFIG,
                 ),
             ),
         ]

@@ -37,6 +37,8 @@ async def async_setup_entry(
                 entity_description=DateTimeEntityDescription(
                     key="holidays_from",
                     name="Holidays From",
+                    entity_registry_enabled_default=True,
+                    entity_registry_visible_default=False,
                     entity_category=EntityCategory.CONFIG,
                 ),
             ),
@@ -46,6 +48,8 @@ async def async_setup_entry(
                 entity_description=DateTimeEntityDescription(
                     key="holidays_until",
                     name="Holidays Until",
+                    entity_registry_enabled_default=True,
+                    entity_registry_visible_default=False,
                     entity_category=EntityCategory.CONFIG,
                 ),
             ),
