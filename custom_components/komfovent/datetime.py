@@ -42,10 +42,10 @@ async def async_setup_entry(
             ),
             KomfoventDateTime(
                 coordinator=coordinator,
-                register_id=registers.REG_HOLIDAYS_TILL,
+                register_id=registers.REG_HOLIDAYS_UNTIL,
                 entity_description=DateTimeEntityDescription(
-                    key="holiday_till",
-                    name="Holiday Till",
+                    key="holiday_until",
+                    name="Holiday Until",
                     entity_category=EntityCategory.CONFIG,
                 ),
             ),
