@@ -52,52 +52,52 @@ REG_EPOCH_TIME = 33  # Time since 1970 (32-bit)
 REG_AWAY_FAN_SUPPLY = 100  # Supply flow (32-bit)
 REG_AWAY_FAN_EXTRACT = 102  # Extract flow (32-bit)
 REG_AWAY_TEMP = 104  # Setpoint
-REG_AWAY_HEATING = 105  # Heating
+REG_AWAY_HEATER = 105  # Electric heater
 
 # Normal mode registers
 REG_NORMAL_FAN_SUPPLY = 106  # Supply flow (32-bit)
 REG_NORMAL_FAN_EXTRACT = 108  # Extract flow (32-bit)
 REG_NORMAL_SETPOINT = 110  # Setpoint
-REG_NORMAL_HEATING = 111  # Heating
+REG_NORMAL_HEATER = 111  # Electric heater
 
 # Intensive mode registers
 REG_INTENSIVE_FAN_SUPPLY = 112  # Supply flow (32-bit)
 REG_INTENSIVE_FAN_EXTRACT = 114  # Extract flow (32-bit)
 REG_INTENSIVE_TEMP = 116  # Setpoint
-REG_INTENSIVE_HEATING = 117  # Heating
+REG_INTENSIVE_HEATER = 117  # Electric heater
 
 # Boost mode registers
 REG_BOOST_FAN_SUPPLY = 118  # Supply flow (32-bit)
 REG_BOOST_FAN_EXTRACT = 120  # Extract flow (32-bit)
 REG_BOOST_TEMP = 122  # Setpoint
-REG_BOOST_HEATING = 123  # Heating
+REG_BOOST_HEATER = 123  # Electric heater
 
 # Kitchen mode registers
 REG_KITCHEN_SUPPLY = 124  # Supply flow (32-bit)
 REG_KITCHEN_EXTRACT = 126  # Extract flow (32-bit)
 REG_KITCHEN_TEMP = 128  # Setpoint
-REG_KITCHEN_HEATING = 129  # Heating
+REG_KITCHEN_HEATER = 129  # Electric heater
 REG_KITCHEN_TIMER = 130  # Timer time
 
 # Fireplace mode registers
 REG_FIREPLACE_SUPPLY = 131  # Supply flow (32-bit)
 REG_FIREPLACE_EXTRACT = 133  # Extract flow (32-bit)
 REG_FIREPLACE_TEMP = 135  # Setpoint
-REG_FIREPLACE_HEATING = 136  # Heating
+REG_FIREPLACE_HEATER = 136  # Electric heater
 REG_FIREPLACE_TIMER = 137  # Timer time
 
 # Override mode registers
 REG_OVERRIDE_SUPPLY = 138  # Supply flow (32-bit)
 REG_OVERRIDE_EXTRACT = 140  # Extract flow (32-bit)
 REG_OVERRIDE_TEMP = 142  # Setpoint
-REG_OVERRIDE_HEATING = 143  # Heating
+REG_OVERRIDE_HEATER = 143  # Electric heater
 REG_OVERRIDE_ACTIVATION = 144  # Activation mode
 REG_OVERRIDE_TIMER = 145  # Timer time
 
 # Holiday mode registers
 REG_HOLIDAYS_MICRO_VENT = 146  # Micro-ventilation
 REG_HOLIDAYS_TEMP = 147  # Setpoint
-REG_HOLIDAYS_HEATING = 148  # Heating
+REG_HOLIDAYS_HEATER = 148  # Electric heater
 REG_HOLIDAYS_FROM = 149  # From Day/Month
 REG_HOLIDAYS_UNTIL = 151  # Until Day/Month
 REG_HOLIDAYS_YEAR_FROM = 153  # Year, from
@@ -109,8 +109,8 @@ REG_HOLIDAYS_DATE_TILL = 156  # Month/Day, until
 REG_ECO_MIN_TEMP = 200  # Minimum supply air temperature
 REG_ECO_MAX_TEMP = 201  # Maximum supply air temperature
 REG_FREE_HEATING = 202  # Free heating/cooling
-REG_HEATING_DENIED = 203  # Heating enable denied
-REG_COOLING_DENIED = 204  # Cooling enable denied
+REG_HEATING_DENIED = 203  # Heating denied
+REG_COOLING_DENIED = 204  # Cooling denied
 
 # Air quality settings
 REG_AQ_IMPURITY_CONTROL = 205  # Impurity control
@@ -119,7 +119,7 @@ REG_AQ_IMPURITY_SETPOINT = 207  # CO2/VOC setpoint
 REG_AQ_HUMIDITY_SETPOINT = 208  # Humidity setpoint
 REG_AQ_MIN_INTENSITY = 209  # Air quality minimum intensity
 REG_AQ_MAX_INTENSITY = 210  # Air quality maximum intensity
-REG_AQ_ELECTRIC_HEATER = 211  # Air quality heating
+REG_AQ_ELECTRIC_HEATER = 211  # Air quality electric heater
 REG_AQ_CHECK_PERIOD = 212  # Air quality check period
 REG_AQ_SENSOR1_TYPE = 213  # Air quality sensor 1 type
 REG_AQ_SENSOR2_TYPE = 214  # Air quality sensor 2 type
@@ -241,20 +241,20 @@ REGISTERS_16BIT_UNSIGNED = {
     REG_YEAR,
     REG_MONTH_DAY,
     REG_WEEK_DAY,
-    REG_AWAY_HEATING,
-    REG_NORMAL_HEATING,
-    REG_INTENSIVE_HEATING,
-    REG_BOOST_HEATING,
-    REG_KITCHEN_HEATING,
+    REG_AWAY_HEATER,
+    REG_NORMAL_HEATER,
+    REG_INTENSIVE_HEATER,
+    REG_BOOST_HEATER,
+    REG_KITCHEN_HEATER,
     REG_KITCHEN_TIMER,
-    REG_FIREPLACE_HEATING,
+    REG_FIREPLACE_HEATER,
     REG_FIREPLACE_TIMER,
-    REG_OVERRIDE_HEATING,
+    REG_OVERRIDE_HEATER,
     REG_OVERRIDE_ACTIVATION,
     REG_OVERRIDE_ACTIVATION,
     REG_OVERRIDE_TIMER,
     REG_HOLIDAYS_MICRO_VENT,
-    REG_HOLIDAYS_HEATING,
+    REG_HOLIDAYS_HEATER,
     REG_HOLIDAYS_FROM,
     REG_HOLIDAYS_UNTIL,
     REG_HOLIDAYS_YEAR_FROM,

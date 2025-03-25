@@ -24,94 +24,6 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
     return [
         KomfoventSwitch(
             coordinator=coordinator,
-            register_id=registers.REG_NORMAL_HEATING,
-            entity_description=SwitchEntityDescription(
-                key="normal_heating",
-                name="Normal Heating",
-                icon="mdi:radiator",
-                entity_registry_enabled_default=True,
-                entity_category=None,
-            ),
-        ),
-        KomfoventSwitch(
-            coordinator=coordinator,
-            register_id=registers.REG_INTENSIVE_HEATING,
-            entity_description=SwitchEntityDescription(
-                key="intensive_heating",
-                name="Intensive Heating",
-                icon="mdi:radiator",
-                entity_registry_enabled_default=True,
-                entity_category=None,
-            ),
-        ),
-        KomfoventSwitch(
-            coordinator=coordinator,
-            register_id=registers.REG_BOOST_HEATING,
-            entity_description=SwitchEntityDescription(
-                key="boost_heating",
-                name="Boost Heating",
-                icon="mdi:radiator",
-                entity_registry_enabled_default=True,
-                entity_category=None,
-            ),
-        ),
-        KomfoventSwitch(
-            coordinator=coordinator,
-            register_id=registers.REG_KITCHEN_HEATING,
-            entity_description=SwitchEntityDescription(
-                key="kitchen_heating",
-                name="Kitchen Heating",
-                icon="mdi:radiator",
-                entity_registry_enabled_default=False,
-                entity_category=EntityCategory.CONFIG,
-            ),
-        ),
-        KomfoventSwitch(
-            coordinator=coordinator,
-            register_id=registers.REG_FIREPLACE_HEATING,
-            entity_description=SwitchEntityDescription(
-                key="fireplace_heating",
-                name="Fireplace Heating",
-                icon="mdi:radiator",
-                entity_registry_enabled_default=False,
-                entity_category=EntityCategory.CONFIG,
-            ),
-        ),
-        KomfoventSwitch(
-            coordinator=coordinator,
-            register_id=registers.REG_OVERRIDE_HEATING,
-            entity_description=SwitchEntityDescription(
-                key="override_heating",
-                name="Override Heating",
-                icon="mdi:radiator",
-                entity_registry_enabled_default=False,
-                entity_category=EntityCategory.CONFIG,
-            ),
-        ),
-        KomfoventSwitch(
-            coordinator=coordinator,
-            register_id=registers.REG_HOLIDAYS_HEATING,
-            entity_description=SwitchEntityDescription(
-                key="holidays_heating",
-                name="Holidays Heating",
-                icon="mdi:radiator",
-                entity_registry_enabled_default=False,
-                entity_category=EntityCategory.CONFIG,
-            ),
-        ),
-        KomfoventSwitch(
-            coordinator=coordinator,
-            register_id=registers.REG_AWAY_HEATING,
-            entity_description=SwitchEntityDescription(
-                key="away_heating",
-                name="Away Heating",
-                icon="mdi:radiator",
-                entity_registry_enabled_default=True,
-                entity_category=None,
-            ),
-        ),
-        KomfoventSwitch(
-            coordinator=coordinator,
             register_id=registers.REG_POWER,
             entity_description=SwitchEntityDescription(
                 key="power",
@@ -206,6 +118,94 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
                 icon="mdi:snowflake-off",
                 entity_registry_enabled_default=True,
                 entity_category=None,
+            ),
+        ),
+        KomfoventSwitch(
+            coordinator=coordinator,
+            register_id=registers.REG_AWAY_HEATER,
+            entity_description=SwitchEntityDescription(
+                key="away_electric_heater",
+                name="Away Electric Heater",
+                icon="mdi:radiator",
+                entity_registry_enabled_default=True,
+                entity_category=None,
+            ),
+        ),
+        KomfoventSwitch(
+            coordinator=coordinator,
+            register_id=registers.REG_NORMAL_HEATER,
+            entity_description=SwitchEntityDescription(
+                key="normal_electric_heater",
+                name="Normal Electric Heater",
+                icon="mdi:radiator",
+                entity_registry_enabled_default=True,
+                entity_category=None,
+            ),
+        ),
+        KomfoventSwitch(
+            coordinator=coordinator,
+            register_id=registers.REG_INTENSIVE_HEATER,
+            entity_description=SwitchEntityDescription(
+                key="intensive_electric_heater",
+                name="Intensive Electric Heater",
+                icon="mdi:radiator",
+                entity_registry_enabled_default=True,
+                entity_category=None,
+            ),
+        ),
+        KomfoventSwitch(
+            coordinator=coordinator,
+            register_id=registers.REG_BOOST_HEATER,
+            entity_description=SwitchEntityDescription(
+                key="boost_electric_heater",
+                name="Boost Electric Heater",
+                icon="mdi:radiator",
+                entity_registry_enabled_default=True,
+                entity_category=None,
+            ),
+        ),
+        KomfoventSwitch(
+            coordinator=coordinator,
+            register_id=registers.REG_KITCHEN_HEATER,
+            entity_description=SwitchEntityDescription(
+                key="kitchen_electric_heater",
+                name="Kitchen Electric Heater",
+                icon="mdi:radiator",
+                entity_registry_enabled_default=False,
+                entity_category=EntityCategory.CONFIG,
+            ),
+        ),
+        KomfoventSwitch(
+            coordinator=coordinator,
+            register_id=registers.REG_FIREPLACE_HEATER,
+            entity_description=SwitchEntityDescription(
+                key="fireplace_electric_heater",
+                name="Fireplace Electric Heater",
+                icon="mdi:radiator",
+                entity_registry_enabled_default=False,
+                entity_category=EntityCategory.CONFIG,
+            ),
+        ),
+        KomfoventSwitch(
+            coordinator=coordinator,
+            register_id=registers.REG_OVERRIDE_HEATER,
+            entity_description=SwitchEntityDescription(
+                key="override_electric_heater",
+                name="Override Electric Heater",
+                icon="mdi:radiator",
+                entity_registry_enabled_default=False,
+                entity_category=EntityCategory.CONFIG,
+            ),
+        ),
+        KomfoventSwitch(
+            coordinator=coordinator,
+            register_id=registers.REG_HOLIDAYS_HEATER,
+            entity_description=SwitchEntityDescription(
+                key="holidays_electric_heater",
+                name="Holidays Electric Heater",
+                icon="mdi:radiator",
+                entity_registry_enabled_default=False,
+                entity_category=EntityCategory.CONFIG,
             ),
         ),
     ]
