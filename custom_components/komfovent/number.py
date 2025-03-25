@@ -528,8 +528,8 @@ async def async_setup_entry(
             coordinator=coordinator,
             register_id=registers.REG_HOLIDAYS_TEMP,
             entity_description=NumberEntityDescription(
-                key="holiday_temperature",
-                name="Holiday Temperature",
+                key="holidays_temperature",
+                name="Holidays Temperature",
                 native_min_value=TEMP_SETPOINT_MIN,
                 native_max_value=TEMP_SETPOINT_MAX,
                 native_step=0.1,
@@ -542,8 +542,8 @@ async def async_setup_entry(
             coordinator=coordinator,
             register_id=registers.REG_HOLIDAYS_MICROVENT,
             entity_description=NumberEntityDescription(
-                key="holiday_microventilation",
-                name="Holiday Microventilation",
+                key="holidays_microventilation",
+                name="Holidays Microventilation",
                 native_min_value=HolidayMicroventilation.ONCE,
                 native_max_value=HolidayMicroventilation.FOUR,
                 native_step=1,

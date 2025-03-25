@@ -35,8 +35,8 @@ async def async_setup_entry(
                 coordinator=coordinator,
                 register_id=registers.REG_HOLIDAYS_FROM,
                 entity_description=DateTimeEntityDescription(
-                    key="holiday_from",
-                    name="Holiday From",
+                    key="holidays_from",
+                    name="Holidays From",
                     entity_category=EntityCategory.CONFIG,
                 ),
             ),
@@ -44,8 +44,8 @@ async def async_setup_entry(
                 coordinator=coordinator,
                 register_id=registers.REG_HOLIDAYS_UNTIL,
                 entity_description=DateTimeEntityDescription(
-                    key="holiday_until",
-                    name="Holiday Until",
+                    key="holidays_until",
+                    name="Holidays Until",
                     entity_category=EntityCategory.CONFIG,
                 ),
             ),

@@ -141,8 +141,8 @@ async def async_setup_entry(
                 register_id=registers.REG_HOLIDAYS_MICROVENT,
                 enum_class=HolidayMicroventilation,
                 entity_description=SelectEntityDescription(
-                    key="holiday_microventilation",
-                    name="Holiday Microventilation",
+                    key="holidays_microventilation",
+                    name="Holidays Microventilation",
                     entity_category=EntityCategory.CONFIG,
                     options=[mode.name.lower() for mode in HolidayMicroventilation],
                 ),
