@@ -416,6 +416,59 @@ async def async_setup_entry(
                 entity_category=EntityCategory.CONFIG,
             ),
         ),
+        # Fireplace mode controls
+        FlowNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_FIREPLACE_SUPPLY,
+            entity_description=NumberEntityDescription(
+                key="fireplace_supply_flow",
+                name="Fireplace Supply Flow",
+                native_min_value=0,
+                native_max_value=200000,
+                native_step=1,
+                entity_category=EntityCategory.CONFIG,
+            ),
+        ),
+        FlowNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_FIREPLACE_EXTRACT,
+            entity_description=NumberEntityDescription(
+                key="fireplace_extract_flow",
+                name="Fireplace Extract Flow",
+                native_min_value=0,
+                native_max_value=200000,
+                native_step=1,
+                entity_category=EntityCategory.CONFIG,
+            ),
+        ),
+        TemperatureNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_FIREPLACE_TEMP,
+            entity_description=NumberEntityDescription(
+                key="fireplace_temperature",
+                name="Fireplace Temperature",
+                native_min_value=TEMP_SETPOINT_MIN,
+                native_max_value=TEMP_SETPOINT_MAX,
+                native_step=0.1,
+                native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                device_class=NumberDeviceClass.TEMPERATURE,
+                entity_category=EntityCategory.CONFIG,
+            ),
+        ),
+        KomfoventNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_FIREPLACE_TIMER,
+            entity_description=NumberEntityDescription(
+                key="fireplace_timer",
+                name="Fireplace Timer",
+                native_unit_of_measurement=UnitOfTime.MINUTES,
+                native_min_value=0,
+                native_max_value=300,
+                native_step=1,
+                device_class=NumberDeviceClass.DURATION,
+                entity_category=EntityCategory.CONFIG,
+            ),
+        ),
     ]
 
     # Check AQ sensor types to determine if we should add the impurity setpoint
