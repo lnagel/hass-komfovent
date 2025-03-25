@@ -151,11 +151,11 @@ async def async_setup_entry(
             ),
             KomfoventSelect(
                 coordinator=coordinator,
-                register_id=registers.REG_HOLIDAYS_MICROVENT,
+                register_id=registers.REG_HOLIDAYS_MICRO_VENT,
                 enum_class=Microventilation,
                 entity_description=SelectEntityDescription(
-                    key="holidays_microventilation",
-                    name="Holidays Microventilation",
+                    key="holidays_micro_ventilation",
+                    name="Holidays Micro-ventilation",
                     entity_category=EntityCategory.CONFIG,
                     options=[mode.name.lower() for mode in Microventilation],
                 ),
