@@ -538,18 +538,6 @@ async def async_setup_entry(
                 entity_category=EntityCategory.CONFIG,
             ),
         ),
-        KomfoventNumber(
-            coordinator=coordinator,
-            register_id=registers.REG_HOLIDAYS_MICROVENT,
-            entity_description=NumberEntityDescription(
-                key="holidays_microventilation",
-                name="Holidays Microventilation",
-                native_min_value=HolidayMicroventilation.ONCE,
-                native_max_value=HolidayMicroventilation.FOUR,
-                native_step=1,
-                entity_category=EntityCategory.CONFIG,
-            ),
-        ),
     ]
 
     # Check AQ sensor types to determine if we should add the impurity setpoint
