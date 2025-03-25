@@ -78,9 +78,7 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
 
         try:
             temp_control = TemperatureControl(
-                self.coordinator.data.get(
-                    registers.REG_TEMP_CONTROL, TemperatureControl.SUPPLY
-                )
+                self.coordinator.data.get(registers.REG_TEMP_CONTROL)
             )
             temp_key = TEMP_CONTROL_MAPPING[temp_control]
 
@@ -99,7 +97,7 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
 
         try:
             mode = OperationMode(
-                self.coordinator.data.get(registers.REG_OPERATION_MODE, 0)
+                self.coordinator.data.get(registers.REG_OPERATION_MODE)
             )
             temp_reg = MODE_TEMP_MAPPING[mode]
             if (temp := self.coordinator.data.get(temp_reg)) is not None:
@@ -115,10 +113,8 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
         if not self.coordinator.data:
             return HVACMode.OFF
 
-        power = self.coordinator.data.get(registers.REG_POWER, 0)
-        operation_mode = self.coordinator.data.get(
-            registers.REG_OPERATION_MODE, OperationMode.OFF
-        )
+        power = self.coordinator.data.get(registers.REG_POWER)
+        operation_mode = self.coordinator.data.get(registers.REG_OPERATION_MODE)
 
         if not power or operation_mode == OperationMode.OFF:
             return HVACMode.OFF
@@ -130,7 +126,7 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
         if not self.coordinator.data:
             return None
 
-        mode = self.coordinator.data.get(registers.REG_OPERATION_MODE, 0)
+        mode = self.coordinator.data.get(registers.REG_OPERATION_MODE)
         try:
             return OperationMode(mode).name.lower()
         except ValueError:
@@ -144,7 +140,7 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
         # Get current mode and its temperature register
         try:
             mode = OperationMode(
-                self.coordinator.data.get(registers.REG_OPERATION_MODE, 0)
+                self.coordinator.data.get(registers.REG_OPERATION_MODE)
             )
             reg = MODE_TEMP_MAPPING[mode]
         except (ValueError, KeyError):

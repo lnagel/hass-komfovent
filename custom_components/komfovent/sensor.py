@@ -67,13 +67,9 @@ def create_aq_sensor(
         return None
 
     if register_id == registers.REG_EXTRACT_AQ_1:
-        sensor_type_int = coordinator.data.get(
-            registers.REG_AQ_SENSOR1_TYPE, AirQualitySensorType.NOT_INSTALLED
-        )
+        sensor_type_int = coordinator.data.get(registers.REG_AQ_SENSOR1_TYPE)
     elif register_id == registers.REG_EXTRACT_AQ_2:
-        sensor_type_int = coordinator.data.get(
-            registers.REG_AQ_SENSOR2_TYPE, AirQualitySensorType.NOT_INSTALLED
-        )
+        sensor_type_int = coordinator.data.get(registers.REG_AQ_SENSOR2_TYPE)
     else:
         sensor_type_int = AirQualitySensorType.NOT_INSTALLED
 
@@ -96,7 +92,7 @@ def create_aq_sensor(
         device_class = None
     elif sensor_type == AirQualitySensorType.HUMIDITY:
         outdoor_humidity_sensor = coordinator.data.get(
-            registers.REG_AQ_OUTDOOR_HUMIDITY, OutdoorHumiditySensor.NONE
+            registers.REG_AQ_OUTDOOR_HUMIDITY
         )
         is_outdoor = (
             register_id == registers.REG_EXTRACT_AQ_1
@@ -532,7 +528,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
         )
 
     # Add panel 1 sensors if panel is present
-    if coordinator.data and coordinator.data.get(registers.REG_CONNECTED_PANELS, 0) in [
+    if coordinator.data and coordinator.data.get(registers.REG_CONNECTED_PANELS) in [
         ConnectedPanels.PANEL1,
         ConnectedPanels.BOTH,
     ]:
@@ -575,7 +571,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
         )
 
     # Add panel 2 sensors if panel is present
-    if coordinator.data and coordinator.data.get(registers.REG_CONNECTED_PANELS, 0) in [
+    if coordinator.data and coordinator.data.get(registers.REG_CONNECTED_PANELS) in [
         ConnectedPanels.PANEL2,
         ConnectedPanels.BOTH,
     ]:

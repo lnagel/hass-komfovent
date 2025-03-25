@@ -200,7 +200,7 @@ class KomfoventSelect(CoordinatorEntity, SelectEntity):
         if not self.coordinator.data:
             return None
 
-        mode = self.coordinator.data.get(self.register_id, 0)
+        mode = self.coordinator.data.get(self.register_id)
         try:
             return self.enum_class(mode).name.lower()
         except ValueError:

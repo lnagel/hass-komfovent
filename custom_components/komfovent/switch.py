@@ -260,7 +260,10 @@ class KomfoventSwitch(CoordinatorEntity, SwitchEntity):
         """Return True if entity is on."""
         if not self.coordinator.data:
             return None
-        return bool(self.coordinator.data.get(self.register_id, 0))
+        value = self.coordinator.data.get(self.register_id)
+        if value is None:
+            return None
+        return bool(value)
 
     async def async_turn_on(self, **_kwargs: dict) -> None:
         """Turn the entity on."""
