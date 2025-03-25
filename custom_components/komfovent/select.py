@@ -18,8 +18,10 @@ from .const import (
     AirQualitySensorType,
     FlowControl,
     HeatRecoveryControl,
+    MicroVentilation,
     OperationMode,
     OutdoorHumiditySensor,
+    OverrideActivation,
     SchedulerMode,
     TemperatureControl,
 )
@@ -133,6 +135,32 @@ async def async_setup_entry(
                     name="ECO Heat Recovery",
                     icon="mdi:heat-wave",
                     options=[mode.name.lower() for mode in HeatRecoveryControl],
+                ),
+            ),
+            KomfoventSelect(
+                coordinator=coordinator,
+                register_id=registers.REG_OVERRIDE_ACTIVATION,
+                enum_class=OverrideActivation,
+                entity_description=SelectEntityDescription(
+                    key="override_activation",
+                    name="Override Activation",
+                    options=[mode.name.lower() for mode in OverrideActivation],
+                    entity_registry_enabled_default=True,
+                    entity_registry_visible_default=False,
+                    entity_category=EntityCategory.CONFIG,
+                ),
+            ),
+            KomfoventSelect(
+                coordinator=coordinator,
+                register_id=registers.REG_HOLIDAYS_MICRO_VENT,
+                enum_class=MicroVentilation,
+                entity_description=SelectEntityDescription(
+                    key="holidays_micro_ventilation",
+                    name="Holidays Micro-ventilation",
+                    options=[mode.name.lower() for mode in MicroVentilation],
+                    entity_registry_enabled_default=True,
+                    entity_registry_visible_default=False,
+                    entity_category=EntityCategory.CONFIG,
                 ),
             ),
         ]

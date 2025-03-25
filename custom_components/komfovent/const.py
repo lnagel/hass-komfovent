@@ -97,8 +97,15 @@ class OutdoorHumiditySensor(IntEnum):
     SENSOR2 = 2
 
 
-class OverrideMode(IntEnum):
-    """Override mode types."""
+class OverrideActivation(IntEnum):
+    """
+    Override mode types.
+
+    Determines when override mode can be activated:
+    - ALL_TIME: Override can be activated at any time
+    - IF_ON: Override only when unit is running
+    - IF_OFF: Override only when unit is stopped
+    """
 
     ALL_TIME = 0
     IF_ON = 1
@@ -128,6 +135,15 @@ class HeatExchangerType(IntEnum):
 
     PLATE = 0
     ROTARY = 1
+
+
+class MicroVentilation(IntEnum):
+    """Holiday mode micro-ventilation frequency."""
+
+    ONCE = 1
+    TWICE = 2
+    THRICE = 3
+    FOUR = 4
 
 
 class FlowUnit(IntEnum):
