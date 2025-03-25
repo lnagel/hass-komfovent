@@ -604,7 +604,7 @@ class KomfoventNumber(CoordinatorEntity, NumberEntity):
         if not self.coordinator.data:
             return None
 
-        value = self.coordinator.data.get(self.register_id, 0)
+        value = self.coordinator.data.get(self.register_id)
 
         if value is None:
             return None
