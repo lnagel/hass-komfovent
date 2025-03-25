@@ -138,6 +138,18 @@ async def async_setup_entry(
             ),
             KomfoventSelect(
                 coordinator=coordinator,
+                register_id=registers.REG_OVERRIDE_MODE,
+                enum_class=OverrideMode,
+                entity_description=SelectEntityDescription(
+                    key="override_mode",
+                    name="Override Mode",
+                    entity_category=EntityCategory.CONFIG,
+                    options=[mode.name.lower() for mode in OverrideMode],
+                    entity_registry_enabled_default=False,
+                ),
+            ),
+            KomfoventSelect(
+                coordinator=coordinator,
                 register_id=registers.REG_HOLIDAYS_MICROVENT,
                 enum_class=HolidayMicroventilation,
                 entity_description=SelectEntityDescription(
