@@ -522,6 +522,33 @@ async def async_setup_entry(
                 entity_category=EntityCategory.CONFIG,
             ),
         ),
+        # Holiday mode controls
+        TemperatureNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_HOLIDAYS_TEMP,
+            entity_description=NumberEntityDescription(
+                key="holiday_temperature",
+                name="Holiday Temperature",
+                native_min_value=TEMP_SETPOINT_MIN,
+                native_max_value=TEMP_SETPOINT_MAX,
+                native_step=0.1,
+                native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                device_class=NumberDeviceClass.TEMPERATURE,
+                entity_category=EntityCategory.CONFIG,
+            ),
+        ),
+        KomfoventNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_HOLIDAYS_MICROVENT,
+            entity_description=NumberEntityDescription(
+                key="holiday_microventilation",
+                name="Holiday Microventilation",
+                native_min_value=1,
+                native_max_value=4,
+                native_step=1,
+                entity_category=EntityCategory.CONFIG,
+            ),
+        ),
     ]
 
     # Check AQ sensor types to determine if we should add the impurity setpoint

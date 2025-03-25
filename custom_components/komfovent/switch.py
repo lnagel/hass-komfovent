@@ -90,6 +90,17 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
         ),
         KomfoventSwitch(
             coordinator=coordinator,
+            register_id=registers.REG_HOLIDAYS_HEATING,
+            entity_description=SwitchEntityDescription(
+                key="holiday_heating",
+                name="Holiday Heating",
+                icon="mdi:radiator",
+                entity_registry_enabled_default=False,
+                entity_category=EntityCategory.CONFIG,
+            ),
+        ),
+        KomfoventSwitch(
+            coordinator=coordinator,
             register_id=registers.REG_AWAY_HEATING,
             entity_description=SwitchEntityDescription(
                 key="away_heating",
