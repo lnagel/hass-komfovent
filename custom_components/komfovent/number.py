@@ -15,6 +15,7 @@ from homeassistant.const import (
     EntityCategory,
     UnitOfTemperature,
     UnitOfTime,
+    UnitOfVolumeFlowRate,
 )
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -31,6 +32,8 @@ from .const import (
     AirQualitySensorType,
     FAN_SPEED_MIN,
     FAN_SPEED_MAX,
+    FlowControl,
+    FlowUnit,
 )
 from .registers import REG_ECO_MAX_TEMP, REG_ECO_MIN_TEMP
 
