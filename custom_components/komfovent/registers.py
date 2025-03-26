@@ -26,6 +26,7 @@ REG_MAX_SUPPLY_FLOW = 13  # Maximum supply flow (32-bit)
 REG_MAX_EXTRACT_FLOW = 15  # Maximum extract flow (32-bit)
 REG_MAX_SUPPLY_PRESSURE = 17  # Max supply pressure
 REG_MAX_EXTRACT_PRESSURE = 18  # Max extract pressure
+REG_ROOM_SENSOR = 39  # Room sensor (Panel 1 = 0, Panel 2 = 1; undocumented for C6)
 
 # Control sequence
 REG_STAGE1 = 19  # Stage 1 control
@@ -133,8 +134,8 @@ REG_AQ_ELECTRIC_HEATER = 211  # Air quality electric heater
 REG_AQ_CHECK_PERIOD = 212  # Air quality check period
 REG_AQ_SENSOR1_TYPE = 213  # Air quality sensor 1 type
 REG_AQ_SENSOR2_TYPE = 214  # Air quality sensor 2 type
-REG_AQ_HUMIDITY_CONTROL = 215  # Humidity control (undocumented)
-REG_AQ_OUTDOOR_HUMIDITY = 216  # Outdoor humidity sensor (undocumented)
+REG_AQ_HUMIDITY_CONTROL = 215  # Humidity control (undocumented for C6)
+REG_AQ_OUTDOOR_HUMIDITY = 216  # Outdoor humidity sensor (undocumented for C6)
 
 # Alarm registers
 REG_ACTIVE_ALARMS_COUNT = (
@@ -178,7 +179,8 @@ REG_EXTRACT_PRESSURE = 920  # Extract pressure
 REG_EXTRACT_AQ_1 = 952  # Air quality sensor 1 value
 REG_EXTRACT_AQ_2 = 953  # Air quality sensor 2 value
 REG_HEAT_EXCHANGER_TYPE = 955  # Heat exchanger type
-REG_INDOOR_ABS_HUMIDITY = 956  # Indoor absolute humidity (undocumented)
+REG_INDOOR_ABS_HUMIDITY = 956  # Indoor absolute humidity (undocumented for C6)
+REG_OUTDOOR_ABS_HUMIDITY = 957  # Outdoor absolute humidity (undocumented for C6)
 REG_EXHAUST_TEMP = 961  # Exhaust temperature
 
 # Efficiency status
@@ -240,6 +242,7 @@ REGISTERS_16BIT_UNSIGNED = {
     REG_FLOW_CONTROL,
     REG_MAX_SUPPLY_PRESSURE,
     REG_MAX_EXTRACT_PRESSURE,
+    REG_ROOM_SENSOR,
     REG_STAGE1,
     REG_STAGE2,
     REG_STAGE3,
@@ -330,6 +333,7 @@ REGISTERS_16BIT_UNSIGNED = {
     REG_CONNECTED_PANELS,
     REG_HEAT_EXCHANGER_TYPE,
     REG_INDOOR_ABS_HUMIDITY,
+    REG_OUTDOOR_ABS_HUMIDITY,
     REG_DO_ALARM,
     REG_DO_HEATING,
     REG_DO_COOLING,
