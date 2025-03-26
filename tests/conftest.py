@@ -55,6 +55,6 @@ def mock_modbus_client() -> MagicMock:
         return result
 
     mock_client.read = AsyncMock(side_effect=mock_read)
-    mock_client.write_register = AsyncMock()
+    mock_client.write = AsyncMock()
 
     return mock_client

@@ -80,7 +80,7 @@ class KomfoventModbusClient:
 
         return data
 
-    async def write_register(self, register: int, value: int) -> None:
+    async def write(self, register: int, value: int) -> None:
         """Write to holding register."""
         async with self._lock:
             if register in REGISTERS_16BIT_UNSIGNED:

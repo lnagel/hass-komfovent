@@ -214,7 +214,7 @@ class KomfoventSelect(CoordinatorEntity, SelectEntity):
             _LOGGER.warning("Invalid operation mode: %s", option)
             return
 
-        await self.coordinator.client.write_register(self.register_id, mode.value)
+        await self.coordinator.client.write(self.register_id, mode.value)
 
         await self.coordinator.async_request_refresh()
 
@@ -231,16 +231,16 @@ class KomfoventOperationModeSelect(KomfoventSelect):
             return
 
         if mode == OperationMode.OFF:
-            await self.coordinator.client.write_register(registers.REG_POWER, 0)
+            await self.coordinator.client.write(registers.REG_POWER, 0)
         elif mode == OperationMode.AIR_QUALITY:
-            await self.coordinator.client.write_register(registers.REG_AUTO_MODE, 1)
+            await self.coordinator.client.write(registers.REG_AUTO_MODE, 1)
         elif mode in {
             OperationMode.AWAY,
             OperationMode.NORMAL,
             OperationMode.INTENSIVE,
             OperationMode.BOOST,
         }:
-            await self.coordinator.client.write_register(
+            await self.coordinator.client.write(
                 registers.REG_OPERATION_MODE, mode.value
             )
         else:

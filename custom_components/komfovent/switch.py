@@ -267,10 +267,10 @@ class KomfoventSwitch(CoordinatorEntity, SwitchEntity):
 
     async def async_turn_on(self, **_kwargs: dict) -> None:
         """Turn the entity on."""
-        await self.coordinator.client.write_register(self.register_id, 1)
+        await self.coordinator.client.write(self.register_id, 1)
         await self.coordinator.async_request_refresh()
 
     async def async_turn_off(self, **_kwargs: dict) -> None:
         """Turn the entity off."""
-        await self.coordinator.client.write_register(self.register_id, 0)
+        await self.coordinator.client.write(self.register_id, 0)
         await self.coordinator.async_request_refresh()
