@@ -22,7 +22,9 @@ logger = logging.getLogger(__name__)
 
 INTEGRATION_RANGES = [
     (1, 34),  # primary control block 1-34
-    (100, 59),  # modes 100-158
+    (35, 10),  # connectivity, extra control 35-44
+    (100, 57),  # modes 100-156
+    (157, 6),  # override delay, humidity setpoints 157-162
     (200, 18),  # eco and air quality 200-217
     (300, 100),  # scheduler 300-555
     (400, 100),  # scheduler 400-555
@@ -32,6 +34,7 @@ INTEGRATION_RANGES = [
     (700, 100),  # alarm history 700-799
     (800, 62),  # alarm history 800-861
     (900, 57),  # detailed information 900-956
+    (957, 1),  # outdoor humidity 957
     (958, 3),  # digital outputs 958-960
     (961, 1),  # exhaust temperature 961
     (1000, 2),  # controller firmware 1000-1001
@@ -57,11 +60,7 @@ MOBILE_APP_RANGES = [
     (5300, 125),
     (5425, 125),
 ]
-UNKNOWN_RANGES = [
-    (35, 10),  # unknown 35-44
-    (157, 6),  # unknown 157-162
-    (957, 1),  # unknown 957
-]
+UNKNOWN_RANGES = []
 RANGES = INTEGRATION_RANGES + MOBILE_APP_RANGES + UNKNOWN_RANGES
 
 
