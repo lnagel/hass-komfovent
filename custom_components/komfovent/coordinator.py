@@ -68,8 +68,8 @@ class KomfoventCoordinator(DataUpdateCoordinator):
             # Read basic control block (1-34)
             data.update(await self.client.read(registers.REG_POWER, 34))
 
-            # Read modes (100-156)
-            data.update(await self.client.read(registers.REG_AWAY_FAN_SUPPLY, 57))
+            # Read modes (100-158)
+            data.update(await self.client.read(registers.REG_AWAY_FAN_SUPPLY, 59))
 
             # Read Eco and air quality blocks (200-217)
             data.update(await self.client.read(registers.REG_ECO_MIN_TEMP, 18))
