@@ -65,25 +65,35 @@ class KomfoventCoordinator(DataUpdateCoordinator):
             fw_version = get_version_from_int(data.get(registers.REG_FIRMWARE, 0))
             func_version = fw_version[4]
 
-            # Read basic control block (1-34)
+            # Read primary control (1-34)
             data.update(await self.client.read(registers.REG_POWER, 34))
+
+            # Read connectivity, extra control (35-44)
+            # This has not been tested yet, it may be implemented in the future
 
             # Read modes (100-158)
             data.update(await self.client.read(registers.REG_AWAY_FAN_SUPPLY, 59))
 
-            # Read Eco and air quality blocks (200-217)
-            data.update(await self.client.read(registers.REG_ECO_MIN_TEMP, 18))
-
-            # Read active alarms block (600-610)
-            data.update(await self.client.read(registers.REG_ACTIVE_ALARMS_COUNT, 11))
-
-            # Read sensor block (900-957)
-            data.update(await self.client.read(registers.REG_STATUS, 58))
-
-            # Read digital outputs block (958-960)
+            # Read humidity setpoints (159-162)
             # This has not been tested yet, it may be implemented in the future
 
-            # Read exhaust temperature block (961)
+            # Read Eco and air quality (200-217)
+            data.update(await self.client.read(registers.REG_ECO_MIN_TEMP, 18))
+
+            # Skip scheduler (300-555)
+
+            # Read active alarms (600-610)
+            data.update(await self.client.read(registers.REG_ACTIVE_ALARMS_COUNT, 11))
+
+            # Skip alarm history (611-861)
+
+            # Read monitoring (900-957)
+            data.update(await self.client.read(registers.REG_STATUS, 58))
+
+            # Read digital outputs (958-960)
+            # This has not been tested yet, it may be implemented in the future
+
+            # Read exhaust temperature (961)
             if func_version >= FUNC_VER_EXHAUST_TEMP:
                 try:
                     data.update(await self.client.read(registers.REG_EXHAUST_TEMP, 1))
