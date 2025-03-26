@@ -508,6 +508,28 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             ]
         )
 
+    # Add outdoor absolute humidity if configured
+    outdoor_humidity_sensor = coordinator.data.get(registers.REG_AQ_OUTDOOR_HUMIDITY)
+    if outdoor_humidity_sensor in {
+        OutdoorHumiditySensor.SENSOR1,
+        OutdoorHumiditySensor.SENSOR2,
+    }:
+        entities.extend(
+            [
+                FloatX100Sensor(
+                    coordinator=coordinator,
+                    register_id=registers.REG_OUTDOOR_ABS_HUMIDITY,
+                    entity_description=SensorEntityDescription(
+                        key="outdoor_absolute_humidity",
+                        name="Outdoor Absolute Humidity",
+                        native_unit_of_measurement="g/m³",
+                        state_class=SensorStateClass.MEASUREMENT,
+                        suggested_display_precision=2,
+                    ),
+                ),
+            ]
+        )
+
     # Add exhaust temperature if value is present
     if coordinator.data and registers.REG_EXHAUST_TEMP in coordinator.data:
         entities.extend(
