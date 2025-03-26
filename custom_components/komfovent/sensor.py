@@ -229,6 +229,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     native_unit_of_measurement=PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
+                    entity_registry_enabled_default=False,
                 ),
             ),
             DutyCycleSensor(
@@ -240,6 +241,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     native_unit_of_measurement=PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
+                    entity_registry_enabled_default=False,
                 ),
             ),
             DutyCycleSensor(
@@ -251,6 +253,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     native_unit_of_measurement=PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
+                    entity_registry_enabled_default=False,
                 ),
             ),
             KomfoventSensor(
