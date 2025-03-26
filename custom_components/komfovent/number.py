@@ -497,6 +497,38 @@ async def async_setup_entry(
                 entity_category=EntityCategory.CONFIG,
             ),
         ),
+        KomfoventNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_OVERRIDE_DELAY_START,
+            entity_description=NumberEntityDescription(
+                key="override_delay_start",
+                name="Override Delay Start",
+                native_unit_of_measurement=UnitOfTime.MINUTES,
+                native_min_value=0,
+                native_max_value=10,
+                native_step=1,
+                device_class=NumberDeviceClass.DURATION,
+                entity_registry_enabled_default=True,
+                entity_registry_visible_default=False,
+                entity_category=EntityCategory.CONFIG,
+            ),
+        ),
+        KomfoventNumber(
+            coordinator=coordinator,
+            register_id=registers.REG_OVERRIDE_DELAY_STOP,
+            entity_description=NumberEntityDescription(
+                key="override_delay_stop",
+                name="Override Delay Stop",
+                native_unit_of_measurement=UnitOfTime.MINUTES,
+                native_min_value=0,
+                native_max_value=30,
+                native_step=1,
+                device_class=NumberDeviceClass.DURATION,
+                entity_registry_enabled_default=True,
+                entity_registry_visible_default=False,
+                entity_category=EntityCategory.CONFIG,
+            ),
+        ),
         # Holiday mode controls
         TemperatureNumber(
             coordinator=coordinator,
