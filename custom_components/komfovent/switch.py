@@ -100,7 +100,7 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
         ),
         KomfoventSwitch(
             coordinator=coordinator,
-            register_id=registers.REG_HEATING_DENIED,
+            register_id=registers.REG_ECO_HEATER_BLOCKING,
             entity_description=SwitchEntityDescription(
                 key="eco_heater_blocking",
                 name="ECO Heater Blocking",
@@ -111,7 +111,7 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
         ),
         KomfoventSwitch(
             coordinator=coordinator,
-            register_id=registers.REG_COOLING_DENIED,
+            register_id=registers.REG_ECO_COOLER_BLOCKING,
             entity_description=SwitchEntityDescription(
                 key="eco_cooler_blocking",
                 name="ECO Cooler Blocking",
