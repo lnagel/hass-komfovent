@@ -161,6 +161,15 @@ class HeatRecoveryControl(IntEnum):
     NON_STOP = 2
 
 
+class ControlStage(IntEnum):
+    """Control stage options."""
+
+    NONE = 0
+    EXTERNAL_COIL = 1
+    ELECTRIC_HEATER = 2
+    EXTERNAL_DX_UNIT = 3
+
+
 class ResetSettings(IntEnum):
     """Reset settings options."""
 
