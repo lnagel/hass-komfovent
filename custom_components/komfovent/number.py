@@ -517,7 +517,7 @@ async def async_setup_entry(
             coordinator=coordinator,
             register_id=registers.REG_OVERRIDE_DELAY_STOP,
             entity_description=NumberEntityDescription(
-                key="override_delay_stop", 
+                key="override_delay_stop",
                 name="Override Delay Stop",
                 native_unit_of_measurement=UnitOfTime.MINUTES,
                 native_min_value=0,
