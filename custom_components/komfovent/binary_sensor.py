@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import TYPE_CHECKING, Final
 
 from homeassistant.components.binary_sensor import (
@@ -10,7 +9,6 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
     BinarySensorEntityDescription,
 )
-from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 if TYPE_CHECKING:
@@ -22,7 +20,6 @@ if TYPE_CHECKING:
 
 from . import registers
 from .const import DOMAIN
-
 
 # Status bitmask values
 BITMASK_STARTING: Final = 1 << 0  # 1
