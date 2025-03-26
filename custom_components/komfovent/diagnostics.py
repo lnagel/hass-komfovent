@@ -33,8 +33,7 @@ INTEGRATION_RANGES = [
     (611, 89),  # alarm history 611-699
     (700, 100),  # alarm history 700-799
     (800, 62),  # alarm history 800-861
-    (900, 57),  # detailed information 900-956
-    (957, 1),  # outdoor humidity 957
+    (900, 58),  # monitoring 900-957
     (958, 3),  # digital outputs 958-960
     (961, 1),  # exhaust temperature 961
     (1000, 2),  # controller firmware 1000-1001
