@@ -32,14 +32,21 @@ REG_STAGE1 = 19  # Stage 1 control
 REG_STAGE2 = 20  # Stage 2 control
 REG_STAGE3 = 21  # Stage 3 control
 REG_COIL_TYPE = 22  # Coil type
+REG_ICING_PROTECTION = 40  # Icing protection (Off = 0, On = 1, External coil = 2)
+REG_INDOOR_HUMIDITY = 41  # Indoor humidity (Auto = -1, Manual = 10-90%RH)
 
 # Connectivity
+REG_DHCP = 35  # DHCP (Off = 0, On = 1)
 REG_IP = 23  # IP address (32-bit)
 REG_MASK = 25  # Network mask (32-bit)
+REG_GATEWAY = 36  # Network gateway (32-bit)
+REG_BACNET_ID = 38  # Bacnet ID
+REG_BACNET_PORT = 44  # Bacnet port
 
 # Settings
 REG_LANGUAGE = 27  # Language
 REG_FLOW_UNIT = 28  # Flow unit
+REG_FIRE_ALARM_RESTART = 42  # Fire alarm restart (Off = 0, On = 1)
 
 # Time and date
 REG_TIME = 29  # Time HH:MM
@@ -235,8 +242,14 @@ REGISTERS_16BIT_UNSIGNED = {
     REG_STAGE2,
     REG_STAGE3,
     REG_COIL_TYPE,
+    REG_ICING_PROTECTION,
+    REG_INDOOR_HUMIDITY,
+    REG_DHCP,
+    REG_BACNET_ID,
+    REG_BACNET_PORT,
     REG_LANGUAGE,
     REG_FLOW_UNIT,
+    REG_FIRE_ALARM_RESTART,
     REG_TIME,
     REG_YEAR,
     REG_MONTH_DAY,
@@ -345,6 +358,7 @@ REGISTERS_32BIT_UNSIGNED = {
     REG_MAX_EXTRACT_FLOW,
     REG_IP,
     REG_MASK,
+    REG_GATEWAY,
     REG_EPOCH_TIME,
     REG_AWAY_FAN_SUPPLY,
     REG_AWAY_FAN_EXTRACT,
