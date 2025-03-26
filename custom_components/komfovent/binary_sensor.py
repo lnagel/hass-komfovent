@@ -24,8 +24,6 @@ from . import registers
 from .const import DOMAIN
 
 
-
-
 # Status bitmask values
 BITMASK_STARTING: Final = 1 << 0  # 1
 BITMASK_STOPPING: Final = 1 << 1  # 2
@@ -41,7 +39,10 @@ BITMASK_FREE_COOLING: Final = 1 << 10  # 1024
 BITMASK_ALARM_F: Final = 1 << 11  # 2048
 BITMASK_ALARM_W: Final = 1 << 12  # 4096
 
-async def create_binary_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventBinarySensor]:
+
+async def create_binary_sensors(
+    coordinator: KomfoventCoordinator,
+) -> list[KomfoventBinarySensor]:
     """Get list of binary sensor entities."""
     return [
         KomfoventStatusBinarySensor(
@@ -49,8 +50,8 @@ async def create_binary_sensors(coordinator: KomfoventCoordinator) -> list[Komfo
             register_id=registers.REG_STATUS,
             bitmask=BITMASK_STARTING,
             entity_description=BinarySensorEntityDescription(
-                key="starting",
-                name="Starting",
+                key="status_starting",
+                name="Status Starting",
             ),
         ),
         KomfoventStatusBinarySensor(
@@ -58,8 +59,8 @@ async def create_binary_sensors(coordinator: KomfoventCoordinator) -> list[Komfo
             register_id=registers.REG_STATUS,
             bitmask=BITMASK_STOPPING,
             entity_description=BinarySensorEntityDescription(
-                key="stopping",
-                name="Stopping",
+                key="status_stopping",
+                name="Status Stopping",
             ),
         ),
         KomfoventStatusBinarySensor(
@@ -67,8 +68,8 @@ async def create_binary_sensors(coordinator: KomfoventCoordinator) -> list[Komfo
             register_id=registers.REG_STATUS,
             bitmask=BITMASK_FAN,
             entity_description=BinarySensorEntityDescription(
-                key="fan_running",
-                name="Fan Running",
+                key="status_fan_running",
+                name="Status Fan Running",
                 device_class=BinarySensorDeviceClass.RUNNING,
             ),
         ),
@@ -77,8 +78,8 @@ async def create_binary_sensors(coordinator: KomfoventCoordinator) -> list[Komfo
             register_id=registers.REG_STATUS,
             bitmask=BITMASK_ROTOR,
             entity_description=BinarySensorEntityDescription(
-                key="rotor_running",
-                name="Rotor Running",
+                key="status_rotor_running",
+                name="Status Rotor Running",
                 device_class=BinarySensorDeviceClass.RUNNING,
             ),
         ),
@@ -87,8 +88,8 @@ async def create_binary_sensors(coordinator: KomfoventCoordinator) -> list[Komfo
             register_id=registers.REG_STATUS,
             bitmask=BITMASK_HEATING,
             entity_description=BinarySensorEntityDescription(
-                key="heating",
-                name="Heating",
+                key="status_heating",
+                name="Status Heating",
                 device_class=BinarySensorDeviceClass.HEAT,
             ),
         ),
@@ -97,8 +98,8 @@ async def create_binary_sensors(coordinator: KomfoventCoordinator) -> list[Komfo
             register_id=registers.REG_STATUS,
             bitmask=BITMASK_COOLING,
             entity_description=BinarySensorEntityDescription(
-                key="cooling",
-                name="Cooling",
+                key="status_cooling",
+                name="Status Cooling",
                 device_class=BinarySensorDeviceClass.COLD,
             ),
         ),
@@ -107,8 +108,8 @@ async def create_binary_sensors(coordinator: KomfoventCoordinator) -> list[Komfo
             register_id=registers.REG_STATUS,
             bitmask=BITMASK_HEATING_DENIED,
             entity_description=BinarySensorEntityDescription(
-                key="heating_denied",
-                name="Heating Denied",
+                key="status_heating_denied",
+                name="Status Heating Denied",
             ),
         ),
         KomfoventStatusBinarySensor(
@@ -116,8 +117,8 @@ async def create_binary_sensors(coordinator: KomfoventCoordinator) -> list[Komfo
             register_id=registers.REG_STATUS,
             bitmask=BITMASK_COOLING_DENIED,
             entity_description=BinarySensorEntityDescription(
-                key="cooling_denied",
-                name="Cooling Denied",
+                key="status_cooling_denied",
+                name="Status Cooling Denied",
             ),
         ),
         KomfoventStatusBinarySensor(
@@ -125,8 +126,8 @@ async def create_binary_sensors(coordinator: KomfoventCoordinator) -> list[Komfo
             register_id=registers.REG_STATUS,
             bitmask=BITMASK_FLOW_DOWN,
             entity_description=BinarySensorEntityDescription(
-                key="flow_down",
-                name="Flow Down",
+                key="status_flow_down",
+                name="Status Flow Down",
             ),
         ),
         KomfoventStatusBinarySensor(
@@ -134,8 +135,8 @@ async def create_binary_sensors(coordinator: KomfoventCoordinator) -> list[Komfo
             register_id=registers.REG_STATUS,
             bitmask=BITMASK_FREE_HEATING,
             entity_description=BinarySensorEntityDescription(
-                key="free_heating",
-                name="Free Heating",
+                key="status_free_heating",
+                name="Status Free Heating",
                 device_class=BinarySensorDeviceClass.HEAT,
             ),
         ),
@@ -144,8 +145,8 @@ async def create_binary_sensors(coordinator: KomfoventCoordinator) -> list[Komfo
             register_id=registers.REG_STATUS,
             bitmask=BITMASK_FREE_COOLING,
             entity_description=BinarySensorEntityDescription(
-                key="free_cooling",
-                name="Free Cooling",
+                key="status_free_cooling",
+                name="Status Free Cooling",
                 device_class=BinarySensorDeviceClass.COLD,
             ),
         ),
@@ -154,8 +155,8 @@ async def create_binary_sensors(coordinator: KomfoventCoordinator) -> list[Komfo
             register_id=registers.REG_STATUS,
             bitmask=BITMASK_ALARM_F,
             entity_description=BinarySensorEntityDescription(
-                key="alarm_fault",
-                name="Alarm Fault",
+                key="status_alarm_fault",
+                name="Status Alarm Fault",
                 device_class=BinarySensorDeviceClass.PROBLEM,
             ),
         ),
@@ -164,8 +165,8 @@ async def create_binary_sensors(coordinator: KomfoventCoordinator) -> list[Komfo
             register_id=registers.REG_STATUS,
             bitmask=BITMASK_ALARM_W,
             entity_description=BinarySensorEntityDescription(
-                key="alarm_warning",
-                name="Alarm Warning",
+                key="status_alarm_warning",
+                name="Status Alarm Warning",
                 device_class=BinarySensorDeviceClass.PROBLEM,
             ),
         ),
