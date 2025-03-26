@@ -36,7 +36,7 @@ async def test_setup_entry(hass: HomeAssistant, mock_config_entry, mock_modbus_c
     # Create mock client with required async methods
     mock_client = AsyncMock()
     mock_client.connect = AsyncMock(return_value=True)
-    mock_client.read_registers = AsyncMock(return_value={1: 42})
+    mock_client.read = AsyncMock(return_value={1: 42})
 
     # Mock the entity registry
     entity_registry = er.async_get(hass)
@@ -59,4 +59,4 @@ async def test_setup_entry(hass: HomeAssistant, mock_config_entry, mock_modbus_c
 
         # Verify connection methods were called
         assert mock_client.connect.called
-        assert mock_client.read_registers.called
+        assert mock_client.read.called

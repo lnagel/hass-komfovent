@@ -57,7 +57,7 @@ class KomfoventCoordinator(DataUpdateCoordinator):
         try:
             # Read controller firmware version (1000-1001)
             try:
-                data.update(await self.client.read_registers(registers.REG_FIRMWARE, 2))
+                data.update(await self.client.read(registers.REG_FIRMWARE, 2))
             except (ConnectionError, ModbusException) as error:
                 _LOGGER.warning("Failed to read controller firmware version: %s", error)
 
@@ -66,25 +66,19 @@ class KomfoventCoordinator(DataUpdateCoordinator):
             func_version = fw_version[4]
 
             # Read basic control block (1-34)
-            data.update(await self.client.read_registers(registers.REG_POWER, 34))
+            data.update(await self.client.read(registers.REG_POWER, 34))
 
             # Read modes (100-156)
-            data.update(
-                await self.client.read_registers(registers.REG_AWAY_FAN_SUPPLY, 57)
-            )
+            data.update(await self.client.read(registers.REG_AWAY_FAN_SUPPLY, 57))
 
             # Read Eco and air quality blocks (200-217)
-            data.update(
-                await self.client.read_registers(registers.REG_ECO_MIN_TEMP, 18)
-            )
+            data.update(await self.client.read(registers.REG_ECO_MIN_TEMP, 18))
 
             # Read active alarms block (600-610)
-            data.update(
-                await self.client.read_registers(registers.REG_ACTIVE_ALARMS_COUNT, 11)
-            )
+            data.update(await self.client.read(registers.REG_ACTIVE_ALARMS_COUNT, 11))
 
             # Read sensor block (900-956)
-            data.update(await self.client.read_registers(registers.REG_STATUS, 57))
+            data.update(await self.client.read(registers.REG_STATUS, 57))
 
             # Read digital outputs block (958-960)
             # This has not been tested yet, it may be implemented in the future
@@ -92,9 +86,7 @@ class KomfoventCoordinator(DataUpdateCoordinator):
             # Read exhaust temperature block (961)
             if func_version >= FUNC_VER_EXHAUST_TEMP:
                 try:
-                    data.update(
-                        await self.client.read_registers(registers.REG_EXHAUST_TEMP, 1)
-                    )
+                    data.update(await self.client.read(registers.REG_EXHAUST_TEMP, 1))
                 except (ConnectionError, ModbusException) as error:
                     _LOGGER.debug("Failed to read exhaust temperature: %s", error)
 
@@ -104,9 +96,7 @@ class KomfoventCoordinator(DataUpdateCoordinator):
                 ConnectedPanels.BOTH,
             ]:
                 try:
-                    data.update(
-                        await self.client.read_registers(registers.REG_PANEL1_FW, 2)
-                    )
+                    data.update(await self.client.read(registers.REG_PANEL1_FW, 2))
                 except (ConnectionError, ModbusException) as error:
                     _LOGGER.warning(
                         "Failed to read panel 1 firmware version: %s", error
@@ -118,9 +108,7 @@ class KomfoventCoordinator(DataUpdateCoordinator):
                 ConnectedPanels.BOTH,
             ]:
                 try:
-                    data.update(
-                        await self.client.read_registers(registers.REG_PANEL2_FW, 2)
-                    )
+                    data.update(await self.client.read(registers.REG_PANEL2_FW, 2))
                 except (ConnectionError, ModbusException) as error:
                     _LOGGER.warning(
                         "Failed to read panel 2 firmware version: %s", error

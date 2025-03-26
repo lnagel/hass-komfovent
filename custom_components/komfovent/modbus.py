@@ -38,7 +38,7 @@ class KomfoventModbusClient:
         """Close the Modbus connection."""
         self.client.close()
 
-    async def read_registers(self, register: int, count: int) -> dict[int, int]:
+    async def read(self, register: int, count: int) -> dict[int, int]:
         """Read holding registers and return dict keyed by absolute register numbers."""
         async with self._lock:
             result = await self.client.read_holding_registers(
