@@ -3,8 +3,8 @@
 import asyncio
 import logging
 
+from pymodbus import ModbusException
 from pymodbus.client import AsyncModbusTcpClient
-from pymodbus.exceptions import ModbusException
 
 from .registers import (
     REGISTERS_16BIT_SIGNED,
