@@ -231,6 +231,17 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=0,
                 ),
             ),
+            DutyCycleSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_WATER_COOLER,
+                entity_description=SensorEntityDescription(
+                    key="water_cooler",
+                    name="Water Cooler", 
+                    native_unit_of_measurement=PERCENTAGE,
+                    state_class=SensorStateClass.MEASUREMENT,
+                    suggested_display_precision=0,
+                ),
+            ),
             KomfoventSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_FILTER_CLOGGING,
