@@ -15,7 +15,6 @@ from .const import (
     ConnectedPanels,
 )
 from .helpers import get_version_from_int
-from .modbus import process_register_block
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -61,7 +60,7 @@ class KomfoventCoordinator(DataUpdateCoordinator):
                 firmware_block = await self.client.read_registers(
                     registers.REG_FIRMWARE, 2
                 )
-                data.update(process_register_block(firmware_block))
+                data.update(firmware_block)
             except (ConnectionError, ModbusException) as error:
                 _LOGGER.warning("Failed to read controller firmware version: %s", error)
 
@@ -71,29 +70,29 @@ class KomfoventCoordinator(DataUpdateCoordinator):
 
             # Read basic control block (1-34)
             basic_control = await self.client.read_registers(registers.REG_POWER, 34)
-            data.update(process_register_block(basic_control))
+            data.update(basic_control)
 
             # Read modes (100-156)
             modes_block = await self.client.read_registers(
                 registers.REG_AWAY_FAN_SUPPLY, 57
             )
-            data.update(process_register_block(modes_block))
+            data.update(modes_block)
 
             # Read Eco and air quality blocks (200-217)
             eco_auto_block = await self.client.read_registers(
                 registers.REG_ECO_MIN_TEMP, 18
             )
-            data.update(process_register_block(eco_auto_block))
+            data.update(eco_auto_block)
 
             # Read active alarms block (600-610)
             alarms_block = await self.client.read_registers(
                 registers.REG_ACTIVE_ALARMS_COUNT, 11
             )
-            data.update(process_register_block(alarms_block))
+            data.update(alarms_block)
 
             # Read sensor block (900-956)
             sensor_block = await self.client.read_registers(registers.REG_STATUS, 57)
-            data.update(process_register_block(sensor_block))
+            data.update(sensor_block)
 
             # Read digital outputs block (958-960)
             # This has not been tested yet, it may be implemented in the future
@@ -104,7 +103,7 @@ class KomfoventCoordinator(DataUpdateCoordinator):
                     exhaust_temp_block = await self.client.read_registers(
                         registers.REG_EXHAUST_TEMP, 1
                     )
-                    data.update(process_register_block(exhaust_temp_block))
+                    data.update(exhaust_temp_block)
                 except (ConnectionError, ModbusException) as error:
                     _LOGGER.debug("Failed to read exhaust temperature: %s", error)
 
@@ -117,7 +116,7 @@ class KomfoventCoordinator(DataUpdateCoordinator):
                     panel1_block = await self.client.read_registers(
                         registers.REG_PANEL1_FW, 2
                     )
-                    data.update(process_register_block(panel1_block))
+                    data.update(panel1_block)
                 except (ConnectionError, ModbusException) as error:
                     _LOGGER.warning(
                         "Failed to read panel 1 firmware version: %s", error
@@ -132,7 +131,7 @@ class KomfoventCoordinator(DataUpdateCoordinator):
                     panel2_block = await self.client.read_registers(
                         registers.REG_PANEL2_FW, 2
                     )
-                    data.update(process_register_block(panel2_block))
+                    data.update(panel2_block)
                 except (ConnectionError, ModbusException) as error:
                     _LOGGER.warning(
                         "Failed to read panel 2 firmware version: %s", error

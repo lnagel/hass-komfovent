@@ -46,7 +46,7 @@ async def test_live_modbus_connection(hass: HomeAssistant, mock_registers):
 
         # Verify we got data back
         assert data
-        assert len(data) == 34
+        assert len(data) == 29
 
     finally:
         # Clean up
