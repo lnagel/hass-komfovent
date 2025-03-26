@@ -169,7 +169,7 @@ REG_EXTRACT_PRESSURE = 920  # Extract pressure
 REG_EXTRACT_AQ_1 = 952  # Air quality sensor 1 value
 REG_EXTRACT_AQ_2 = 953  # Air quality sensor 2 value
 REG_HEAT_EXCHANGER_TYPE = 955  # Heat exchanger type
-REG_INDOOR_ABS_HUMIDITY = 956  # Indoor absolute humidity
+REG_INDOOR_ABS_HUMIDITY = 956  # Indoor absolute humidity (undocumented)
 REG_EXHAUST_TEMP = 961  # Exhaust temperature
 
 # Efficiency status
