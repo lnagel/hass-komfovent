@@ -6,6 +6,7 @@
 * Name entities based on their actual function, not generic numbering
 * Only create entities when the corresponding hardware/feature exists
 * Keep entity initialization consistent across different types
+* Do not attempt to subclass EntityDescription
 * Remove outdated comments and TODOs once addressed
 * Use consistent unique IDs across the codebase
 * Base unit handling on device classes where possible
