@@ -77,8 +77,8 @@ class KomfoventCoordinator(DataUpdateCoordinator):
             # Read active alarms block (600-610)
             data.update(await self.client.read(registers.REG_ACTIVE_ALARMS_COUNT, 11))
 
-            # Read sensor block (900-956)
-            data.update(await self.client.read(registers.REG_STATUS, 57))
+            # Read sensor block (900-957)
+            data.update(await self.client.read(registers.REG_STATUS, 58))
 
             # Read digital outputs block (958-960)
             # This has not been tested yet, it may be implemented in the future
