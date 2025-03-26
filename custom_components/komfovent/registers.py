@@ -124,8 +124,8 @@ REG_AQ_ELECTRIC_HEATER = 211  # Air quality electric heater
 REG_AQ_CHECK_PERIOD = 212  # Air quality check period
 REG_AQ_SENSOR1_TYPE = 213  # Air quality sensor 1 type
 REG_AQ_SENSOR2_TYPE = 214  # Air quality sensor 2 type
-REG_AQ_HUMIDITY_CONTROL = 215  # Humidity control
-REG_AQ_OUTDOOR_HUMIDITY = 216  # Outdoor humidity sensor
+REG_AQ_HUMIDITY_CONTROL = 215  # Humidity control (undocumented)
+REG_AQ_OUTDOOR_HUMIDITY = 216  # Outdoor humidity sensor (undocumented)
 
 # Alarm registers
 REG_ACTIVE_ALARMS_COUNT = (
