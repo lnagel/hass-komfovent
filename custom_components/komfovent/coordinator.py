@@ -15,41 +15,11 @@ from .const import (
     ConnectedPanels,
 )
 from .helpers import get_version_from_int
-
-FUNC_VER_EXHAUST_TEMP = 67
-
-
-def process_register_block(block: dict[int, int]) -> dict[int, int]:
-    """
-    Process a block of register values handling 16/32 bit registers.
-
-    Args:
-        block: Dictionary of register values from read_registers
-
-    Returns:
-        Dictionary of processed register values
-
-    """
-    data = {}
-
-    for reg, value in block.items():
-        if reg in registers.REGISTERS_16BIT_UNSIGNED:
-            # For 16-bit unsigned registers, use value directly
-            data[reg] = value
-        elif reg in registers.REGISTERS_16BIT_SIGNED:
-            # For 16-bit signed registers, use need to convert uint16 to int16
-            data[reg] = value - (value >> 15 << 16)
-        elif reg in registers.REGISTERS_32BIT_UNSIGNED:
-            # For 32-bit registers, combine with next register
-            if reg + 1 in block:
-                data[reg] = (value << 16) + block[reg + 1]
-            else:
-                _LOGGER.warning("Missing low word value for 32-bit register %d", reg)
-
-    return data
-
+from .modbus import process_register_block
 
 _LOGGER = logging.getLogger(__name__)
+
+FUNC_VER_EXHAUST_TEMP = 67
 
 
 class KomfoventCoordinator(DataUpdateCoordinator):
