@@ -111,6 +111,7 @@ REG_ECO_MAX_TEMP = 201  # Maximum supply air temperature
 REG_FREE_HEATING = 202  # Free heating/cooling
 REG_HEATING_DENIED = 203  # Heating denied
 REG_COOLING_DENIED = 204  # Cooling denied
+REG_ECO_HEAT_RECOVERY = 217  # Heat recovery control mode
 
 # Air quality settings
 REG_AQ_IMPURITY_CONTROL = 205  # Impurity control
@@ -125,7 +126,6 @@ REG_AQ_SENSOR1_TYPE = 213  # Air quality sensor 1 type
 REG_AQ_SENSOR2_TYPE = 214  # Air quality sensor 2 type
 REG_AQ_HUMIDITY_CONTROL = 215  # Humidity control
 REG_AQ_OUTDOOR_HUMIDITY = 216  # Outdoor humidity sensor
-REG_AQ_HEAT_RECOVERY = 217  # Heat recovery control mode
 
 # Alarm registers
 REG_ACTIVE_ALARMS_COUNT = (
@@ -275,7 +275,7 @@ REGISTERS_16BIT_UNSIGNED = {
     REG_AQ_SENSOR2_TYPE,
     REG_AQ_HUMIDITY_CONTROL,
     REG_AQ_OUTDOOR_HUMIDITY,
-    REG_AQ_HEAT_RECOVERY,
+    REG_ECO_HEAT_RECOVERY,
     REG_ACTIVE_ALARMS_COUNT,
     REG_ACTIVE_ALARM1,
     REG_ACTIVE_ALARM2,

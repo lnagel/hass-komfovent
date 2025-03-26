@@ -128,7 +128,7 @@ async def async_setup_entry(
             ),
             KomfoventSelect(
                 coordinator=coordinator,
-                register_id=registers.REG_AQ_HEAT_RECOVERY,
+                register_id=registers.REG_ECO_HEAT_RECOVERY,
                 enum_class=HeatRecoveryControl,
                 entity_description=SelectEntityDescription(
                     key="eco_heat_recovery",
