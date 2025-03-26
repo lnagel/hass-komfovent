@@ -66,7 +66,8 @@ class KomfoventModbusClient:
             elif reg in REGISTERS_32BIT_UNSIGNED:
                 # For 32-bit registers, combine with next register
                 if reg + 1 not in block:
-                    raise ValueError(f"Register {reg + 1} value not retrieved")
+                    msg = f"Register {reg + 1} value not retrieved"
+                    raise ValueError(msg)
                 converted.add(reg)
                 converted.add(reg + 1)
                 data[reg] = (value << 16) + block[reg + 1]
