@@ -73,7 +73,7 @@ class FlowControl(IntEnum):
 
 
 class CoilType(IntEnum):
-    """Coil types."""
+    """External coil types."""
 
     HOT_WATER = 0
     COLD_WATER = 1
@@ -159,6 +159,15 @@ class HeatRecoveryControl(IntEnum):
     AUTO = 0
     CONSTANT = 1
     NON_STOP = 2
+
+
+class ControlStage(IntEnum):
+    """Control stage options."""
+
+    NONE = 0
+    EXTERNAL_COIL = 1
+    ELECTRIC_HEATER = 2
+    EXTERNAL_DX_UNIT = 3
 
 
 class ResetSettings(IntEnum):
