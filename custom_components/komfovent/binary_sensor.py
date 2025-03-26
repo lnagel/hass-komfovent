@@ -23,11 +23,13 @@ if TYPE_CHECKING:
 from . import registers
 from .const import DOMAIN
 
+
 @dataclass
 class KomfoventBinarySensorEntityDescription(BinarySensorEntityDescription):
     """Class describing Komfovent binary sensor entities."""
 
     bitmask: int | None = None
+
 
 # Status bitmask values
 BITMASK_STARTING: Final = 1 << 0  # 1
@@ -52,7 +54,7 @@ STATUS_SENSORS: tuple[KomfoventBinarySensorEntityDescription, ...] = (
     ),
     KomfoventBinarySensorEntityDescription(
         key="stopping",
-        name="Stopping", 
+        name="Stopping",
         bitmask=BITMASK_STOPPING,
     ),
     KomfoventBinarySensorEntityDescription(
@@ -85,7 +87,7 @@ STATUS_SENSORS: tuple[KomfoventBinarySensorEntityDescription, ...] = (
         bitmask=BITMASK_HEATING_DENIED,
     ),
     KomfoventBinarySensorEntityDescription(
-        key="cooling_denied", 
+        key="cooling_denied",
         name="Cooling Denied",
         bitmask=BITMASK_COOLING_DENIED,
     ),
@@ -130,7 +132,7 @@ async def async_setup_entry(
     coordinator: KomfoventCoordinator = hass.data[DOMAIN][entry.entry_id]
 
     entities: list[KomfoventBinarySensor] = []
-    
+
     # Add status binary sensors
     entities.extend(
         KomfoventStatusBinarySensor(coordinator, description)
