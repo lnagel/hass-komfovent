@@ -116,5 +116,5 @@ class KomfoventDateTime(CoordinatorEntity, DateTimeEntity):
         seconds = int((value - local_epoch).total_seconds())
 
         # Write value to register
-        await self.coordinator.client.write_register(self.register_id, seconds)
+        await self.coordinator.client.write(self.register_id, seconds)
         await self.coordinator.async_request_refresh()

@@ -47,14 +47,14 @@ def mock_modbus_client() -> MagicMock:
             for reg, value in enumerate(values, start=block_start_int):
                 transformed_data[reg] = value
 
-    # Set up read_registers to return data from our fixture
-    async def mock_read_registers(register: int, count: int) -> dict[int, int]:
+    # Set up read to return data from our fixture
+    async def mock_read(register: int, count: int) -> dict[int, int]:
         result = {}
         for reg in range(register, register + count):
             result[reg] = transformed_data.get(reg, 0)
         return result
 
-    mock_client.read_registers = AsyncMock(side_effect=mock_read_registers)
-    mock_client.write_register = AsyncMock()
+    mock_client.read = AsyncMock(side_effect=mock_read)
+    mock_client.write = AsyncMock()
 
     return mock_client

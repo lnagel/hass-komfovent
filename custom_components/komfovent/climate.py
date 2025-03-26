@@ -154,7 +154,7 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
         if SETPOINT_MIN_TEMP <= temp <= SETPOINT_MAX_TEMP:
             value = int(temp * 10)
             try:
-                await self.coordinator.client.write_register(reg, value)
+                await self.coordinator.client.write(reg, value)
                 await self.coordinator.async_request_refresh()
             except (ConnectionError, TimeoutError):
                 _LOGGER.exception("Failed to set temperature")
@@ -171,9 +171,9 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
     async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
         """Set new target hvac mode."""
         if hvac_mode == HVACMode.OFF:
-            await self.coordinator.client.write_register(registers.REG_POWER, 0)
+            await self.coordinator.client.write(registers.REG_POWER, 0)
         else:
-            await self.coordinator.client.write_register(registers.REG_POWER, 1)
+            await self.coordinator.client.write(registers.REG_POWER, 1)
         await self.coordinator.async_request_refresh()
 
     async def async_set_preset_mode(self, preset_mode: str) -> None:
@@ -185,16 +185,16 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
             return
 
         if mode == OperationMode.OFF:
-            await self.coordinator.client.write_register(registers.REG_POWER, 0)
+            await self.coordinator.client.write(registers.REG_POWER, 0)
         elif mode == OperationMode.AIR_QUALITY:
-            await self.coordinator.client.write_register(registers.REG_AUTO_MODE, 1)
+            await self.coordinator.client.write(registers.REG_AUTO_MODE, 1)
         elif mode in {
             OperationMode.AWAY,
             OperationMode.NORMAL,
             OperationMode.INTENSIVE,
             OperationMode.BOOST,
         }:
-            await self.coordinator.client.write_register(
+            await self.coordinator.client.write(
                 registers.REG_OPERATION_MODE, mode.value
             )
         else:

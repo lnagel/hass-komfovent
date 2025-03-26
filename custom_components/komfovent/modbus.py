@@ -38,7 +38,7 @@ class KomfoventModbusClient:
         """Close the Modbus connection."""
         self.client.close()
 
-    async def read_registers(self, register: int, count: int) -> dict[int, int]:
+    async def read(self, register: int, count: int) -> dict[int, int]:
         """Read holding registers and return dict keyed by absolute register numbers."""
         async with self._lock:
             result = await self.client.read_holding_registers(
@@ -50,9 +50,38 @@ class KomfoventModbusClient:
             raise ModbusException(msg)
 
         # Create dictionary with absolute register numbers as keys
-        return dict(enumerate(result.registers, start=register))
+        block = dict(enumerate(result.registers, start=register))
+        converted = set()
+        data = {}
 
-    async def write_register(self, register: int, value: int) -> None:
+        for reg, value in block.items():
+            if reg in REGISTERS_16BIT_UNSIGNED:
+                # For 16-bit unsigned registers, use value directly
+                converted.add(reg)
+                data[reg] = value
+            elif reg in REGISTERS_16BIT_SIGNED:
+                # For 16-bit signed registers, use need to convert uint16 to int16
+                converted.add(reg)
+                data[reg] = value - (value >> 15 << 16)
+            elif reg in REGISTERS_32BIT_UNSIGNED:
+                # For 32-bit registers, combine with next register
+                if reg + 1 not in block:
+                    msg = f"Register {reg + 1} value not retrieved"
+                    raise ValueError(msg)
+                converted.add(reg)
+                converted.add(reg + 1)
+                data[reg] = (value << 16) + block[reg + 1]
+
+        if not_converted := set(block.keys()) - converted:
+            msg = (
+                f"Registers {not_converted} not found in either "
+                "16-bit or 32-bit register sets"
+            )
+            raise NotImplementedError(msg)
+
+        return data
+
+    async def write(self, register: int, value: int) -> None:
         """Write to holding register."""
         async with self._lock:
             if register in REGISTERS_16BIT_UNSIGNED:

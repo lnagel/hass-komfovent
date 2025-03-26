@@ -26,20 +26,28 @@ REG_MAX_SUPPLY_FLOW = 13  # Maximum supply flow (32-bit)
 REG_MAX_EXTRACT_FLOW = 15  # Maximum extract flow (32-bit)
 REG_MAX_SUPPLY_PRESSURE = 17  # Max supply pressure
 REG_MAX_EXTRACT_PRESSURE = 18  # Max extract pressure
+REG_ROOM_SENSOR = 39  # Room sensor (Panel 1 = 0, Panel 2 = 1; undocumented for C6)
 
 # Control sequence
 REG_STAGE1 = 19  # Stage 1 control
 REG_STAGE2 = 20  # Stage 2 control
 REG_STAGE3 = 21  # Stage 3 control
 REG_COIL_TYPE = 22  # Coil type
+REG_ICING_PROTECTION = 40  # Icing protection (Off = 0, On = 1, External coil = 2)
+REG_INDOOR_HUMIDITY = 41  # Indoor humidity (Auto = -1, Manual = 10-90%RH)
 
 # Connectivity
+REG_DHCP = 35  # DHCP (Off = 0, On = 1)
 REG_IP = 23  # IP address (32-bit)
 REG_MASK = 25  # Network mask (32-bit)
+REG_GATEWAY = 36  # Network gateway (32-bit)
+REG_BACNET_ID = 38  # Bacnet ID
+REG_BACNET_PORT = 44  # Bacnet port
 
 # Settings
 REG_LANGUAGE = 27  # Language
 REG_FLOW_UNIT = 28  # Flow unit
+REG_FIRE_ALARM_RESTART = 42  # Fire alarm restart (Off = 0, On = 1)
 
 # Time and date
 REG_TIME = 29  # Time HH:MM
@@ -93,6 +101,8 @@ REG_OVERRIDE_TEMP = 142  # Setpoint
 REG_OVERRIDE_HEATER = 143  # Electric heater
 REG_OVERRIDE_ACTIVATION = 144  # Activation mode
 REG_OVERRIDE_TIMER = 145  # Timer time
+REG_OVERRIDE_DELAY_START = 157  # Delayed start time (0-10 minutes)
+REG_OVERRIDE_DELAY_STOP = 158  # Delayed stop time (0-30 minutes)
 
 # Holiday mode registers
 REG_HOLIDAYS_MICRO_VENT = 146  # Micro-ventilation
@@ -108,9 +118,10 @@ REG_HOLIDAYS_DATE_TILL = 156  # Month/Day, until
 # ECO settings
 REG_ECO_MIN_TEMP = 200  # Minimum supply air temperature
 REG_ECO_MAX_TEMP = 201  # Maximum supply air temperature
-REG_FREE_HEATING = 202  # Free heating/cooling
-REG_HEATING_DENIED = 203  # Heating denied
-REG_COOLING_DENIED = 204  # Cooling denied
+REG_ECO_FREE_HEAT_COOL = 202  # Free heating/cooling
+REG_ECO_HEATER_BLOCKING = 203  # Heating denied
+REG_ECO_COOLER_BLOCKING = 204  # Cooling denied
+REG_ECO_HEAT_RECOVERY = 217  # Heat recovery control mode
 
 # Air quality settings
 REG_AQ_IMPURITY_CONTROL = 205  # Impurity control
@@ -123,9 +134,8 @@ REG_AQ_ELECTRIC_HEATER = 211  # Air quality electric heater
 REG_AQ_CHECK_PERIOD = 212  # Air quality check period
 REG_AQ_SENSOR1_TYPE = 213  # Air quality sensor 1 type
 REG_AQ_SENSOR2_TYPE = 214  # Air quality sensor 2 type
-REG_AQ_HUMIDITY_CONTROL = 215  # Humidity control
-REG_AQ_OUTDOOR_HUMIDITY = 216  # Outdoor humidity sensor
-REG_AQ_HEAT_RECOVERY = 217  # Heat recovery control mode
+REG_AQ_HUMIDITY_CONTROL = 215  # Humidity control (undocumented for C6)
+REG_AQ_OUTDOOR_HUMIDITY = 216  # Outdoor humidity sensor (undocumented for C6)
 
 # Alarm registers
 REG_ACTIVE_ALARMS_COUNT = (
@@ -169,7 +179,8 @@ REG_EXTRACT_PRESSURE = 920  # Extract pressure
 REG_EXTRACT_AQ_1 = 952  # Air quality sensor 1 value
 REG_EXTRACT_AQ_2 = 953  # Air quality sensor 2 value
 REG_HEAT_EXCHANGER_TYPE = 955  # Heat exchanger type
-REG_INDOOR_ABS_HUMIDITY = 956  # Indoor absolute humidity
+REG_INDOOR_ABS_HUMIDITY = 956  # Indoor absolute humidity (undocumented for C6)
+REG_OUTDOOR_ABS_HUMIDITY = 957  # Outdoor absolute humidity (undocumented for C6)
 REG_EXHAUST_TEMP = 961  # Exhaust temperature
 
 # Efficiency status
@@ -231,12 +242,19 @@ REGISTERS_16BIT_UNSIGNED = {
     REG_FLOW_CONTROL,
     REG_MAX_SUPPLY_PRESSURE,
     REG_MAX_EXTRACT_PRESSURE,
+    REG_ROOM_SENSOR,
     REG_STAGE1,
     REG_STAGE2,
     REG_STAGE3,
     REG_COIL_TYPE,
+    REG_ICING_PROTECTION,
+    REG_INDOOR_HUMIDITY,
+    REG_DHCP,
+    REG_BACNET_ID,
+    REG_BACNET_PORT,
     REG_LANGUAGE,
     REG_FLOW_UNIT,
+    REG_FIRE_ALARM_RESTART,
     REG_TIME,
     REG_YEAR,
     REG_MONTH_DAY,
@@ -253,6 +271,8 @@ REGISTERS_16BIT_UNSIGNED = {
     REG_OVERRIDE_ACTIVATION,
     REG_OVERRIDE_ACTIVATION,
     REG_OVERRIDE_TIMER,
+    REG_OVERRIDE_DELAY_START,
+    REG_OVERRIDE_DELAY_STOP,
     REG_HOLIDAYS_MICRO_VENT,
     REG_HOLIDAYS_HEATER,
     REG_HOLIDAYS_YEAR_FROM,
@@ -261,9 +281,9 @@ REGISTERS_16BIT_UNSIGNED = {
     REG_HOLIDAYS_DATE_TILL,
     REG_ECO_MIN_TEMP,
     REG_ECO_MAX_TEMP,
-    REG_FREE_HEATING,
-    REG_HEATING_DENIED,
-    REG_COOLING_DENIED,
+    REG_ECO_FREE_HEAT_COOL,
+    REG_ECO_HEATER_BLOCKING,
+    REG_ECO_COOLER_BLOCKING,
     REG_AQ_IMPURITY_CONTROL,
     REG_AQ_IMPURITY_SETPOINT,
     REG_AQ_HUMIDITY_SETPOINT,
@@ -275,7 +295,7 @@ REGISTERS_16BIT_UNSIGNED = {
     REG_AQ_SENSOR2_TYPE,
     REG_AQ_HUMIDITY_CONTROL,
     REG_AQ_OUTDOOR_HUMIDITY,
-    REG_AQ_HEAT_RECOVERY,
+    REG_ECO_HEAT_RECOVERY,
     REG_ACTIVE_ALARMS_COUNT,
     REG_ACTIVE_ALARM1,
     REG_ACTIVE_ALARM2,
@@ -313,6 +333,7 @@ REGISTERS_16BIT_UNSIGNED = {
     REG_CONNECTED_PANELS,
     REG_HEAT_EXCHANGER_TYPE,
     REG_INDOOR_ABS_HUMIDITY,
+    REG_OUTDOOR_ABS_HUMIDITY,
     REG_DO_ALARM,
     REG_DO_HEATING,
     REG_DO_COOLING,
@@ -345,6 +366,7 @@ REGISTERS_32BIT_UNSIGNED = {
     REG_MAX_EXTRACT_FLOW,
     REG_IP,
     REG_MASK,
+    REG_GATEWAY,
     REG_EPOCH_TIME,
     REG_AWAY_FAN_SUPPLY,
     REG_AWAY_FAN_EXTRACT,

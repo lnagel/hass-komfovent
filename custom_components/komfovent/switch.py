@@ -89,10 +89,10 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
         ),
         KomfoventSwitch(
             coordinator=coordinator,
-            register_id=registers.REG_FREE_HEATING,
+            register_id=registers.REG_ECO_FREE_HEAT_COOL,
             entity_description=SwitchEntityDescription(
-                key="eco_free_cooling",
-                name="ECO Free Cooling",
+                key="eco_free_heat_cool",
+                name="ECO Free Heating/Cooling",
                 icon="mdi:snowflake",
                 entity_registry_enabled_default=True,
                 entity_category=None,
@@ -100,7 +100,7 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
         ),
         KomfoventSwitch(
             coordinator=coordinator,
-            register_id=registers.REG_HEATING_DENIED,
+            register_id=registers.REG_ECO_HEATER_BLOCKING,
             entity_description=SwitchEntityDescription(
                 key="eco_heater_blocking",
                 name="ECO Heater Blocking",
@@ -111,7 +111,7 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
         ),
         KomfoventSwitch(
             coordinator=coordinator,
-            register_id=registers.REG_COOLING_DENIED,
+            register_id=registers.REG_ECO_COOLER_BLOCKING,
             entity_description=SwitchEntityDescription(
                 key="eco_cooler_blocking",
                 name="ECO Cooler Blocking",
@@ -267,10 +267,10 @@ class KomfoventSwitch(CoordinatorEntity, SwitchEntity):
 
     async def async_turn_on(self, **_kwargs: dict) -> None:
         """Turn the entity on."""
-        await self.coordinator.client.write_register(self.register_id, 1)
+        await self.coordinator.client.write(self.register_id, 1)
         await self.coordinator.async_request_refresh()
 
     async def async_turn_off(self, **_kwargs: dict) -> None:
         """Turn the entity off."""
-        await self.coordinator.client.write_register(self.register_id, 0)
+        await self.coordinator.client.write(self.register_id, 0)
         await self.coordinator.async_request_refresh()

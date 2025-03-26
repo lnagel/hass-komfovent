@@ -616,7 +616,7 @@ class KomfoventNumber(CoordinatorEntity, NumberEntity):
 
     async def async_set_native_value(self, value: float) -> None:
         """Update the current value."""
-        await self.coordinator.client.write_register(self.register_id, int(value))
+        await self.coordinator.client.write(self.register_id, int(value))
         await self.coordinator.async_request_refresh()
 
 
