@@ -87,7 +87,7 @@ async def create_binary_sensors(
             entity_description=BinarySensorEntityDescription(
                 key="status_heating",
                 name="Status Heating",
-                device_class=BinarySensorDeviceClass.HEAT,
+                device_class=BinarySensorDeviceClass.RUNNING,
             ),
         ),
         KomfoventStatusBinarySensor(
@@ -97,7 +97,7 @@ async def create_binary_sensors(
             entity_description=BinarySensorEntityDescription(
                 key="status_cooling",
                 name="Status Cooling",
-                device_class=BinarySensorDeviceClass.COLD,
+                device_class=BinarySensorDeviceClass.RUNNING,
             ),
         ),
         KomfoventStatusBinarySensor(
@@ -125,6 +125,7 @@ async def create_binary_sensors(
             entity_description=BinarySensorEntityDescription(
                 key="status_flow_down",
                 name="Status Flow Down",
+                device_class=BinarySensorDeviceClass.PROBLEM,
             ),
         ),
         KomfoventStatusBinarySensor(
@@ -134,7 +135,7 @@ async def create_binary_sensors(
             entity_description=BinarySensorEntityDescription(
                 key="status_free_heating",
                 name="Status Free Heating",
-                device_class=BinarySensorDeviceClass.HEAT,
+                device_class=BinarySensorDeviceClass.RUNNING,
             ),
         ),
         KomfoventStatusBinarySensor(
@@ -144,7 +145,7 @@ async def create_binary_sensors(
             entity_description=BinarySensorEntityDescription(
                 key="status_free_cooling",
                 name="Status Free Cooling",
-                device_class=BinarySensorDeviceClass.COLD,
+                device_class=BinarySensorDeviceClass.RUNNING,
             ),
         ),
         KomfoventStatusBinarySensor(
