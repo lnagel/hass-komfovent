@@ -16,6 +16,7 @@ from . import registers
 from .const import (
     DOMAIN,
     AirQualitySensorType,
+    CoilType,
     ControlStage,
     FlowControl,
     HeatRecoveryControl,
@@ -196,6 +197,18 @@ async def async_setup_entry(
                     key="control_stage_3",
                     name="Control Stage 3",
                     options=[mode.name.lower() for mode in ControlStage],
+                    entity_registry_enabled_default=False,
+                    entity_category=EntityCategory.CONFIG,
+                ),
+            ),
+            KomfoventSelect(
+                coordinator=coordinator,
+                register_id=registers.REG_COIL_TYPE,
+                enum_class=CoilType,
+                entity_description=SelectEntityDescription(
+                    key="coil_type",
+                    name="Coil Type",
+                    options=[mode.name.lower() for mode in CoilType],
                     entity_registry_enabled_default=False,
                     entity_category=EntityCategory.CONFIG,
                 ),
