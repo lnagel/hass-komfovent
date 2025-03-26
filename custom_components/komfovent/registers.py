@@ -108,7 +108,7 @@ REG_HOLIDAYS_DATE_TILL = 156  # Month/Day, until
 # ECO settings
 REG_ECO_MIN_TEMP = 200  # Minimum supply air temperature
 REG_ECO_MAX_TEMP = 201  # Maximum supply air temperature
-REG_FREE_HEATING = 202  # Free heating/cooling
+REG_ECO_FREE_HEAT_COOL = 202  # Free heating/cooling
 REG_HEATING_DENIED = 203  # Heating denied
 REG_COOLING_DENIED = 204  # Cooling denied
 REG_ECO_HEAT_RECOVERY = 217  # Heat recovery control mode
@@ -261,7 +261,7 @@ REGISTERS_16BIT_UNSIGNED = {
     REG_HOLIDAYS_DATE_TILL,
     REG_ECO_MIN_TEMP,
     REG_ECO_MAX_TEMP,
-    REG_FREE_HEATING,
+    REG_ECO_FREE_HEAT_COOL,
     REG_HEATING_DENIED,
     REG_COOLING_DENIED,
     REG_AQ_IMPURITY_CONTROL,

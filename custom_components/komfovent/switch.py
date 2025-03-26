@@ -89,10 +89,10 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
         ),
         KomfoventSwitch(
             coordinator=coordinator,
-            register_id=registers.REG_FREE_HEATING,
+            register_id=registers.REG_ECO_FREE_HEAT_COOL,
             entity_description=SwitchEntityDescription(
-                key="eco_free_cooling",
-                name="ECO Free Cooling",
+                key="eco_free_heat_cool",
+                name="ECO Free Heating/Cooling",
                 icon="mdi:snowflake",
                 entity_registry_enabled_default=True,
                 entity_category=None,
