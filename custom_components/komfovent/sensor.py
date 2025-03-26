@@ -54,9 +54,13 @@ MIN_TEMPERATURE = -50
 MAX_TEMPERATURE = 120
 MAX_PERCENTAGE = 100
 MAX_HUMIDITY = 125
+MIN_ABS_HUMIDITY = 0.01
+MAX_ABS_HUMIDITY = 100
 MAX_CO2_PPM = 2500
 MAX_SPI = 5
 MAX_VOC = 125
+
+ABS_HUMIDITY_ERRORS = {65534, 65535}
 
 
 def create_aq_sensor(
@@ -308,17 +312,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=2,
                 ),
             ),
-            FloatX100Sensor(
-                coordinator=coordinator,
-                register_id=registers.REG_INDOOR_ABS_HUMIDITY,
-                entity_description=SensorEntityDescription(
-                    key="indoor_absolute_humidity",
-                    name="Indoor Absolute Humidity",
-                    native_unit_of_measurement="g/m³",
-                    state_class=SensorStateClass.MEASUREMENT,
-                    suggested_display_precision=2,
-                ),
-            ),
             ConnectedPanelsSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_CONNECTED_PANELS,
@@ -508,15 +501,31 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             ]
         )
 
-    # Add outdoor absolute humidity if configured
-    outdoor_humidity_sensor = coordinator.data.get(registers.REG_AQ_OUTDOOR_HUMIDITY)
-    if outdoor_humidity_sensor in {
-        OutdoorHumiditySensor.SENSOR1,
-        OutdoorHumiditySensor.SENSOR2,
-    }:
+    # Add indoor absolute humidity if value indicates sensor is present
+    indoor_humidity = coordinator.data.get(registers.REG_INDOOR_ABS_HUMIDITY)
+    if indoor_humidity is not None and indoor_humidity not in ABS_HUMIDITY_ERRORS:
         entities.extend(
             [
-                FloatX100Sensor(
+                AbsoluteHumiditySensor(
+                    coordinator=coordinator,
+                    register_id=registers.REG_INDOOR_ABS_HUMIDITY,
+                    entity_description=SensorEntityDescription(
+                        key="indoor_absolute_humidity",
+                        name="Indoor Absolute Humidity",
+                        native_unit_of_measurement="g/m³",
+                        state_class=SensorStateClass.MEASUREMENT,
+                        suggested_display_precision=2,
+                    ),
+                ),
+            ]
+        )
+
+    # Add outdoor absolute humidity if value indicates sensor is present
+    outdoor_humidity = coordinator.data.get(registers.REG_OUTDOOR_ABS_HUMIDITY)
+    if outdoor_humidity is not None and outdoor_humidity not in ABS_HUMIDITY_ERRORS:
+        entities.extend(
+            [
+                AbsoluteHumiditySensor(
                     coordinator=coordinator,
                     register_id=registers.REG_OUTDOOR_ABS_HUMIDITY,
                     entity_description=SensorEntityDescription(
@@ -802,6 +811,21 @@ class RelativeHumiditySensor(KomfoventSensor):
             return None
 
         if 0 <= value <= MAX_HUMIDITY:
+            return value
+        return None
+
+
+class AbsoluteHumiditySensor(FloatX100Sensor):
+    """Humidity sensor with range validation."""
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the humidity value if within valid range."""
+        value = super().native_value
+        if value is None:
+            return None
+
+        if MIN_ABS_HUMIDITY <= value <= MAX_ABS_HUMIDITY:
             return value
         return None
 
