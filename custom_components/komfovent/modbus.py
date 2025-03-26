@@ -51,20 +51,32 @@ class KomfoventModbusClient:
 
         # Create dictionary with absolute register numbers as keys
         block = dict(enumerate(result.registers, start=register))
+        converted = set()
         data = {}
 
         for reg, value in block.items():
             if reg in REGISTERS_16BIT_UNSIGNED:
                 # For 16-bit unsigned registers, use value directly
+                converted.add(reg)
                 data[reg] = value
             elif reg in REGISTERS_16BIT_SIGNED:
                 # For 16-bit signed registers, use need to convert uint16 to int16
+                converted.add(reg)
                 data[reg] = value - (value >> 15 << 16)
             elif reg in REGISTERS_32BIT_UNSIGNED:
                 # For 32-bit registers, combine with next register
                 if reg + 1 not in block:
                     raise ValueError(f"Register {reg + 1} value not retrieved")
+                converted.add(reg)
+                converted.add(reg + 1)
                 data[reg] = (value << 16) + block[reg + 1]
+
+        if not_converted := set(block.keys()) - converted:
+            msg = (
+                f"Registers {not_converted} not found in either "
+                "16-bit or 32-bit register sets"
+            )
+            raise NotImplementedError(msg)
 
         return data
 
