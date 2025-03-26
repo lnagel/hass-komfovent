@@ -65,8 +65,8 @@ async def create_binary_sensors(
             register_id=registers.REG_STATUS,
             bitmask=BITMASK_FAN,
             entity_description=BinarySensorEntityDescription(
-                key="status_fan_running",
-                name="Status Fan Running",
+                key="status_fan",
+                name="Status Fan",
                 device_class=BinarySensorDeviceClass.RUNNING,
             ),
         ),
@@ -75,8 +75,8 @@ async def create_binary_sensors(
             register_id=registers.REG_STATUS,
             bitmask=BITMASK_ROTOR,
             entity_description=BinarySensorEntityDescription(
-                key="status_rotor_running",
-                name="Status Rotor Running",
+                key="status_rotor",
+                name="Status Rotor",
                 device_class=BinarySensorDeviceClass.RUNNING,
             ),
         ),
