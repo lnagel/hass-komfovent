@@ -67,5 +67,7 @@ class KomfoventBinarySensor(CoordinatorEntity, BinarySensorEntity):
         """Return true if the binary sensor is on."""
         if not self.coordinator.data:
             return None
-
-        return bool(self.coordinator.data.get(self.register_id))
+        value = self.coordinator.data.get(self.register_id)
+        if value is None:
+            return None
+        return bool(value)
