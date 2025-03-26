@@ -49,6 +49,7 @@ async def create_binary_sensors(
             entity_description=BinarySensorEntityDescription(
                 key="status_starting",
                 name="Status Starting",
+                entity_registry_enabled_default=False,
             ),
         ),
         KomfoventStatusBinarySensor(
@@ -58,6 +59,7 @@ async def create_binary_sensors(
             entity_description=BinarySensorEntityDescription(
                 key="status_stopping",
                 name="Status Stopping",
+                entity_registry_enabled_default=False,
             ),
         ),
         KomfoventStatusBinarySensor(
@@ -68,6 +70,7 @@ async def create_binary_sensors(
                 key="status_fan",
                 name="Status Fan",
                 device_class=BinarySensorDeviceClass.RUNNING,
+                entity_registry_enabled_default=False,
             ),
         ),
         KomfoventStatusBinarySensor(
@@ -78,6 +81,7 @@ async def create_binary_sensors(
                 key="status_rotor",
                 name="Status Rotor",
                 device_class=BinarySensorDeviceClass.RUNNING,
+                entity_registry_enabled_default=False,
             ),
         ),
         KomfoventStatusBinarySensor(
@@ -88,6 +92,7 @@ async def create_binary_sensors(
                 key="status_heating",
                 name="Status Heating",
                 device_class=BinarySensorDeviceClass.RUNNING,
+                entity_registry_enabled_default=False,
             ),
         ),
         KomfoventStatusBinarySensor(
@@ -98,6 +103,7 @@ async def create_binary_sensors(
                 key="status_cooling",
                 name="Status Cooling",
                 device_class=BinarySensorDeviceClass.RUNNING,
+                entity_registry_enabled_default=False,
             ),
         ),
         KomfoventStatusBinarySensor(
@@ -107,6 +113,7 @@ async def create_binary_sensors(
             entity_description=BinarySensorEntityDescription(
                 key="status_heating_denied",
                 name="Status Heating Denied",
+                entity_registry_enabled_default=False,
             ),
         ),
         KomfoventStatusBinarySensor(
@@ -116,6 +123,7 @@ async def create_binary_sensors(
             entity_description=BinarySensorEntityDescription(
                 key="status_cooling_denied",
                 name="Status Cooling Denied",
+                entity_registry_enabled_default=False,
             ),
         ),
         KomfoventStatusBinarySensor(
@@ -136,6 +144,7 @@ async def create_binary_sensors(
                 key="status_free_heating",
                 name="Status Free Heating",
                 device_class=BinarySensorDeviceClass.RUNNING,
+                entity_registry_enabled_default=False,
             ),
         ),
         KomfoventStatusBinarySensor(
@@ -146,6 +155,7 @@ async def create_binary_sensors(
                 key="status_free_cooling",
                 name="Status Free Cooling",
                 device_class=BinarySensorDeviceClass.RUNNING,
+                entity_registry_enabled_default=False,
             ),
         ),
         KomfoventStatusBinarySensor(
