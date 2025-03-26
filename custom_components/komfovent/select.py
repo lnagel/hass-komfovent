@@ -203,7 +203,7 @@ async def async_setup_entry(
             ),
             KomfoventSelect(
                 coordinator=coordinator,
-                register_id=registers.REG_COIL_TYPE,
+                register_id=registers.REG_EXTERNAL_COIL_TYPE,
                 enum_class=CoilType,
                 entity_description=SelectEntityDescription(
                     key="external_coil_type",

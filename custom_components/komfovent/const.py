@@ -73,7 +73,7 @@ class FlowControl(IntEnum):
 
 
 class CoilType(IntEnum):
-    """External coil types."""
+    """Coil types."""
 
     HOT_WATER = 0
     COLD_WATER = 1

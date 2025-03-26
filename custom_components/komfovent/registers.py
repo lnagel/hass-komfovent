@@ -29,10 +29,10 @@ REG_MAX_EXTRACT_PRESSURE = 18  # Max extract pressure
 REG_ROOM_SENSOR = 39  # Room sensor (Panel 1 = 0, Panel 2 = 1; undocumented for C6)
 
 # Control sequence
-REG_STAGE1 = 19  # Stage 1 control
-REG_STAGE2 = 20  # Stage 2 control
-REG_STAGE3 = 21  # Stage 3 control
-REG_COIL_TYPE = 22  # Coil type
+REG_STAGE1 = 19  # Control stage 1
+REG_STAGE2 = 20  # Control stage 2
+REG_STAGE3 = 21  # Control stage 3
+REG_EXTERNAL_COIL_TYPE = 22  # External coil type
 REG_ICING_PROTECTION = 40  # Icing protection (Off = 0, On = 1, External coil = 2)
 REG_INDOOR_HUMIDITY = 41  # Indoor humidity (Auto = -1, Manual = 10-90%RH)
 
@@ -246,7 +246,7 @@ REGISTERS_16BIT_UNSIGNED = {
     REG_STAGE1,
     REG_STAGE2,
     REG_STAGE3,
-    REG_COIL_TYPE,
+    REG_EXTERNAL_COIL_TYPE,
     REG_ICING_PROTECTION,
     REG_INDOOR_HUMIDITY,
     REG_DHCP,
