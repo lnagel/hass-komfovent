@@ -37,6 +37,8 @@ if TYPE_CHECKING:
 
 _LOGGER = logging.getLogger(__name__)
 
+DEFAULT_MODE_TIMER = 60
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -292,6 +294,24 @@ class KomfoventOperationModeSelect(KomfoventSelect):
         }:
             await self.coordinator.client.write(
                 registers.REG_OPERATION_MODE, mode.value
+            )
+        elif mode == OperationMode.KITCHEN:
+            await self.coordinator.client.write(
+                registers.REG_KITCHEN_TIMER,
+                self.coordinator.data.get(registers.REG_KITCHEN_TIMER)
+                or DEFAULT_MODE_TIMER,
+            )
+        elif mode == OperationMode.FIREPLACE:
+            await self.coordinator.client.write(
+                registers.REG_FIREPLACE_TIMER,
+                self.coordinator.data.get(registers.REG_FIREPLACE_TIMER)
+                or DEFAULT_MODE_TIMER,
+            )
+        elif mode == OperationMode.OVERRIDE:
+            await self.coordinator.client.write(
+                registers.REG_OVERRIDE_TIMER,
+                self.coordinator.data.get(registers.REG_OVERRIDE_TIMER)
+                or DEFAULT_MODE_TIMER,
             )
         else:
             _LOGGER.warning("Unsupported operation mode: %s", option)
