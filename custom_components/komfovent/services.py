@@ -22,7 +22,9 @@ async def clean_filters_calibration(coordinator: KomfoventCoordinator) -> None:
     await coordinator.client.write(registers.REG_CLEAN_FILTERS, 1)
 
 
-async def set_mode(coordinator: KomfoventCoordinator, mode: str, minutes: int | None = None) -> None:
+async def set_mode(
+    coordinator: KomfoventCoordinator, mode: str, minutes: int | None = None
+) -> None:
     """Set operation mode on the Komfovent unit."""
     try:
         operation_mode = OperationMode[mode.upper()]
@@ -46,17 +48,23 @@ async def set_mode(coordinator: KomfoventCoordinator, mode: str, minutes: int | 
     elif operation_mode == OperationMode.KITCHEN:
         await coordinator.client.write(
             registers.REG_KITCHEN_TIMER,
-            minutes or coordinator.data.get(registers.REG_KITCHEN_TIMER) or DEFAULT_MODE_TIMER,
+            minutes
+            or coordinator.data.get(registers.REG_KITCHEN_TIMER)
+            or DEFAULT_MODE_TIMER,
         )
     elif operation_mode == OperationMode.FIREPLACE:
         await coordinator.client.write(
             registers.REG_FIREPLACE_TIMER,
-            minutes or coordinator.data.get(registers.REG_FIREPLACE_TIMER) or DEFAULT_MODE_TIMER,
+            minutes
+            or coordinator.data.get(registers.REG_FIREPLACE_TIMER)
+            or DEFAULT_MODE_TIMER,
         )
     elif operation_mode == OperationMode.OVERRIDE:
         await coordinator.client.write(
             registers.REG_OVERRIDE_TIMER,
-            minutes or coordinator.data.get(registers.REG_OVERRIDE_TIMER) or DEFAULT_MODE_TIMER,
+            minutes
+            or coordinator.data.get(registers.REG_OVERRIDE_TIMER)
+            or DEFAULT_MODE_TIMER,
         )
     else:
         _LOGGER.warning("Unsupported operation mode: %s", mode)
