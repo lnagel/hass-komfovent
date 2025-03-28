@@ -10,7 +10,7 @@ clean_filters_calibration:
         config_entry:
           integration: komfovent
 
-set_mode:
+set_operation_mode:
   name: Set Operation Mode
   description: Set the operation mode of the Komfovent unit
   fields:
