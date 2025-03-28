@@ -276,45 +276,5 @@ class KomfoventOperationModeSelect(KomfoventSelect):
 
     async def async_select_option(self, option: str) -> None:
         """Change the selected option."""
-        try:
-            mode = self.enum_class[option.upper()]
-        except ValueError:
-            _LOGGER.warning("Invalid operation mode: %s", option)
-            return
-
-        if mode == OperationMode.OFF:
-            await self.coordinator.client.write(registers.REG_POWER, 0)
-        elif mode == OperationMode.AIR_QUALITY:
-            await self.coordinator.client.write(registers.REG_AUTO_MODE, 1)
-        elif mode in {
-            OperationMode.AWAY,
-            OperationMode.NORMAL,
-            OperationMode.INTENSIVE,
-            OperationMode.BOOST,
-        }:
-            await self.coordinator.client.write(
-                registers.REG_OPERATION_MODE, mode.value
-            )
-        elif mode == OperationMode.KITCHEN:
-            await self.coordinator.client.write(
-                registers.REG_KITCHEN_TIMER,
-                self.coordinator.data.get(registers.REG_KITCHEN_TIMER)
-                or DEFAULT_MODE_TIMER,
-            )
-        elif mode == OperationMode.FIREPLACE:
-            await self.coordinator.client.write(
-                registers.REG_FIREPLACE_TIMER,
-                self.coordinator.data.get(registers.REG_FIREPLACE_TIMER)
-                or DEFAULT_MODE_TIMER,
-            )
-        elif mode == OperationMode.OVERRIDE:
-            await self.coordinator.client.write(
-                registers.REG_OVERRIDE_TIMER,
-                self.coordinator.data.get(registers.REG_OVERRIDE_TIMER)
-                or DEFAULT_MODE_TIMER,
-            )
-        else:
-            _LOGGER.warning("Unsupported operation mode: %s", option)
-            return
-
-        await self.coordinator.async_request_refresh()
+        from .services import set_mode
+        await set_mode(self.coordinator, option)

@@ -21,3 +21,31 @@ clean_filters_calibration:
       selector:
         config_entry:
           integration: komfovent
+
+set_mode:
+  name: Set Operation Mode
+  description: Set the operation mode of the Komfovent unit
+  fields:
+    config_entry:
+      name: Config Entry
+      description: The config entry ID of the Komfovent unit
+      required: true
+      selector:
+        config_entry:
+          integration: komfovent
+    mode:
+      name: Mode
+      description: The operation mode to set
+      required: true
+      selector:
+        select:
+          options:
+            - "off"
+            - "air_quality" 
+            - "away"
+            - "normal"
+            - "intensive"
+            - "boost"
+            - "kitchen"
+            - "fireplace"
+            - "override"

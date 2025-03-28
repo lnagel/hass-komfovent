@@ -178,30 +178,8 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
 
     async def async_set_preset_mode(self, preset_mode: str) -> None:
         """Set new preset mode."""
-        try:
-            mode = OperationMode[preset_mode.upper()]
-        except ValueError:
-            _LOGGER.warning("Invalid preset mode: %s", preset_mode)
-            return
-
-        if mode == OperationMode.OFF:
-            await self.coordinator.client.write(registers.REG_POWER, 0)
-        elif mode == OperationMode.AIR_QUALITY:
-            await self.coordinator.client.write(registers.REG_AUTO_MODE, 1)
-        elif mode in {
-            OperationMode.AWAY,
-            OperationMode.NORMAL,
-            OperationMode.INTENSIVE,
-            OperationMode.BOOST,
-        }:
-            await self.coordinator.client.write(
-                registers.REG_OPERATION_MODE, mode.value
-            )
-        else:
-            _LOGGER.warning("Unsupported set preset mode: %s", preset_mode)
-            return
-
-        await self.coordinator.async_request_refresh()
+        from .services import set_mode
+        await set_mode(self.coordinator, preset_mode)
 
 
 MODE_TEMP_MAPPING = {

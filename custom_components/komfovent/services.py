@@ -7,8 +7,19 @@ from typing import Final
 from homeassistant.core import HomeAssistant, ServiceCall
 
 from . import KomfoventCoordinator
-from .const import DOMAIN
-from .registers import REG_CLEAN_FILTERS, REG_EPOCH_TIME
+from .const import DOMAIN, OperationMode
+from .registers import (
+    REG_AUTO_MODE,
+    REG_CLEAN_FILTERS,
+    REG_EPOCH_TIME,
+    REG_FIREPLACE_TIMER,
+    REG_KITCHEN_TIMER,
+    REG_OPERATION_MODE,
+    REG_OVERRIDE_TIMER,
+    REG_POWER,
+)
+
+DEFAULT_MODE_TIMER = 60
 
 ATTR_CONFIG_ENTRY: Final = "config_entry"
 
@@ -31,8 +42,61 @@ async def set_system_time(coordinator: KomfoventCoordinator) -> None:
     await coordinator.client.write(REG_EPOCH_TIME, local_time)
 
 
+async def set_mode(coordinator: KomfoventCoordinator, mode: str) -> None:
+    """Set operation mode on the Komfovent unit."""
+    try:
+        operation_mode = OperationMode[mode.upper()]
+    except ValueError:
+        _LOGGER.warning("Invalid operation mode: %s", mode)
+        return
+
+    if operation_mode == OperationMode.OFF:
+        await coordinator.client.write(registers.REG_POWER, 0)
+    elif operation_mode == OperationMode.AIR_QUALITY:
+        await coordinator.client.write(registers.REG_AUTO_MODE, 1)
+    elif operation_mode in {
+        OperationMode.AWAY,
+        OperationMode.NORMAL,
+        OperationMode.INTENSIVE,
+        OperationMode.BOOST,
+    }:
+        await coordinator.client.write(
+            registers.REG_OPERATION_MODE, operation_mode.value
+        )
+    elif operation_mode == OperationMode.KITCHEN:
+        await coordinator.client.write(
+            registers.REG_KITCHEN_TIMER,
+            coordinator.data.get(registers.REG_KITCHEN_TIMER)
+            or DEFAULT_MODE_TIMER,
+        )
+    elif operation_mode == OperationMode.FIREPLACE:
+        await coordinator.client.write(
+            registers.REG_FIREPLACE_TIMER,
+            coordinator.data.get(registers.REG_FIREPLACE_TIMER)
+            or DEFAULT_MODE_TIMER,
+        )
+    elif operation_mode == OperationMode.OVERRIDE:
+        await coordinator.client.write(
+            registers.REG_OVERRIDE_TIMER,
+            coordinator.data.get(registers.REG_OVERRIDE_TIMER)
+            or DEFAULT_MODE_TIMER,
+        )
+    else:
+        _LOGGER.warning("Unsupported operation mode: %s", mode)
+        return
+
+    await coordinator.async_request_refresh()
+
+
 async def async_register_services(hass: HomeAssistant) -> None:
     """Register services for Komfovent integration."""
+
+    async def handle_set_mode(call: ServiceCall) -> None:
+        """Handle the set mode service call."""
+        coordinator: KomfoventCoordinator = hass.data[DOMAIN][
+            call.data[ATTR_CONFIG_ENTRY]
+        ]
+        await set_mode(coordinator, call.data["mode"])
 
     async def handle_set_system_time(call: ServiceCall) -> None:
         """Handle the set system time service call."""
@@ -52,3 +116,4 @@ async def async_register_services(hass: HomeAssistant) -> None:
     hass.services.async_register(
         DOMAIN, "clean_filters_calibration", handle_clean_filters_calibration
     )
+    hass.services.async_register(DOMAIN, "set_mode", handle_set_mode)
