@@ -101,7 +101,9 @@ async def async_register_services(hass: HomeAssistant) -> None:
         coordinator: KomfoventCoordinator = hass.data[DOMAIN][
             call.data[ATTR_CONFIG_ENTRY]
         ]
-        await set_operation_mode(coordinator, call.data["mode"], call.data.get("minutes"))
+        await set_operation_mode(
+            coordinator, call.data["mode"], call.data.get("minutes")
+        )
 
     async def handle_set_system_time(call: ServiceCall) -> None:
         """Handle the set system time service call."""
@@ -113,5 +115,7 @@ async def async_register_services(hass: HomeAssistant) -> None:
     hass.services.async_register(
         DOMAIN, "clean_filters_calibration", handle_clean_filters_calibration
     )
-    hass.services.async_register(DOMAIN, "set_operation_mode", handle_set_operation_mode)
+    hass.services.async_register(
+        DOMAIN, "set_operation_mode", handle_set_operation_mode
+    )
     hass.services.async_register(DOMAIN, "set_system_time", handle_set_system_time)
