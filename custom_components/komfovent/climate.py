@@ -178,7 +178,7 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
 
     async def async_set_preset_mode(self, preset_mode: str) -> None:
         """Set new preset mode."""
-        await services.set_mode(self.coordinator, preset_mode)
+        await services.set_mode(self.coordinator, preset_mode, None)
 
 
 MODE_TEMP_MAPPING = {

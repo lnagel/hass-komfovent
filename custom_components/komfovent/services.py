@@ -22,7 +22,7 @@ async def clean_filters_calibration(coordinator: KomfoventCoordinator) -> None:
     await coordinator.client.write(registers.REG_CLEAN_FILTERS, 1)
 
 
-async def set_mode(coordinator: KomfoventCoordinator, mode: str) -> None:
+async def set_mode(coordinator: KomfoventCoordinator, mode: str, minutes: int | None = None) -> None:
     """Set operation mode on the Komfovent unit."""
     try:
         operation_mode = OperationMode[mode.upper()]
@@ -46,17 +46,17 @@ async def set_mode(coordinator: KomfoventCoordinator, mode: str) -> None:
     elif operation_mode == OperationMode.KITCHEN:
         await coordinator.client.write(
             registers.REG_KITCHEN_TIMER,
-            coordinator.data.get(registers.REG_KITCHEN_TIMER) or DEFAULT_MODE_TIMER,
+            minutes or coordinator.data.get(registers.REG_KITCHEN_TIMER) or DEFAULT_MODE_TIMER,
         )
     elif operation_mode == OperationMode.FIREPLACE:
         await coordinator.client.write(
             registers.REG_FIREPLACE_TIMER,
-            coordinator.data.get(registers.REG_FIREPLACE_TIMER) or DEFAULT_MODE_TIMER,
+            minutes or coordinator.data.get(registers.REG_FIREPLACE_TIMER) or DEFAULT_MODE_TIMER,
         )
     elif operation_mode == OperationMode.OVERRIDE:
         await coordinator.client.write(
             registers.REG_OVERRIDE_TIMER,
-            coordinator.data.get(registers.REG_OVERRIDE_TIMER) or DEFAULT_MODE_TIMER,
+            minutes or coordinator.data.get(registers.REG_OVERRIDE_TIMER) or DEFAULT_MODE_TIMER,
         )
     else:
         _LOGGER.warning("Unsupported operation mode: %s", mode)
@@ -93,7 +93,7 @@ async def async_register_services(hass: HomeAssistant) -> None:
         coordinator: KomfoventCoordinator = hass.data[DOMAIN][
             call.data[ATTR_CONFIG_ENTRY]
         ]
-        await set_mode(coordinator, call.data["mode"])
+        await set_mode(coordinator, call.data["mode"], call.data.get("minutes"))
 
     async def handle_set_system_time(call: ServiceCall) -> None:
         """Handle the set system time service call."""
