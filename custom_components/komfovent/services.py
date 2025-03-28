@@ -1,5 +1,6 @@
 """Services for Komfovent integration."""
 
+import logging
 import zoneinfo
 from datetime import datetime
 from typing import Final
@@ -8,16 +9,9 @@ from homeassistant.core import HomeAssistant, ServiceCall
 
 from . import KomfoventCoordinator
 from .const import DOMAIN, OperationMode
-from .registers import (
-    REG_AUTO_MODE,
-    REG_CLEAN_FILTERS,
-    REG_EPOCH_TIME,
-    REG_FIREPLACE_TIMER,
-    REG_KITCHEN_TIMER,
-    REG_OPERATION_MODE,
-    REG_OVERRIDE_TIMER,
-    REG_POWER,
-)
+from . import registers
+
+_LOGGER = logging.getLogger(__name__)
 
 DEFAULT_MODE_TIMER = 60
 
