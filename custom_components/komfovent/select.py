@@ -277,4 +277,5 @@ class KomfoventOperationModeSelect(KomfoventSelect):
     async def async_select_option(self, option: str) -> None:
         """Change the selected option."""
         from .services import set_mode
+
         await set_mode(self.coordinator, option)

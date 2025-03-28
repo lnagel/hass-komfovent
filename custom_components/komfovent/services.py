@@ -7,9 +7,8 @@ from typing import Final
 
 from homeassistant.core import HomeAssistant, ServiceCall
 
-from . import KomfoventCoordinator
+from . import KomfoventCoordinator, registers
 from .const import DOMAIN, OperationMode
-from . import registers
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -60,20 +59,17 @@ async def set_mode(coordinator: KomfoventCoordinator, mode: str) -> None:
     elif operation_mode == OperationMode.KITCHEN:
         await coordinator.client.write(
             registers.REG_KITCHEN_TIMER,
-            coordinator.data.get(registers.REG_KITCHEN_TIMER)
-            or DEFAULT_MODE_TIMER,
+            coordinator.data.get(registers.REG_KITCHEN_TIMER) or DEFAULT_MODE_TIMER,
         )
     elif operation_mode == OperationMode.FIREPLACE:
         await coordinator.client.write(
             registers.REG_FIREPLACE_TIMER,
-            coordinator.data.get(registers.REG_FIREPLACE_TIMER)
-            or DEFAULT_MODE_TIMER,
+            coordinator.data.get(registers.REG_FIREPLACE_TIMER) or DEFAULT_MODE_TIMER,
         )
     elif operation_mode == OperationMode.OVERRIDE:
         await coordinator.client.write(
             registers.REG_OVERRIDE_TIMER,
-            coordinator.data.get(registers.REG_OVERRIDE_TIMER)
-            or DEFAULT_MODE_TIMER,
+            coordinator.data.get(registers.REG_OVERRIDE_TIMER) or DEFAULT_MODE_TIMER,
         )
     else:
         _LOGGER.warning("Unsupported operation mode: %s", mode)
