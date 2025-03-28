@@ -1,4 +1,4 @@
-"""DateTime platform for Komfovent."""  # NOQA: A005
+"""DateTime platform for Komfovent."""
 
 from __future__ import annotations
 

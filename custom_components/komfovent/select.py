@@ -1,4 +1,4 @@
-"""Select platform for Komfovent."""  # noqa: A005
+"""Select platform for Komfovent."""
 
 from __future__ import annotations
 
