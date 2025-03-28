@@ -20,7 +20,7 @@ ATTR_CONFIG_ENTRY: Final = "config_entry"
 
 async def clean_filters_calibration(coordinator: KomfoventCoordinator) -> None:
     """Reset filters counter."""
-    await coordinator.client.write(REG_CLEAN_FILTERS, 1)
+    await coordinator.client.write(registers.REG_CLEAN_FILTERS, 1)
 
 
 async def set_system_time(coordinator: KomfoventCoordinator) -> None:
@@ -33,7 +33,7 @@ async def set_system_time(coordinator: KomfoventCoordinator) -> None:
     local_time = int((datetime.now(tz=local_tz) - local_epoch).total_seconds())
 
     # Write local time to the Komfovent unit
-    await coordinator.client.write(REG_EPOCH_TIME, local_time)
+    await coordinator.client.write(registers.REG_EPOCH_TIME, local_time)
 
 
 async def set_mode(coordinator: KomfoventCoordinator, mode: str) -> None:
