@@ -12,7 +12,7 @@ from homeassistant.components.select import SelectEntity, SelectEntityDescriptio
 from homeassistant.const import EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from . import registers
+from . import registers, services
 from .const import (
     DOMAIN,
     AirQualitySensorType,
@@ -36,8 +36,6 @@ if TYPE_CHECKING:
     from .coordinator import KomfoventCoordinator
 
 _LOGGER = logging.getLogger(__name__)
-
-DEFAULT_MODE_TIMER = 60
 
 
 async def async_setup_entry(
@@ -276,6 +274,4 @@ class KomfoventOperationModeSelect(KomfoventSelect):
 
     async def async_select_option(self, option: str) -> None:
         """Change the selected option."""
-        from .services import set_mode
-
-        await set_mode(self.coordinator, option)
+        await services.set_mode(self.coordinator, option)

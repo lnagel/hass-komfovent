@@ -13,7 +13,7 @@ from homeassistant.components.climate import (
 from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from . import registers
+from . import registers, services
 from .const import (
     DOMAIN,
     OperationMode,
@@ -178,9 +178,7 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
 
     async def async_set_preset_mode(self, preset_mode: str) -> None:
         """Set new preset mode."""
-        from .services import set_mode
-
-        await set_mode(self.coordinator, preset_mode)
+        await services.set_mode(self.coordinator, preset_mode)
 
 
 MODE_TEMP_MAPPING = {
