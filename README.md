@@ -190,12 +190,3 @@ This repository contains multiple files, here is an overview:
 | `LICENSE`                       | The license file for the project.                                                                                      | [Documentation](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/licensing-a-repository)          |
 | `README.md`                     | The file you are reading now, should contain info about the integration, installation, and configuration instructions. | [Documentation](https://help.github.com/en/github/writing-on-github/basic-writing-and-formatting-syntax)                       |
 | `requirements.txt`              | Python packages used for development/lint/testing this integration.                                                    | [Documentation](https://pip.pypa.io/en/stable/user_guide/#requirements-files)                                                  |
-
-## Next steps
-
-These are some next steps you may want to look into:
-- Add tests to your integration, [`pytest-homeassistant-custom-component`](https://github.com/MatthewFlamm/pytest-homeassistant-custom-component) can help you get started.
-- Add brand images (logo/icon) to https://github.com/home-assistant/brands.
-- Create your first release.
-- Share your integration on the [Home Assistant Forum](https://community.home-assistant.io/).
-- Submit your integration to [HACS](https://hacs.xyz/docs/publish/start).
