@@ -30,6 +30,75 @@ The integration can be configured through the Home Assistant UI. The following o
 - **Host**: The IP address of your Komfovent device
 - **Port**: The Modbus TCP port (default: 502)
 
+## Services
+
+The integration provides several services that can be called from Home Assistant actions:
+
+### Clean Filters Calibration
+Calibrates the clean filters on the Komfovent unit after filter replacement:
+
+```yaml
+# Example service call
+action: komfovent.clean_filters_calibration
+target:
+  device_id: YOUR_DEVICE_ID
+```
+
+### Set Operation Mode 
+Sets the operation mode of the Komfovent unit:
+
+```yaml
+# Example service call
+action: komfovent.set_operation_mode
+target:
+  device_id: YOUR_DEVICE_ID
+data:
+  mode: kitchen
+  minutes: 60
+```
+
+Available modes:
+- `off`: Turn off the unit
+- `air_quality`: Enable automatic air quality control
+- `away`: Low-intensity ventilation for when you're away
+- `normal`: Standard ventilation mode
+- `intensive`: Increased ventilation
+- `boost`: Maximum ventilation
+- `kitchen`: Temporary increased ventilation for cooking
+- `fireplace`: Special mode for fireplace operation
+- `override`: Override current schedule
+
+The `minutes` parameter (1-300) is only used for `kitchen`, `fireplace`, and `override` modes.
+
+```yaml
+# Example action in a button card
+show_name: true
+show_icon: true
+type: button
+entity: select.komfovent_current_mode
+name: Kitchen
+icon: mdi:stove
+show_state: false
+tap_action:
+  action: perform-action
+  perform_action: komfovent.set_operation_mode
+  target:
+    device_id: YOUR_DEVICE_ID
+  data:
+    mode: kitchen
+    minutes: 5
+```
+
+### Set System Time
+Sets the system time on the Komfovent unit to match the local time:
+
+```yaml
+# Example service call
+action: komfovent.set_system_time
+target:
+  device_id: YOUR_DEVICE_ID
+```
+
 ## ModBus tools
 
 The `modbus_dump.py` tool can be used to dump the ModBus data from the Komfovent device. Usage:

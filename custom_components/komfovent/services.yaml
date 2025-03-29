@@ -1,26 +1,17 @@
 clean_filters_calibration:
   name: Clean Filters Calibration
   description: Calibrate clean filters on the Komfovent unit
-  fields:
-    config_entry:
-      name: Config Entry
-      description: The config entry ID of the Komfovent unit
-      required: true
-      selector:
-        config_entry:
-          integration: komfovent
+  target:
+    device:
+      integration: komfovent
 
 set_operation_mode:
   name: Set Operation Mode
   description: Set the operation mode of the Komfovent unit
+  target:
+    device:
+      integration: komfovent
   fields:
-    config_entry:
-      name: Config Entry
-      description: The config entry ID of the Komfovent unit
-      required: true
-      selector:
-        config_entry:
-          integration: komfovent
     mode:
       name: Mode
       description: The operation mode to set
@@ -50,11 +41,6 @@ set_operation_mode:
 set_system_time:
   name: Set System Time
   description: Set the system time on the Komfovent unit to match the local time
-  fields:
-    config_entry:
-      name: Config Entry
-      description: The config entry ID of the Komfovent unit
-      required: true
-      selector:
-        config_entry:
-          integration: komfovent
+  target:
+    device:
+      integration: komfovent
