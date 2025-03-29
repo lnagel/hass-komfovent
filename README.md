@@ -30,13 +30,9 @@ The integration can be configured through the Home Assistant UI. The following o
 - **Host**: The IP address of your Komfovent device
 - **Port**: The Modbus TCP port (default: 502)
 
-## Actions
-
-The integration provides several services that can be called from Home Assistant:
-
 ## Services
 
-The integration provides several services that can be called from Home Assistant:
+The integration provides several services that can be called from Home Assistant actions:
 
 ### Clean Filters Calibration
 Calibrates the clean filters on the Komfovent unit after filter replacement:
