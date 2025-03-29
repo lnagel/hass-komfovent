@@ -14,8 +14,8 @@ if TYPE_CHECKING:
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
     from . import KomfoventCoordinator
+from . import services
 from .const import DOMAIN
-from .services import clean_filters_calibration, set_system_time
 
 
 async def async_setup_entry(
@@ -79,7 +79,7 @@ class KomfoventSetTimeButton(KomfoventButtonEntity):
 
     async def async_press(self) -> None:
         """Handle the button press."""
-        await set_system_time(self.coordinator)
+        await services.set_system_time(self.coordinator)
 
 
 class KomfoventCleanFiltersButton(KomfoventButtonEntity):
@@ -87,4 +87,4 @@ class KomfoventCleanFiltersButton(KomfoventButtonEntity):
 
     async def async_press(self) -> None:
         """Handle the button press."""
-        await clean_filters_calibration(self.coordinator)
+        await services.clean_filters_calibration(self.coordinator)
