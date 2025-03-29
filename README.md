@@ -30,6 +30,36 @@ The integration can be configured through the Home Assistant UI. The following o
 - **Host**: The IP address of your Komfovent device
 - **Port**: The Modbus TCP port (default: 502)
 
+## Actions
+
+The integration provides several services that can be called from Home Assistant:
+
+### Clean Filters Calibration
+Calibrates the clean filters on the Komfovent unit after filter replacement:
+```yaml
+service: komfovent.clean_filters_calibration
+data:
+  config_entry: YOUR_CONFIG_ENTRY_ID
+```
+
+### Set Operation Mode 
+Sets the operation mode of the Komfovent unit:
+```yaml
+service: komfovent.set_operation_mode
+data:
+  config_entry: YOUR_CONFIG_ENTRY_ID
+  mode: normal  # one of: off, air_quality, away, normal, intensive, boost, kitchen, fireplace, override
+  minutes: 60   # optional: duration for kitchen/fireplace/override modes (1-300 minutes)
+```
+
+### Set System Time
+Sets the system time on the Komfovent unit to match the local time:
+```yaml
+service: komfovent.set_system_time
+data:
+  config_entry: YOUR_CONFIG_ENTRY_ID
+```
+
 ## ModBus tools
 
 The `modbus_dump.py` tool can be used to dump the ModBus data from the Komfovent device. Usage:
