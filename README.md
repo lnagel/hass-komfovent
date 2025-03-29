@@ -70,6 +70,25 @@ Available modes:
 
 The `minutes` parameter (1-300) is only used for `kitchen`, `fireplace`, and `override` modes.
 
+```yaml
+# Example action in a button card
+show_name: true
+show_icon: true
+type: button
+entity: select.komfovent_current_mode
+name: Kitchen
+icon: mdi:stove
+show_state: false
+tap_action:
+  action: perform-action
+  perform_action: komfovent.set_operation_mode
+  target:
+    device_id: YOUR_DEVICE_ID
+  data:
+    mode: kitchen
+    minutes: 5
+```
+
 ### Set System Time
 Sets the system time on the Komfovent unit to match the local time:
 
