@@ -15,7 +15,9 @@ _LOGGER = logging.getLogger(__name__)
 DEFAULT_MODE_TIMER = 60
 
 
-def get_coordinator_for_device(hass: HomeAssistant, device_id: str) -> KomfoventCoordinator | None:
+def get_coordinator_for_device(
+    hass: HomeAssistant, device_id: str
+) -> KomfoventCoordinator | None:
     """Get the coordinator for a device ID."""
     device_registry = dr.async_get(hass)
     if (device_entry := device_registry.async_get(device_id)) is None:
@@ -101,14 +103,18 @@ async def async_register_services(hass: HomeAssistant) -> None:
 
     async def handle_clean_filters_calibration(call: ServiceCall) -> None:
         """Handle the clean filters calibration service call."""
-        if not (coordinator := get_coordinator_for_device(hass, call.data["device_id"])):
+        if not (
+            coordinator := get_coordinator_for_device(hass, call.data["device_id"])
+        ):
             _LOGGER.error("Device %s not found", call.data["device_id"])
             return
         await clean_filters_calibration(coordinator)
 
     async def handle_set_operation_mode(call: ServiceCall) -> None:
         """Handle the set operation mode service call."""
-        if not (coordinator := get_coordinator_for_device(hass, call.data["device_id"])):
+        if not (
+            coordinator := get_coordinator_for_device(hass, call.data["device_id"])
+        ):
             _LOGGER.error("Device %s not found", call.data["device_id"])
             return
         await set_operation_mode(
@@ -117,7 +123,9 @@ async def async_register_services(hass: HomeAssistant) -> None:
 
     async def handle_set_system_time(call: ServiceCall) -> None:
         """Handle the set system time service call."""
-        if not (coordinator := get_coordinator_for_device(hass, call.data["device_id"])):
+        if not (
+            coordinator := get_coordinator_for_device(hass, call.data["device_id"])
+        ):
             _LOGGER.error("Device %s not found", call.data["device_id"])
             return
         await set_system_time(coordinator)
