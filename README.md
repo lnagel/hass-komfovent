@@ -2,6 +2,57 @@
 
 A Home Assistant integration that connects to Komfovent devices through Modbus TCP.
 
+## Features
+
+The integration provides comprehensive control and monitoring of your Komfovent ventilation unit:
+
+### Climate Control
+- Temperature control with multiple modes (supply, extract, room, balance)
+- Setpoint adjustment for all operation modes
+- ECO mode settings with min/max temperature limits
+- Free heating/cooling control
+- Heater and cooler blocking options
+
+### Operation Modes
+- Away - Low-intensity ventilation
+- Normal - Standard ventilation
+- Intensive - Increased ventilation
+- Boost - Maximum ventilation
+- Kitchen - Temporary increased ventilation for cooking
+- Fireplace - Special mode for fireplace operation
+- Override - Override current schedule
+- Holiday - Scheduled absence periods
+- Air Quality - Automatic control based on air quality
+
+### Air Quality Control
+- CO2 monitoring and control
+- VOC (Volatile Organic Compounds) monitoring
+- Humidity monitoring and control
+- Adjustable setpoints and intensity ranges
+- Impurity control settings
+
+### Monitoring
+- Supply and extract air temperatures
+- Outdoor and exhaust air temperatures
+- Fan speeds and flow rates
+- Heat exchanger efficiency
+- Filter status
+- Power consumption
+- Energy recovery
+- Specific power input (SPI)
+- Comprehensive alarm monitoring
+
+### Advanced Features
+- Electric heater control for each mode
+- Timer-based operation for kitchen/fireplace/override modes
+- Scheduler operation with multiple modes
+- System time synchronization
+- Clean filters calibration
+- Firmware version monitoring
+- Detailed diagnostics
+
+All features are exposed as Home Assistant entities, allowing for easy integration into automations and the user interface.
+
 ## Installation
 
 1. Add this repository to HACS or copy the `custom_components/komfovent` folder to your Home Assistant configuration directory.
