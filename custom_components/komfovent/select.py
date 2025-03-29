@@ -12,7 +12,7 @@ from homeassistant.components.select import SelectEntity, SelectEntityDescriptio
 from homeassistant.const import EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from . import registers
+from . import registers, services
 from .const import (
     DOMAIN,
     AirQualitySensorType,
@@ -274,27 +274,4 @@ class KomfoventOperationModeSelect(KomfoventSelect):
 
     async def async_select_option(self, option: str) -> None:
         """Change the selected option."""
-        try:
-            mode = self.enum_class[option.upper()]
-        except ValueError:
-            _LOGGER.warning("Invalid operation mode: %s", option)
-            return
-
-        if mode == OperationMode.OFF:
-            await self.coordinator.client.write(registers.REG_POWER, 0)
-        elif mode == OperationMode.AIR_QUALITY:
-            await self.coordinator.client.write(registers.REG_AUTO_MODE, 1)
-        elif mode in {
-            OperationMode.AWAY,
-            OperationMode.NORMAL,
-            OperationMode.INTENSIVE,
-            OperationMode.BOOST,
-        }:
-            await self.coordinator.client.write(
-                registers.REG_OPERATION_MODE, mode.value
-            )
-        else:
-            _LOGGER.warning("Unsupported operation mode: %s", option)
-            return
-
-        await self.coordinator.async_request_refresh()
+        await services.set_operation_mode(self.coordinator, option)
