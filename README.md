@@ -38,16 +38,19 @@ The integration provides several services that can be called from Home Assistant
 Calibrates the clean filters on the Komfovent unit after filter replacement:
 ```yaml
 service: komfovent.clean_filters_calibration
-data:
-  config_entry: YOUR_CONFIG_ENTRY_ID
+target:
+  device:
+    integration: komfovent
 ```
 
 ### Set Operation Mode 
 Sets the operation mode of the Komfovent unit:
 ```yaml
 service: komfovent.set_operation_mode
+target:
+  device:
+    integration: komfovent
 data:
-  config_entry: YOUR_CONFIG_ENTRY_ID
   mode: normal  # one of: off, air_quality, away, normal, intensive, boost, kitchen, fireplace, override
   minutes: 60   # optional: duration for kitchen/fireplace/override modes (1-300 minutes)
 ```
@@ -56,8 +59,9 @@ data:
 Sets the system time on the Komfovent unit to match the local time:
 ```yaml
 service: komfovent.set_system_time
-data:
-  config_entry: YOUR_CONFIG_ENTRY_ID
+target:
+  device:
+    integration: komfovent
 ```
 
 ## ModBus tools
