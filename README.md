@@ -1,6 +1,6 @@
 # Komfovent integration for Home Assistant
 
-A Home Assistant integration that connects to Komfovent devices through Modbus TCP.
+A Home Assistant integration for Komfovent C6/C6M ventilation units through Modbus TCP.
 
 ## Features
 
@@ -53,33 +53,6 @@ The integration provides comprehensive control and monitoring of your Komfovent 
 
 All features are exposed as Home Assistant entities, allowing for easy integration into automations and the user interface.
 
-## Installation
-
-1. Add this repository to HACS or copy the `custom_components/komfovent` folder to your Home Assistant configuration directory.
-2. Restart Home Assistant.
-3. Add the integration through the Home Assistant UI.
-4. Configure the integration with the IP address of your Komfovent device.
-
-## Device support
-
-Currently only the Komfovent C6/C6M devices are supported, however due to the large variety of configurations,
-not every combination has been tested yet. Support for Komfovent C8 devices could easily be added, but I don't
-have access to one for testing. Since the C8 register layout is extremely similar to the C6, it might work out
-of the box.
-
-If you have issues seeing the data correctly, then please open a new ticket with:
-
-- the model of your device, controller type and firmware version
-- a data dump taken with the `modbus_dump.py` tool
-- screenshots of the data in the Komfovent app or web interface
-
-## Configuration
-
-The integration can be configured through the Home Assistant UI. The following options are available:
-
-- **name**: The name of your Komfovent device
-- **Host**: The IP address of your Komfovent device
-- **Port**: The Modbus TCP port (default: 502)
 
 ## Services
 
@@ -149,6 +122,34 @@ action: komfovent.set_system_time
 target:
   device_id: YOUR_DEVICE_ID
 ```
+
+## Device support
+
+Currently only the Komfovent C6/C6M devices are supported, however due to the large variety of configurations,
+not every combination has been tested yet. Support for Komfovent C8 devices could easily be added, but I don't
+have access to one for testing. Since the C8 register layout is extremely similar to the C6, it might work out
+of the box.
+
+If you have issues seeing the data correctly, then please open a new ticket with:
+
+- the model of your device, controller type and firmware version
+- a data dump taken with the `modbus_dump.py` tool
+- screenshots of the data in the Komfovent app or web interface
+
+## Installation
+
+1. Add this repository to HACS or copy the `custom_components/komfovent` folder to your Home Assistant configuration directory.
+2. Restart Home Assistant.
+3. Add the integration through the Home Assistant UI.
+4. Configure the integration with the IP address of your Komfovent device.
+
+## Configuration
+
+The integration can be configured through the Home Assistant UI. The following options are available:
+
+- **name**: The name of your Komfovent device
+- **Host**: The IP address of your Komfovent device
+- **Port**: The Modbus TCP port (default: 502)
 
 ## ModBus tools
 
