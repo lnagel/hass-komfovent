@@ -57,7 +57,7 @@ action: komfovent.set_operation_mode
 target:
   device_id: YOUR_DEVICE_ID
 data:
-  mode: normal
+  mode: kitchen
   minutes: 60
 ```
 
