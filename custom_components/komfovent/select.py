@@ -54,6 +54,7 @@ async def async_setup_entry(
                 entity_description=SelectEntityDescription(
                     key="operation_mode",
                     name="Current mode",
+                    translation_key="operation_mode",
                     options=[mode.name.lower() for mode in OperationMode],
                 ),
             ),
