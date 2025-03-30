@@ -4,7 +4,7 @@
       "komfovent_climate": {
         "state_attributes": {
           "preset_mode": {
-            "default": "mdi:circle-medium",
+            "default": "mdi:fan",
             "state": {
               "standby": "mdi:power-sleep",
               "away": "mdi:home-export-outline",
