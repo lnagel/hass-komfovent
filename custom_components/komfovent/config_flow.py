@@ -11,12 +11,6 @@ from homeassistant.data_entry_flow import FlowResult
 from .const import (
     DEFAULT_NAME,
     DEFAULT_PORT,
-    DEFAULT_STEP_CO2,
-    DEFAULT_STEP_FLOW,
-    DEFAULT_STEP_HUMIDITY,
-    DEFAULT_STEP_TEMPERATURE,
-    DEFAULT_STEP_TIMER,
-    DEFAULT_STEP_VOC,
     DOMAIN,
     OPT_STEP_CO2,
     OPT_STEP_FLOW,
@@ -35,16 +29,12 @@ CONFIG_SCHEMA = vol.Schema(
 )
 OPTIONS_SCHEMA = vol.Schema(
     {
-        vol.Required(OPT_STEP_FLOW, default=DEFAULT_STEP_FLOW): vol.Coerce(float),
-        vol.Required(
-            OPT_STEP_TEMPERATURE, default=DEFAULT_STEP_TEMPERATURE
-        ): vol.Coerce(float),
-        vol.Required(OPT_STEP_HUMIDITY, default=DEFAULT_STEP_HUMIDITY): vol.Coerce(
-            float
-        ),
-        vol.Required(OPT_STEP_CO2, default=DEFAULT_STEP_CO2): vol.Coerce(float),
-        vol.Required(OPT_STEP_VOC, default=DEFAULT_STEP_VOC): vol.Coerce(float),
-        vol.Required(OPT_STEP_TIMER, default=DEFAULT_STEP_TIMER): vol.Coerce(float),
+        vol.Optional(OPT_STEP_FLOW): vol.Coerce(float),
+        vol.Optional(OPT_STEP_TEMPERATURE): vol.Coerce(float),
+        vol.Optional(OPT_STEP_HUMIDITY): vol.Coerce(float),
+        vol.Optional(OPT_STEP_CO2): vol.Coerce(float),
+        vol.Optional(OPT_STEP_VOC): vol.Coerce(float),
+        vol.Optional(OPT_STEP_TIMER): vol.Coerce(float),
     }
 )
 

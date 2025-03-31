@@ -28,6 +28,12 @@ if TYPE_CHECKING:
 
 from . import registers
 from .const import (
+    DEFAULT_STEP_CO2,
+    DEFAULT_STEP_FLOW,
+    DEFAULT_STEP_HUMIDITY,
+    DEFAULT_STEP_TEMPERATURE,
+    DEFAULT_STEP_TIMER,
+    DEFAULT_STEP_VOC,
     DOMAIN,
     OPT_STEP_CO2,
     OPT_STEP_FLOW,
@@ -38,12 +44,6 @@ from .const import (
     AirQualitySensorType,
     FlowControl,
     FlowUnit,
-    DEFAULT_STEP_TEMPERATURE,
-    DEFAULT_STEP_FLOW,
-    DEFAULT_STEP_TIMER,
-    DEFAULT_STEP_CO2,
-    DEFAULT_STEP_VOC,
-    DEFAULT_STEP_HUMIDITY,
 )
 from .registers import REG_ECO_MAX_TEMP, REG_ECO_MIN_TEMP
 
