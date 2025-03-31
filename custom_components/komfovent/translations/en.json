@@ -1,0 +1,44 @@
+{
+  "entity": {
+    "climate": {
+      "komfovent_climate": {
+        "state_attributes": {
+          "preset_mode": {
+            "name": "Operation Mode",
+            "state": {
+              "standby": "Standby",
+              "away": "Away",
+              "normal": "Normal",
+              "intensive": "Intensive",
+              "boost": "Boost",
+              "kitchen": "Kitchen",
+              "fireplace": "Fireplace",
+              "override": "Override",
+              "holiday": "Holiday",
+              "air_quality": "Air Quality",
+              "off": "Off"
+            }
+          }
+        }
+      }
+    },
+    "select": {
+      "operation_mode": {
+        "name": "Operation Mode",
+        "state": {
+          "standby": "Standby",
+          "away": "Away",
+          "normal": "Normal",
+          "intensive": "Intensive",
+          "boost": "Boost",
+          "kitchen": "Kitchen",
+          "fireplace": "Fireplace",
+          "override": "Override",
+          "holiday": "Holiday",
+          "air_quality": "Air Quality",
+          "off": "Off"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "entity": {
+    "climate": {
+      "komfovent_climate": {
+        "state_attributes": {
+          "preset_mode": {
+            "default": "mdi:fan",
+            "state": {
+              "standby": "mdi:power-sleep",
+              "away": "mdi:home-export-outline",
+              "normal": "mdi:home-outline",
+              "intensive": "mdi:account-group",
+              "boost": "mdi:rocket",
+              "kitchen": "mdi:pot-steam-outline",
+              "fireplace": "mdi:fireplace",
+              "override": "mdi:gesture-tap",
+              "holiday": "mdi:bag-suitcase-outline",
+              "air_quality": "mdi:fan-auto",
+              "off": "mdi:fan-off"
+            }
+          }
+        }
+      }
+    },
+    "select": {
+      "operation_mode": {
+        "state": {
+          "standby": "mdi:power-sleep",
+          "away": "mdi:home-export-outline",
+          "normal": "mdi:home-outline",
+          "intensive": "mdi:account-group",
+          "boost": "mdi:rocket",
+          "kitchen": "mdi:pot-steam-outline",
+          "fireplace": "mdi:fireplace",
+          "override": "mdi:gesture-tap",
+          "holiday": "mdi:bag-suitcase-outline",
+          "air_quality": "mdi:fan-auto",
+          "off": "mdi:fan-off"
+        }
+      }
+    }
+  }
+}

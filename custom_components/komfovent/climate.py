@@ -56,6 +56,7 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
     _attr_preset_modes: ClassVar[list[str]] = [
         mode.name.lower() for mode in OperationMode
     ]
+    _attr_translation_key = "komfovent_climate"
 
     def __init__(self, coordinator: KomfoventCoordinator) -> None:
         """Initialize the climate device."""

@@ -89,6 +89,7 @@ ENTITY_ID_MIGRATIONS = {
     "air_quality_voc": "extract_voc",
     "air_quality_rh": "extract_humidity",
     "eco_free_cooling": "eco_free_heat_cool",
+    "current_mode": "operation_mode",
 }
 
 
