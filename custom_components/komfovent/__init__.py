@@ -5,11 +5,10 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-import voluptuous as vol
-from homeassistant.const import CONF_HOST, CONF_NAME, CONF_PORT, Platform
+from homeassistant.const import CONF_HOST, CONF_PORT, Platform
 from homeassistant.exceptions import ConfigEntryNotReady
 
-from .const import DEFAULT_NAME, DEFAULT_PORT, DOMAIN
+from .const import DOMAIN
 from .coordinator import KomfoventCoordinator
 from .services import async_register_services
 
@@ -30,19 +29,6 @@ PLATFORMS = [
     Platform.SENSOR,
     Platform.SWITCH,
 ]
-
-CONFIG_SCHEMA = vol.Schema(
-    {
-        DOMAIN: vol.Schema(
-            {
-                vol.Required(CONF_NAME, default=DEFAULT_NAME): str,
-                vol.Required(CONF_HOST): str,
-                vol.Required(CONF_PORT, default=DEFAULT_PORT): int,
-            }
-        )
-    },
-    extra=vol.ALLOW_EXTRA,
-)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
