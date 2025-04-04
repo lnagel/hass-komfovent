@@ -85,7 +85,7 @@ class KomfoventConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @callback
     def async_get_options_flow(
         _config_entry: config_entries.ConfigEntry,
-    ) -> config_entries.ConfigEntry:
+    ) -> config_entries.OptionsFlow:
         """Get the options flow for this handler."""
         return OptionsFlowHandler()
 
