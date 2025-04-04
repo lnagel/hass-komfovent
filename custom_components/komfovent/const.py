@@ -7,11 +7,27 @@ from typing import Final
 
 DOMAIN = "komfovent"
 
+# Config
 DEFAULT_NAME = "Komfovent"
 DEFAULT_HOST: Final = None
 DEFAULT_PORT = 502
 DEFAULT_SLAVE_ID: Final = 254
 DEFAULT_SCAN_INTERVAL = 30
+
+# Options
+OPT_STEP_FLOW: Final = "step_flow"
+OPT_STEP_TEMPERATURE: Final = "step_temperature"
+OPT_STEP_HUMIDITY: Final = "step_humidity"
+OPT_STEP_CO2: Final = "step_co2"
+OPT_STEP_VOC: Final = "step_voc"
+OPT_STEP_TIMER: Final = "step_timer"
+
+DEFAULT_STEP_FLOW: Final = 5.0
+DEFAULT_STEP_TEMPERATURE: Final = 0.5
+DEFAULT_STEP_HUMIDITY: Final = 5.0
+DEFAULT_STEP_CO2: Final = 25.0
+DEFAULT_STEP_VOC: Final = 5.0
+DEFAULT_STEP_TIMER: Final = 5.0
 
 
 class Controller(IntEnum):
