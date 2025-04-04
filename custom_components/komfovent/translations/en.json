@@ -1,4 +1,18 @@
 {
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "step_flow": "Step for flow entities",
+          "step_temperature": "Step for temperature entities",
+          "step_humidity": "Step for humidity entities",
+          "step_co2": "Step for CO2 entities",
+          "step_voc": "Step for VOC entities",
+          "step_timer": "Step for timer entities"
+        }
+      }
+    }
+  },
   "entity": {
     "climate": {
       "komfovent_climate": {
