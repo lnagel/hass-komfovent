@@ -3,7 +3,7 @@
 from typing import Any
 
 import voluptuous as vol
-from homeassistant import config_entries
+from homeassistant.config_entries import ConfigEntry, ConfigFlow, OptionsFlow
 from homeassistant.const import CONF_HOST, CONF_NAME, CONF_PORT
 from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
@@ -39,7 +39,7 @@ OPTIONS_SCHEMA = vol.Schema(
 )
 
 
-class KomfoventConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+class KomfoventConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Komfovent."""
 
     VERSION = 1
@@ -83,14 +83,12 @@ class KomfoventConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     @staticmethod
     @callback
-    def async_get_options_flow(
-        _config_entry: config_entries.ConfigEntry,
-    ) -> config_entries.OptionsFlow:
+    def async_get_options_flow(_config_entry: ConfigEntry) -> OptionsFlow:
         """Get the options flow for this handler."""
         return OptionsFlowHandler()
 
 
-class OptionsFlowHandler(config_entries.OptionsFlow):
+class OptionsFlowHandler(OptionsFlow):
     """Options flow handler for Komfovent."""
 
     async def async_step_init(
