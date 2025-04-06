@@ -27,6 +27,9 @@ def test_get_version_from_int():
     assert get_version_from_int(uint32(4418, 41027)) == (Controller.C6M, 1, 4, 42, 67)
     assert get_version_from_int(uint32(4418, 49221)) == (Controller.C6M, 1, 4, 44, 69)
 
+    # Test additional cases for C8 controller firmware version
+    assert get_version_from_int(uint32(8464, 12301)) == (Controller.C8, 1, 1, 3, 13)
+
     # Test additional cases for C6 panel firmware version
     assert get_version_from_int(17838105) == (Controller.C6, 1, 1, 3, 25)
     assert get_version_from_int(18886683) == (Controller.C6, 1, 2, 3, 27)

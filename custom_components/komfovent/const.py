@@ -35,6 +35,7 @@ class Controller(IntEnum):
 
     C6 = 0
     C6M = 1
+    C8 = 2
     NA = 15
 
 
