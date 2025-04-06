@@ -130,6 +130,12 @@ not every combination has been tested yet. Support for Komfovent C8 devices coul
 have access to one for testing. Since the C8 register layout is extremely similar to the C6, it might work out
 of the box.
 
+If you have connectivity issues, please confirm that you have the latest firmware on your Komfovent device. 
+Depending on the controller type, please see the manufacturer's update instructions.
+
+- [C6/C6M firmware update instructions](https://www.komfovent.com/en/downloads/C6_update_EN.pdf)
+- [C8 firmware update instructions](https://www.komfovent.lt/lt/references/C8_CONTROLLER_Firmware_update_EN.pdf)
+
 If you have issues seeing the data correctly, then please open a new ticket with:
 
 - the model of your device, controller type and firmware version
