@@ -10,6 +10,7 @@ from pymodbus import ModbusException
 from pymodbus.client import AsyncModbusTcpClient
 
 from .const import DOMAIN
+from .registers import REGISTERS_32BIT_UNSIGNED
 
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
@@ -89,13 +90,45 @@ async def dump_registers(host: str, port: int) -> dict[int, list[int]]:
     try:
         for start, count in RANGES:
             try:
+                # try to read the whole block
                 response = await client.read_holding_registers(
                     address=start - 1, count=count
                 )
+                if response.isError():
+                    raise ModbusException("read failed")
+
                 results[start] = response.registers
                 logger.info("Register %d: %s", start, response.registers)
             except ModbusException:
-                logger.error("Register %d: Modbus error", start)  # noqa: TRY400
+                logger.error("Register %d: block read failed", start)
+
+                # fall back to individual reads
+                attempted = set()
+                for reg in range(start, start + count):
+                    if reg in attempted:
+                        continue
+
+                    try:
+                        if reg in REGISTERS_32BIT_UNSIGNED:
+                            # read 2 registers for 32-bit unsigned values
+                            response = await client.read_holding_registers(
+                                address=reg - 1, count=2
+                            )
+                            attempted.add(reg)
+                            attempted.add(reg + 1)
+                        else:
+                            # read 1 register for other values
+                            response = await client.read_holding_registers(
+                                address=reg - 1, count=1
+                            )
+                            attempted.add(reg)
+                        if response.isError():
+                            raise ModbusException("read failed")
+
+                        results[reg] = response.registers
+                        logger.info("Register %d: %s", reg, response.registers)
+                    except ModbusException:
+                        logger.error("Register %d: individual read failed", reg)
 
     finally:
         client.close()
