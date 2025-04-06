@@ -1,4 +1,5 @@
 * Read documentation/MODBUS_C6.md for more information on the register layout of the Komfovent C6/C6M devices.
+* Read documentation/MODBUS_C8.md for key differences in the C8 controller.
 * Keep documentation and code in sync - when updating one, check and update the other
 * Use proper typing and constants instead of magic values
 * Create reusable utility functions to avoid code duplication
