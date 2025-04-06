@@ -10,21 +10,23 @@ from pymodbus import ModbusException
 from pymodbus.client import AsyncModbusTcpClient
 
 from .const import DOMAIN
+from .registers import REGISTERS_32BIT_UNSIGNED
 
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
+    from pymodbus.pdu import ModbusResponse
 
     from .coordinator import KomfoventCoordinator
 
 logger = logging.getLogger(__name__)
 
-
+# Register ranges
 INTEGRATION_RANGES = [
     (1, 34),  # primary control block 1-34
     (35, 10),  # connectivity, extra control 35-44
-    (100, 57),  # modes 100-156
-    (157, 6),  # override delay, humidity setpoints 157-162
+    (100, 59),  # modes 100-158
+    (159, 4),  # humidity setpoints 159-162
     (200, 18),  # eco and air quality 200-217
     (300, 100),  # scheduler 300-555
     (400, 100),  # scheduler 400-555
@@ -62,6 +64,17 @@ MOBILE_APP_RANGES = [
 UNKNOWN_RANGES = []
 RANGES = INTEGRATION_RANGES + MOBILE_APP_RANGES + UNKNOWN_RANGES
 
+# Error messages
+ERR_READ_FAILED = "read failed"
+ERR_BLOCK_READ = "Register %d: block read failed"
+ERR_INDIVIDUAL_READ = "Register %d: individual read failed"
+
+
+def _check_response(response: ModbusResponse) -> None:
+    """Check if response has error and raise if needed."""
+    if response.isError():
+        raise ModbusException(ERR_READ_FAILED)
+
 
 async def dump_registers(host: str, port: int) -> dict[int, list[int]]:
     """
@@ -89,13 +102,43 @@ async def dump_registers(host: str, port: int) -> dict[int, list[int]]:
     try:
         for start, count in RANGES:
             try:
+                # try to read the whole block
                 response = await client.read_holding_registers(
                     address=start - 1, count=count
                 )
+                _check_response(response)
+
                 results[start] = response.registers
                 logger.info("Register %d: %s", start, response.registers)
             except ModbusException:
-                logger.error("Register %d: Modbus error", start)  # noqa: TRY400
+                logger.warning(ERR_BLOCK_READ, start)
+
+                # fall back to individual reads
+                attempted = set()
+                for reg in range(start, start + count):
+                    if reg in attempted:
+                        continue
+
+                    try:
+                        if reg in REGISTERS_32BIT_UNSIGNED:
+                            # read 2 registers for 32-bit unsigned values
+                            response = await client.read_holding_registers(
+                                address=reg - 1, count=2
+                            )
+                            attempted.add(reg)
+                            attempted.add(reg + 1)
+                        else:
+                            # read 1 register for other values
+                            response = await client.read_holding_registers(
+                                address=reg - 1, count=1
+                            )
+                            attempted.add(reg)
+                        _check_response(response)
+
+                        results[reg] = response.registers
+                        logger.info("Register %d: %s", reg, response.registers)
+                    except ModbusException:
+                        logger.warning(ERR_INDIVIDUAL_READ, reg)
 
     finally:
         client.close()

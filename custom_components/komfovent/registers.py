@@ -41,7 +41,7 @@ REG_DHCP = 35  # DHCP (Off = 0, On = 1)
 REG_IP = 23  # IP address (32-bit)
 REG_MASK = 25  # Network mask (32-bit)
 REG_GATEWAY = 36  # Network gateway (32-bit)
-REG_BACNET_ID = 38  # Bacnet ID
+REG_BACNET_ID = 38  # Bacnet ID (32-bit)
 REG_BACNET_PORT = 44  # Bacnet port
 
 # Settings
@@ -250,7 +250,6 @@ REGISTERS_16BIT_UNSIGNED = {
     REG_ICING_PROTECTION,
     REG_INDOOR_HUMIDITY,
     REG_DHCP,
-    REG_BACNET_ID,
     REG_BACNET_PORT,
     REG_LANGUAGE,
     REG_FLOW_UNIT,
@@ -367,6 +366,7 @@ REGISTERS_32BIT_UNSIGNED = {
     REG_IP,
     REG_MASK,
     REG_GATEWAY,
+    REG_BACNET_ID,
     REG_EPOCH_TIME,
     REG_AWAY_FAN_SUPPLY,
     REG_AWAY_FAN_EXTRACT,
