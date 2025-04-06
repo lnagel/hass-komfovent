@@ -1,6 +1,6 @@
 # Komfovent integration for Home Assistant
 
-A Home Assistant integration for Komfovent C6/C6M ventilation units through Modbus TCP.
+A Home Assistant integration for Komfovent C6, C6M and C8 ventilation units through Modbus TCP.
 
 ## Features
 
@@ -125,10 +125,8 @@ target:
 
 ## Device support
 
-Currently only the Komfovent C6/C6M devices are supported, however due to the large variety of configurations,
-not every combination has been tested yet. Support for Komfovent C8 devices could easily be added, but I don't
-have access to one for testing. Since the C8 register layout is extremely similar to the C6, it might work out
-of the box.
+Currently only the Komfovent C6, C6M and C8 devices are supported, however due to the large variety of configurations,
+not every combination has been tested yet.
 
 If you have connectivity issues, please confirm that you have the latest firmware on your Komfovent device. 
 Depending on the controller type, please see the manufacturer's update instructions.
