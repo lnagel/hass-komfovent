@@ -24,8 +24,8 @@ logger = logging.getLogger(__name__)
 INTEGRATION_RANGES = [
     (1, 34),  # primary control block 1-34
     (35, 10),  # connectivity, extra control 35-44
-    (100, 57),  # modes 100-156
-    (157, 6),  # override delay, humidity setpoints 157-162
+    (100, 59),  # modes 100-158
+    (159, 4),  # humidity setpoints 159-162
     (200, 18),  # eco and air quality 200-217
     (300, 100),  # scheduler 300-555
     (400, 100),  # scheduler 400-555
