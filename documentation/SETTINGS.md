@@ -7,7 +7,7 @@
 - [x] Free cooling (REG 202)
 - [x] Heater blocking (REG 203)
 - [x] Cooler blocking (REG 204)
-- [ ] Heat recovery control
+- [x] Heat recovery control
 
 ## AUTO
 
@@ -44,11 +44,11 @@
 ## Control Sequence
 - [ ] Condensate prevention
   - [ ] Indoor humidity: AUTO / manually entered value
-- [ ] Stage 1
-  - [ ] External coil type
+- [x] Stage 1
+  - [x] External coil type
   - [ ] Allow dehumidifying with cooling
-- [ ] Stage 2
-- [ ] Stage 3
+- [x] Stage 2
+- [x] Stage 3
 
 ## Air Quality
 - [x] Impurity control
