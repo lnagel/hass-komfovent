@@ -13,6 +13,7 @@ from .const import (
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     ConnectedPanels,
+    Controller,
 )
 from .helpers import get_version_from_int
 
@@ -63,6 +64,7 @@ class KomfoventCoordinator(DataUpdateCoordinator):
 
             # Get firmware version and extract functional version from it
             fw_version = get_version_from_int(data.get(registers.REG_FIRMWARE, 0))
+            controller = fw_version[0]
             func_version = fw_version[4]
 
             # Read primary control (1-34)
@@ -94,7 +96,10 @@ class KomfoventCoordinator(DataUpdateCoordinator):
             # This has not been tested yet, it may be implemented in the future
 
             # Read exhaust temperature (961)
-            if func_version >= FUNC_VER_EXHAUST_TEMP:
+            if (
+                controller in {Controller.C6, Controller.C6M}
+                and func_version >= FUNC_VER_EXHAUST_TEMP
+            ):
                 try:
                     data.update(await self.client.read(registers.REG_EXHAUST_TEMP, 1))
                 except (ConnectionError, ModbusException) as error:
