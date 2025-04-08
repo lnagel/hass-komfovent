@@ -70,7 +70,7 @@ async def test_live_coordinator(hass: HomeAssistant, mock_registers):
     register_name, register_data = mock_registers
 
     # Use non-privileged port for testing
-    test_port = random.randint(1000, 50000)
+    test_port = random.randint(1024, 50000)
     server_task = asyncio.create_task(run_server("127.0.0.1", test_port, register_data))
 
     # Wait for server to start
