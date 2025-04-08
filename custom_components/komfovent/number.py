@@ -44,6 +44,7 @@ from .const import (
     AirQualitySensorType,
     FlowControl,
     FlowUnit,
+    Controller,
 )
 from .registers import REG_ECO_MAX_TEMP, REG_ECO_MIN_TEMP
 
@@ -680,15 +681,19 @@ class FlowNumber(KomfoventNumber):
         if not self.coordinator.data:
             return None
 
-        flow_control = self.coordinator.data.get(registers.REG_FLOW_CONTROL)
-        if flow_control == FlowControl.OFF:
-            return PERCENTAGE
+        if self.coordinator.controller in {Controller.C6, Controller.C6M}:
+            flow_control = self.coordinator.data.get(registers.REG_FLOW_CONTROL)
+            if flow_control == FlowControl.OFF:
+                return PERCENTAGE
 
-        flow_unit = self.coordinator.data.get(registers.REG_FLOW_UNIT)
-        if flow_unit == FlowUnit.M3H:
-            return UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR
-        if flow_unit == FlowUnit.LS:
-            return UnitOfVolumeFlowRate.LITERS_PER_SECOND
+            flow_unit = self.coordinator.data.get(registers.REG_FLOW_UNIT)
+            if flow_unit == FlowUnit.M3H:
+                return UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR
+            if flow_unit == FlowUnit.LS:
+                return UnitOfVolumeFlowRate.LITERS_PER_SECOND
+        elif self.coordinator.controller in {Controller.C8}:
+            # no flow control or flow unit support
+            return PERCENTAGE
 
         return None
 

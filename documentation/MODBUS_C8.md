@@ -14,7 +14,7 @@ The key differences between C6 and C8 controllers include:
 ## TODO
 
 [ ] AQ Air Humidity 60%
-[ ] Flow unit in %
+[x] Flow unit in %
 [ ] Operation counters in hours
 [ ] Condensate prevention
 [ ] Enable only Stage 1/2
