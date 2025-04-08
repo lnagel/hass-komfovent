@@ -53,7 +53,7 @@ class KomfoventCoordinator(DataUpdateCoordinator):
         if not connected:
             raise ConfigEntryNotReady(connection_error)
 
-        ERROR_MSG = "Failed to read controller firmware version"
+        error_msg = "Failed to read controller firmware version"
         try:
             # Get firmware version and extract functional version from it
             fw_data = await self.client.read(registers.REG_FIRMWARE, 2)
@@ -61,8 +61,8 @@ class KomfoventCoordinator(DataUpdateCoordinator):
             self.controller = fw_version[0]
             self.func_version = fw_version[4]
         except (ConnectionError, ModbusException) as error:
-            _LOGGER.warning(f"{ERROR_MSG}: %s", error)
-            raise ConfigEntryNotReady(ERROR_MSG) from error
+            _LOGGER.warning("%s: %s", error_msg, error)
+            raise ConfigEntryNotReady(error_msg) from error
 
         return True
 
