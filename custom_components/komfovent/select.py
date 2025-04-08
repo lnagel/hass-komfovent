@@ -17,6 +17,7 @@ from .const import (
     DOMAIN,
     AirQualitySensorType,
     CoilType,
+    Controller,
     ControlStage,
     FlowControl,
     HeatRecoveryControl,
@@ -45,177 +46,184 @@ async def async_setup_entry(
 ) -> None:
     """Set up Komfovent select entities."""
     coordinator: KomfoventCoordinator = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities(
-        [
-            KomfoventOperationModeSelect(
-                coordinator=coordinator,
-                register_id=registers.REG_OPERATION_MODE,
-                enum_class=OperationMode,
-                entity_description=SelectEntityDescription(
-                    key="operation_mode",
-                    name="Operation mode",
-                    translation_key="operation_mode",
-                    options=[mode.name.lower() for mode in OperationMode],
-                ),
+    entities = [
+        KomfoventOperationModeSelect(
+            coordinator=coordinator,
+            register_id=registers.REG_OPERATION_MODE,
+            enum_class=OperationMode,
+            entity_description=SelectEntityDescription(
+                key="operation_mode",
+                name="Operation mode",
+                translation_key="operation_mode",
+                options=[mode.name.lower() for mode in OperationMode],
             ),
-            KomfoventSelect(
-                coordinator=coordinator,
-                register_id=registers.REG_SCHEDULER_MODE,
-                enum_class=SchedulerMode,
-                entity_description=SelectEntityDescription(
-                    key="scheduler_mode",
-                    name="Scheduler mode",
-                    options=[mode.name.lower() for mode in SchedulerMode],
-                ),
+        ),
+        KomfoventSelect(
+            coordinator=coordinator,
+            register_id=registers.REG_SCHEDULER_MODE,
+            enum_class=SchedulerMode,
+            entity_description=SelectEntityDescription(
+                key="scheduler_mode",
+                name="Scheduler mode",
+                options=[mode.name.lower() for mode in SchedulerMode],
             ),
-            KomfoventSelect(
-                coordinator=coordinator,
-                register_id=registers.REG_TEMP_CONTROL,
-                enum_class=TemperatureControl,
-                entity_description=SelectEntityDescription(
-                    key="temperature_control",
-                    name="Temperature control",
-                    entity_category=EntityCategory.CONFIG,
-                    options=[mode.name.lower() for mode in TemperatureControl],
-                    entity_registry_enabled_default=False,
-                ),
+        ),
+        KomfoventSelect(
+            coordinator=coordinator,
+            register_id=registers.REG_TEMP_CONTROL,
+            enum_class=TemperatureControl,
+            entity_description=SelectEntityDescription(
+                key="temperature_control",
+                name="Temperature control",
+                entity_category=EntityCategory.CONFIG,
+                options=[mode.name.lower() for mode in TemperatureControl],
+                entity_registry_enabled_default=False,
             ),
-            KomfoventSelect(
-                coordinator=coordinator,
-                register_id=registers.REG_FLOW_CONTROL,
-                enum_class=FlowControl,
-                entity_description=SelectEntityDescription(
-                    key="flow_control",
-                    name="Flow control",
-                    entity_category=EntityCategory.CONFIG,
-                    options=[mode.name.lower() for mode in FlowControl],
-                    entity_registry_enabled_default=False,
-                ),
+        ),
+        KomfoventSelect(
+            coordinator=coordinator,
+            register_id=registers.REG_AQ_SENSOR1_TYPE,
+            enum_class=AirQualitySensorType,
+            entity_description=SelectEntityDescription(
+                key="aq_sensor1_type",
+                name="AQ Sensor 1 Type",
+                entity_category=EntityCategory.CONFIG,
+                options=[mode.name.lower() for mode in AirQualitySensorType],
+                entity_registry_enabled_default=False,
             ),
-            KomfoventSelect(
-                coordinator=coordinator,
-                register_id=registers.REG_AQ_SENSOR1_TYPE,
-                enum_class=AirQualitySensorType,
-                entity_description=SelectEntityDescription(
-                    key="aq_sensor1_type",
-                    name="AQ Sensor 1 Type",
-                    entity_category=EntityCategory.CONFIG,
-                    options=[mode.name.lower() for mode in AirQualitySensorType],
-                    entity_registry_enabled_default=False,
-                ),
+        ),
+        KomfoventSelect(
+            coordinator=coordinator,
+            register_id=registers.REG_AQ_OUTDOOR_HUMIDITY,
+            enum_class=OutdoorHumiditySensor,
+            entity_description=SelectEntityDescription(
+                key="aq_outdoor_humidity_sensor",
+                name="AQ Outdoor Humidity Sensor",
+                entity_category=EntityCategory.CONFIG,
+                icon="mdi:water-percent",
+                options=[mode.name.lower() for mode in OutdoorHumiditySensor],
+                entity_registry_enabled_default=False,
             ),
-            KomfoventSelect(
-                coordinator=coordinator,
-                register_id=registers.REG_AQ_SENSOR2_TYPE,
-                enum_class=AirQualitySensorType,
-                entity_description=SelectEntityDescription(
-                    key="aq_sensor2_type",
-                    name="AQ Sensor 2 Type",
-                    entity_category=EntityCategory.CONFIG,
-                    options=[mode.name.lower() for mode in AirQualitySensorType],
-                    entity_registry_enabled_default=False,
-                ),
+        ),
+        KomfoventSelect(
+            coordinator=coordinator,
+            register_id=registers.REG_ECO_HEAT_RECOVERY,
+            enum_class=HeatRecoveryControl,
+            entity_description=SelectEntityDescription(
+                key="eco_heat_recovery",
+                name="ECO Heat Recovery",
+                icon="mdi:heat-wave",
+                options=[mode.name.lower() for mode in HeatRecoveryControl],
             ),
-            KomfoventSelect(
-                coordinator=coordinator,
-                register_id=registers.REG_AQ_OUTDOOR_HUMIDITY,
-                enum_class=OutdoorHumiditySensor,
-                entity_description=SelectEntityDescription(
-                    key="aq_outdoor_humidity_sensor",
-                    name="AQ Outdoor Humidity Sensor",
-                    entity_category=EntityCategory.CONFIG,
-                    icon="mdi:water-percent",
-                    options=[mode.name.lower() for mode in OutdoorHumiditySensor],
-                    entity_registry_enabled_default=False,
-                ),
+        ),
+        KomfoventSelect(
+            coordinator=coordinator,
+            register_id=registers.REG_OVERRIDE_ACTIVATION,
+            enum_class=OverrideActivation,
+            entity_description=SelectEntityDescription(
+                key="override_activation",
+                name="Override Activation",
+                options=[mode.name.lower() for mode in OverrideActivation],
+                entity_registry_enabled_default=True,
+                entity_registry_visible_default=False,
+                entity_category=EntityCategory.CONFIG,
             ),
-            KomfoventSelect(
-                coordinator=coordinator,
-                register_id=registers.REG_ECO_HEAT_RECOVERY,
-                enum_class=HeatRecoveryControl,
-                entity_description=SelectEntityDescription(
-                    key="eco_heat_recovery",
-                    name="ECO Heat Recovery",
-                    icon="mdi:heat-wave",
-                    options=[mode.name.lower() for mode in HeatRecoveryControl],
-                ),
+        ),
+        KomfoventSelect(
+            coordinator=coordinator,
+            register_id=registers.REG_HOLIDAYS_MICRO_VENT,
+            enum_class=MicroVentilation,
+            entity_description=SelectEntityDescription(
+                key="holidays_micro_ventilation",
+                name="Holidays Micro-ventilation",
+                options=[mode.name.lower() for mode in MicroVentilation],
+                entity_registry_enabled_default=True,
+                entity_registry_visible_default=False,
+                entity_category=EntityCategory.CONFIG,
             ),
-            KomfoventSelect(
-                coordinator=coordinator,
-                register_id=registers.REG_OVERRIDE_ACTIVATION,
-                enum_class=OverrideActivation,
-                entity_description=SelectEntityDescription(
-                    key="override_activation",
-                    name="Override Activation",
-                    options=[mode.name.lower() for mode in OverrideActivation],
-                    entity_registry_enabled_default=True,
-                    entity_registry_visible_default=False,
-                    entity_category=EntityCategory.CONFIG,
-                ),
+        ),
+        KomfoventSelect(
+            coordinator=coordinator,
+            register_id=registers.REG_STAGE1,
+            enum_class=ControlStage,
+            entity_description=SelectEntityDescription(
+                key="control_stage_1",
+                name="Control Stage 1",
+                options=[mode.name.lower() for mode in ControlStage],
+                entity_registry_enabled_default=False,
+                entity_category=EntityCategory.CONFIG,
             ),
-            KomfoventSelect(
-                coordinator=coordinator,
-                register_id=registers.REG_HOLIDAYS_MICRO_VENT,
-                enum_class=MicroVentilation,
-                entity_description=SelectEntityDescription(
-                    key="holidays_micro_ventilation",
-                    name="Holidays Micro-ventilation",
-                    options=[mode.name.lower() for mode in MicroVentilation],
-                    entity_registry_enabled_default=True,
-                    entity_registry_visible_default=False,
-                    entity_category=EntityCategory.CONFIG,
-                ),
+        ),
+        KomfoventSelect(
+            coordinator=coordinator,
+            register_id=registers.REG_STAGE2,
+            enum_class=ControlStage,
+            entity_description=SelectEntityDescription(
+                key="control_stage_2",
+                name="Control Stage 2",
+                options=[mode.name.lower() for mode in ControlStage],
+                entity_registry_enabled_default=False,
+                entity_category=EntityCategory.CONFIG,
             ),
-            KomfoventSelect(
-                coordinator=coordinator,
-                register_id=registers.REG_STAGE1,
-                enum_class=ControlStage,
-                entity_description=SelectEntityDescription(
-                    key="control_stage_1",
-                    name="Control Stage 1",
-                    options=[mode.name.lower() for mode in ControlStage],
-                    entity_registry_enabled_default=False,
-                    entity_category=EntityCategory.CONFIG,
-                ),
+        ),
+        KomfoventSelect(
+            coordinator=coordinator,
+            register_id=registers.REG_EXTERNAL_COIL_TYPE,
+            enum_class=CoilType,
+            entity_description=SelectEntityDescription(
+                key="external_coil_type",
+                name="External Coil Type",
+                options=[mode.name.lower() for mode in CoilType],
+                entity_registry_enabled_default=False,
+                entity_category=EntityCategory.CONFIG,
             ),
-            KomfoventSelect(
-                coordinator=coordinator,
-                register_id=registers.REG_STAGE2,
-                enum_class=ControlStage,
-                entity_description=SelectEntityDescription(
-                    key="control_stage_2",
-                    name="Control Stage 2",
-                    options=[mode.name.lower() for mode in ControlStage],
-                    entity_registry_enabled_default=False,
-                    entity_category=EntityCategory.CONFIG,
+        ),
+    ]
+
+    # Flow control, AQ Sensor 2 & Control Stage 3 only available on C6/C6M
+    if coordinator.controller in {Controller.C6, Controller.C6M}:
+        entities.extend(
+            [
+                KomfoventSelect(
+                    coordinator=coordinator,
+                    register_id=registers.REG_FLOW_CONTROL,
+                    enum_class=FlowControl,
+                    entity_description=SelectEntityDescription(
+                        key="flow_control",
+                        name="Flow control",
+                        entity_category=EntityCategory.CONFIG,
+                        options=[mode.name.lower() for mode in FlowControl],
+                        entity_registry_enabled_default=False,
+                    ),
                 ),
-            ),
-            KomfoventSelect(
-                coordinator=coordinator,
-                register_id=registers.REG_STAGE3,
-                enum_class=ControlStage,
-                entity_description=SelectEntityDescription(
-                    key="control_stage_3",
-                    name="Control Stage 3",
-                    options=[mode.name.lower() for mode in ControlStage],
-                    entity_registry_enabled_default=False,
-                    entity_category=EntityCategory.CONFIG,
+                KomfoventSelect(
+                    coordinator=coordinator,
+                    register_id=registers.REG_AQ_SENSOR2_TYPE,
+                    enum_class=AirQualitySensorType,
+                    entity_description=SelectEntityDescription(
+                        key="aq_sensor2_type",
+                        name="AQ Sensor 2 Type",
+                        entity_category=EntityCategory.CONFIG,
+                        options=[mode.name.lower() for mode in AirQualitySensorType],
+                        entity_registry_enabled_default=False,
+                    ),
                 ),
-            ),
-            KomfoventSelect(
-                coordinator=coordinator,
-                register_id=registers.REG_EXTERNAL_COIL_TYPE,
-                enum_class=CoilType,
-                entity_description=SelectEntityDescription(
-                    key="external_coil_type",
-                    name="External Coil Type",
-                    options=[mode.name.lower() for mode in CoilType],
-                    entity_registry_enabled_default=False,
-                    entity_category=EntityCategory.CONFIG,
+                KomfoventSelect(
+                    coordinator=coordinator,
+                    register_id=registers.REG_STAGE3,
+                    enum_class=ControlStage,
+                    entity_description=SelectEntityDescription(
+                        key="control_stage_3",
+                        name="Control Stage 3",
+                        options=[mode.name.lower() for mode in ControlStage],
+                        entity_registry_enabled_default=False,
+                        entity_category=EntityCategory.CONFIG,
+                    ),
                 ),
-            ),
-        ]
-    )
+            ]
+        )
+
+    async_add_entities(entities)
 
 
 class KomfoventSelect(CoordinatorEntity, SelectEntity):

@@ -41,6 +41,7 @@ from .const import (
     DOMAIN,
     AirQualitySensorType,
     ConnectedPanels,
+    Controller,
     FlowControl,
     FlowUnit,
     HeatExchangerType,
@@ -338,16 +339,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_registry_enabled_default=False,
                 ),
             ),
-            SPISensor(
-                coordinator=coordinator,
-                register_id=registers.REG_SPI,
-                entity_description=SensorEntityDescription(
-                    key="specific_power_input",
-                    name="Specific Power Input",
-                    state_class=SensorStateClass.MEASUREMENT,
-                    suggested_display_precision=2,
-                ),
-            ),
             ConnectedPanelsSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_CONNECTED_PANELS,
@@ -364,16 +355,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="heat_exchanger_type",
                     name="Heat Exchanger Type",
-                    entity_category=EntityCategory.DIAGNOSTIC,
-                    entity_registry_enabled_default=False,
-                ),
-            ),
-            FlowUnitSensor(
-                coordinator=coordinator,
-                register_id=registers.REG_FLOW_UNIT,
-                entity_description=SensorEntityDescription(
-                    key="flow_unit",
-                    name="Flow Unit",
                     entity_category=EntityCategory.DIAGNOSTIC,
                     entity_registry_enabled_default=False,
                 ),
@@ -422,42 +403,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=0,
                 ),
             ),
-            FloatX1000Sensor(
-                coordinator=coordinator,
-                register_id=registers.REG_AHU_TOTAL,
-                entity_description=SensorEntityDescription(
-                    key="total_ahu_energy",
-                    name="Total AHU Energy",
-                    native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
-                    device_class=SensorDeviceClass.ENERGY,
-                    state_class=SensorStateClass.TOTAL_INCREASING,
-                    suggested_display_precision=3,
-                ),
-            ),
-            FloatX1000Sensor(
-                coordinator=coordinator,
-                register_id=registers.REG_HEATER_TOTAL,
-                entity_description=SensorEntityDescription(
-                    key="total_heater_energy",
-                    name="Total Heater Energy",
-                    native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
-                    device_class=SensorDeviceClass.ENERGY,
-                    state_class=SensorStateClass.TOTAL_INCREASING,
-                    suggested_display_precision=3,
-                ),
-            ),
-            FloatX1000Sensor(
-                coordinator=coordinator,
-                register_id=registers.REG_RECOVERY_TOTAL,
-                entity_description=SensorEntityDescription(
-                    key="total_recovered_energy",
-                    name="Total Recovered Energy",
-                    native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
-                    device_class=SensorDeviceClass.ENERGY,
-                    state_class=SensorStateClass.TOTAL_INCREASING,
-                    suggested_display_precision=3,
-                ),
-            ),
             FirmwareVersionSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_FIRMWARE,
@@ -480,6 +425,69 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             ),
         ]
     )
+
+    # Flow, SPI and total energy counters only available on C6 and C6M controllers
+    if coordinator.controller in {Controller.C6, Controller.C6M}:
+        entities.extend(
+            [
+                FlowUnitSensor(
+                    coordinator=coordinator,
+                    register_id=registers.REG_FLOW_UNIT,
+                    entity_description=SensorEntityDescription(
+                        key="flow_unit",
+                        name="Flow Unit",
+                        entity_category=EntityCategory.DIAGNOSTIC,
+                        entity_registry_enabled_default=False,
+                    ),
+                ),
+                SPISensor(
+                    coordinator=coordinator,
+                    register_id=registers.REG_SPI,
+                    entity_description=SensorEntityDescription(
+                        key="specific_power_input",
+                        name="Specific Power Input",
+                        state_class=SensorStateClass.MEASUREMENT,
+                        suggested_display_precision=2,
+                    ),
+                ),
+                FloatX1000Sensor(
+                    coordinator=coordinator,
+                    register_id=registers.REG_AHU_TOTAL,
+                    entity_description=SensorEntityDescription(
+                        key="total_ahu_energy",
+                        name="Total AHU Energy",
+                        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+                        device_class=SensorDeviceClass.ENERGY,
+                        state_class=SensorStateClass.TOTAL_INCREASING,
+                        suggested_display_precision=3,
+                    ),
+                ),
+                FloatX1000Sensor(
+                    coordinator=coordinator,
+                    register_id=registers.REG_HEATER_TOTAL,
+                    entity_description=SensorEntityDescription(
+                        key="total_heater_energy",
+                        name="Total Heater Energy",
+                        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+                        device_class=SensorDeviceClass.ENERGY,
+                        state_class=SensorStateClass.TOTAL_INCREASING,
+                        suggested_display_precision=3,
+                    ),
+                ),
+                FloatX1000Sensor(
+                    coordinator=coordinator,
+                    register_id=registers.REG_RECOVERY_TOTAL,
+                    entity_description=SensorEntityDescription(
+                        key="total_recovered_energy",
+                        name="Total Recovered Energy",
+                        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+                        device_class=SensorDeviceClass.ENERGY,
+                        state_class=SensorStateClass.TOTAL_INCREASING,
+                        suggested_display_precision=3,
+                    ),
+                ),
+            ]
+        )
 
     # Add pressure sensors if using a flow control mode is variable air volume
     if coordinator.data and coordinator.data.get(registers.REG_FLOW_CONTROL) in [
@@ -919,15 +927,19 @@ class FlowSensor(FloatSensor):
         if not self.coordinator.data:
             return None
 
-        flow_control = self.coordinator.data.get(registers.REG_FLOW_CONTROL)
-        if flow_control == FlowControl.OFF:
-            return PERCENTAGE
+        if self.coordinator.controller in {Controller.C6, Controller.C6M}:
+            flow_control = self.coordinator.data.get(registers.REG_FLOW_CONTROL)
+            if flow_control == FlowControl.OFF:
+                return PERCENTAGE
 
-        flow_unit = self.coordinator.data.get(registers.REG_FLOW_UNIT)
-        if flow_unit == FlowUnit.M3H:
-            return UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR
-        if flow_unit == FlowUnit.LS:
-            return UnitOfVolumeFlowRate.LITERS_PER_SECOND
+            flow_unit = self.coordinator.data.get(registers.REG_FLOW_UNIT)
+            if flow_unit == FlowUnit.M3H:
+                return UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR
+            if flow_unit == FlowUnit.LS:
+                return UnitOfVolumeFlowRate.LITERS_PER_SECOND
+        elif self.coordinator.controller in {Controller.C8}:
+            # no flow control or flow unit support
+            return PERCENTAGE
 
         return None
 

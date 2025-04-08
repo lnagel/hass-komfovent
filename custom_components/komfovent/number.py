@@ -42,6 +42,7 @@ from .const import (
     OPT_STEP_TIMER,
     OPT_STEP_VOC,
     AirQualitySensorType,
+    Controller,
     FlowControl,
     FlowUnit,
 )
@@ -604,7 +605,10 @@ async def async_setup_entry(
         )
 
     # Check if either sensor is a humidity sensor (independent of CO2/VOC)
-    if AirQualitySensorType.HUMIDITY in {sensor1_type, sensor2_type}:
+    if AirQualitySensorType.HUMIDITY in {
+        sensor1_type,
+        sensor2_type,
+    } or coordinator.controller in {Controller.C8}:
         entities.append(
             KomfoventNumber(
                 coordinator=coordinator,
@@ -680,15 +684,19 @@ class FlowNumber(KomfoventNumber):
         if not self.coordinator.data:
             return None
 
-        flow_control = self.coordinator.data.get(registers.REG_FLOW_CONTROL)
-        if flow_control == FlowControl.OFF:
-            return PERCENTAGE
+        if self.coordinator.controller in {Controller.C6, Controller.C6M}:
+            flow_control = self.coordinator.data.get(registers.REG_FLOW_CONTROL)
+            if flow_control == FlowControl.OFF:
+                return PERCENTAGE
 
-        flow_unit = self.coordinator.data.get(registers.REG_FLOW_UNIT)
-        if flow_unit == FlowUnit.M3H:
-            return UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR
-        if flow_unit == FlowUnit.LS:
-            return UnitOfVolumeFlowRate.LITERS_PER_SECOND
+            flow_unit = self.coordinator.data.get(registers.REG_FLOW_UNIT)
+            if flow_unit == FlowUnit.M3H:
+                return UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR
+            if flow_unit == FlowUnit.LS:
+                return UnitOfVolumeFlowRate.LITERS_PER_SECOND
+        elif self.coordinator.controller in {Controller.C8}:
+            # no flow control or flow unit support
+            return PERCENTAGE
 
         return None
 
