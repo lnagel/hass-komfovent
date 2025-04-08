@@ -180,7 +180,7 @@ async def async_setup_entry(
         ),
     ]
 
-    # Flow control, AQ Sensor 2 & Control Stage 3 only available on C6 and C6M controllers
+    # Flow control, AQ Sensor 2 & Control Stage 3 only available on C6/C6M
     if coordinator.controller in {Controller.C6, Controller.C6M}:
         entities.extend(
             [
