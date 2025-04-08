@@ -17,5 +17,5 @@ The key differences between C6 and C8 controllers include:
 [x] Flow unit in %
 [ ] Operation counters in hours
 [ ] Condensate prevention
-[ ] Enable only Stage 1/2
-[ ] Enable only AQ Sensor 1
+[x] Enable only Stage 1/2
+[x] Enable only AQ Sensor 1
