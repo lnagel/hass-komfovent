@@ -339,16 +339,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_registry_enabled_default=False,
                 ),
             ),
-            SPISensor(
-                coordinator=coordinator,
-                register_id=registers.REG_SPI,
-                entity_description=SensorEntityDescription(
-                    key="specific_power_input",
-                    name="Specific Power Input",
-                    state_class=SensorStateClass.MEASUREMENT,
-                    suggested_display_precision=2,
-                ),
-            ),
             ConnectedPanelsSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_CONNECTED_PANELS,
@@ -423,42 +413,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=0,
                 ),
             ),
-            FloatX1000Sensor(
-                coordinator=coordinator,
-                register_id=registers.REG_AHU_TOTAL,
-                entity_description=SensorEntityDescription(
-                    key="total_ahu_energy",
-                    name="Total AHU Energy",
-                    native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
-                    device_class=SensorDeviceClass.ENERGY,
-                    state_class=SensorStateClass.TOTAL_INCREASING,
-                    suggested_display_precision=3,
-                ),
-            ),
-            FloatX1000Sensor(
-                coordinator=coordinator,
-                register_id=registers.REG_HEATER_TOTAL,
-                entity_description=SensorEntityDescription(
-                    key="total_heater_energy",
-                    name="Total Heater Energy",
-                    native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
-                    device_class=SensorDeviceClass.ENERGY,
-                    state_class=SensorStateClass.TOTAL_INCREASING,
-                    suggested_display_precision=3,
-                ),
-            ),
-            FloatX1000Sensor(
-                coordinator=coordinator,
-                register_id=registers.REG_RECOVERY_TOTAL,
-                entity_description=SensorEntityDescription(
-                    key="total_recovered_energy",
-                    name="Total Recovered Energy",
-                    native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
-                    device_class=SensorDeviceClass.ENERGY,
-                    state_class=SensorStateClass.TOTAL_INCREASING,
-                    suggested_display_precision=3,
-                ),
-            ),
             FirmwareVersionSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_FIRMWARE,
@@ -481,6 +435,59 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
             ),
         ]
     )
+
+    # SPI and total energy counters only available on C6 and C6M controllers
+    if coordinator.controller in {Controller.C6, Controller.C6M}:
+        entities.extend(
+            [
+                SPISensor(
+                    coordinator=coordinator,
+                    register_id=registers.REG_SPI,
+                    entity_description=SensorEntityDescription(
+                        key="specific_power_input",
+                        name="Specific Power Input",
+                        state_class=SensorStateClass.MEASUREMENT,
+                        suggested_display_precision=2,
+                    ),
+                ),
+                FloatX1000Sensor(
+                    coordinator=coordinator,
+                    register_id=registers.REG_AHU_TOTAL,
+                    entity_description=SensorEntityDescription(
+                        key="total_ahu_energy",
+                        name="Total AHU Energy",
+                        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+                        device_class=SensorDeviceClass.ENERGY,
+                        state_class=SensorStateClass.TOTAL_INCREASING,
+                        suggested_display_precision=3,
+                    ),
+                ),
+                FloatX1000Sensor(
+                    coordinator=coordinator,
+                    register_id=registers.REG_HEATER_TOTAL,
+                    entity_description=SensorEntityDescription(
+                        key="total_heater_energy",
+                        name="Total Heater Energy",
+                        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+                        device_class=SensorDeviceClass.ENERGY,
+                        state_class=SensorStateClass.TOTAL_INCREASING,
+                        suggested_display_precision=3,
+                    ),
+                ),
+                FloatX1000Sensor(
+                    coordinator=coordinator,
+                    register_id=registers.REG_RECOVERY_TOTAL,
+                    entity_description=SensorEntityDescription(
+                        key="total_recovered_energy",
+                        name="Total Recovered Energy",
+                        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+                        device_class=SensorDeviceClass.ENERGY,
+                        state_class=SensorStateClass.TOTAL_INCREASING,
+                        suggested_display_precision=3,
+                    ),
+                ),
+            ]
+        )
 
     # Add pressure sensors if using a flow control mode is variable air volume
     if coordinator.data and coordinator.data.get(registers.REG_FLOW_CONTROL) in [
