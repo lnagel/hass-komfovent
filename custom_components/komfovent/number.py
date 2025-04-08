@@ -605,7 +605,10 @@ async def async_setup_entry(
         )
 
     # Check if either sensor is a humidity sensor (independent of CO2/VOC)
-    if AirQualitySensorType.HUMIDITY in {sensor1_type, sensor2_type}:
+    if AirQualitySensorType.HUMIDITY in {
+        sensor1_type,
+        sensor2_type,
+    } or coordinator.controller in {Controller.C8}:
         entities.append(
             KomfoventNumber(
                 coordinator=coordinator,
