@@ -1,3 +1,5 @@
+# Summary
+
 The key differences between C6 and C8 controllers include:
 
 * Flow Control: The C8 controller doesn't have flow control mode and flow units registers that are present in C6/C6M.
@@ -8,3 +10,12 @@ The key differences between C6 and C8 controllers include:
 * Register Interpretation: Flow values in C6/C6M can be in m³/h, l/s, Pa, or % depending on the flow control mode, while in C8 they are exclusively in percentage.
 * Additional Features: C8 adds dehumidification with DX unit capability.
 * Alarm Differences: C8 has fewer alarm codes defined in the documentation.
+
+## TODO
+
+[ ] AQ Air Humidity 60%
+[ ] Flow unit in %
+[ ] Operation counters in hours
+[ ] Condensate prevention
+[ ] Enable only Stage 1/2
+[ ] Enable only AQ Sensor 1
