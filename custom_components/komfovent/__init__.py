@@ -37,10 +37,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass, entry.data[CONF_HOST], entry.data[CONF_PORT]
     )
 
-    connected = await coordinator.connect()
-    connection_error = "Failed to connect to Komfovent device"
-    if not connected:
-        raise ConfigEntryNotReady(connection_error)
+    await coordinator.connect()
 
     await coordinator.async_config_entry_first_refresh()
 
