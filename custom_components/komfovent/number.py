@@ -42,9 +42,9 @@ from .const import (
     OPT_STEP_TIMER,
     OPT_STEP_VOC,
     AirQualitySensorType,
+    Controller,
     FlowControl,
     FlowUnit,
-    Controller,
 )
 from .registers import REG_ECO_MAX_TEMP, REG_ECO_MIN_TEMP
 

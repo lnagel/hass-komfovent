@@ -17,6 +17,7 @@ from .const import (
     DOMAIN,
     AirQualitySensorType,
     CoilType,
+    Controller,
     ControlStage,
     FlowControl,
     HeatRecoveryControl,
@@ -26,7 +27,6 @@ from .const import (
     OverrideActivation,
     SchedulerMode,
     TemperatureControl,
-    Controller,
 )
 
 if TYPE_CHECKING:

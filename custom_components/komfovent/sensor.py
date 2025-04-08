@@ -41,11 +41,11 @@ from .const import (
     DOMAIN,
     AirQualitySensorType,
     ConnectedPanels,
+    Controller,
     FlowControl,
     FlowUnit,
     HeatExchangerType,
     OutdoorHumiditySensor,
-    Controller,
 )
 
 # Constants for value validation
