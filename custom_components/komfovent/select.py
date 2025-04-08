@@ -82,18 +82,6 @@ async def async_setup_entry(
         ),
         KomfoventSelect(
             coordinator=coordinator,
-            register_id=registers.REG_FLOW_CONTROL,
-            enum_class=FlowControl,
-            entity_description=SelectEntityDescription(
-                key="flow_control",
-                name="Flow control",
-                entity_category=EntityCategory.CONFIG,
-                options=[mode.name.lower() for mode in FlowControl],
-                entity_registry_enabled_default=False,
-            ),
-        ),
-        KomfoventSelect(
-            coordinator=coordinator,
             register_id=registers.REG_AQ_SENSOR1_TYPE,
             enum_class=AirQualitySensorType,
             entity_description=SelectEntityDescription(
@@ -192,10 +180,22 @@ async def async_setup_entry(
         ),
     ]
 
-    # AQ Sensor 2 & Control Stage 3 only available on C6 and C6M controllers
+    # Flow control, AQ Sensor 2 & Control Stage 3 only available on C6 and C6M controllers
     if coordinator.controller in {Controller.C6, Controller.C6M}:
         entities.extend(
             [
+                KomfoventSelect(
+                    coordinator=coordinator,
+                    register_id=registers.REG_FLOW_CONTROL,
+                    enum_class=FlowControl,
+                    entity_description=SelectEntityDescription(
+                        key="flow_control",
+                        name="Flow control",
+                        entity_category=EntityCategory.CONFIG,
+                        options=[mode.name.lower() for mode in FlowControl],
+                        entity_registry_enabled_default=False,
+                    ),
+                ),
                 KomfoventSelect(
                     coordinator=coordinator,
                     register_id=registers.REG_AQ_SENSOR2_TYPE,
