@@ -359,16 +359,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_registry_enabled_default=False,
                 ),
             ),
-            FlowUnitSensor(
-                coordinator=coordinator,
-                register_id=registers.REG_FLOW_UNIT,
-                entity_description=SensorEntityDescription(
-                    key="flow_unit",
-                    name="Flow Unit",
-                    entity_category=EntityCategory.DIAGNOSTIC,
-                    entity_registry_enabled_default=False,
-                ),
-            ),
             FlowSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_MAX_SUPPLY_FLOW,
@@ -436,10 +426,20 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
         ]
     )
 
-    # SPI and total energy counters only available on C6 and C6M controllers
+    # Flow, SPI and total energy counters only available on C6 and C6M controllers
     if coordinator.controller in {Controller.C6, Controller.C6M}:
         entities.extend(
             [
+                FlowUnitSensor(
+                    coordinator=coordinator,
+                    register_id=registers.REG_FLOW_UNIT,
+                    entity_description=SensorEntityDescription(
+                        key="flow_unit",
+                        name="Flow Unit",
+                        entity_category=EntityCategory.DIAGNOSTIC,
+                        entity_registry_enabled_default=False,
+                    ),
+                ),
                 SPISensor(
                     coordinator=coordinator,
                     register_id=registers.REG_SPI,
