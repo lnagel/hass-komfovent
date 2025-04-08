@@ -1,10 +1,7 @@
 """Integration tests that use actual socket connections."""
 
 import asyncio
-import contextlib
-import json
 import random
-from pathlib import Path
 
 import pytest
 from homeassistant.core import HomeAssistant
@@ -37,9 +34,8 @@ async def test_live_modbus_connection(hass: HomeAssistant, mock_registers):
     client = KomfoventModbusClient("127.0.0.1", test_port)
 
     try:
-        # Test connection
-        connected = await client.connect()
-        assert connected
+        # Test connection - should not raise
+        await client.connect()
 
         # Read some registers
         data = await client.read(registers.REG_POWER, 34)
@@ -80,9 +76,8 @@ async def test_live_coordinator(hass: HomeAssistant, mock_registers):
     coordinator = KomfoventCoordinator(hass, "127.0.0.1", test_port)
 
     try:
-        # Connect
-        connected = await coordinator.connect()
-        assert connected
+        # Connect - should not raise
+        await coordinator.connect()
 
         # Update data
         await coordinator.async_refresh()
