@@ -7,6 +7,7 @@ import pytest
 from homeassistant.core import HomeAssistant
 
 from custom_components.komfovent import registers
+from custom_components.komfovent.const import Controller
 from custom_components.komfovent.coordinator import KomfoventCoordinator
 from custom_components.komfovent.modbus import KomfoventModbusClient
 from modbus_server import run_server
@@ -64,6 +65,7 @@ async def test_live_coordinator(hass: HomeAssistant, mock_registers):
     To run with socket connections enabled: pytest tests/test_live_modbus.py -v --socket-enabled
     """
     register_name, register_data = mock_registers
+    controller = Controller[register_name.split("_registers_")[0]]
 
     # Use non-privileged port for testing
     test_port = random.randint(1024, 50000)
@@ -90,13 +92,13 @@ async def test_live_coordinator(hass: HomeAssistant, mock_registers):
         assert coordinator.data[1] == register_data["1"][0]
 
         # Verify 32-bit register
-        if register_data["1000"]:
-            assert (
-                coordinator.data[1000]
-                == (register_data["1000"][0] << 16) + register_data["1000"][1]
-            )
-        else:
-            assert 1000 not in coordinator.data
+        assert (
+            coordinator.data[1000]
+            == (register_data["1000"][0] << 16) + register_data["1000"][1]
+        )
+
+        # Verify controller type
+        assert coordinator.controller == controller
 
     finally:
         # Ensure client is closed
