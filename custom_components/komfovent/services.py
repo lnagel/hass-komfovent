@@ -80,8 +80,8 @@ async def set_operation_mode(
             or DEFAULT_MODE_TIMER,
         )
     else:
+        # Log a warning, don't change the mode and proceed to request a refresh
         _LOGGER.warning("Unsupported operation mode: %s", mode)
-        return
 
     # Wait a second for the command to be processed by the controller
     await asyncio.sleep(1.0)
