@@ -37,7 +37,7 @@ class KomfoventCoordinator(DataUpdateCoordinator):
         **kwargs: Any,
     ) -> None:
         """Initialize."""
-        from .modbus import KomfoventModbusClient  # easier to mock
+        from .modbus import KomfoventModbusClient  # NOQA: PLC0415 (easier to mock)
 
         kwargs.setdefault("name", DOMAIN)
         kwargs.setdefault("update_interval", timedelta(seconds=DEFAULT_SCAN_INTERVAL))
