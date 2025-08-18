@@ -32,6 +32,7 @@ class KomfoventCoordinator(DataUpdateCoordinator):
     def __init__(
         self,
         hass: HomeAssistant,
+        *,
         host: str,
         port: int,
         **kwargs: Any,

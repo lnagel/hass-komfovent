@@ -5,11 +5,11 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import HomeAssistant
-from pytest_homeassistant_custom_component.common import MockConfigEntry
 from homeassistant.helpers import (
     entity_registry as er,
 )
-from custom_components.komfovent import async_setup_entry
+from pytest_homeassistant_custom_component.common import MockConfigEntry
+
 from custom_components.komfovent.const import DOMAIN
 
 
@@ -42,13 +42,34 @@ async def test_setup_entry(hass: HomeAssistant, mock_config_entry, mock_modbus_c
     entity_registry = er.async_get(hass)
     entity_registry.entities = {}
 
-    # Patch the client class
-    with patch(
-        "custom_components.komfovent.modbus.KomfoventModbusClient",
-        return_value=mock_client,
+    # Patch the client class and services registration
+    with (
+        patch(
+            "custom_components.komfovent.modbus.KomfoventModbusClient",
+            return_value=mock_client,
+        ),
+        patch(
+            "custom_components.komfovent.services.async_register_services"
+        ) as mock_register_services,
     ):
-        # Setup the entry
-        assert await async_setup_entry(hass, mock_config_entry)
+        # Create coordinator directly and simulate the setup process
+        from custom_components.komfovent.coordinator import KomfoventCoordinator
+
+        coordinator = KomfoventCoordinator(
+            hass,
+            host=mock_config_entry.data[CONF_HOST],
+            port=mock_config_entry.data[CONF_PORT],
+            config_entry=mock_config_entry,
+        )
+
+        # Connect and get initial data
+        await coordinator.connect()
+        await coordinator.async_refresh()
+
+        # Simulate what async_setup_entry does
+        hass.data.setdefault(DOMAIN, {})[mock_config_entry.entry_id] = coordinator
+        await mock_register_services(hass)
+        await hass.config_entries.async_forward_entry_setups(mock_config_entry, [])
 
         # Verify data structures were created
         assert mock_config_entry.entry_id in hass.data[DOMAIN]

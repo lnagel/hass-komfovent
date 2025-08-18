@@ -33,7 +33,10 @@ PLATFORMS = [
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Komfovent from a config entry."""
     coordinator = KomfoventCoordinator(
-        hass, entry.data[CONF_HOST], entry.data[CONF_PORT]
+        hass=hass,
+        host=entry.data[CONF_HOST],
+        port=entry.data[CONF_PORT],
+        config_entry=entry,
     )
 
     await coordinator.connect()
