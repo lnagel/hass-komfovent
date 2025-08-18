@@ -15,5 +15,5 @@
   "requirements": [
     "pymodbus>=3.9.2,<3.10.0"
   ],
-  "version": "0.6.2"
+  "version": "0.7.0"
 }
