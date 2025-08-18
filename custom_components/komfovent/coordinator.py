@@ -8,7 +8,7 @@ from homeassistant import config_entries
 from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
-from homeassistant.helpers.typing import UndefinedType, UNDEFINED
+from homeassistant.helpers.typing import UNDEFINED, UndefinedType
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from pymodbus.exceptions import ModbusException
 

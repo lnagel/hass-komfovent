@@ -9,10 +9,10 @@ import sys
 from pathlib import Path
 
 from pymodbus.datastore import (
+    ModbusSequentialDataBlock,
     ModbusServerContext,
     ModbusSlaveContext,
     ModbusSparseDataBlock,
-    ModbusSequentialDataBlock,
 )
 from pymodbus.device import ModbusDeviceIdentification
 from pymodbus.server import StartAsyncTcpServer
