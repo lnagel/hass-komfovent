@@ -55,12 +55,7 @@ async def test_setup_entry(hass: HomeAssistant, mock_config_entry, mock_modbus_c
         # Create coordinator directly and simulate the setup process
         from custom_components.komfovent.coordinator import KomfoventCoordinator
 
-        coordinator = KomfoventCoordinator(
-            hass,
-            host=mock_config_entry.data[CONF_HOST],
-            port=mock_config_entry.data[CONF_PORT],
-            config_entry=mock_config_entry,
-        )
+        coordinator = KomfoventCoordinator(hass, config_entry=mock_config_entry)
 
         # Connect and get initial data
         await coordinator.connect()

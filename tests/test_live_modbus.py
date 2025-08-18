@@ -84,12 +84,7 @@ async def test_live_coordinator(hass: HomeAssistant, mock_registers):
     )
 
     # Create coordinator
-    coordinator = KomfoventCoordinator(
-        hass,
-        host="127.0.0.1",
-        port=test_port,
-        config_entry=mock_config_entry,
-    )
+    coordinator = KomfoventCoordinator(hass, config_entry=mock_config_entry)
 
     try:
         # Connect - should not raise

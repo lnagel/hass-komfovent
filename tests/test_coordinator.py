@@ -34,12 +34,7 @@ async def test_coordinator_updates_data(hass: HomeAssistant, mock_config_entry) 
         return_value=mock_client,
     ):
         # Create and initialize coordinator
-        coordinator = KomfoventCoordinator(
-            hass,
-            host="127.0.0.1",
-            port=502,
-            config_entry=mock_config_entry,
-        )
+        coordinator = KomfoventCoordinator(hass, config_entry=mock_config_entry)
 
         # Test connection - should not raise
         await coordinator.connect()
@@ -70,12 +65,7 @@ async def test_coordinator_handles_connection_failure(
         return_value=mock_client,
     ):
         # Create coordinator
-        coordinator = KomfoventCoordinator(
-            hass,
-            host="127.0.0.1",
-            port=502,
-            config_entry=mock_config_entry,
-        )
+        coordinator = KomfoventCoordinator(hass, config_entry=mock_config_entry)
 
         # Test connection - should raise
         with pytest.raises(ConnectionError):
