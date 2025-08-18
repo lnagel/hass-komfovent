@@ -13,6 +13,7 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.const import (
+    CONCENTRATION_GRAMS_PER_CUBIC_METER,
     CONCENTRATION_PARTS_PER_MILLION,
     PERCENTAGE,
     UnitOfEnergy,
@@ -555,7 +556,8 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_description=SensorEntityDescription(
                         key="indoor_absolute_humidity",
                         name="Indoor Absolute Humidity",
-                        native_unit_of_measurement="g/m³",
+                        native_unit_of_measurement=CONCENTRATION_GRAMS_PER_CUBIC_METER,
+                        device_class=SensorDeviceClass.ABSOLUTE_HUMIDITY,
                         state_class=SensorStateClass.MEASUREMENT,
                         suggested_display_precision=2,
                     ),
@@ -574,7 +576,8 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_description=SensorEntityDescription(
                         key="outdoor_absolute_humidity",
                         name="Outdoor Absolute Humidity",
-                        native_unit_of_measurement="g/m³",
+                        native_unit_of_measurement=CONCENTRATION_GRAMS_PER_CUBIC_METER,
+                        device_class=SensorDeviceClass.ABSOLUTE_HUMIDITY,
                         state_class=SensorStateClass.MEASUREMENT,
                         suggested_display_precision=2,
                     ),
