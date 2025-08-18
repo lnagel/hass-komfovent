@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 
 from pymodbus.datastore import (
+    ModbusSequentialDataBlock,
     ModbusServerContext,
     ModbusSlaveContext,
     ModbusSparseDataBlock,
@@ -35,8 +36,11 @@ async def run_server(host: str, port: int, register_data: dict[str, [int]]) -> N
     block_values = {int(k): v for k, v in register_data.items()}
 
     # Initialize data storage
-    block = ModbusSparseDataBlock(block_values)
-    store = ModbusSlaveContext(hr=block)
+    discrete_inputs = (
+        ModbusSequentialDataBlock.create()
+    )  # workaround for bug in pymodbus 3.9.x
+    holding_registers = ModbusSparseDataBlock(block_values)
+    store = ModbusSlaveContext(di=discrete_inputs, hr=holding_registers)
     context = ModbusServerContext(slaves=store, single=True)
 
     # Server identity

@@ -1,6 +1,6 @@
 {
     "name": "Komfovent",
-    "homeassistant": "2025.3.1",
+    "homeassistant": "2025.8.1",
     "hacs": "2.0.1",
     "render_readme": true
 }

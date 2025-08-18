@@ -4,8 +4,11 @@ import logging
 from datetime import timedelta
 from typing import Any
 
+from homeassistant import config_entries
+from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.helpers.typing import UNDEFINED, UndefinedType
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from pymodbus.exceptions import ModbusException
 
@@ -32,8 +35,8 @@ class KomfoventCoordinator(DataUpdateCoordinator):
     def __init__(
         self,
         hass: HomeAssistant,
-        host: str,
-        port: int,
+        *,
+        config_entry: config_entries.ConfigEntry | None | UndefinedType = UNDEFINED,
         **kwargs: Any,
     ) -> None:
         """Initialize."""
@@ -42,8 +45,12 @@ class KomfoventCoordinator(DataUpdateCoordinator):
         kwargs.setdefault("name", DOMAIN)
         kwargs.setdefault("update_interval", timedelta(seconds=DEFAULT_SCAN_INTERVAL))
 
-        super().__init__(hass, _LOGGER, **kwargs)
-        self.client = KomfoventModbusClient(host, port)
+        super().__init__(hass, _LOGGER, config_entry=config_entry, **kwargs)
+
+        self.client = KomfoventModbusClient(
+            host=config_entry.data[CONF_HOST],
+            port=config_entry.data[CONF_PORT],
+        )
 
     async def connect(self) -> bool:
         """Connect to the Modbus device."""

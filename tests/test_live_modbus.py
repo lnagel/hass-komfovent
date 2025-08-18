@@ -4,10 +4,12 @@ import asyncio
 import random
 
 import pytest
+from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import HomeAssistant
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.komfovent import registers
-from custom_components.komfovent.const import Controller
+from custom_components.komfovent.const import DOMAIN, Controller
 from custom_components.komfovent.coordinator import KomfoventCoordinator
 from custom_components.komfovent.modbus import KomfoventModbusClient
 from modbus_server import run_server
@@ -74,8 +76,15 @@ async def test_live_coordinator(hass: HomeAssistant, mock_registers):
     # Wait for server to start
     await asyncio.sleep(0.1)
 
+    # Create mock config entry
+    mock_config_entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={CONF_HOST: "127.0.0.1", CONF_PORT: test_port},
+        entry_id="test_entry_id",
+    )
+
     # Create coordinator
-    coordinator = KomfoventCoordinator(hass, "127.0.0.1", test_port)
+    coordinator = KomfoventCoordinator(hass, config_entry=mock_config_entry)
 
     try:
         # Connect - should not raise

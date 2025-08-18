@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-from homeassistant.const import CONF_HOST, CONF_PORT, Platform
+from homeassistant.const import Platform
 
 from .const import DOMAIN
 from .coordinator import KomfoventCoordinator
@@ -32,9 +32,7 @@ PLATFORMS = [
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Komfovent from a config entry."""
-    coordinator = KomfoventCoordinator(
-        hass, entry.data[CONF_HOST], entry.data[CONF_PORT]
-    )
+    coordinator = KomfoventCoordinator(hass=hass, config_entry=entry)
 
     await coordinator.connect()
 
