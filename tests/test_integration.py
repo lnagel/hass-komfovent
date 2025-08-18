@@ -49,7 +49,8 @@ async def test_setup_entry(hass: HomeAssistant, mock_config_entry, mock_modbus_c
             return_value=mock_client,
         ),
         patch(
-            "custom_components.komfovent.services.async_register_services"
+            "custom_components.komfovent.services.async_register_services",
+            new_callable=AsyncMock,
         ) as mock_register_services,
     ):
         # Create coordinator directly and simulate the setup process
