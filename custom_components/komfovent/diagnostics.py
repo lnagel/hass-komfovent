@@ -104,7 +104,7 @@ async def dump_registers(host: str, port: int) -> dict[int, list[int]]:
             try:
                 # try to read the whole block
                 response = await client.read_holding_registers(
-                    address=start - 1, count=count
+                    address=start - 1, count=count, device_id=1
                 )
                 _check_response(response)
 
@@ -123,14 +123,14 @@ async def dump_registers(host: str, port: int) -> dict[int, list[int]]:
                         if reg in REGISTERS_32BIT_UNSIGNED:
                             # read 2 registers for 32-bit unsigned values
                             response = await client.read_holding_registers(
-                                address=reg - 1, count=2
+                                address=reg - 1, count=2, device_id=1
                             )
                             attempted.add(reg)
                             attempted.add(reg + 1)
                         else:
                             # read 1 register for other values
                             response = await client.read_holding_registers(
-                                address=reg - 1, count=1
+                                address=reg - 1, count=1, device_id=1
                             )
                             attempted.add(reg)
                         _check_response(response)
