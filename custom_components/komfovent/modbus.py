@@ -42,7 +42,7 @@ class KomfoventModbusClient:
         """Read holding registers and return dict keyed by absolute register numbers."""
         async with self._lock:
             result = await self.client.read_holding_registers(
-                address=register - 1, count=count, slave=1
+                address=register - 1, count=count
             )
 
         if result.isError():
@@ -86,13 +86,11 @@ class KomfoventModbusClient:
         async with self._lock:
             if register in REGISTERS_16BIT_UNSIGNED:
                 # Write unsigned value as-is
-                result = await self.client.write_register(register - 1, value, slave=1)
+                result = await self.client.write_register(register - 1, value)
             elif register in REGISTERS_16BIT_SIGNED:
                 # Convert signed value to 16-bit unsigned for Modbus
                 unsigned_value = value & 0xFFFF
-                result = await self.client.write_register(
-                    register - 1, unsigned_value, slave=1
-                )
+                result = await self.client.write_register(register - 1, unsigned_value)
             elif register in REGISTERS_32BIT_UNSIGNED:
                 # Split 32-bit value into two 16-bit values
                 high_word = (value >> 16) & 0xFFFF
@@ -100,7 +98,7 @@ class KomfoventModbusClient:
 
                 # Write both words in a single transaction
                 result = await self.client.write_registers(
-                    address=register - 1, values=[high_word, low_word], slave=1
+                    address=register - 1, values=[high_word, low_word]
                 )
             else:
                 msg = (
