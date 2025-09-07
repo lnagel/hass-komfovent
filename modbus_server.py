@@ -8,13 +8,12 @@ import logging
 import sys
 from pathlib import Path
 
+from pymodbus import ModbusDeviceIdentification
 from pymodbus.datastore import (
-    ModbusSequentialDataBlock,
+    ModbusDeviceContext,
     ModbusServerContext,
-    ModbusSlaveContext,
     ModbusSparseDataBlock,
 )
-from pymodbus.device import ModbusDeviceIdentification
 from pymodbus.server import StartAsyncTcpServer
 
 # Configure logging
@@ -36,12 +35,9 @@ async def run_server(host: str, port: int, register_data: dict[str, [int]]) -> N
     block_values = {int(k): v for k, v in register_data.items()}
 
     # Initialize data storage
-    discrete_inputs = (
-        ModbusSequentialDataBlock.create()
-    )  # workaround for bug in pymodbus 3.9.x
     holding_registers = ModbusSparseDataBlock(block_values)
-    store = ModbusSlaveContext(di=discrete_inputs, hr=holding_registers)
-    context = ModbusServerContext(slaves=store, single=True)
+    store = ModbusDeviceContext(hr=holding_registers)
+    context = ModbusServerContext(devices=store, single=True)
 
     # Server identity
     identity = ModbusDeviceIdentification()
