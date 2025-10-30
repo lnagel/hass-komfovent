@@ -1,3 +1,36 @@
+[project]
+name = "hass-komfovent"
+version = "0.7.3"
+description = "A Home Assistant integration for Komfovent C6, C6M and C8 ventilation units through Modbus TCP"
+readme = "README.md"
+requires-python = ">=3.13.2"
+authors = [
+    { name = "lnagel", email = "lnagel@users.noreply.github.com" }
+]
+dependencies = [
+    "colorlog==6.10.1",
+    "homeassistant==2025.10.0",
+    "pymodbus>=3.10.0",
+    "ruff==0.13.3",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.20.0",
+    "pytest-cov>=4.0.0",
+    "pytest-homeassistant-custom-component==0.13.285",
+]
+
+[project.urls]
+Documentation = "https://github.com/lnagel/hass-komfovent"
+Repository = "https://github.com/lnagel/hass-komfovent"
+Issues = "https://github.com/lnagel/hass-komfovent/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [tool.black]
 line-length = 88
 target-version = ["py313"]

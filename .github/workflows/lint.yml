@@ -26,11 +26,11 @@ jobs:
           with:
             enable-cache: true
 
-        - name: "Install requirements"
-          run: uv pip install --system -r requirements.txt
+        - name: "Install dependencies"
+          run: uv sync
 
         - name: "Lint"
-          run: python3 -m ruff check .
+          run: uv run ruff check .
 
         - name: "Format"
-          run: python3 -m ruff format . --check
+          run: uv run ruff format . --check
