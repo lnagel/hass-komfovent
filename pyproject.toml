@@ -27,9 +27,8 @@ Documentation = "https://github.com/lnagel/hass-komfovent"
 Repository = "https://github.com/lnagel/hass-komfovent"
 Issues = "https://github.com/lnagel/hass-komfovent/issues"
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+[tool.uv]
+package = false
 
 [tool.black]
 line-length = 88
