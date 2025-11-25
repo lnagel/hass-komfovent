@@ -11,7 +11,7 @@ dependencies = [
     "colorlog==6.10.1",
     "homeassistant==2025.10.0",
     "pymodbus>=3.10.0",
-    "ruff==0.14.5",
+    "ruff==0.14.6",
 ]
 
 [project.optional-dependencies]
