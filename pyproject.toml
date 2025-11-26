@@ -1,6 +1,6 @@
 [project]
 name = "hass-komfovent"
-version = "0.7.3"
+version = "0.7.4"
 description = "A Home Assistant integration for Komfovent C6, C6M and C8 ventilation units through Modbus TCP"
 readme = "README.md"
 requires-python = ">=3.13.2"
