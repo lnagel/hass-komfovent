@@ -9,6 +9,25 @@ from homeassistant.core import HomeAssistant
 
 
 @pytest.fixture
+def socket_enabled(request):
+    """Enable socket for tests marked with enable_socket marker."""
+    if request.node.get_closest_marker("enable_socket"):
+        import pytest_socket
+
+        pytest_socket.enable_socket()
+        yield
+        pytest_socket.disable_socket(allow_unix_socket=True)
+    else:
+        yield
+
+
+@pytest.fixture(autouse=True)
+def auto_enable_socket(socket_enabled):
+    """Automatically apply socket_enabled fixture to all tests."""
+    pass
+
+
+@pytest.fixture
 def hass() -> HomeAssistant:
     """Create a Home Assistant instance for testing."""
     hass_obj = MagicMock(spec=HomeAssistant)
