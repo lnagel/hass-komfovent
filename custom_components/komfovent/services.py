@@ -108,29 +108,29 @@ async def async_register_services(hass: HomeAssistant) -> None:
 
     async def handle_clean_filters_calibration(call: ServiceCall) -> None:
         """Handle the clean filters calibration service call."""
-        for device_id in call.data["device_id"]:
-            if not (coordinator := get_coordinator_for_device(hass, device_id)):
-                _LOGGER.error("Device %s not found", device_id)
-                continue
-            await clean_filters_calibration(coordinator)
+        device_id = call.data["device_id"]
+        if not (coordinator := get_coordinator_for_device(hass, device_id)):
+            _LOGGER.error("Device %s not found", device_id)
+            return
+        await clean_filters_calibration(coordinator)
 
     async def handle_set_operation_mode(call: ServiceCall) -> None:
         """Handle the set operation mode service call."""
-        for device_id in call.data["device_id"]:
-            if not (coordinator := get_coordinator_for_device(hass, device_id)):
-                _LOGGER.error("Device %s not found", device_id)
-                continue
-            await set_operation_mode(
-                coordinator, call.data["mode"], call.data.get("minutes")
-            )
+        device_id = call.data["device_id"]
+        if not (coordinator := get_coordinator_for_device(hass, device_id)):
+            _LOGGER.error("Device %s not found", device_id)
+            return
+        await set_operation_mode(
+            coordinator, call.data["mode"], call.data.get("minutes")
+        )
 
     async def handle_set_system_time(call: ServiceCall) -> None:
         """Handle the set system time service call."""
-        for device_id in call.data["device_id"]:
-            if not (coordinator := get_coordinator_for_device(hass, device_id)):
-                _LOGGER.error("Device %s not found", device_id)
-                continue
-            await set_system_time(coordinator)
+        device_id = call.data["device_id"]
+        if not (coordinator := get_coordinator_for_device(hass, device_id)):
+            _LOGGER.error("Device %s not found", device_id)
+            return
+        await set_system_time(coordinator)
 
     hass.services.async_register(
         DOMAIN, "clean_filters_calibration", handle_clean_filters_calibration
