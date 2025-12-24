@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document outlines the development plan for adding firmware update capabilities to the Komfovent Home Assistant custom component. The implementation will follow Home Assistant best practices and leverage the existing Modbus integration while adding support for firmware version checking and updates through the device's local web interface.
+This document outlines the development plan for adding **fully automated** firmware update capabilities to the Komfovent Home Assistant custom component. The implementation will automatically download firmware from the manufacturer, upload it to the device, and verify the update - requiring no manual file handling from users.
 
 ## Table of Contents
 
@@ -38,10 +38,10 @@ The Komfovent integration currently includes:
 
 According to the [C6 firmware update documentation](https://www.komfovent.com/en/downloads/C6_update_EN.pdf):
 
-1. **Manual Process Required:**
+1. **Automated Process Flow:**
    - Stop AHU (Air Handling Unit)
-   - Navigate to device web interface at `http://[IP]/g1.html`
-   - Upload firmware file (.bin or .mbin depending on current version)
+   - Download firmware from manufacturer server
+   - Upload to device web interface at `http://[IP]/g1.html`
    - Wait 30-60 seconds for upload
    - Wait 1-2 minutes for device restart
    - Verify new firmware version
@@ -53,20 +53,20 @@ According to the [C6 firmware update documentation](https://www.komfovent.com/en
 3. **Download Sources:**
    - Main firmware: `http://www.komfovent.com/Update/Controllers/firmware.php?file=mbin`
    - Legacy firmware: `http://www.komfovent.com/Update/Controllers/firmware.php?file=bin`
-   - **Note:** These URLs are blocked from external access (403 Forbidden)
+   - **Note:** Accessible from residential networks where devices are installed
 
 ### Key Findings
 
 ✅ **What Works:**
-- Current firmware version is already available via Modbus
-- Version parsing is implemented and tested
+- Current firmware version available via Modbus
+- Version parsing implemented and tested
 - Device web interface supports firmware upload
+- **Firmware download accessible from residential networks**
+- Devices located in settings with validated download access
 
 ❌ **Limitations:**
-- Manufacturer firmware URLs are blocked from external access
-- No automatic version check mechanism available
-- Update requires manual file download and upload
 - Device must be stopped before updating
+- No rollback mechanism available
 
 ---
 
@@ -74,21 +74,21 @@ According to the [C6 firmware update documentation](https://www.komfovent.com/en
 
 ### Functional Requirements
 
-#### FR1: Version Check Feature
+#### FR1: Automated Version Check
 - [ ] FR1.1: Display current firmware version (already implemented)
-- [ ] FR1.2: Show update availability status
-- [ ] FR1.3: Provide link to manufacturer download page
+- [ ] FR1.2: **Automatically check latest version from manufacturer**
+- [ ] FR1.3: Show update availability status
 - [ ] FR1.4: Display release information when available
-- [ ] FR1.5: Support manual version override for latest version
+- [ ] FR1.5: Cache version checks to minimize server requests
 
-#### FR2: Firmware Update Feature
-- [ ] FR2.1: Support firmware file upload through Home Assistant UI
-- [ ] FR2.2: Validate firmware file before upload (.bin or .mbin)
-- [ ] FR2.3: Upload firmware to device web interface
+#### FR2: Automated Firmware Update
+- [ ] FR2.1: **Automatically download firmware from manufacturer**
+- [ ] FR2.2: Validate downloaded firmware file
+- [ ] FR2.3: Automatically upload firmware to device
 - [ ] FR2.4: Monitor update progress
 - [ ] FR2.5: Verify successful update
 - [ ] FR2.6: Handle update failures gracefully
-- [ ] FR2.7: Support backup/rollback (if device supports it)
+- [ ] FR2.7: Clean up downloaded files after update
 
 #### FR3: Safety Features
 - [ ] FR3.1: Warn user before starting update
@@ -100,24 +100,28 @@ According to the [C6 firmware update documentation](https://www.komfovent.com/en
 ### Non-Functional Requirements
 
 #### NFR1: Performance
-- Update check should complete within 5 seconds
-- Firmware upload should handle files up to 10MB
+- Version check should complete within 5 seconds
+- Firmware download should handle files up to 10MB
 - Progress indication should update every 5-10 seconds
+- Cache firmware files to avoid re-downloads
 
 #### NFR2: Reliability
 - Handle network timeouts gracefully
-- Retry failed operations (with limits)
+- Retry failed downloads (with exponential backoff)
 - Maintain device state if update fails
+- Automatic cleanup of temporary files
 
 #### NFR3: Security
 - Use authenticated connections to device
 - Validate firmware file integrity
 - Don't expose sensitive credentials in logs
+- Verify firmware source authenticity
 
 #### NFR4: Usability
 - Clear status messages throughout process
-- Progress indication during upload
+- Progress indication during download and upload
 - Helpful error messages with recovery steps
+- Single-click update from Home Assistant UI
 
 ---
 
@@ -150,6 +154,7 @@ custom_components/komfovent/
 │ + release_url: str                          │
 │ + release_summary: str                      │
 │ + supported_features: UpdateEntityFeature   │
+│ + in_progress: bool                         │
 │                                             │
 │ + async_install(version, backup): None     │
 │ + async_release_notes(): str               │
@@ -164,497 +169,407 @@ custom_components/komfovent/
 │ - username: str                             │
 │ - password: str                             │
 │ - session: aiohttp.ClientSession            │
+│ - download_cache: dict                      │
 ├─────────────────────────────────────────────┤
+│ + async_check_latest_version(): str         │
+│ + async_download_firmware(type): bytes      │
 │ + async_login(): bool                       │
-│ + async_upload_firmware(file): bool         │
+│ + async_upload_firmware(data): bool         │
 │ + async_check_status(): dict                │
 │ + async_verify_version(version): bool       │
+│ + async_cleanup(): None                     │
 └─────────────────────────────────────────────┘
 ```
 
 ### Data Flow
 
-#### Version Check Flow
+#### Automated Version Check Flow
 
 ```
-User opens HA → UpdateEntity.installed_version (from Modbus)
-                         ↓
-                  Check latest version
-                  (from user config or external source)
-                         ↓
-                  Compare versions
-                         ↓
-                  Display update available/up-to-date
+Coordinator refresh → Check manufacturer URL for latest version
+                           ↓
+                  Extract version from filename/headers
+                           ↓
+                  Compare with installed version (Modbus)
+                           ↓
+                  Update entity state (update available/up-to-date)
 ```
 
-#### Firmware Update Flow
+#### Fully Automated Update Flow
 
 ```
-User clicks Install → Validate firmware file
+User clicks Install → Check current firmware version (Modbus)
                            ↓
-                    Confirm with user
+                  Determine firmware type (.bin or .mbin)
                            ↓
-                    Login to device web interface
+                  Download firmware from manufacturer
                            ↓
-                    Upload firmware to /g1.html
+                  Validate downloaded file
                            ↓
-                    Monitor upload progress (30-60s)
+                  Login to device web interface
                            ↓
-                    Wait for device restart (1-2min)
+                  Upload firmware to /g1.html
                            ↓
-                    Verify new firmware version
+                  Monitor upload progress (30-60s)
                            ↓
-                    Update entity state
+                  Wait for device restart (1-2min)
+                           ↓
+                  Verify new firmware version
+                           ↓
+                  Clean up temporary files
+                           ↓
+                  Update entity state
 ```
 
 ---
 
 ## Implementation Plan
 
-### Phase 1: Foundation (Version Check Only)
+### Phase 1: Automated Version Detection
 
-#### Step 1.1: Create Update Entity Structure
-
-**File:** `custom_components/komfovent/update.py`
-
-**Tasks:**
-- [ ] Create `KomfoventUpdateEntity` class extending `UpdateEntity`
-- [ ] Implement `installed_version` property (read from coordinator)
-- [ ] Implement `latest_version` property (initially returns None)
-- [ ] Add `release_url` pointing to manufacturer downloads page
-- [ ] Set `supported_features` to `UpdateEntityFeature.RELEASE_NOTES`
-- [ ] Implement `async_release_notes()` with manufacturer instructions
-
-**Code Structure:**
-```python
-from homeassistant.components.update import (
-    UpdateEntity,
-    UpdateEntityDescription,
-    UpdateEntityFeature,
-)
-
-class KomfoventUpdateEntity(CoordinatorEntity, UpdateEntity):
-    """Komfovent firmware update entity."""
-
-    _attr_supported_features = UpdateEntityFeature.RELEASE_NOTES
-    _attr_device_class = UpdateDeviceClass.FIRMWARE
-
-    @property
-    def installed_version(self) -> str | None:
-        """Return the installed firmware version."""
-        # Get from coordinator.data[REG_FIRMWARE]
-        # Parse using get_version_from_int()
-
-    @property
-    def latest_version(self) -> str | None:
-        """Return the latest firmware version available."""
-        # Phase 1: Return None (manual check)
-        # Phase 2: Check configured latest version
-        # Phase 3: Auto-check if API available
-
-    @property
-    def release_url(self) -> str | None:
-        """Return the URL for release notes/download."""
-        return "https://www.komfovent.com/en/page/software"
-
-    async def async_release_notes(self) -> str | None:
-        """Return the release notes."""
-        return (
-            "To update firmware:\n"
-            "1. Download firmware from Komfovent website\n"
-            "2. Upload via device web interface\n"
-            f"3. Navigate to http://{self.coordinator.host}/g1.html\n"
-        )
-```
-
-#### Step 1.2: Update Platform Registration
-
-**File:** `custom_components/komfovent/__init__.py`
-
-**Tasks:**
-- [ ] Add `Platform.UPDATE` to `PLATFORMS` list
-- [ ] Update `async_setup_entry` if needed
-
-**Code Change:**
-```python
-PLATFORMS = [
-    Platform.BINARY_SENSOR,
-    Platform.BUTTON,
-    Platform.CLIMATE,
-    Platform.DATETIME,
-    Platform.NUMBER,
-    Platform.SELECT,
-    Platform.SENSOR,
-    Platform.SWITCH,
-    Platform.UPDATE,  # NEW
-]
-```
-
-#### Step 1.3: Add Update Entity Constants
-
-**File:** `custom_components/komfovent/const.py`
-
-**Tasks:**
-- [ ] Add manufacturer firmware URLs (for reference)
-- [ ] Add update-related timeouts and limits
-
-**Code:**
-```python
-# Firmware update
-FIRMWARE_UPLOAD_URL = "/g1.html"
-FIRMWARE_UPLOAD_TIMEOUT = 120  # seconds
-FIRMWARE_RESTART_TIMEOUT = 180  # seconds
-
-# Manufacturer URLs (for reference - blocked from external access)
-MANUFACTURER_FIRMWARE_URL_MBIN = "http://www.komfovent.com/Update/Controllers/firmware.php?file=mbin"
-MANUFACTURER_FIRMWARE_URL_BIN = "http://www.komfovent.com/Update/Controllers/firmware.php?file=bin"
-MANUFACTURER_DOWNLOADS_PAGE = "https://www.komfovent.com/en/page/software"
-MANUFACTURER_C6_UPDATE_PDF = "https://www.komfovent.com/en/downloads/C6_update_EN.pdf"
-```
-
-#### Step 1.4: Testing Phase 1
-
-**Tasks:**
-- [ ] Test update entity appears in Home Assistant
-- [ ] Verify installed_version matches firmware sensor
-- [ ] Check release notes display correctly
-- [ ] Verify release_url link works
-
-**Expected Result:**
-- Update entity shows "No update available" (latest_version is None)
-- Users can view release notes with manual update instructions
-- Clicking release URL opens manufacturer downloads page
-
----
-
-### Phase 2: Firmware Upload Capability
-
-#### Step 2.1: Create Firmware Manager Module
+#### Step 1.1: Implement Version Checking from Manufacturer
 
 **File:** `custom_components/komfovent/firmware.py`
 
 **Tasks:**
 - [ ] Create `FirmwareManager` class
-- [ ] Implement async login to device web interface
-- [ ] Implement async firmware upload
-- [ ] Implement progress monitoring
-- [ ] Implement version verification
+- [ ] Implement `async_check_latest_version()` - HEAD request to manufacturer URL
+- [ ] Extract version from `Content-Disposition` header or filename
+- [ ] Parse version number from filename pattern
+- [ ] Cache results for 1 hour to minimize server load
+- [ ] Handle network errors gracefully
 
 **Code Structure:**
 ```python
-import aiohttp
-import logging
-from typing import Any
-
-_LOGGER = logging.getLogger(__name__)
-
 class FirmwareManager:
-    """Manage Komfovent firmware updates."""
+    """Manage Komfovent firmware downloads and updates."""
 
-    def __init__(self, host: str, username: str, password: str):
-        """Initialize firmware manager."""
-        self.host = host
-        self.username = username
-        self.password = password
-        self._session: aiohttp.ClientSession | None = None
-
-    async def async_login(self) -> bool:
-        """Login to device web interface."""
-
-    async def async_upload_firmware(
+    async def async_check_latest_version(
         self,
-        firmware_data: bytes,
-        filename: str,
-        progress_callback=None
+        firmware_type: str = "mbin"
     ) -> dict[str, Any]:
-        """Upload firmware file to device."""
+        """Check latest firmware version from manufacturer.
 
-    async def async_check_device_status(self) -> dict[str, Any]:
-        """Check if device is ready for update."""
-
-    async def async_wait_for_restart(self, timeout: int = 180) -> bool:
-        """Wait for device to restart after update."""
-
-    async def async_close(self) -> None:
-        """Close the session."""
+        Returns:
+            {
+                "version": "1.3.28.38",
+                "filename": "C6_1_3_28_38_20230615.mbin",
+                "date": "20230615",
+                "url": "http://...",
+            }
+        """
+        # HEAD request to get filename without downloading
+        # Extract version from filename
+        # Cache result
 ```
 
-#### Step 2.2: Implement Firmware Upload in Update Entity
+#### Step 1.2: Create Update Entity with Auto Version Check
 
 **File:** `custom_components/komfovent/update.py`
 
 **Tasks:**
-- [ ] Add `UpdateEntityFeature.INSTALL` to supported features
-- [ ] Implement `async_install()` method
-- [ ] Add firmware file validation
-- [ ] Implement progress tracking
-- [ ] Handle errors and timeouts
+- [ ] Create `KomfoventUpdateEntity` class extending `UpdateEntity`
+- [ ] Implement `installed_version` property (read from Modbus)
+- [ ] Implement `latest_version` property (from FirmwareManager)
+- [ ] Implement automatic version checking on refresh
+- [ ] Add release notes support
+- [ ] Set supported_features for install
 
-**Code Structure:**
+**Code:**
 ```python
 class KomfoventUpdateEntity(CoordinatorEntity, UpdateEntity):
     """Komfovent firmware update entity."""
 
     _attr_supported_features = (
         UpdateEntityFeature.INSTALL
+        | UpdateEntityFeature.PROGRESS
         | UpdateEntityFeature.RELEASE_NOTES
     )
+    _attr_device_class = UpdateDeviceClass.FIRMWARE
 
-    async def async_install(
-        self,
-        version: str | None,
-        backup: bool,
-        **kwargs: Any,
-    ) -> None:
-        """Install firmware update."""
+    @property
+    def installed_version(self) -> str | None:
+        """Return installed firmware version from Modbus."""
+        # Get from coordinator.data[REG_FIRMWARE]
 
-        # 1. Validate firmware file
-        # 2. Check device status
-        # 3. Upload firmware
-        # 4. Monitor progress
-        # 5. Wait for restart
-        # 6. Verify new version
+    @property
+    def latest_version(self) -> str | None:
+        """Return latest firmware version from manufacturer."""
+        # Automatically checked by FirmwareManager
+
+    @property
+    def in_progress(self) -> bool:
+        """Return True if update is in progress."""
+        # Track update state
 ```
 
-#### Step 2.3: Add Configuration for Firmware File
-
-**Options:**
-
-**Option A: File Upload via Service Call**
-- Add custom service `komfovent.upload_firmware`
-- Accept file path or file data
-- Most flexible but requires more user setup
-
-**Option B: Configuration Entry**
-- Add config option for firmware file path
-- User places file in accessible location
-- Simpler UX but less flexible
-
-**Option C: Hybrid Approach (Recommended)**
-- Update entity shows "Update available" when user sets latest version in config
-- User downloads firmware manually
-- User triggers install - HA prompts for firmware file path
-- HA uploads file to device
-
-#### Step 2.4: Testing Phase 2
+#### Step 1.3: Testing Phase 1
 
 **Tasks:**
-- [ ] Test firmware file validation
-- [ ] Test upload to device (dry run)
-- [ ] Test progress monitoring
-- [ ] Test error handling (network errors, invalid files, etc.)
-- [ ] Test actual firmware update on test device
-- [ ] Verify version after update
+- [ ] Verify version check works from residential network
+- [ ] Test version comparison logic
+- [ ] Verify update entity shows correct state
+- [ ] Test cache expiration
 
-**Test Cases:**
-1. Valid .mbin file for firmware >=1.3.15
-2. Valid .bin file for firmware <1.3.15
-3. Invalid file extension
-4. Network timeout during upload
-5. Device restart timeout
-6. Version verification after update
+**Expected Result:**
+- Update entity automatically detects new firmware
+- Shows "Update available" when new version exists
+- No manual version configuration needed
 
 ---
 
-### Phase 3: Enhanced Version Management
+### Phase 2: Automated Firmware Download and Upload
 
-#### Step 3.1: Add Latest Version Configuration
+#### Step 2.1: Implement Firmware Download
 
-**File:** `custom_components/komfovent/config_flow.py`
+**File:** `custom_components/komfovent/firmware.py`
 
 **Tasks:**
-- [ ] Add options flow for update settings
-- [ ] Add field for latest firmware version (optional)
-- [ ] Add field for firmware file path (optional)
-- [ ] Validate version format
+- [ ] Implement `async_download_firmware()` method
+- [ ] Determine firmware type based on current version
+- [ ] Download with progress tracking
+- [ ] Validate downloaded file (size, extension, checksum)
+- [ ] Store temporarily in Home Assistant temp directory
+- [ ] Implement retry logic with exponential backoff
 
-**UI Flow:**
-```
-Settings → Integrations → Komfovent → Configure
-  ├─ Latest firmware version: [____] (optional)
-  ├─ Firmware file path: [____] (optional)
-  └─ [Save]
+**Code:**
+```python
+async def async_download_firmware(
+    self,
+    firmware_type: str,
+    progress_callback=None
+) -> bytes:
+    """Download firmware from manufacturer.
+
+    Args:
+        firmware_type: "mbin" or "bin"
+        progress_callback: Optional callback for progress updates
+
+    Returns:
+        Firmware file data as bytes
+    """
+    # Download with aiohttp
+    # Track progress
+    # Validate file
+    # Return data
 ```
 
-#### Step 3.2: Implement Version Comparison
+#### Step 2.2: Implement Automated Upload
+
+**File:** `custom_components/komfovent/firmware.py`
+
+**Tasks:**
+- [ ] Implement device login
+- [ ] Implement firmware upload to /g1.html
+- [ ] Monitor upload progress
+- [ ] Wait for device restart
+- [ ] Verify version after restart
+- [ ] Clean up temporary files
+
+**Code:**
+```python
+async def async_upload_firmware(
+    self,
+    firmware_data: bytes,
+    filename: str,
+    progress_callback=None
+) -> bool:
+    """Upload firmware to device.
+
+    Args:
+        firmware_data: Firmware file bytes
+        filename: Original filename
+        progress_callback: Optional progress callback
+
+    Returns:
+        True if successful
+    """
+    # Login to device
+    # Upload to /g1.html
+    # Monitor progress
+    # Return success/failure
+```
+
+#### Step 2.3: Implement Full Update Flow in Update Entity
 
 **File:** `custom_components/komfovent/update.py`
 
 **Tasks:**
-- [ ] Add version comparison logic
-- [ ] Return configured latest version
-- [ ] Compare with installed version
-- [ ] Update state accordingly
+- [ ] Implement `async_install()` method
+- [ ] Integrate download and upload
+- [ ] Show progress during update
+- [ ] Handle errors and timeouts
+- [ ] Update entity state throughout process
 
 **Code:**
 ```python
-@property
-def latest_version(self) -> str | None:
-    """Return the latest firmware version available."""
-    # Get from config entry options
-    return self.coordinator.config_entry.options.get("latest_firmware_version")
+async def async_install(
+    self,
+    version: str | None,
+    backup: bool,
+    **kwargs: Any,
+) -> None:
+    """Automatically download and install firmware update."""
 
-@property
-def update_available(self) -> bool:
-    """Return True if an update is available."""
-    if not self.latest_version:
-        return False
-
-    return self._compare_versions(
-        self.installed_version,
-        self.latest_version
-    ) < 0
+    # 1. Determine firmware type (.bin or .mbin)
+    # 2. Download from manufacturer
+    # 3. Validate file
+    # 4. Check device status
+    # 5. Upload to device
+    # 6. Monitor progress
+    # 7. Wait for restart
+    # 8. Verify version
+    # 9. Clean up
 ```
 
-#### Step 3.3: Testing Phase 3
+#### Step 2.4: Testing Phase 2
 
 **Tasks:**
-- [ ] Test version comparison logic
-- [ ] Test update available detection
-- [ ] Test UI configuration flow
-- [ ] Test version format validation
+- [ ] Test automatic download from residential network
+- [ ] Test upload to device
+- [ ] Test progress reporting
+- [ ] Test error handling
+- [ ] Test cleanup of temp files
+- [ ] Perform actual update on test device
+
+**Test Cases:**
+1. Full automated update (download → upload → verify)
+2. Network timeout during download
+3. Network timeout during upload
+4. Device restart timeout
+5. Version verification after update
+6. Cleanup after successful update
+7. Cleanup after failed update
+
+---
+
+### Phase 3: Polish and Optimization
+
+#### Step 3.1: Progress Tracking
+
+**Tasks:**
+- [ ] Implement detailed progress states
+- [ ] Show download progress percentage
+- [ ] Show upload progress percentage
+- [ ] Show waiting states (device restart)
+- [ ] Update entity attributes with current state
+
+#### Step 3.2: Error Handling and Recovery
+
+**Tasks:**
+- [ ] Implement retry logic for transient failures
+- [ ] Provide clear error messages
+- [ ] Log detailed error information
+- [ ] Implement automatic cleanup on failure
+- [ ] Add recovery instructions to entity attributes
+
+#### Step 3.3: Optimization
+
+**Tasks:**
+- [ ] Cache firmware files (same version, multiple devices)
+- [ ] Implement version check caching
+- [ ] Optimize download chunk size
+- [ ] Minimize server load with appropriate intervals
+
+#### Step 3.4: Testing Phase 3
+
+**Tasks:**
+- [ ] Test with multiple devices
+- [ ] Test concurrent updates
+- [ ] Test cache behavior
+- [ ] Load testing
+- [ ] Long-running stability test
 
 ---
 
 ## Testing Strategy
 
+### Validation Scripts
+
+Three validation scripts provided:
+
+1. **`download_firmware.py`**
+   - Tests automatic firmware download
+   - Validates firmware files
+   - Extracts version information
+   - **Run from same network as device**
+
+2. **`validate_version_check.py`**
+   - Tests web interface access
+   - Validates version detection
+   - Tests version comparison
+
+3. **`validate_firmware_update.py`**
+   - Tests complete update workflow
+   - Supports dry-run mode
+   - Validates end-to-end process
+
 ### Unit Tests
 
 **File:** `tests/test_update.py`
 
-**Test Cases:**
 ```python
 def test_installed_version_parsing()
 def test_version_comparison()
 def test_update_available_detection()
-def test_firmware_file_validation()
-def test_release_notes_generation()
+def test_firmware_type_selection()
+def test_progress_tracking()
 ```
 
 **File:** `tests/test_firmware.py`
 
-**Test Cases:**
 ```python
-def test_firmware_manager_login()
-def test_firmware_upload()
-def test_progress_monitoring()
-def test_error_handling()
+async def test_check_latest_version()
+async def test_download_firmware()
+async def test_upload_firmware()
+async def test_version_verification()
+async def test_cleanup()
 ```
 
 ### Integration Tests
 
-**File:** `tests/test_integration.py`
+**File:** `tests/test_update_integration.py`
 
-**Test Cases:**
 ```python
-async def test_update_entity_setup()
-async def test_firmware_update_flow()
-async def test_update_failure_recovery()
-```
-
-### Manual Testing Checklist
-
-- [ ] Update entity appears in Home Assistant UI
-- [ ] Installed version displays correctly
-- [ ] Latest version displays when configured
-- [ ] Update available state is correct
-- [ ] Release notes are accessible
-- [ ] Firmware upload works with valid file
-- [ ] Progress is shown during update
-- [ ] Version is verified after update
-- [ ] Error messages are clear and helpful
-- [ ] Device continues working after failed update
-
-### Validation Scripts
-
-Two validation scripts are provided:
-
-1. **`validate_version_check.py`**
-   - Tests firmware version retrieval
-   - Tests version comparison logic
-   - Validates web interface access
-   - **Requirements:** `requests`, `beautifulsoup4`
-
-2. **`validate_firmware_update.py`**
-   - Tests firmware file validation
-   - Tests upload process
-   - Tests progress monitoring
-   - Tests version verification
-   - **Requirements:** `requests`
-   - **Usage:** Run with `--dry-run` for safe testing
-
-**Installation:**
-```bash
-pip install requests beautifulsoup4
-```
-
-**Example Usage:**
-```bash
-# Version check validation
-python3 validate_version_check.py --host 192.168.1.100 --test-version 1.3.28.38
-
-# Firmware update validation (dry run)
-python3 validate_firmware_update.py \
-    --host 192.168.1.100 \
-    --firmware /path/to/C6_1_3_28_38.mbin \
-    --dry-run
-
-# Actual firmware update (use with caution!)
-python3 validate_firmware_update.py \
-    --host 192.168.1.100 \
-    --firmware /path/to/C6_1_3_28_38.mbin \
-    --expected-version 1.3.28.38
+async def test_full_automated_update()
+async def test_update_progress_reporting()
+async def test_error_recovery()
+async def test_concurrent_updates()
 ```
 
 ---
 
 ## Security Considerations
 
-### Authentication
-
-- [ ] Store device credentials securely in config entry
-- [ ] Don't log credentials in debug logs
-- [ ] Use HTTPS if device supports it (unlikely for C6)
-- [ ] Implement session timeout
-
 ### Firmware Validation
 
 - [ ] Validate file extension (.bin or .mbin)
-- [ ] Check file size (100KB - 10MB typical range)
-- [ ] Verify file is readable before upload
-- [ ] Optionally: Checksum validation if manufacturer provides
+- [ ] Check file size (100KB - 10MB typical)
+- [ ] Verify filename pattern matches expected format
+- [ ] Validate version number format
+- [ ] Optional: Checksum validation if provided by manufacturer
 
 ### Network Security
 
-- [ ] Use authenticated connections
+- [ ] Use authenticated connections to device
 - [ ] Implement request timeouts
-- [ ] Handle SSL/TLS errors gracefully
-- [ ] Rate limit upload attempts
+- [ ] Rate limit download attempts
+- [ ] Verify firmware source (manufacturer URL)
+- [ ] Secure temporary file storage
 
 ### Error Handling
 
-- [ ] Don't expose internal errors to users
-- [ ] Log detailed errors for debugging
+- [ ] Don't expose credentials in logs
+- [ ] Sanitize error messages
 - [ ] Provide recovery instructions
-- [ ] Prevent bricking device with invalid firmware
+- [ ] Prevent bricking with validation
+- [ ] Automatic cleanup of failed downloads
 
 ---
 
 ## User Experience
 
-### UI Flow
-
-#### Version Check
-
-```
-Home Assistant Dashboard
-  └─ Devices → Komfovent
-       └─ Update: Komfovent Firmware
-            ├─ Installed version: 1.3.17.20
-            ├─ Latest version: Not configured
-            ├─ Status: Unknown
-            └─ [Release Notes]
-```
+### UI Flow - Fully Automated
 
 #### Update Available
 
@@ -663,151 +578,44 @@ Home Assistant Dashboard
   └─ Devices → Komfovent
        └─ Update: Komfovent Firmware
             ├─ Installed version: 1.3.17.20
-            ├─ Latest version: 1.3.28.38
+            ├─ Latest version: 1.3.28.38 (automatically detected)
             ├─ Status: Update available
             ├─ [Release Notes]
-            └─ [Install]
+            └─ [Install] ← Single click!
 ```
 
-#### Update Process
+#### Automated Update Process
 
 ```
 1. User clicks [Install]
-2. Dialog: "Select firmware file"
-   ├─ File picker
-   ├─ [ ] Create backup (if supported)
-   └─ [Upload] [Cancel]
 
-3. Upload in progress
-   ├─ Progress bar: 45%
-   └─ "Uploading firmware..."
+2. Confirmation dialog:
+   "Update firmware from 1.3.17.20 to 1.3.28.38?"
+   [Update] [Cancel]
 
-4. Restart in progress
+3. Download phase:
+   ├─ Progress bar: "Downloading... 45%"
+   └─ Status: "Downloading firmware from manufacturer"
+
+4. Upload phase:
+   ├─ Progress bar: "Uploading... 67%"
+   └─ Status: "Uploading to device"
+
+5. Restart phase:
    ├─ Progress spinner
-   └─ "Device is restarting..."
+   └─ Status: "Device is restarting..."
 
-5. Verification
+6. Verification:
    ├─ ✓ Check mark
-   └─ "Update successful"
+   └─ "Update successful to version 1.3.28.38"
 
-6. Or Error
+7. Or Error:
    ├─ ✗ Error icon
-   ├─ "Update failed: Connection timeout"
+   ├─ "Download failed: Connection timeout"
    └─ [Retry] [Cancel]
 ```
 
-### Error Messages
-
-| Error | User Message | Recovery Steps |
-|-------|--------------|----------------|
-| Invalid file | "Invalid firmware file. Please select a .bin or .mbin file." | Select correct file |
-| Network error | "Could not connect to device. Check network connection." | Verify device is on network |
-| Upload timeout | "Firmware upload timed out. The device may still be updating." | Wait 5 minutes, check device |
-| Version mismatch | "Firmware version mismatch. Update may have failed." | Manual verification needed |
-| Device busy | "Device is currently running. Stop the device before updating." | Stop AHU first |
-
-### Documentation
-
-**User-facing documentation should include:**
-
-1. **Prerequisites**
-   - Stop AHU before updating
-   - Ensure stable network connection
-   - Download firmware from manufacturer
-
-2. **Version Check Setup**
-   - How to configure latest version
-   - Where to find latest firmware version
-
-3. **Update Process**
-   - Step-by-step instructions
-   - Expected duration
-   - What to do if update fails
-
-4. **Troubleshooting**
-   - Common errors and solutions
-   - Recovery procedures
-   - Contact information
-
----
-
-## Future Enhancements
-
-### Phase 4: Automatic Version Detection
-
-**Goal:** Automatically detect latest firmware version
-
-**Options:**
-1. **Web Scraping** (fragile, not recommended)
-   - Scrape manufacturer downloads page
-   - Extract latest version
-   - Requires maintenance when page changes
-
-2. **RSS/Feed Monitoring** (if available)
-   - Subscribe to manufacturer update feed
-   - Parse version information
-   - More reliable than scraping
-
-3. **Community API** (recommended long-term)
-   - Create community-maintained version database
-   - Crowdsource latest versions
-   - Provide API for integrations
-
-### Phase 5: Update Scheduling
-
-**Goal:** Schedule updates during maintenance windows
-
-**Features:**
-- Configure preferred update time
-- Automatic download of firmware
-- Automatic update installation
-- Rollback on failure
-
-### Phase 6: Multi-Device Updates
-
-**Goal:** Update multiple Komfovent devices
-
-**Features:**
-- Detect all Komfovent devices
-- Batch update capability
-- Staggered update scheduling
-- Progress dashboard
-
-### Phase 7: Backup and Rollback
-
-**Goal:** Protect against failed updates
-
-**Features:**
-- Backup current firmware (if device supports)
-- Automatic rollback on failure
-- Manual rollback option
-- Backup verification
-
----
-
-## Dependencies
-
-### Python Packages
-
-**Required:**
-- `homeassistant` (core)
-- `aiohttp` (already used in HA)
-- `pymodbus` (already in integration)
-
-**Optional for validation scripts:**
-- `requests` (sync HTTP)
-- `beautifulsoup4` (HTML parsing)
-
-**Update `manifest.json`:**
-```json
-{
-  "requirements": [
-    "pymodbus==3.6.2"
-  ]
-}
-```
-
-No additional requirements needed - use built-in HA libraries.
+**No manual file handling required!**
 
 ---
 
@@ -815,91 +623,55 @@ No additional requirements needed - use built-in HA libraries.
 
 | Phase | Tasks | Estimated Time |
 |-------|-------|----------------|
-| Phase 1 | Version check entity | 8-12 hours |
-| Phase 2 | Firmware upload | 16-24 hours |
-| Phase 3 | Version management | 8-12 hours |
-| Testing | Unit + integration tests | 12-16 hours |
-| Documentation | User + developer docs | 4-8 hours |
-| **Total** | | **48-72 hours** |
-
-**Milestones:**
-- Week 1: Phase 1 complete + basic testing
-- Week 2: Phase 2 complete + integration testing
-- Week 3: Phase 3 complete + documentation
-- Week 4: Final testing + release
+| Phase 1 | Auto version detection | 12-16 hours |
+| Phase 2 | Auto download & upload | 20-28 hours |
+| Phase 3 | Polish & optimization | 8-12 hours |
+| Testing | Comprehensive testing | 12-16 hours |
+| Documentation | User & dev docs | 4-8 hours |
+| **Total** | | **56-80 hours** |
 
 ---
 
 ## Success Criteria
 
-### Phase 1 (MVP)
-- ✓ Update entity displays installed version
-- ✓ Release notes provide manual update instructions
-- ✓ Users can access manufacturer downloads
+### Phase 1 (Auto Version Check)
+- ✓ Automatically detects latest firmware version
+- ✓ Shows update available/up-to-date status
+- ✓ No manual configuration needed
 
-### Phase 2 (Core Functionality)
-- ✓ Users can upload firmware via Home Assistant
-- ✓ Upload progress is visible
-- ✓ Version is verified after update
-- ✓ Error handling is robust
+### Phase 2 (Full Automation)
+- ✓ Downloads firmware automatically
+- ✓ Uploads to device automatically
+- ✓ Verifies update completion
+- ✓ Requires zero manual file handling
 
-### Phase 3 (Enhanced UX)
-- ✓ Update available detection works
-- ✓ Configuration is user-friendly
-- ✓ Documentation is clear and complete
+### Phase 3 (Polish)
+- ✓ Clear progress indication
+- ✓ Robust error handling
+- ✓ Efficient caching and optimization
 
 ### Overall Success
-- ✓ Reduces manual update steps by 50%
-- ✓ No bricked devices during testing
+- ✓ Single-click firmware updates
+- ✓ No manual file downloads or uploads
+- ✓ Works reliably from residential networks
+- ✓ No bricked devices
 - ✓ Positive user feedback
-- ✓ Minimal support requests
-
----
-
-## Risk Analysis
-
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|------------|
-| Device becomes unresponsive after update | Medium | High | Thorough testing, clear recovery docs |
-| Network timeout during upload | High | Medium | Retry logic, timeout handling |
-| Manufacturer changes web interface | Low | High | Version detection, graceful degradation |
-| Invalid firmware file bricks device | Low | Critical | File validation, user warnings |
-| Concurrent updates cause conflicts | Low | Medium | Update locking, status checks |
 
 ---
 
 ## Conclusion
 
-This development plan provides a phased approach to implementing firmware update capabilities for the Komfovent Home Assistant integration. By starting with basic version checking and gradually adding upload functionality, we can:
+This development plan provides a fully automated firmware update solution for Komfovent devices. By leveraging validated download access from residential networks, users can update firmware with a single click from Home Assistant - no manual file handling required.
 
-1. **Deliver value incrementally** - Users get version tracking immediately
-2. **Minimize risk** - Each phase is tested before proceeding
-3. **Maintain quality** - Following HA best practices throughout
-4. **Enable future enhancement** - Architecture supports advanced features
-
-The provided validation scripts allow testing the core functionality before full implementation, reducing development risk and ensuring the approach is sound.
-
-### Next Steps
-
-1. **Review and approve this plan** with stakeholders
-2. **Run validation scripts** on test device to confirm approach
-3. **Begin Phase 1 implementation** - version check entity
-4. **Iterate based on feedback** from testing and users
-5. **Document learnings** for future enhancements
+**Key Benefits:**
+- 🚀 Fully automated download and upload
+- 🎯 Single-click updates from HA UI
+- 📊 Real-time progress tracking
+- 🔒 Safe with validation and error handling
+- ♻️ Automatic cleanup of temporary files
 
 ---
 
-## References
-
-- [Home Assistant Update Entity Documentation](https://developers.home-assistant.io/docs/core/entity/update/)
-- [Komfovent C6 Firmware Update Instructions (PDF)](https://www.komfovent.com/en/downloads/C6_update_EN.pdf)
-- [Komfovent Software Downloads](https://www.komfovent.com/en/page/software)
-- [Home Assistant Integration Quality Scale](https://developers.home-assistant.io/docs/integration_quality_scale_index/)
-- Existing integration code in `custom_components/komfovent/`
-
----
-
-**Document Version:** 1.0
+**Document Version:** 2.0
 **Date:** 2025-12-24
-**Author:** Development Planning for hass-komfovent
-**Status:** Ready for Review
+**Status:** Ready for Implementation
