@@ -136,20 +136,12 @@ def download_firmware(firmware_type: str = "mbin", output_path: str = None) -> b
                 print(f"   Reason: {deny_reason}")
 
             print(f"\n{'='*70}")
-            print(f"EXTERNAL ACCESS BLOCKED")
+            print(f"ACCESS DENIED FROM THIS LOCATION")
             print(f"{'='*70}\n")
-            print("The manufacturer's server blocks external download requests.")
-            print("This is expected behavior based on their security policy.\n")
-
-            print("📥 MANUAL DOWNLOAD REQUIRED\n")
-            print("Please download the firmware manually:\n")
-            print(f"1. Visit: {DOWNLOADS_PAGE}")
-            print(f"2. Or check: {DOWNLOADS_PDF}")
-            print(f"3. Download the latest {firmware_type.upper()} firmware file")
-            print(f"4. Look for files like: C6_1_3_XX_XX_YYYYMMDD.{firmware_type}\n")
-
-            print("💡 TIP: You can run this script to validate a downloaded file:")
-            print(f"   python3 download_firmware.py --validate firmware.{firmware_type}\n")
+            print("⚠️  Download access is restricted to residential networks")
+            print("    where Komfovent devices are installed.\n")
+            print("This script must be run from the same network as your device.")
+            print("The Home Assistant integration will have proper access.\n")
 
             return False
 
@@ -325,9 +317,8 @@ Examples:
   # Validate an existing firmware file
   python3 download_firmware.py --validate firmware.mbin
 
-Note: External downloads are typically blocked by the manufacturer.
-You may need to download manually from:
-  https://www.komfovent.com/en/page/software
+Note: This script must be run from the same network as your Komfovent device.
+The manufacturer restricts downloads to residential networks where devices are installed.
         """
     )
 
@@ -357,9 +348,6 @@ You may need to download manually from:
         sys.exit(0 if success else 1)
 
     # Download mode
-    print("\n⚠️  NOTE: External downloads are typically blocked by manufacturer")
-    print("⚠️  This may only work from whitelisted networks/devices\n")
-
     success = download_firmware(
         firmware_type=args.type,
         output_path=args.output
