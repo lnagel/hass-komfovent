@@ -15,28 +15,38 @@ FIRMWARE_URLS = {
 }
 
 
-def extract_version_from_filename(filename: str) -> tuple[str, str] | None:
+def extract_version_from_filename(filename: str) -> tuple[str, str | None, str | None] | None:
     """
     Extract version information from firmware filename.
 
     Expected patterns:
-    - C6_1_3_17_20_20180428.bin
-    - C6_1_3_28_38_20180428.mbin
+    - Modern: C6_1_5_46_72_P1_1_1_5_48.mbin (controller + panel versions)
+    - Legacy: C6_1_3_28_38_20180428.mbin (controller + date)
 
     Args:
         filename: Firmware filename
 
     Returns:
-        Tuple of (version_string, date_string) or None if not found
+        Tuple of (controller_version, panel_version, date) or None if not found
     """
-    # Pattern: C6_v1_v2_v3_v4_date.ext
-    pattern = r"C6[M]?_(\d+)_(\d+)_(\d+)_(\d+)_(\d+)\.(m?bin)"
+    # Modern pattern: C6[M]?_v1_v2_v3_v4_P1_p1_p2_p3_p4.ext
+    modern_pattern = r"C6[M]?_(\d+)_(\d+)_(\d+)_(\d+)_P1_(\d+)_(\d+)_(\d+)_(\d+)\.(m?bin)"
 
-    match = re.search(pattern, filename, re.IGNORECASE)
+    match = re.search(modern_pattern, filename, re.IGNORECASE)
+    if match:
+        v1, v2, v3, v4, p1, p2, p3, p4, ext = match.groups()
+        controller_version = f"{v1}.{v2}.{v3}.{v4}"
+        panel_version = f"{p1}.{p2}.{p3}.{p4}"
+        return controller_version, panel_version, None
+
+    # Legacy pattern: C6[M]?_v1_v2_v3_v4_date.ext
+    legacy_pattern = r"C6[M]?_(\d+)_(\d+)_(\d+)_(\d+)_(\d+)\.(m?bin)"
+
+    match = re.search(legacy_pattern, filename, re.IGNORECASE)
     if match:
         v1, v2, v3, v4, date, ext = match.groups()
-        version = f"{v1}.{v2}.{v3}.{v4}"
-        return version, date
+        controller_version = f"{v1}.{v2}.{v3}.{v4}"
+        return controller_version, None, date
 
     return None
 
@@ -108,14 +118,20 @@ def check_firmware_version(firmware_type: str = "mbin") -> dict:
             # Extract version from filename
             version_info = extract_version_from_filename(filename)
             if version_info:
-                version, date = version_info
-                result["version"] = version
-                result["build_date"] = date
+                controller_version, panel_version, date = version_info
+                result["controller_version"] = controller_version
+                result["panel_version"] = panel_version
+                result["version"] = controller_version  # Main version
+                if date:
+                    result["build_date"] = date
                 result["success"] = True
 
                 print(f"\n3. Version Information:")
-                print(f"   Version: {version}")
-                print(f"   Build Date: {date}")
+                print(f"   Controller Version: {controller_version}")
+                if panel_version:
+                    print(f"   Panel Version: {panel_version}")
+                if date:
+                    print(f"   Build Date: {date}")
             else:
                 print(f"\n3. WARNING: Could not extract version from filename")
                 result["error"] = "Version extraction failed"
@@ -143,14 +159,20 @@ def check_firmware_version(firmware_type: str = "mbin") -> dict:
                     result["filename"] = filename
                     version_info = extract_version_from_filename(filename)
                     if version_info:
-                        version, date = version_info
-                        result["version"] = version
-                        result["build_date"] = date
+                        controller_version, panel_version, date = version_info
+                        result["controller_version"] = controller_version
+                        result["panel_version"] = panel_version
+                        result["version"] = controller_version
+                        if date:
+                            result["build_date"] = date
                         result["success"] = True
 
                         print(f"\n5. Version Information:")
-                        print(f"   Version: {version}")
-                        print(f"   Build Date: {date}")
+                        print(f"   Controller Version: {controller_version}")
+                        if panel_version:
+                            print(f"   Panel Version: {panel_version}")
+                        if date:
+                            print(f"   Build Date: {date}")
 
     except requests.exceptions.RequestException as e:
         print(f"\nERROR: Request failed - {e}")
@@ -209,8 +231,11 @@ def main():
         print(f"\n{firmware_type.upper()} Firmware:")
         if result.get("success"):
             print(f"  ✓ Version check successful")
-            print(f"  ✓ Version: {result.get('version')}")
-            print(f"  ✓ Build Date: {result.get('build_date')}")
+            print(f"  ✓ Controller Version: {result.get('controller_version')}")
+            if result.get('panel_version'):
+                print(f"  ✓ Panel Version: {result.get('panel_version')}")
+            if result.get('build_date'):
+                print(f"  ✓ Build Date: {result.get('build_date')}")
             print(f"  ✓ Filename: {result.get('filename')}")
         else:
             print(f"  ✗ Version check failed")
