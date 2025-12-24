@@ -66,8 +66,8 @@ def extract_version_from_filename(filename: str) -> dict | None:
     """Extract version information from firmware filename.
 
     Expected patterns:
-    - C6_1_3_28_38_20180428.mbin
-    - C6M_1_4_44_69_20230615.mbin
+    - Modern: C6_1_5_46_72_P1_1_1_5_48.mbin (controller + panel versions)
+    - Legacy: C6_1_3_28_38_20180428.mbin (controller + date)
 
     Args:
         filename: Firmware filename
@@ -75,10 +75,38 @@ def extract_version_from_filename(filename: str) -> dict | None:
     Returns:
         Dictionary with version info or None
     """
-    # Pattern: C6[M]?_v1_v2_v3_v4_date.ext
-    pattern = r"C6(M)?_(\d+)_(\d+)_(\d+)_(\d+)_(\d+)\.(m?bin)"
+    # Modern pattern: C6[M]?_v1_v2_v3_v4_P1_p1_p2_p3_p4.ext
+    modern_pattern = r"C6(M)?_(\d+)_(\d+)_(\d+)_(\d+)_P1_(\d+)_(\d+)_(\d+)_(\d+)\.(m?bin)"
 
-    match = re.search(pattern, filename, re.IGNORECASE)
+    match = re.search(modern_pattern, filename, re.IGNORECASE)
+    if match:
+        model_suffix, v1, v2, v3, v4, p1, p2, p3, p4, ext = match.groups()
+
+        model = f"C6{model_suffix}" if model_suffix else "C6"
+        controller_version = f"{v1}.{v2}.{v3}.{v4}"
+        panel_version = f"{p1}.{p2}.{p3}.{p4}"
+
+        return {
+            "model": model,
+            "version": controller_version,
+            "controller_version": controller_version,
+            "panel_version": panel_version,
+            "v1": int(v1),
+            "v2": int(v2),
+            "v3": int(v3),
+            "v4": int(v4),
+            "panel_v1": int(p1),
+            "panel_v2": int(p2),
+            "panel_v3": int(p3),
+            "panel_v4": int(p4),
+            "extension": ext,
+            "pattern": "modern",
+        }
+
+    # Legacy pattern: C6[M]?_v1_v2_v3_v4_date.ext
+    legacy_pattern = r"C6(M)?_(\d+)_(\d+)_(\d+)_(\d+)_(\d+)\.(m?bin)"
+
+    match = re.search(legacy_pattern, filename, re.IGNORECASE)
     if match:
         model_suffix, v1, v2, v3, v4, date, ext = match.groups()
 
@@ -88,12 +116,15 @@ def extract_version_from_filename(filename: str) -> dict | None:
         return {
             "model": model,
             "version": version,
+            "controller_version": version,
+            "panel_version": None,
             "v1": int(v1),
             "v2": int(v2),
             "v3": int(v3),
             "v4": int(v4),
             "date": date,
             "extension": ext,
+            "pattern": "legacy",
         }
 
     return None
@@ -215,9 +246,13 @@ def download_firmware(firmware_type: str = "mbin", output_path: str = None) -> b
             if version_info:
                 print(f"\n4. Firmware Information:")
                 print(f"   Model: {version_info['model']}")
-                print(f"   Version: {version_info['version']}")
-                print(f"   Build Date: {version_info['date']}")
+                print(f"   Controller Version: {version_info['controller_version']}")
+                if version_info.get("panel_version"):
+                    print(f"   Panel Version: {version_info['panel_version']}")
+                if "date" in version_info:
+                    print(f"   Build Date: {version_info['date']}")
                 print(f"   Type: {version_info['extension']}")
+                print(f"   Pattern: {version_info['pattern']}")
 
         print(f"\n{'='*70}")
         print(f"✅ SUCCESS - Firmware downloaded successfully!")
@@ -282,12 +317,18 @@ def validate_firmware_file(filepath: str) -> bool:
     if version_info:
         print(f"\nFirmware Information:")
         print(f"  Model: {version_info['model']}")
-        print(f"  Version: {version_info['version']}")
-        print(f"  Build Date: {version_info['date']}")
+        print(f"  Controller Version: {version_info['controller_version']}")
+        if version_info.get("panel_version"):
+            print(f"  Panel Version: {version_info['panel_version']}")
+        if "date" in version_info:
+            print(f"  Build Date: {version_info['date']}")
         print(f"  Type: {version_info['extension']}")
+        print(f"  Pattern: {version_info['pattern']}")
     else:
         print(f"\n⚠️  Could not extract version from filename")
-        print(f"   Expected format: C6_1_3_XX_XX_YYYYMMDD.{path.suffix[1:]}")
+        print(f"   Expected formats:")
+        print(f"     Modern: C6_1_5_XX_XX_P1_1_1_X_XX.{path.suffix[1:]}")
+        print(f"     Legacy: C6_1_3_XX_XX_YYYYMMDD.{path.suffix[1:]}")
 
     print(f"\n{'='*70}")
     print(f"✅ File validation passed")
