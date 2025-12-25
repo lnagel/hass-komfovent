@@ -23,6 +23,7 @@ from .helpers import get_version_from_int
 
 _LOGGER = logging.getLogger(__name__)
 
+FUNC_VER_AQ_HUMIDITY = 38
 FUNC_VER_EXHAUST_TEMP = 67
 
 
@@ -91,7 +92,13 @@ class KomfoventCoordinator(DataUpdateCoordinator):
             # This has not been tested yet, it may be implemented in the future
 
             # Read Eco and air quality (200-217)
-            data.update(await self.client.read(registers.REG_ECO_MIN_TEMP, 18))
+            if (
+                self.controller in {Controller.C6, Controller.C6M}
+                and self.func_version < FUNC_VER_AQ_HUMIDITY
+            ):
+                data.update(await self.client.read(registers.REG_ECO_MIN_TEMP, 15))
+            else:
+                data.update(await self.client.read(registers.REG_ECO_MIN_TEMP, 18))
 
             # Skip scheduler (300-555)
 
@@ -101,7 +108,13 @@ class KomfoventCoordinator(DataUpdateCoordinator):
             # Skip alarm history (611-861)
 
             # Read monitoring (900-957)
-            data.update(await self.client.read(registers.REG_STATUS, 58))
+            if (
+                self.controller in {Controller.C6, Controller.C6M}
+                and self.func_version < FUNC_VER_AQ_HUMIDITY
+            ):
+                data.update(await self.client.read(registers.REG_STATUS, 56))
+            else:
+                data.update(await self.client.read(registers.REG_STATUS, 58))
 
             # Read digital outputs (958-960)
             # This has not been tested yet, it may be implemented in the future
