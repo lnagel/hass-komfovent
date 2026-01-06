@@ -28,9 +28,9 @@ async def test_coordinator_updates_data(hass: HomeAssistant, mock_config_entry) 
     mock_client.connect = AsyncMock()  # Should not raise exception
     mock_client.read = AsyncMock(return_value={1: 42})
 
-    # Patch the client class
+    # Patch the client class where it's used
     with patch(
-        "custom_components.komfovent.modbus.KomfoventModbusClient",
+        "custom_components.komfovent.coordinator.KomfoventModbusClient",
         return_value=mock_client,
     ):
         # Create and initialize coordinator
@@ -59,9 +59,9 @@ async def test_coordinator_handles_connection_failure(
     mock_client.connect = AsyncMock(side_effect=ConnectionError)
     mock_client.read = AsyncMock(return_value={1: 42})
 
-    # Patch the client class
+    # Patch the client class where it's used
     with patch(
-        "custom_components.komfovent.modbus.KomfoventModbusClient",
+        "custom_components.komfovent.coordinator.KomfoventModbusClient",
         return_value=mock_client,
     ):
         # Create coordinator

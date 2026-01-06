@@ -42,10 +42,10 @@ async def test_setup_entry(hass: HomeAssistant, mock_config_entry, mock_modbus_c
     entity_registry = er.async_get(hass)
     entity_registry.entities = {}
 
-    # Patch the client class and services registration
+    # Patch the client class where it's used and services registration
     with (
         patch(
-            "custom_components.komfovent.modbus.KomfoventModbusClient",
+            "custom_components.komfovent.coordinator.KomfoventModbusClient",
             return_value=mock_client,
         ),
         patch(
