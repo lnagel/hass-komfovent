@@ -1,14 +1,13 @@
 """DataUpdateCoordinator for Komfovent."""
 
+from __future__ import annotations
+
 import logging
 from datetime import timedelta
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from homeassistant import config_entries
 from homeassistant.const import CONF_HOST, CONF_PORT
-from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
-from homeassistant.helpers.typing import UNDEFINED, UndefinedType
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from pymodbus.exceptions import ModbusException
 
@@ -20,6 +19,11 @@ from .const import (
     Controller,
 )
 from .helpers import get_version_from_int
+from .modbus import KomfoventModbusClient
+
+if TYPE_CHECKING:
+    from homeassistant.config_entries import ConfigEntry
+    from homeassistant.core import HomeAssistant
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -27,22 +31,22 @@ FUNC_VER_AQ_HUMIDITY = 38
 FUNC_VER_EXHAUST_TEMP = 67
 
 
-class KomfoventCoordinator(DataUpdateCoordinator):
+class KomfoventCoordinator(DataUpdateCoordinator[dict[int, Any]]):
     """Class to manage fetching Komfovent data."""
 
+    config_entry: ConfigEntry
     controller: Controller = Controller.NA
     func_version: int = 0
+    client: KomfoventModbusClient
 
     def __init__(
         self,
         hass: HomeAssistant,
         *,
-        config_entry: config_entries.ConfigEntry | None | UndefinedType = UNDEFINED,
+        config_entry: ConfigEntry,
         **kwargs: Any,
     ) -> None:
         """Initialize."""
-        from .modbus import KomfoventModbusClient  # NOQA: PLC0415 (easier to mock)
-
         kwargs.setdefault("name", DOMAIN)
         kwargs.setdefault("update_interval", timedelta(seconds=DEFAULT_SCAN_INTERVAL))
 
@@ -74,7 +78,7 @@ class KomfoventCoordinator(DataUpdateCoordinator):
 
         return True
 
-    async def _async_update_data(self) -> dict[str, Any]:
+    async def _async_update_data(self) -> dict[int, Any]:
         """Fetch data from Komfovent."""
         data = {}
 

@@ -15,7 +15,7 @@ from .registers import REGISTERS_32BIT_UNSIGNED
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
-    from pymodbus.pdu import ModbusResponse
+    from pymodbus.pdu import ModbusPDU
 
     from .coordinator import KomfoventCoordinator
 
@@ -70,7 +70,7 @@ ERR_BLOCK_READ = "Register %d: block read failed"
 ERR_INDIVIDUAL_READ = "Register %d: individual read failed"
 
 
-def _check_response(response: ModbusResponse) -> None:
+def _check_response(response: ModbusPDU) -> None:
     """Check if response has error and raise if needed."""
     if response.isError():
         raise ModbusException(ERR_READ_FAILED)

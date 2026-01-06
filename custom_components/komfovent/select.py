@@ -226,10 +226,11 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
-class KomfoventSelect(CoordinatorEntity, SelectEntity):
+class KomfoventSelect(CoordinatorEntity["KomfoventCoordinator"], SelectEntity):
     """Representation of a Komfovent select entity."""
 
     _attr_has_entity_name: ClassVar[bool] = True
+    coordinator: KomfoventCoordinator
 
     def __init__(
         self,

@@ -230,10 +230,11 @@ async def async_setup_entry(
     async_add_entities(await create_switches(coordinator))
 
 
-class KomfoventSwitch(CoordinatorEntity, SwitchEntity):
+class KomfoventSwitch(CoordinatorEntity["KomfoventCoordinator"], SwitchEntity):
     """Representation of a Komfovent switch."""
 
     _attr_has_entity_name = True
+    coordinator: KomfoventCoordinator
 
     def __init__(
         self,

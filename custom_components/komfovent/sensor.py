@@ -710,10 +710,11 @@ async def async_setup_entry(
     async_add_entities(await create_sensors(coordinator))
 
 
-class KomfoventSensor(CoordinatorEntity, SensorEntity):
+class KomfoventSensor(CoordinatorEntity["KomfoventCoordinator"], SensorEntity):
     """Base representation of a Komfovent sensor."""
 
     _attr_has_entity_name = True
+    coordinator: KomfoventCoordinator
 
     def __init__(
         self,
@@ -748,14 +749,14 @@ class FloatSensor(KomfoventSensor):
     """Temperature sensor with x10 scaling."""
 
     @property
-    def native_value(self) -> StateType:
+    def native_value(self) -> float | None:
         """Return the float value of the sensor."""
         value = super().native_value
         if value is None:
             return None
 
         try:
-            return float(value)
+            return float(value)  # type: ignore[arg-type]
         except (ValueError, TypeError):
             return None
 
@@ -764,7 +765,7 @@ class FloatX10Sensor(FloatSensor):
     """Sensor that divides its value by 10."""
 
     @property
-    def native_value(self) -> StateType:
+    def native_value(self) -> float | None:
         """Return the sensor value divided by 10."""
         value = super().native_value
         if value is None:
@@ -777,7 +778,7 @@ class FloatX100Sensor(FloatSensor):
     """Sensor that divides its value by 100."""
 
     @property
-    def native_value(self) -> StateType:
+    def native_value(self) -> float | None:
         """Return the value divided by 100."""
         value = super().native_value
         if value is None:
@@ -790,26 +791,34 @@ class FloatX1000Sensor(KomfoventSensor):
     """Sensor that divides its value by 1000."""
 
     @property
-    def native_value(self) -> StateType:
+    def native_value(self) -> float | None:
         """Return the energy value in kWh."""
-        value = super().native_value
-        if value is None:
+        raw_value = super().native_value
+        if raw_value is None:
             return None
 
-        return value / 1000
+        try:
+            return float(raw_value) / 1000  # type: ignore[arg-type]
+        except (ValueError, TypeError):
+            return None
 
 
 class FirmwareVersionSensor(KomfoventSensor):
     """Firmware version sensor."""
 
     @property
-    def native_value(self) -> StateType:
+    def native_value(self) -> str | None:
         """Return the firmware version string."""
-        value = super().native_value
-        if value is None:
+        raw_value = super().native_value
+        if raw_value is None:
             return None
 
-        if value == 0:
+        if raw_value == 0:
+            return None
+
+        try:
+            value = int(raw_value)  # type: ignore[arg-type]
+        except (ValueError, TypeError):
             return None
 
         controller, v1, v2, v3, v4 = get_version_from_int(value)
@@ -820,7 +829,7 @@ class DutyCycleSensor(FloatX10Sensor):
     """Temperature sensor with range validation."""
 
     @property
-    def native_value(self) -> StateType:
+    def native_value(self) -> float | None:
         """Return the temperature value if within valid range."""
         value = super().native_value
         if value is None:
@@ -835,7 +844,7 @@ class TemperatureSensor(FloatX10Sensor):
     """Temperature sensor with range validation."""
 
     @property
-    def native_value(self) -> StateType:
+    def native_value(self) -> float | None:
         """Return the temperature value if within valid range."""
         value = super().native_value
         if value is None:
@@ -850,10 +859,15 @@ class RelativeHumiditySensor(KomfoventSensor):
     """Humidity sensor with range validation."""
 
     @property
-    def native_value(self) -> StateType:
+    def native_value(self) -> int | None:
         """Return the humidity value if within valid range."""
-        value = super().native_value
-        if value is None:
+        raw_value = super().native_value
+        if raw_value is None:
+            return None
+
+        try:
+            value = int(raw_value)  # type: ignore[arg-type]
+        except (ValueError, TypeError):
             return None
 
         if 0 <= value <= MAX_HUMIDITY:
@@ -865,7 +879,7 @@ class AbsoluteHumiditySensor(FloatX100Sensor):
     """Humidity sensor with range validation."""
 
     @property
-    def native_value(self) -> StateType:
+    def native_value(self) -> float | None:
         """Return the humidity value if within valid range."""
         value = super().native_value
         if value is None:
@@ -880,10 +894,15 @@ class CO2Sensor(KomfoventSensor):
     """CO2 sensor with range validation."""
 
     @property
-    def native_value(self) -> StateType:
+    def native_value(self) -> int | None:
         """Return the CO2 value if within valid range."""
-        value = super().native_value
-        if value is None:
+        raw_value = super().native_value
+        if raw_value is None:
+            return None
+
+        try:
+            value = int(raw_value)  # type: ignore[arg-type]
+        except (ValueError, TypeError):
             return None
 
         if 0 <= value <= MAX_CO2_PPM:
@@ -895,7 +914,7 @@ class SPISensor(FloatX1000Sensor):
     """SPI sensor with scaling and range validation."""
 
     @property
-    def native_value(self) -> StateType:
+    def native_value(self) -> float | None:
         """Return the SPI value if within valid range."""
         value = super().native_value
         if value is None:
@@ -910,10 +929,15 @@ class VOCSensor(KomfoventSensor):
     """VOC sensor with range validation."""
 
     @property
-    def native_value(self) -> StateType:
+    def native_value(self) -> int | None:
         """Return the VOC value if within valid range."""
-        value = super().native_value
-        if value is None:
+        raw_value = super().native_value
+        if raw_value is None:
+            return None
+
+        try:
+            value = int(raw_value)  # type: ignore[arg-type]
+        except (ValueError, TypeError):
             return None
 
         if 0 <= value <= MAX_VOC:
@@ -951,15 +975,15 @@ class HeatExchangerTypeSensor(KomfoventSensor):
     """Heat exchanger type sensor."""
 
     @property
-    def native_value(self) -> StateType:
+    def native_value(self) -> str | None:
         """Return the heat exchanger type name."""
-        value = super().native_value
-        if value is None:
+        raw_value = super().native_value
+        if raw_value is None:
             return None
 
         try:
-            return HeatExchangerType(value).name.lower()
-        except ValueError:
+            return HeatExchangerType(raw_value).name.lower()  # type: ignore[arg-type]
+        except (ValueError, TypeError):
             return None
 
 
@@ -967,15 +991,15 @@ class ConnectedPanelsSensor(KomfoventSensor):
     """Connected panels sensor."""
 
     @property
-    def native_value(self) -> StateType:
+    def native_value(self) -> str | None:
         """Return the connected panels state name."""
-        value = super().native_value
-        if value is None:
+        raw_value = super().native_value
+        if raw_value is None:
             return None
 
         try:
-            return ConnectedPanels(value).name.lower()
-        except ValueError:
+            return ConnectedPanels(raw_value).name.lower()  # type: ignore[arg-type]
+        except (ValueError, TypeError):
             return None
 
 
@@ -983,15 +1007,15 @@ class FlowUnitSensor(KomfoventSensor):
     """Flow unit sensor."""
 
     @property
-    def native_value(self) -> StateType:
+    def native_value(self) -> str | None:
         """Return the flow units state name."""
-        value = super().native_value
-        if value is None:
+        raw_value = super().native_value
+        if raw_value is None:
             return None
 
         try:
-            return FlowUnit(value).name.lower()
-        except ValueError:
+            return FlowUnit(raw_value).name.lower()  # type: ignore[arg-type]
+        except (ValueError, TypeError):
             return None
 
 
@@ -999,13 +1023,14 @@ class SystemTimeSensor(KomfoventSensor):
     """System time sensor."""
 
     @property
-    def native_value(self) -> StateType:
+    def native_value(self) -> datetime | None:
         """Return the system time as datetime from Unix timestamp."""
-        value = super().native_value
-        if value is None:
+        raw_value = super().native_value
+        if raw_value is None:
             return None
 
         try:
+            value = int(raw_value)  # type: ignore[arg-type]
             # Initialize local epoch (1970-01-01 00:00:00 in local timezone)
             local_tz = zoneinfo.ZoneInfo(str(self.coordinator.hass.config.time_zone))
             local_epoch = datetime(1970, 1, 1, tzinfo=local_tz)

@@ -43,7 +43,7 @@ async def async_setup_entry(
     async_add_entities([KomfoventClimate(coordinator)])
 
 
-class KomfoventClimate(CoordinatorEntity, ClimateEntity):
+class KomfoventClimate(CoordinatorEntity["KomfoventCoordinator"], ClimateEntity):
     """Representation of a Komfovent climate device."""
 
     _attr_has_entity_name: ClassVar[bool] = True
@@ -57,6 +57,7 @@ class KomfoventClimate(CoordinatorEntity, ClimateEntity):
         mode.name.lower() for mode in OperationMode
     ]
     _attr_translation_key = "komfovent_climate"
+    coordinator: KomfoventCoordinator
 
     def __init__(self, coordinator: KomfoventCoordinator) -> None:
         """Initialize the climate device."""
