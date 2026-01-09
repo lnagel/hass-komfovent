@@ -57,10 +57,11 @@ async def async_setup_entry(
     )
 
 
-class KomfoventDateTime(CoordinatorEntity, DateTimeEntity):
+class KomfoventDateTime(CoordinatorEntity["KomfoventCoordinator"], DateTimeEntity):
     """Representation of a Komfovent datetime entity."""
 
     _attr_has_entity_name = True
+    coordinator: KomfoventCoordinator
 
     def __init__(
         self,

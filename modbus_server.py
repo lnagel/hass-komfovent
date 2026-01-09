@@ -21,7 +21,7 @@ logging.basicConfig(level=logging.INFO)
 _LOGGER = logging.getLogger(__name__)
 
 
-async def run_server(host: str, port: int, register_data: dict[str, [int]]) -> None:
+async def run_server(host: str, port: int, register_data: dict[str, list[int]]) -> None:
     """
     Start the Modbus TCP server.
 

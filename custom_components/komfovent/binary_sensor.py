@@ -191,10 +191,13 @@ async def async_setup_entry(
     async_add_entities(await create_binary_sensors(coordinator))
 
 
-class KomfoventBinarySensor(CoordinatorEntity, BinarySensorEntity):
+class KomfoventBinarySensor(
+    CoordinatorEntity["KomfoventCoordinator"], BinarySensorEntity
+):
     """Base class for Komfovent binary sensors."""
 
     _attr_has_entity_name = True
+    coordinator: KomfoventCoordinator
 
     def __init__(
         self,

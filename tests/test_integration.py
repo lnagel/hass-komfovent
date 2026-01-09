@@ -5,9 +5,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import (
-    entity_registry as er,
-)
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.komfovent.const import DOMAIN
@@ -38,14 +35,10 @@ async def test_setup_entry(hass: HomeAssistant, mock_config_entry, mock_modbus_c
     mock_client.connect = AsyncMock()  # Should not raise exception
     mock_client.read = AsyncMock(return_value={1: 42})
 
-    # Mock the entity registry
-    entity_registry = er.async_get(hass)
-    entity_registry.entities = {}
-
-    # Patch the client class and services registration
+    # Patch the client class where it's used and services registration
     with (
         patch(
-            "custom_components.komfovent.modbus.KomfoventModbusClient",
+            "custom_components.komfovent.coordinator.KomfoventModbusClient",
             return_value=mock_client,
         ),
         patch(

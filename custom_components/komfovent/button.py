@@ -13,7 +13,8 @@ if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-    from . import KomfoventCoordinator
+    from .coordinator import KomfoventCoordinator
+
 from . import services
 from .const import DOMAIN
 
@@ -50,10 +51,11 @@ async def async_setup_entry(
     )
 
 
-class KomfoventButtonEntity(CoordinatorEntity, ButtonEntity):
+class KomfoventButtonEntity(CoordinatorEntity["KomfoventCoordinator"], ButtonEntity):
     """Base class for Komfovent button entities."""
 
     _attr_has_entity_name = True
+    coordinator: KomfoventCoordinator
 
     def __init__(
         self,

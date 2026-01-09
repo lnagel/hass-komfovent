@@ -628,10 +628,11 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
-class KomfoventNumber(CoordinatorEntity, NumberEntity):
+class KomfoventNumber(CoordinatorEntity["KomfoventCoordinator"], NumberEntity):
     """Base representation of a Komfovent number entity."""
 
     _attr_has_entity_name: ClassVar[bool] = True
+    coordinator: KomfoventCoordinator
 
     def __init__(
         self,
