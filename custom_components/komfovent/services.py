@@ -17,9 +17,15 @@ DEFAULT_MODE_TIMER = 60
 
 
 def get_coordinator_for_device(
-    hass: HomeAssistant, device_id: str
+    hass: HomeAssistant, device_id: str | list[str]
 ) -> KomfoventCoordinator | None:
     """Get the coordinator for a device ID."""
+    # Handle case where device_id is passed as a list (from device selector)
+    if isinstance(device_id, list):
+        device_id = device_id[0] if device_id else None
+    if not device_id:
+        return None
+
     device_registry = dr.async_get(hass)
     if (device_entry := device_registry.async_get(device_id)) is None:
         return None
