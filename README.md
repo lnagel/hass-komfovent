@@ -1,5 +1,7 @@
 # Komfovent integration for Home Assistant
 
+[![codecov](https://codecov.io/gh/lnagel/hass-komfovent/branch/main/graph/badge.svg)](https://codecov.io/gh/lnagel/hass-komfovent)
+
 A Home Assistant integration for Komfovent C6, C6M and C8 ventilation units through Modbus TCP.
 
 ## Features
