@@ -57,6 +57,30 @@ markers = [
     "enable_socket: mark test to run with real socket connections"
 ]
 
+[tool.coverage.run]
+branch = true
+source = ["custom_components/komfovent"]
+omit = [
+    "tests/*",
+    ".venv/*",
+]
+
+[tool.coverage.report]
+fail_under = 29
+precision = 0
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
+
+[tool.coverage.xml]
+output = "coverage.xml"
+
 [tool.bumpversion]
 current_version = "0.7.4"
 parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"
