@@ -1,6 +1,7 @@
 """Integration tests that use actual socket connections."""
 
 import asyncio
+import contextlib
 import random
 
 import pytest
@@ -22,9 +23,9 @@ async def test_live_modbus_connection(hass: HomeAssistant, mock_registers):
     Test actual connection to modbus server.
 
     This test requires a running modbus server and will be skipped by default.
-    To run with socket connections enabled: pytest tests/test_live_modbus.py -v --socket-enabled
+    To run: pytest tests/test_live_modbus.py -v --socket-enabled
     """
-    register_name, register_data = mock_registers
+    _register_name, register_data = mock_registers
 
     # Use non-privileged port for testing
     test_port = random.randint(1024, 50000)
@@ -51,10 +52,8 @@ async def test_live_modbus_connection(hass: HomeAssistant, mock_registers):
         # Clean up
         await client.close()
         server_task.cancel()
-        try:
+        with contextlib.suppress(asyncio.CancelledError):
             await server_task
-        except asyncio.CancelledError:
-            pass
 
 
 @pytest.mark.enable_socket
@@ -64,7 +63,7 @@ async def test_live_coordinator(hass: HomeAssistant, mock_registers):
     Test coordinator with actual modbus server.
 
     This test requires a running modbus server and will be skipped by default.
-    To run with socket connections enabled: pytest tests/test_live_modbus.py -v --socket-enabled
+    To run: pytest tests/test_live_modbus.py -v --socket-enabled
     """
     register_name, register_data = mock_registers
     controller = Controller[register_name.split("_registers_")[0]]
@@ -114,7 +113,5 @@ async def test_live_coordinator(hass: HomeAssistant, mock_registers):
         if hasattr(coordinator, "client") and coordinator.client:
             await coordinator.client.close()
         server_task.cancel()
-        try:
+        with contextlib.suppress(asyncio.CancelledError):
             await server_task
-        except asyncio.CancelledError:
-            pass

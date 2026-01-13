@@ -1,7 +1,5 @@
 """Test cases for Komfovent helper functions."""
 
-import pytest
-
 from custom_components.komfovent.const import Controller
 from custom_components.komfovent.helpers import get_version_from_int
 

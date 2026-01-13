@@ -24,7 +24,6 @@ def socket_enabled(request):
 @pytest.fixture(autouse=True)
 def auto_enable_socket(socket_enabled):
     """Automatically apply socket_enabled fixture to all tests."""
-    pass
 
 
 @pytest.fixture
@@ -45,7 +44,7 @@ def hass() -> HomeAssistant:
 )
 def mock_registers(request):
     json_path = request.param
-    with open(json_path) as f:
+    with json_path.open() as f:
         return json_path.name, json.load(f)
 
 
@@ -60,11 +59,11 @@ def mock_modbus_client() -> MagicMock:
 
     with json_file.open() as f:
         register_data = json.load(f)
-        transformed_data = {}
-        for block_start, values in register_data.items():
-            block_start_int = int(block_start)
-            for reg, value in enumerate(values, start=block_start_int):
-                transformed_data[reg] = value
+        transformed_data = {
+            reg: value
+            for block_start, values in register_data.items()
+            for reg, value in enumerate(values, start=int(block_start))
+        }
 
     # Set up read to return data from our fixture
     async def mock_read(register: int, count: int) -> dict[int, int]:
