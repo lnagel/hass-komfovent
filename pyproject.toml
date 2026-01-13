@@ -112,9 +112,13 @@ max-complexity = 25
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = [
+    "ANN", # Allow missing type annotations in tests
+    "D103", # Allow missing docstrings in tests
     "S101", # Allow assert in tests
     "S106", # Allow hardcoded passwords in tests
+    "S311", # Allow pseudo-random generators in tests
     "ARG001", # Allow unused arguments in fixtures
+    "PLC0415", # Allow conditional imports in tests
     "PLR2004", # Allow magic values in tests
     "SLF001", # Allow private member access in tests
     "EM101", # Allow string literals in exceptions
