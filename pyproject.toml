@@ -53,7 +53,7 @@ omit = [
 ]
 
 [tool.coverage.report]
-fail_under = 29
+fail_under = 85
 precision = 0
 exclude_lines = [
     "pragma: no cover",
@@ -113,7 +113,11 @@ max-complexity = 25
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = [
     "ANN", # Allow missing type annotations in tests
+    "ARG002", # Allow unused method arguments in parametrized tests
     "D103", # Allow missing docstrings in tests
+    "EM101", # Allow string literals in exceptions
+    "ERA001", # Allow commented-out code in test data tables
+    "PLR0913", # Allow many arguments in parametrized tests
     "S101", # Allow assert in tests
     "S106", # Allow hardcoded passwords in tests
     "S311", # Allow pseudo-random generators in tests
@@ -121,7 +125,6 @@ max-complexity = 25
     "PLC0415", # Allow conditional imports in tests
     "PLR2004", # Allow magic values in tests
     "SLF001", # Allow private member access in tests
-    "EM101", # Allow string literals in exceptions
     "TRY003", # Allow long exception messages
 ]
 
