@@ -139,15 +139,14 @@ async def test_dump_client_closed_on_exception():
 )
 async def test_diagnostics_entry(hass, mock_entry, side_effect, expected_registers):
     """Test async_get_config_entry_diagnostics."""
-    kwargs = (
-        {"return_value": {1: [1, 2, 3]}}
-        if side_effect is None
-        else {"side_effect": side_effect}
-    )
+    mock_dump = AsyncMock()
+    if side_effect is None:
+        mock_dump.return_value = {1: [1, 2, 3]}
+    else:
+        mock_dump.side_effect = side_effect
     with patch(
         "custom_components.komfovent.diagnostics.dump_registers",
-        new_callable=AsyncMock,
-        **kwargs,
+        mock_dump,
     ):
         result = await async_get_config_entry_diagnostics(hass, mock_entry)
     assert "config_entry" in result
