@@ -5,17 +5,24 @@ __pycache__
 */build/*
 */dist/*
 
+# virtual environments
+.venv
 
 # misc
 .coverage
-.vscode
+.coverage.*
 coverage.xml
-htmlcov/
+coverage.json
 .ruff_cache
 .idea
+.vscode
 .aider*
-
+.env
+.env.*
 
 # Home Assistant configuration
 config/*
 !config/configuration.yaml
+
+# temp
+sketch/
