@@ -1,7 +1,7 @@
 {
     "name": "lnagel/hass-komfovent",
     "image": "mcr.microsoft.com/devcontainers/python:3.13",
-    "postCreateCommand": "scripts/setup",
+    "postCreateCommand": "uv sync --all-extras",
     "forwardPorts": [
         8123
     ],
@@ -39,11 +39,9 @@
     "remoteUser": "vscode",
     "features": {
         "ghcr.io/devcontainers-extra/features/apt-packages:1": {
-            "packages": [
-                "ffmpeg",
-                "libturbojpeg0",
-                "libpcap-dev"
-            ]
-        }
+            "packages": "ffmpeg,libturbojpeg0,libpcap-dev"
+        },
+        "ghcr.io/jsburckhardt/devcontainer-features/uv:1": {},
+        "ghcr.io/jsburckhardt/devcontainer-features/ruff:1": {}
     }
 }
