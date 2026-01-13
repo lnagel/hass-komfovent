@@ -34,19 +34,6 @@ Issues = "https://github.com/lnagel/hass-komfovent/issues"
 [tool.uv]
 package = false
 
-[tool.black]
-line-length = 88
-target-version = ["py313"]
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | build
-  | dist
-
-)/
-'''
-
 [tool.pytest.ini_options]
 pythonpath = "."
 asyncio_mode = "auto"
@@ -99,3 +86,40 @@ replace = 'version = "{new_version}"'
 filename = "custom_components/komfovent/manifest.json"
 search = '"version": "{current_version}"'
 replace = '"version": "{new_version}"'
+
+[tool.ruff]
+line-length = 88
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "ANN401", # Dynamically typed expressions (typing.Any) are disallowed
+    "D203", # no-blank-line-before-class (incompatible with formatter)
+    "D212", # multi-line-summary-first-line (incompatible with formatter)
+    "COM812", # incompatible with formatter
+    "ISC001", # incompatible with formatter
+]
+
+[tool.ruff.lint.flake8-pytest-style]
+fixture-parentheses = false
+
+[tool.ruff.lint.pyupgrade]
+keep-runtime-typing = true
+
+[tool.ruff.lint.mccabe]
+max-complexity = 25
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = [
+    "S101", # Allow assert in tests
+    "S106", # Allow hardcoded passwords in tests
+    "ARG001", # Allow unused arguments in fixtures
+    "PLR2004", # Allow magic values in tests
+    "SLF001", # Allow private member access in tests
+    "EM101", # Allow string literals in exceptions
+    "TRY003", # Allow long exception messages
+]
+
+[tool.ty.environment]
+python-version = "3.13"
