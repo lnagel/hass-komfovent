@@ -18,6 +18,40 @@ from custom_components.komfovent.binary_sensor import (
 )
 from custom_components.komfovent.const import DOMAIN
 
+# ==================== Data Tables ====================
+
+BITMASK_TEST_CASES = [
+    (BITMASK_STARTING, 1, True),
+    (BITMASK_STARTING, 0, False),
+    (BITMASK_STOPPING, 2, True),
+    (BITMASK_STOPPING, 1, False),
+    (BITMASK_FAN, 4, True),
+    (BITMASK_FAN, 3, False),
+    (BITMASK_HEATING, 16, True),
+    (BITMASK_COOLING, 32, True),
+    (BITMASK_ALARM_F, 2048, True),
+    (BITMASK_ALARM_W, 4096, True),
+]
+
+EXPECTED_STATUS_KEYS = {
+    "status_starting",
+    "status_stopping",
+    "status_fan",
+    "status_rotor",
+    "status_heating",
+    "status_cooling",
+    "status_heating_denied",
+    "status_cooling_denied",
+    "status_flow_down",
+    "status_free_heating",
+    "status_free_cooling",
+    "status_alarm_fault",
+    "status_alarm_warning",
+}
+
+
+# ==================== Base Binary Sensor Tests ====================
+
 
 class TestKomfoventBinarySensor:
     """Tests for base KomfoventBinarySensor entity."""
@@ -25,14 +59,9 @@ class TestKomfoventBinarySensor:
     def test_initialization(self, mock_coordinator):
         """Test binary sensor initialization."""
         description = BinarySensorEntityDescription(
-            key="test_sensor",
-            name="Test Sensor",
+            key="test_sensor", name="Test Sensor"
         )
-        sensor = KomfoventBinarySensor(
-            coordinator=mock_coordinator,
-            register_id=100,
-            entity_description=description,
-        )
+        sensor = KomfoventBinarySensor(mock_coordinator, 100, description)
 
         assert sensor.register_id == 100
         assert sensor.entity_description.key == "test_sensor"
@@ -40,75 +69,39 @@ class TestKomfoventBinarySensor:
     def test_unique_id(self, mock_coordinator):
         """Test unique_id generation."""
         description = BinarySensorEntityDescription(key="test_sensor", name="Test")
-        sensor = KomfoventBinarySensor(
-            coordinator=mock_coordinator,
-            register_id=100,
-            entity_description=description,
-        )
+        sensor = KomfoventBinarySensor(mock_coordinator, 100, description)
 
         assert sensor.unique_id == "test_entry_id_test_sensor"
 
     def test_device_info(self, mock_coordinator):
         """Test device_info property."""
         description = BinarySensorEntityDescription(key="test_sensor", name="Test")
-        sensor = KomfoventBinarySensor(
-            coordinator=mock_coordinator,
-            register_id=100,
-            entity_description=description,
-        )
+        sensor = KomfoventBinarySensor(mock_coordinator, 100, description)
 
         device_info = sensor.device_info
         assert device_info["identifiers"] == {(DOMAIN, "test_entry_id")}
         assert device_info["name"] == "Komfovent"
         assert device_info["manufacturer"] == "Komfovent"
 
-    def test_is_on_true(self, mock_coordinator):
-        """Test is_on returns True for non-zero value."""
-        mock_coordinator.data = {100: 1}
+    @pytest.mark.parametrize(
+        ("data", "expected"),
+        [
+            ({100: 1}, True),
+            ({100: 0}, False),
+            (None, None),
+            ({}, None),
+        ],
+    )
+    def test_is_on(self, mock_coordinator, data, expected):
+        """Test is_on for various data states."""
+        mock_coordinator.data = data
         description = BinarySensorEntityDescription(key="test", name="Test")
-        sensor = KomfoventBinarySensor(
-            coordinator=mock_coordinator,
-            register_id=100,
-            entity_description=description,
-        )
+        sensor = KomfoventBinarySensor(mock_coordinator, 100, description)
 
-        assert sensor.is_on is True
+        assert sensor.is_on is expected
 
-    def test_is_on_false(self, mock_coordinator):
-        """Test is_on returns False for zero value."""
-        mock_coordinator.data = {100: 0}
-        description = BinarySensorEntityDescription(key="test", name="Test")
-        sensor = KomfoventBinarySensor(
-            coordinator=mock_coordinator,
-            register_id=100,
-            entity_description=description,
-        )
 
-        assert sensor.is_on is False
-
-    def test_is_on_no_data(self, mock_coordinator):
-        """Test is_on returns None when no data."""
-        mock_coordinator.data = None
-        description = BinarySensorEntityDescription(key="test", name="Test")
-        sensor = KomfoventBinarySensor(
-            coordinator=mock_coordinator,
-            register_id=100,
-            entity_description=description,
-        )
-
-        assert sensor.is_on is None
-
-    def test_is_on_missing_register(self, mock_coordinator):
-        """Test is_on returns None for missing register."""
-        mock_coordinator.data = {}
-        description = BinarySensorEntityDescription(key="test", name="Test")
-        sensor = KomfoventBinarySensor(
-            coordinator=mock_coordinator,
-            register_id=100,
-            entity_description=description,
-        )
-
-        assert sensor.is_on is None
+# ==================== Status Binary Sensor Tests ====================
 
 
 class TestKomfoventStatusBinarySensor:
@@ -118,91 +111,60 @@ class TestKomfoventStatusBinarySensor:
         """Test status binary sensor initialization with bitmask."""
         description = BinarySensorEntityDescription(key="test", name="Test")
         sensor = KomfoventStatusBinarySensor(
-            coordinator=mock_coordinator,
-            register_id=registers.REG_STATUS,
-            bitmask=BITMASK_FAN,
-            entity_description=description,
+            mock_coordinator, registers.REG_STATUS, BITMASK_FAN, description
         )
 
         assert sensor.bitmask == BITMASK_FAN
 
     @pytest.mark.parametrize(
-        ("bitmask", "status_value", "expected"),
-        [
-            (BITMASK_STARTING, 1, True),  # Bit 0 set
-            (BITMASK_STARTING, 0, False),  # Bit 0 not set
-            (BITMASK_STOPPING, 2, True),  # Bit 1 set
-            (BITMASK_STOPPING, 1, False),  # Bit 1 not set
-            (BITMASK_FAN, 4, True),  # Bit 2 set
-            (BITMASK_FAN, 3, False),  # Bit 2 not set
-            (BITMASK_HEATING, 16, True),  # Bit 4 set
-            (BITMASK_COOLING, 32, True),  # Bit 5 set
-            (BITMASK_ALARM_F, 2048, True),  # Bit 11 set
-            (BITMASK_ALARM_W, 4096, True),  # Bit 12 set
-        ],
+        ("bitmask", "status_value", "expected"), BITMASK_TEST_CASES
     )
     def test_is_on_bitmask(self, mock_coordinator, bitmask, status_value, expected):
         """Test is_on with various bitmask values."""
         mock_coordinator.data = {registers.REG_STATUS: status_value}
         description = BinarySensorEntityDescription(key="test", name="Test")
         sensor = KomfoventStatusBinarySensor(
-            coordinator=mock_coordinator,
-            register_id=registers.REG_STATUS,
-            bitmask=bitmask,
-            entity_description=description,
+            mock_coordinator, registers.REG_STATUS, bitmask, description
         )
 
         assert sensor.is_on is expected
 
-    def test_is_on_multiple_bits_set(self, mock_coordinator):
+    def test_multiple_bits_set(self, mock_coordinator):
         """Test is_on when multiple bits are set."""
-        # Set bits 0, 2, and 4 (1 + 4 + 16 = 21)
-        mock_coordinator.data = {registers.REG_STATUS: 21}
+        mock_coordinator.data = {registers.REG_STATUS: 21}  # bits 0, 2, 4
         description = BinarySensorEntityDescription(key="test", name="Test")
 
-        # Test that FAN (bit 2) is on
+        # FAN (bit 2) should be on
         sensor = KomfoventStatusBinarySensor(
-            coordinator=mock_coordinator,
-            register_id=registers.REG_STATUS,
-            bitmask=BITMASK_FAN,
-            entity_description=description,
+            mock_coordinator, registers.REG_STATUS, BITMASK_FAN, description
         )
         assert sensor.is_on is True
 
-        # Test that STOPPING (bit 1) is off
+        # STOPPING (bit 1) should be off
         sensor2 = KomfoventStatusBinarySensor(
-            coordinator=mock_coordinator,
-            register_id=registers.REG_STATUS,
-            bitmask=BITMASK_STOPPING,
-            entity_description=description,
+            mock_coordinator, registers.REG_STATUS, BITMASK_STOPPING, description
         )
         assert sensor2.is_on is False
 
-    def test_is_on_no_data(self, mock_coordinator):
-        """Test is_on returns None when no data."""
-        mock_coordinator.data = None
+    @pytest.mark.parametrize(
+        ("data", "expected"),
+        [
+            (None, None),
+            ({}, None),
+        ],
+    )
+    def test_edge_cases(self, mock_coordinator, data, expected):
+        """Test is_on edge cases."""
+        mock_coordinator.data = data
         description = BinarySensorEntityDescription(key="test", name="Test")
         sensor = KomfoventStatusBinarySensor(
-            coordinator=mock_coordinator,
-            register_id=registers.REG_STATUS,
-            bitmask=BITMASK_FAN,
-            entity_description=description,
+            mock_coordinator, registers.REG_STATUS, BITMASK_FAN, description
         )
 
-        assert sensor.is_on is None
+        assert sensor.is_on is expected
 
-    def test_is_on_missing_register(self, mock_coordinator):
-        """Test is_on returns None for missing register."""
-        mock_coordinator.data = {}
-        description = BinarySensorEntityDescription(key="test", name="Test")
-        sensor = KomfoventStatusBinarySensor(
-            coordinator=mock_coordinator,
-            register_id=registers.REG_STATUS,
-            bitmask=BITMASK_FAN,
-            entity_description=description,
-        )
 
-        assert sensor.is_on is None
+# ==================== Factory Function Tests ====================
 
 
 class TestCreateBinarySensors:
@@ -213,22 +175,5 @@ class TestCreateBinarySensors:
         sensors = await create_binary_sensors(mock_coordinator)
 
         assert len(sensors) == 13
-
-        expected_keys = {
-            "status_starting",
-            "status_stopping",
-            "status_fan",
-            "status_rotor",
-            "status_heating",
-            "status_cooling",
-            "status_heating_denied",
-            "status_cooling_denied",
-            "status_flow_down",
-            "status_free_heating",
-            "status_free_cooling",
-            "status_alarm_fault",
-            "status_alarm_warning",
-        }
-
         sensor_keys = {s.entity_description.key for s in sensors}
-        assert sensor_keys == expected_keys
+        assert sensor_keys == EXPECTED_STATUS_KEYS

@@ -15,11 +15,29 @@ from custom_components.komfovent.services import (
     set_system_time,
 )
 
+# ==================== Data Tables ====================
+
+STANDARD_MODES = [
+    ("away", OperationMode.AWAY),
+    ("normal", OperationMode.NORMAL),
+    ("intensive", OperationMode.INTENSIVE),
+    ("boost", OperationMode.BOOST),
+]
+
+TIMER_MODES = [
+    ("kitchen", registers.REG_KITCHEN_TIMER),
+    ("fireplace", registers.REG_FIREPLACE_TIMER),
+    ("override", registers.REG_OVERRIDE_TIMER),
+]
+
+
+# ==================== Clean Filters Calibration ====================
+
 
 class TestCleanFiltersCalibration:
     """Tests for clean_filters_calibration function."""
 
-    async def test_clean_filters_writes_register(self, mock_coordinator):
+    async def test_writes_register(self, mock_coordinator):
         """Test clean_filters_calibration writes to REG_CLEAN_FILTERS."""
         await clean_filters_calibration(mock_coordinator)
 
@@ -28,17 +46,20 @@ class TestCleanFiltersCalibration:
         )
 
 
+# ==================== Set Operation Mode ====================
+
+
 class TestSetOperationMode:
     """Tests for set_operation_mode function."""
 
-    async def test_off_mode_sets_power_off(self, mock_coordinator):
+    async def test_off_mode(self, mock_coordinator):
         """Test OFF mode sets power to 0."""
         await set_operation_mode(mock_coordinator, "off")
 
         mock_coordinator.client.write.assert_called_once_with(registers.REG_POWER, 0)
         mock_coordinator.async_request_refresh.assert_called_once()
 
-    async def test_air_quality_mode_enables_auto(self, mock_coordinator):
+    async def test_air_quality_mode(self, mock_coordinator):
         """Test AIR_QUALITY mode enables auto mode."""
         await set_operation_mode(mock_coordinator, "air_quality")
 
@@ -47,15 +68,7 @@ class TestSetOperationMode:
         )
         mock_coordinator.async_request_refresh.assert_called_once()
 
-    @pytest.mark.parametrize(
-        ("mode_name", "mode_enum"),
-        [
-            ("away", OperationMode.AWAY),
-            ("normal", OperationMode.NORMAL),
-            ("intensive", OperationMode.INTENSIVE),
-            ("boost", OperationMode.BOOST),
-        ],
-    )
+    @pytest.mark.parametrize(("mode_name", "mode_enum"), STANDARD_MODES)
     async def test_standard_modes(self, mock_coordinator, mode_name, mode_enum):
         """Test standard modes write to operation mode register."""
         await set_operation_mode(mock_coordinator, mode_name)
@@ -65,68 +78,31 @@ class TestSetOperationMode:
         )
         mock_coordinator.async_request_refresh.assert_called_once()
 
-    async def test_kitchen_mode_with_minutes(self, mock_coordinator):
-        """Test KITCHEN mode writes to kitchen timer with provided minutes."""
-        await set_operation_mode(mock_coordinator, "kitchen", minutes=30)
+    @pytest.mark.parametrize(("mode", "timer_reg"), TIMER_MODES)
+    async def test_timer_mode_with_minutes(self, mock_coordinator, mode, timer_reg):
+        """Test timer modes write to timer register with provided minutes."""
+        await set_operation_mode(mock_coordinator, mode, minutes=30)
 
-        mock_coordinator.client.write.assert_called_once_with(
-            registers.REG_KITCHEN_TIMER, 30
-        )
+        mock_coordinator.client.write.assert_called_once_with(timer_reg, 30)
 
-    async def test_kitchen_mode_uses_existing_timer(self, mock_coordinator):
-        """Test KITCHEN mode uses existing timer value from data."""
-        mock_coordinator.data = {registers.REG_KITCHEN_TIMER: 45}
+    @pytest.mark.parametrize(("mode", "timer_reg"), TIMER_MODES)
+    async def test_timer_mode_uses_existing(self, mock_coordinator, mode, timer_reg):
+        """Test timer modes use existing timer value from data."""
+        mock_coordinator.data = {timer_reg: 45}
 
-        await set_operation_mode(mock_coordinator, "kitchen")
+        await set_operation_mode(mock_coordinator, mode)
 
-        mock_coordinator.client.write.assert_called_once_with(
-            registers.REG_KITCHEN_TIMER, 45
-        )
+        mock_coordinator.client.write.assert_called_once_with(timer_reg, 45)
 
-    async def test_kitchen_mode_uses_default(self, mock_coordinator):
-        """Test KITCHEN mode uses default timer when no value available."""
+    @pytest.mark.parametrize(("mode", "timer_reg"), TIMER_MODES)
+    async def test_timer_mode_uses_default(self, mock_coordinator, mode, timer_reg):
+        """Test timer modes use default timer when no value available."""
         mock_coordinator.data = {}
 
-        await set_operation_mode(mock_coordinator, "kitchen")
+        await set_operation_mode(mock_coordinator, mode)
 
         mock_coordinator.client.write.assert_called_once_with(
-            registers.REG_KITCHEN_TIMER, DEFAULT_MODE_TIMER
-        )
-
-    async def test_fireplace_mode_with_minutes(self, mock_coordinator):
-        """Test FIREPLACE mode writes to fireplace timer."""
-        await set_operation_mode(mock_coordinator, "fireplace", minutes=20)
-
-        mock_coordinator.client.write.assert_called_once_with(
-            registers.REG_FIREPLACE_TIMER, 20
-        )
-
-    async def test_fireplace_mode_uses_existing_timer(self, mock_coordinator):
-        """Test FIREPLACE mode uses existing timer value from data."""
-        mock_coordinator.data = {registers.REG_FIREPLACE_TIMER: 35}
-
-        await set_operation_mode(mock_coordinator, "fireplace")
-
-        mock_coordinator.client.write.assert_called_once_with(
-            registers.REG_FIREPLACE_TIMER, 35
-        )
-
-    async def test_override_mode_with_minutes(self, mock_coordinator):
-        """Test OVERRIDE mode writes to override timer."""
-        await set_operation_mode(mock_coordinator, "override", minutes=15)
-
-        mock_coordinator.client.write.assert_called_once_with(
-            registers.REG_OVERRIDE_TIMER, 15
-        )
-
-    async def test_override_mode_uses_existing_timer(self, mock_coordinator):
-        """Test OVERRIDE mode uses existing timer value from data."""
-        mock_coordinator.data = {registers.REG_OVERRIDE_TIMER: 25}
-
-        await set_operation_mode(mock_coordinator, "override")
-
-        mock_coordinator.client.write.assert_called_once_with(
-            registers.REG_OVERRIDE_TIMER, 25
+            timer_reg, DEFAULT_MODE_TIMER
         )
 
     async def test_case_insensitive_mode(self, mock_coordinator):
@@ -137,20 +113,17 @@ class TestSetOperationMode:
             registers.REG_OPERATION_MODE, OperationMode.AWAY.value
         )
 
-    async def test_unsupported_mode_logs_warning(self, mock_coordinator):
-        """Test unsupported mode (STANDBY) logs warning but still refreshes."""
+    @pytest.mark.parametrize("mode", ["standby", "holiday"])
+    async def test_unsupported_mode_logs_warning(self, mock_coordinator, mode):
+        """Test unsupported modes log warning but still refresh."""
         with patch("custom_components.komfovent.services._LOGGER") as mock_logger:
-            await set_operation_mode(mock_coordinator, "standby")
+            await set_operation_mode(mock_coordinator, mode)
 
             mock_logger.warning.assert_called_once()
             mock_coordinator.async_request_refresh.assert_called_once()
 
-    async def test_holiday_mode_logs_warning(self, mock_coordinator):
-        """Test HOLIDAY mode logs warning (unsupported)."""
-        with patch("custom_components.komfovent.services._LOGGER") as mock_logger:
-            await set_operation_mode(mock_coordinator, "holiday")
 
-            mock_logger.warning.assert_called_once()
+# ==================== Set System Time ====================
 
 
 class TestSetSystemTime:
@@ -165,21 +138,31 @@ class TestSetSystemTime:
         mock_coordinator.client.write.assert_called_once()
         call_args = mock_coordinator.client.write.call_args
         assert call_args[0][0] == registers.REG_EPOCH_TIME
-        # Value should be a positive integer (seconds since epoch)
         assert isinstance(call_args[0][1], int)
         assert call_args[0][1] > 0
+
+
+# ==================== Get Coordinator For Device ====================
 
 
 class TestGetCoordinatorForDevice:
     """Tests for get_coordinator_for_device function."""
 
-    def test_returns_coordinator_for_valid_device(self, hass):
-        """Test returns coordinator for a valid device ID."""
+    @pytest.mark.parametrize(
+        ("setup_device", "expected_result"),
+        [
+            (True, True),  # Valid device returns coordinator
+            (False, False),  # Unknown device returns None
+        ],
+    )
+    def test_get_coordinator(self, hass, setup_device, expected_result):
+        """Test get_coordinator_for_device returns correct result."""
         mock_coordinator = MagicMock()
-        hass.data[DOMAIN] = {"test_entry_id": mock_coordinator}
+        hass.data[DOMAIN] = {"test_entry_id": mock_coordinator} if setup_device else {}
 
-        mock_device = MagicMock()
-        mock_device.config_entries = ["test_entry_id"]
+        mock_device = MagicMock() if setup_device else None
+        if mock_device:
+            mock_device.config_entries = ["test_entry_id"]
 
         with patch("custom_components.komfovent.services.dr.async_get") as mock_get:
             mock_registry = MagicMock()
@@ -188,22 +171,12 @@ class TestGetCoordinatorForDevice:
 
             result = get_coordinator_for_device(hass, "device_123")
 
-            assert result is mock_coordinator
+            if expected_result:
+                assert result is mock_coordinator
+            else:
+                assert result is None
 
-    def test_returns_none_for_unknown_device(self, hass):
-        """Test returns None for unknown device ID."""
-        hass.data[DOMAIN] = {}
-
-        with patch("custom_components.komfovent.services.dr.async_get") as mock_get:
-            mock_registry = MagicMock()
-            mock_registry.async_get.return_value = None
-            mock_get.return_value = mock_registry
-
-            result = get_coordinator_for_device(hass, "unknown_device")
-
-            assert result is None
-
-    def test_returns_none_for_device_without_coordinator(self, hass):
+    def test_device_without_coordinator(self, hass):
         """Test returns None when device has no matching coordinator."""
         hass.data[DOMAIN] = {}
 
@@ -220,6 +193,9 @@ class TestGetCoordinatorForDevice:
             assert result is None
 
 
+# ==================== Service Registration ====================
+
+
 class TestAsyncRegisterServices:
     """Tests for async_register_services function."""
 
@@ -229,10 +205,7 @@ class TestAsyncRegisterServices:
 
         await async_register_services(hass)
 
-        # Verify services were registered by checking async_register was called
         assert hass.services.async_register.call_count == 3
-
-        # Verify the service names
         registered_services = [
             call[0][1] for call in hass.services.async_register.call_args_list
         ]
