@@ -57,8 +57,6 @@ class TestApplyEma:
 
         # alpha = 60/660 = 0.0909
         # result = 0.0909 * 25 + 0.9091 * 20 = 2.27 + 18.18 = 20.45
-        expected = (dt / (tau + dt)) * raw_temp + (1 - dt / (tau + dt)) * previous_ema
-        assert result == pytest.approx(expected)
         assert result == pytest.approx(20.45, rel=0.01)
 
         # The filtered value should be much closer to previous than raw
@@ -89,9 +87,6 @@ class TestApplyEma:
 
         # alpha = 60/180 = 0.333
         # result = 0.333 * 22 + 0.667 * 20 = 7.33 + 13.33 = 20.67
-        expected_alpha = 60.0 / 180.0
-        expected = expected_alpha * raw_temp + (1 - expected_alpha) * previous_ema
-        assert result == pytest.approx(expected)
         assert result == pytest.approx(20.67, rel=0.01)
 
     def test_ema_with_long_time_constant(self) -> None:
@@ -103,12 +98,8 @@ class TestApplyEma:
 
         result = apply_ema(raw_temp, previous_ema, tau, dt)
 
-        # alpha = 60/1860 = 0.0323
-        # result = 0.0323 * 22 + 0.9677 * 20 = 0.71 + 19.35 = 20.06
-        expected_alpha = 60.0 / 1860.0
-        expected = expected_alpha * raw_temp + (1 - expected_alpha) * previous_ema
-        assert result == pytest.approx(expected)
-        assert result < 20.1  # Should barely move
+        # alpha = 60/1860 = 0.0323, result ≈ 20.06 (barely moves)
+        assert result == pytest.approx(20.06, rel=0.01)
 
     def test_ema_step_response(self) -> None:
         """Test EMA step response characteristics."""
@@ -172,3 +163,11 @@ class TestApplyEma:
 
         # Should stay approximately the same (allowing for float precision)
         assert result == pytest.approx(previous_ema)
+
+    @pytest.mark.parametrize(
+        ("precision", "expected"), [(0, 20.0), (1, 20.5), (2, 20.45)]
+    )
+    def test_ema_precision(self, precision: int, expected: float) -> None:
+        """Test precision parameter controls decimal rounding."""
+        result = apply_ema(25.0, 20.0, tau=600, dt=60.0, precision=precision)
+        assert result == expected

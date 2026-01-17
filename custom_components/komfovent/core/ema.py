@@ -6,6 +6,7 @@ def apply_ema(
     previous: float | None,
     tau: int,
     dt: float,
+    precision: int = 2,
 ) -> float:
     """
     Apply Exponential Moving Average filter to temperature reading.
@@ -23,6 +24,7 @@ def apply_ema(
         previous: Previous EMA value (None on first reading).
         tau: Time constant in seconds (0 disables filtering).
         dt: Time delta since last update in seconds.
+        precision: Decimal places to round result.
 
     Returns:
         Filtered temperature value.
@@ -35,5 +37,5 @@ def apply_ema(
     # Calculate smoothing factor alpha
     alpha = dt / (tau + dt)
 
-    # Apply EMA filter
-    return alpha * current + (1 - alpha) * previous
+    # Apply EMA filter and round to avoid floating point precision issues
+    return round(alpha * current + (1 - alpha) * previous, precision)
