@@ -12,9 +12,9 @@ DEFAULT_NAME = "Komfovent"
 DEFAULT_HOST: Final = None
 DEFAULT_PORT = 502
 DEFAULT_SLAVE_ID: Final = 254
-DEFAULT_SCAN_INTERVAL = 30
 
 # Options
+OPT_UPDATE_INTERVAL: Final = "update_interval"
 OPT_STEP_FLOW: Final = "step_flow"
 OPT_STEP_TEMPERATURE: Final = "step_temperature"
 OPT_STEP_HUMIDITY: Final = "step_humidity"
@@ -22,6 +22,8 @@ OPT_STEP_CO2: Final = "step_co2"
 OPT_STEP_VOC: Final = "step_voc"
 OPT_STEP_TIMER: Final = "step_timer"
 
+# Defaults
+DEFAULT_UPDATE_INTERVAL = 30
 DEFAULT_STEP_FLOW: Final = 5.0
 DEFAULT_STEP_TEMPERATURE: Final = 0.5
 DEFAULT_STEP_HUMIDITY: Final = 5.0

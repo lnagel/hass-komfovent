@@ -3,6 +3,7 @@
     "step": {
       "init": {
         "data": {
+          "update_interval": "Update interval",
           "step_flow": "Step for flow entities",
           "step_temperature": "Step for temperature entities",
           "step_humidity": "Step for humidity entities",

@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import logging
+from datetime import timedelta
 from typing import TYPE_CHECKING
 
 from homeassistant.const import Platform
 
-from .const import DOMAIN
+from .const import DEFAULT_UPDATE_INTERVAL, DOMAIN, OPT_UPDATE_INTERVAL
 from .coordinator import KomfoventCoordinator
 from .services import async_register_services
 
@@ -32,7 +33,12 @@ PLATFORMS = [
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Komfovent from a config entry."""
-    coordinator = KomfoventCoordinator(hass=hass, config_entry=entry)
+    update_interval = entry.options.get(OPT_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL)
+    coordinator = KomfoventCoordinator(
+        hass=hass,
+        config_entry=entry,
+        update_interval=timedelta(seconds=update_interval),
+    )
 
     await coordinator.connect()
 
@@ -43,7 +49,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await async_register_services(hass)
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
+    entry.async_on_unload(entry.add_update_listener(_async_update_listener))
+
     return True
+
+
+async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Handle options update."""
+    coordinator: KomfoventCoordinator = hass.data[DOMAIN][entry.entry_id]
+    update_interval = entry.options.get(OPT_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL)
+    coordinator.update_interval = timedelta(seconds=update_interval)
+    _LOGGER.debug("Update interval changed to %s seconds", update_interval)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
