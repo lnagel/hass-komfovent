@@ -1,7 +1,7 @@
 """Test cases for Komfovent helper functions."""
 
-from custom_components.komfovent.const import Controller
-from custom_components.komfovent.helpers import get_version_from_int
+from custom_components.komfovent.const import DOMAIN, Controller
+from custom_components.komfovent.helpers import build_device_info, get_version_from_int
 
 
 def uint32(high, low):
@@ -39,3 +39,25 @@ def test_get_version_from_int():
     # Test boundary values
     assert get_version_from_int(0) == (Controller.C6, 0, 0, 0, 0)
     assert get_version_from_int(0xFFFFFFFF) == (Controller.NA, 15, 15, 255, 4095)
+
+
+def test_build_device_info(mock_coordinator):
+    """Test build_device_info returns correct device info dictionary."""
+    device_info = build_device_info(mock_coordinator)
+
+    assert device_info["identifiers"] == {(DOMAIN, "test_entry_id")}
+    assert device_info["name"] == "Komfovent"
+    assert device_info["manufacturer"] == "Komfovent"
+    assert device_info["model"] == "C6"
+    assert device_info["configuration_url"] == "http://192.168.1.100"
+
+
+def test_build_device_info_with_different_controllers(
+    mock_coordinator_by_controller,
+):
+    """Test build_device_info returns correct model for each controller type."""
+    device_info = build_device_info(mock_coordinator_by_controller)
+
+    controller = mock_coordinator_by_controller.controller
+    assert device_info["model"] == controller.name
+    assert device_info["configuration_url"] == "http://192.168.1.100"

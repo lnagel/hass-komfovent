@@ -25,7 +25,7 @@ from homeassistant.const import (
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .helpers import get_version_from_int
+from .helpers import build_device_info, get_version_from_int
 
 if TYPE_CHECKING:
     from decimal import Decimal
@@ -729,12 +729,7 @@ class KomfoventSensor(CoordinatorEntity["KomfoventCoordinator"], SensorEntity):
         self._attr_unique_id = (
             f"{coordinator.config_entry.entry_id}_{entity_description.key}"
         )
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, coordinator.config_entry.entry_id)},
-            "name": coordinator.config_entry.title,
-            "manufacturer": "Komfovent",
-            "model": None,
-        }
+        self._attr_device_info = build_device_info(coordinator)
 
     @property
     def native_value(self) -> StateType | date | datetime | Decimal:
