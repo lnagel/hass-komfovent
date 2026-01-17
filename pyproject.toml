@@ -1,6 +1,6 @@
 [project]
 name = "hass-komfovent"
-version = "0.7.4"
+version = "0.8.0"
 description = "A Home Assistant integration for Komfovent C6, C6M and C8 ventilation units through Modbus TCP"
 readme = "README.md"
 requires-python = ">=3.13.2"
@@ -69,7 +69,7 @@ exclude_lines = [
 output = "coverage.xml"
 
 [tool.bumpversion]
-current_version = "0.7.4"
+current_version = "0.8.0"
 parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"
 serialize = ["{major}.{minor}.{patch}"]
 commit = true
