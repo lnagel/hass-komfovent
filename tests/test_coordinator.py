@@ -75,6 +75,36 @@ async def test_coordinator_handles_connection_failure(
             await coordinator.connect()
 
 
+async def test_cooldown_delays_update(hass: HomeAssistant, mock_config_entry) -> None:
+    """Test that cooldown delays the next update."""
+    mock_client = AsyncMock()
+    mock_client.connect = AsyncMock()
+    mock_client.read = AsyncMock(return_value={1: 42})
+
+    with (
+        patch(
+            "custom_components.komfovent.coordinator.KomfoventModbusClient",
+            return_value=mock_client,
+        ),
+        patch(
+            "custom_components.komfovent.coordinator.asyncio.sleep", new=AsyncMock()
+        ) as mock_sleep,
+    ):
+        coordinator = KomfoventCoordinator(hass, config_entry=mock_config_entry)
+        await coordinator.connect()
+
+        # Set a 1 second cooldown
+        coordinator.set_cooldown(1.0)
+
+        # Trigger an update - should wait for cooldown
+        await coordinator.async_refresh()
+
+        # Verify sleep was called with approximately 1 second
+        mock_sleep.assert_called_once()
+        wait_time = mock_sleep.call_args[0][0]
+        assert 0.9 < wait_time <= 1.0
+
+
 class TestEmaFiltering:
     """Tests for EMA filtering in coordinator."""
 
