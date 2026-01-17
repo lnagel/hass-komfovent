@@ -1,14 +1,17 @@
 """Tests for the Komfovent coordinator."""
 
+from datetime import timedelta
 from unittest.mock import AsyncMock, patch
 
 import pytest
 from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import HomeAssistant
+from homeassistant.util.dt import utcnow
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.komfovent.const import DOMAIN
 from custom_components.komfovent.coordinator import KomfoventCoordinator
+from custom_components.komfovent.registers import REG_SUPPLY_TEMP
 
 
 @pytest.fixture
@@ -70,3 +73,110 @@ async def test_coordinator_handles_connection_failure(
         # Test connection - should raise
         with pytest.raises(ConnectionError):
             await coordinator.connect()
+
+
+class TestEmaFiltering:
+    """Tests for EMA filtering in coordinator."""
+
+    def test_ema_not_applied_when_disabled(
+        self, hass: HomeAssistant, mock_config_entry
+    ) -> None:
+        """Test EMA is not applied when time constant is 0."""
+        with patch(
+            "custom_components.komfovent.coordinator.KomfoventModbusClient",
+            return_value=AsyncMock(),
+        ):
+            coordinator = KomfoventCoordinator(
+                hass, config_entry=mock_config_entry, ema_time_constant=0
+            )
+            coordinator.data = {REG_SUPPLY_TEMP: 200}
+            coordinator.last_update_success_time = utcnow() - timedelta(seconds=30)
+
+            data = {REG_SUPPLY_TEMP: 250}
+            coordinator._apply_ema_on_update_data(data)
+
+            # Value should remain unchanged (no filtering)
+            assert data[REG_SUPPLY_TEMP] == 250
+
+    def test_ema_not_applied_when_no_previous_data(
+        self, hass: HomeAssistant, mock_config_entry
+    ) -> None:
+        """Test EMA is not applied on first update."""
+        with patch(
+            "custom_components.komfovent.coordinator.KomfoventModbusClient",
+            return_value=AsyncMock(),
+        ):
+            coordinator = KomfoventCoordinator(
+                hass, config_entry=mock_config_entry, ema_time_constant=300
+            )
+            coordinator.data = None  # type: ignore[assignment]
+            coordinator.last_update_success_time = utcnow() - timedelta(seconds=30)
+
+            data = {REG_SUPPLY_TEMP: 250}
+            coordinator._apply_ema_on_update_data(data)
+
+            # Value should remain unchanged
+            assert data[REG_SUPPLY_TEMP] == 250
+
+    def test_ema_not_applied_when_no_last_update_time(
+        self, hass: HomeAssistant, mock_config_entry
+    ) -> None:
+        """Test EMA is not applied when last_update_success_time is None."""
+        with patch(
+            "custom_components.komfovent.coordinator.KomfoventModbusClient",
+            return_value=AsyncMock(),
+        ):
+            coordinator = KomfoventCoordinator(
+                hass, config_entry=mock_config_entry, ema_time_constant=300
+            )
+            coordinator.data = {REG_SUPPLY_TEMP: 200}
+            coordinator.last_update_success_time = None
+
+            data = {REG_SUPPLY_TEMP: 250}
+            coordinator._apply_ema_on_update_data(data)
+
+            # Value should remain unchanged
+            assert data[REG_SUPPLY_TEMP] == 250
+
+    def test_ema_applied_when_enabled(
+        self, hass: HomeAssistant, mock_config_entry
+    ) -> None:
+        """Test EMA filtering is applied when conditions are met."""
+        with patch(
+            "custom_components.komfovent.coordinator.KomfoventModbusClient",
+            return_value=AsyncMock(),
+        ):
+            coordinator = KomfoventCoordinator(
+                hass, config_entry=mock_config_entry, ema_time_constant=300
+            )
+            coordinator.data = {REG_SUPPLY_TEMP: 200}
+            coordinator.last_update_success_time = utcnow() - timedelta(seconds=30)
+
+            data = {REG_SUPPLY_TEMP: 250}
+            coordinator._apply_ema_on_update_data(data)
+
+            # Value should be filtered (between previous and current)
+            # With tau=300, dt=30: alpha = 30/(300+30) = 0.0909
+            # filtered = 0.0909 * 250 + 0.9091 * 200 = 204.5
+            assert data[REG_SUPPLY_TEMP] == pytest.approx(204.5, rel=0.01)
+
+    def test_ema_skips_registers_not_in_data(
+        self, hass: HomeAssistant, mock_config_entry
+    ) -> None:
+        """Test EMA only processes registers present in data."""
+        with patch(
+            "custom_components.komfovent.coordinator.KomfoventModbusClient",
+            return_value=AsyncMock(),
+        ):
+            coordinator = KomfoventCoordinator(
+                hass, config_entry=mock_config_entry, ema_time_constant=300
+            )
+            coordinator.data = {REG_SUPPLY_TEMP: 200}
+            coordinator.last_update_success_time = utcnow() - timedelta(seconds=30)
+
+            # Data without any EMA registers
+            data = {999: 100}
+            coordinator._apply_ema_on_update_data(data)
+
+            # Non-EMA register should remain unchanged
+            assert data[999] == 100

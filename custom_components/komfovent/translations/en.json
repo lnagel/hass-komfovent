@@ -4,6 +4,7 @@
       "init": {
         "data": {
           "update_interval": "Update interval",
+          "ema_time_constant": "Measurement averaging time constant",
           "step_flow": "Step for flow entities",
           "step_temperature": "Step for temperature entities",
           "step_humidity": "Step for humidity entities",
