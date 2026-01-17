@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
 from homeassistant.const import CONF_HOST, CONF_PORT
@@ -45,6 +46,7 @@ class KomfoventCoordinator(TimestampDataUpdateCoordinator[dict[int, Any]]):
     func_version: int = 0
     client: KomfoventModbusClient
     ema_time_constant: int
+    _cooldown_until: datetime | None = None
 
     def __init__(
         self,
@@ -65,6 +67,18 @@ class KomfoventCoordinator(TimestampDataUpdateCoordinator[dict[int, Any]]):
             port=config_entry.data[CONF_PORT],
         )
         self.ema_time_constant = ema_time_constant
+
+    def set_cooldown(self, seconds: float) -> None:
+        """Set a cooldown period before the next update can proceed."""
+        self._cooldown_until = utcnow() + timedelta(seconds=seconds)
+
+    async def _wait_for_cooldown(self) -> None:
+        """Wait for cooldown period to expire if set."""
+        if self._cooldown_until is None:
+            return
+        wait_time = (self._cooldown_until - utcnow()).total_seconds()
+        if wait_time > 0:
+            await asyncio.sleep(wait_time)
 
     async def connect(self) -> bool:
         """Connect to the Modbus device."""
@@ -89,6 +103,8 @@ class KomfoventCoordinator(TimestampDataUpdateCoordinator[dict[int, Any]]):
 
     async def _async_update_data(self) -> dict[int, Any]:
         """Fetch data from Komfovent."""
+        await self._wait_for_cooldown()
+
         data = {}
 
         try:

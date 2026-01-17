@@ -1,6 +1,5 @@
 """Services for Komfovent integration."""
 
-import asyncio
 import logging
 import zoneinfo
 from datetime import datetime
@@ -83,8 +82,8 @@ async def set_operation_mode(
         # Log a warning, don't change the mode and proceed to request a refresh
         _LOGGER.warning("Unsupported operation mode: %s", mode)
 
-    # Wait a second for the command to be processed by the controller
-    await asyncio.sleep(1.0)
+    # Set cooldown to allow the controller to process the command before next poll
+    coordinator.set_cooldown(1.0)
 
     # Refresh the coordinator data to reflect the changes
     await coordinator.async_request_refresh()
