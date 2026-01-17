@@ -8,16 +8,22 @@ from typing import TYPE_CHECKING, Any
 
 from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.exceptions import ConfigEntryNotReady
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.helpers.update_coordinator import (
+    TimestampDataUpdateCoordinator,
+    UpdateFailed,
+)
+from homeassistant.util.dt import utcnow
 from pymodbus.exceptions import ModbusException
 
 from . import registers
 from .const import (
+    DEFAULT_EMA_TIME_CONSTANT,
     DEFAULT_UPDATE_INTERVAL,
     DOMAIN,
     ConnectedPanels,
     Controller,
 )
+from .core.ema import apply_ema
 from .helpers import get_version_from_int
 from .modbus import KomfoventModbusClient
 
@@ -31,19 +37,21 @@ FUNC_VER_AQ_HUMIDITY = 38
 FUNC_VER_EXHAUST_TEMP = 67
 
 
-class KomfoventCoordinator(DataUpdateCoordinator[dict[int, Any]]):
+class KomfoventCoordinator(TimestampDataUpdateCoordinator[dict[int, Any]]):
     """Class to manage fetching Komfovent data."""
 
     config_entry: ConfigEntry
     controller: Controller = Controller.NA
     func_version: int = 0
     client: KomfoventModbusClient
+    ema_time_constant: int
 
     def __init__(
         self,
         hass: HomeAssistant,
         *,
         config_entry: ConfigEntry,
+        ema_time_constant: int = DEFAULT_EMA_TIME_CONSTANT,
         **kwargs: Any,
     ) -> None:
         """Initialize."""
@@ -56,6 +64,7 @@ class KomfoventCoordinator(DataUpdateCoordinator[dict[int, Any]]):
             host=config_entry.data[CONF_HOST],
             port=config_entry.data[CONF_PORT],
         )
+        self.ema_time_constant = ema_time_constant
 
     async def connect(self) -> bool:
         """Connect to the Modbus device."""
@@ -167,4 +176,25 @@ class KomfoventCoordinator(DataUpdateCoordinator[dict[int, Any]]):
             _LOGGER.warning("Error communicating with Komfovent: %s", error)
             raise UpdateFailed from error
 
+        self._apply_ema_on_update_data(data)
         return data
+
+    def _apply_ema_on_update_data(self, data: dict[int, Any]) -> None:
+        """Apply EMA filtering to selected registers."""
+        if (
+            self.ema_time_constant <= 0
+            or self.data is None
+            or not self.last_update_success_time
+        ):
+            return
+
+        dt = (utcnow() - self.last_update_success_time).total_seconds()
+
+        for reg in registers.REGISTERS_APPLY_EMA:
+            if reg in data:
+                data[reg] = apply_ema(
+                    current=data[reg],
+                    previous=self.data.get(reg),
+                    tau=self.ema_time_constant,
+                    dt=dt,
+                )

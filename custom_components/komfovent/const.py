@@ -15,6 +15,7 @@ DEFAULT_SLAVE_ID: Final = 254
 
 # Options
 OPT_UPDATE_INTERVAL: Final = "update_interval"
+OPT_EMA_TIME_CONSTANT: Final = "ema_time_constant"
 OPT_STEP_FLOW: Final = "step_flow"
 OPT_STEP_TEMPERATURE: Final = "step_temperature"
 OPT_STEP_HUMIDITY: Final = "step_humidity"
@@ -24,6 +25,7 @@ OPT_STEP_TIMER: Final = "step_timer"
 
 # Defaults
 DEFAULT_UPDATE_INTERVAL = 30
+DEFAULT_EMA_TIME_CONSTANT = 300
 DEFAULT_STEP_FLOW: Final = 5.0
 DEFAULT_STEP_TEMPERATURE: Final = 0.5
 DEFAULT_STEP_HUMIDITY: Final = 5.0

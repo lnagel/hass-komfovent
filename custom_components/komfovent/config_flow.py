@@ -18,10 +18,12 @@ from homeassistant.helpers.selector import (
 )
 
 from .const import (
+    DEFAULT_EMA_TIME_CONSTANT,
     DEFAULT_NAME,
     DEFAULT_PORT,
     DEFAULT_UPDATE_INTERVAL,
     DOMAIN,
+    OPT_EMA_TIME_CONSTANT,
     OPT_STEP_CO2,
     OPT_STEP_FLOW,
     OPT_STEP_HUMIDITY,
@@ -47,6 +49,17 @@ OPTIONS_SCHEMA = vol.Schema(
                 min=10,
                 max=300,
                 step=5,
+                mode=NumberSelectorMode.SLIDER,
+                unit_of_measurement="seconds",
+            )
+        ),
+        vol.Optional(
+            OPT_EMA_TIME_CONSTANT, default=DEFAULT_EMA_TIME_CONSTANT
+        ): NumberSelector(
+            NumberSelectorConfig(
+                min=0,
+                max=900,
+                step=30,
                 mode=NumberSelectorMode.SLIDER,
                 unit_of_measurement="seconds",
             )
