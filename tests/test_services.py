@@ -1,6 +1,6 @@
 """Tests for Komfovent services."""
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -14,6 +14,14 @@ from custom_components.komfovent.services import (
     set_operation_mode,
     set_system_time,
 )
+
+
+@pytest.fixture(autouse=True)
+def fast_sleep():
+    """Patch asyncio.sleep to avoid 1-second delays in set_operation_mode."""
+    with patch("custom_components.komfovent.services.asyncio.sleep", new=AsyncMock()):
+        yield
+
 
 # ==================== Data Tables ====================
 
