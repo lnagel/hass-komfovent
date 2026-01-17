@@ -11,10 +11,16 @@ from homeassistant.config_entries import (
 )
 from homeassistant.const import CONF_HOST, CONF_NAME, CONF_PORT
 from homeassistant.core import callback
+from homeassistant.helpers.selector import (
+    NumberSelector,
+    NumberSelectorConfig,
+    NumberSelectorMode,
+)
 
 from .const import (
     DEFAULT_NAME,
     DEFAULT_PORT,
+    DEFAULT_UPDATE_INTERVAL,
     DOMAIN,
     OPT_STEP_CO2,
     OPT_STEP_FLOW,
@@ -22,6 +28,7 @@ from .const import (
     OPT_STEP_TEMPERATURE,
     OPT_STEP_TIMER,
     OPT_STEP_VOC,
+    OPT_UPDATE_INTERVAL,
 )
 
 CONFIG_SCHEMA = vol.Schema(
@@ -33,6 +40,17 @@ CONFIG_SCHEMA = vol.Schema(
 )
 OPTIONS_SCHEMA = vol.Schema(
     {
+        vol.Optional(
+            OPT_UPDATE_INTERVAL, default=DEFAULT_UPDATE_INTERVAL
+        ): NumberSelector(
+            NumberSelectorConfig(
+                min=10,
+                max=300,
+                step=5,
+                mode=NumberSelectorMode.SLIDER,
+                unit_of_measurement="seconds",
+            )
+        ),
         vol.Optional(OPT_STEP_FLOW): vol.Coerce(float),
         vol.Optional(OPT_STEP_TEMPERATURE): vol.Coerce(float),
         vol.Optional(OPT_STEP_HUMIDITY): vol.Coerce(float),

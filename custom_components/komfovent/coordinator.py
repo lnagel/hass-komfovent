@@ -13,7 +13,7 @@ from pymodbus.exceptions import ModbusException
 
 from . import registers
 from .const import (
-    DEFAULT_SCAN_INTERVAL,
+    DEFAULT_UPDATE_INTERVAL,
     DOMAIN,
     ConnectedPanels,
     Controller,
@@ -48,7 +48,7 @@ class KomfoventCoordinator(DataUpdateCoordinator[dict[int, Any]]):
     ) -> None:
         """Initialize."""
         kwargs.setdefault("name", DOMAIN)
-        kwargs.setdefault("update_interval", timedelta(seconds=DEFAULT_SCAN_INTERVAL))
+        kwargs.setdefault("update_interval", timedelta(seconds=DEFAULT_UPDATE_INTERVAL))
 
         super().__init__(hass, _LOGGER, config_entry=config_entry, **kwargs)
 

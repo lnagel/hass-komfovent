@@ -17,6 +17,7 @@ from custom_components.komfovent.config_flow import (
 from custom_components.komfovent.const import (
     DEFAULT_NAME,
     DEFAULT_PORT,
+    DEFAULT_UPDATE_INTERVAL,
     DOMAIN,
     OPT_STEP_CO2,
     OPT_STEP_FLOW,
@@ -24,6 +25,7 @@ from custom_components.komfovent.const import (
     OPT_STEP_TEMPERATURE,
     OPT_STEP_TIMER,
     OPT_STEP_VOC,
+    OPT_UPDATE_INTERVAL,
 )
 
 # ==================== Config Flow Tests ====================
@@ -191,7 +193,10 @@ class TestSchemas:
     def test_options_schema_accepts_valid(self):
         """Test options schema accepts valid data."""
         data = {OPT_STEP_FLOW: 10.0, OPT_STEP_TEMPERATURE: 0.5}
-        assert OPTIONS_SCHEMA(data) == data
+        result = OPTIONS_SCHEMA(data)
+        assert result[OPT_STEP_FLOW] == data[OPT_STEP_FLOW]
+        assert result[OPT_STEP_TEMPERATURE] == data[OPT_STEP_TEMPERATURE]
+        assert result[OPT_UPDATE_INTERVAL] == DEFAULT_UPDATE_INTERVAL
 
     def test_options_schema_coerces_types(self):
         """Test options schema coerces string to float."""
@@ -199,5 +204,6 @@ class TestSchemas:
         assert result[OPT_STEP_FLOW] == 10.0
 
     def test_options_schema_accepts_empty(self):
-        """Test options schema accepts empty dict."""
-        assert OPTIONS_SCHEMA({}) == {}
+        """Test options schema accepts empty dict and applies defaults."""
+        result = OPTIONS_SCHEMA({})
+        assert result[OPT_UPDATE_INTERVAL] == DEFAULT_UPDATE_INTERVAL
