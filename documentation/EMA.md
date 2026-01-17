@@ -34,8 +34,7 @@ The following sensor registers have EMA filtering applied:
 | Humidity       | Panel 1 RH, Panel 2 RH, Indoor Absolute, Outdoor Absolute  |
 | Air Quality    | Extract AQ 1, Extract AQ 2                                 |
 | Heat Exchanger | Signal, Recovery, Efficiency                               |
-| Heaters        | Electric Heater, Water Heater                              |
-| Power          | Power Consumption, Heater Power, SPI, Energy Saving        |
+| Efficiency     | SPI, Energy Saving                                         |
 | Pressure       | Supply Pressure, Extract Pressure                          |
 
 ## Implementation
