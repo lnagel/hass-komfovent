@@ -19,6 +19,7 @@ if TYPE_CHECKING:
 
 from . import registers
 from .const import DOMAIN
+from .helpers import build_device_info
 
 
 async def async_setup_entry(
@@ -76,12 +77,7 @@ class KomfoventDateTime(CoordinatorEntity["KomfoventCoordinator"], DateTimeEntit
         self._attr_unique_id = (
             f"{coordinator.config_entry.entry_id}_{entity_description.key}"
         )
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, coordinator.config_entry.entry_id)},
-            "name": coordinator.config_entry.title,
-            "manufacturer": "Komfovent",
-            "model": None,
-        }
+        self._attr_device_info = build_device_info(coordinator)
 
     @property
     def native_value(self) -> datetime | None:

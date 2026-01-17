@@ -46,6 +46,7 @@ from .const import (
     FlowControl,
     FlowUnit,
 )
+from .helpers import build_device_info
 from .registers import REG_ECO_MAX_TEMP, REG_ECO_MIN_TEMP
 
 AQ_INTENSITY_MIN = 20
@@ -647,12 +648,7 @@ class KomfoventNumber(CoordinatorEntity["KomfoventCoordinator"], NumberEntity):
         self._attr_unique_id = (
             f"{coordinator.config_entry.entry_id}_{entity_description.key}"
         )
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, coordinator.config_entry.entry_id)},
-            "name": coordinator.config_entry.title,
-            "manufacturer": "Komfovent",
-            "model": None,
-        }
+        self._attr_device_info = build_device_info(coordinator)
 
     @property
     def native_value(self) -> float | None:
