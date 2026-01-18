@@ -15,6 +15,7 @@ The integration provides comprehensive control and monitoring of your Komfovent 
 ### Climate Control
 - Temperature control with multiple modes (supply, extract, room, balance)
 - Setpoint adjustment for all operation modes
+- Real-time HVAC action monitoring (heating, cooling, fan, idle, off)
 - ECO mode settings with min/max temperature limits
 - Free heating/cooling control
 - Heater and cooler blocking options
@@ -157,11 +158,28 @@ If you have issues seeing the data correctly, then please open a new ticket with
 
 ## Configuration
 
-The integration can be configured through the Home Assistant UI. The following options are available:
+The integration can be configured through the Home Assistant UI.
+
+### Initial Setup
+
+During initial setup, you'll configure:
 
 - **name**: The name of your Komfovent device
 - **Host**: The IP address of your Komfovent device
 - **Port**: The Modbus TCP port (default: 502)
+
+After setup, the device info will include a direct link to the device's web interface for easy access.
+
+### Advanced Options
+
+After installation, you can configure advanced options through the integration's options menu:
+
+- **Update Interval**: How often to fetch data from the device (10-300 seconds, default: 30 seconds)
+- **EMA Time Constant**: Temperature smoothing filter time constant (0-900 seconds, default: 300 seconds)
+  - Set to 0 to disable temperature smoothing
+  - Higher values provide more smoothing but slower response to temperature changes
+- **Step Thresholds**: Minimum change thresholds for various sensor types (flow, temperature, humidity, CO2, VOC, timer)
+  - Helps reduce noise and unnecessary updates
 
 ## ModBus tools
 
