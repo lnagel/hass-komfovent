@@ -131,7 +131,7 @@ class KomfoventClimate(CoordinatorEntity["KomfoventCoordinator"], ClimateEntity)
         return HVACMode.OFF
 
     @property
-    def hvac_action(self) -> HVACAction | None:
+    def hvac_action(self) -> HVACAction | None:  # noqa: PLR0911
         """Return the current HVAC action."""
         if not self.coordinator.data:
             return None
@@ -150,7 +150,11 @@ class KomfoventClimate(CoordinatorEntity["KomfoventCoordinator"], ClimateEntity)
             return HVACAction.HEATING
         if status & BITMASK_COOLING:
             return HVACAction.COOLING
-        return HVACAction.FAN if status & BITMASK_FAN else HVACAction.IDLE
+        if status & BITMASK_FAN:
+            return HVACAction.FAN
+
+        # Device is on but not actively doing anything
+        return HVACAction.IDLE
 
     @property
     def preset_mode(self) -> str | None:
