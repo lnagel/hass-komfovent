@@ -48,6 +48,7 @@ class KomfoventClimate(CoordinatorEntity["KomfoventCoordinator"], ClimateEntity)
     """Representation of a Komfovent climate device."""
 
     _attr_has_entity_name: ClassVar[bool] = True
+    _attr_icon: ClassVar[str] = "mdi:air-filter"
     _attr_name: ClassVar[None] = None
     _attr_temperature_unit: ClassVar[str] = UnitOfTemperature.CELSIUS
     _attr_hvac_modes: ClassVar[list[str]] = [HVACMode.OFF, HVACMode.HEAT_COOL]
