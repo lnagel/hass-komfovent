@@ -3,10 +3,15 @@
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from homeassistant.components.climate import HVACMode
+from homeassistant.components.climate import HVACAction, HVACMode
 from homeassistant.const import ATTR_TEMPERATURE
 
 from custom_components.komfovent import registers
+from custom_components.komfovent.binary_sensor import (
+    BITMASK_COOLING,
+    BITMASK_FAN,
+    BITMASK_HEATING,
+)
 from custom_components.komfovent.climate import KomfoventClimate
 from custom_components.komfovent.const import DOMAIN, OperationMode, TemperatureControl
 
@@ -99,6 +104,51 @@ def test_hvac_mode(mock_coordinator, data, expected):
     """Test hvac_mode for various power states."""
     mock_coordinator.data = data
     assert KomfoventClimate(mock_coordinator).hvac_mode == expected
+
+
+@pytest.mark.parametrize(
+    ("power", "status", "expected"),
+    [
+        # Device off
+        (0, 0, HVACAction.OFF),
+        (0, BITMASK_HEATING | BITMASK_FAN, HVACAction.OFF),
+        # Device on - heating
+        (1, BITMASK_HEATING, HVACAction.HEATING),
+        (1, BITMASK_HEATING | BITMASK_FAN, HVACAction.HEATING),
+        # Device on - cooling
+        (1, BITMASK_COOLING, HVACAction.COOLING),
+        # Device on - fan only
+        (1, BITMASK_FAN, HVACAction.FAN),
+        # Device on - idle
+        (1, 0, HVACAction.IDLE),
+        # Priority: heating > cooling > fan
+        (1, BITMASK_HEATING | BITMASK_COOLING, HVACAction.HEATING),
+        (1, BITMASK_HEATING | BITMASK_COOLING | BITMASK_FAN, HVACAction.HEATING),
+        (1, BITMASK_COOLING | BITMASK_FAN, HVACAction.COOLING),
+    ],
+)
+def test_hvac_action(mock_coordinator, power, status, expected):
+    """Test hvac_action for various device states."""
+    mock_coordinator.data = {
+        registers.REG_POWER: power,
+        registers.REG_STATUS: status,
+    }
+    assert KomfoventClimate(mock_coordinator).hvac_action == expected
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        None,
+        {},
+        {registers.REG_POWER: 1},
+        {registers.REG_STATUS: 0},
+    ],
+)
+def test_hvac_action_edge_cases(mock_coordinator, data):
+    """Test hvac_action returns None for edge cases."""
+    mock_coordinator.data = data
+    assert KomfoventClimate(mock_coordinator).hvac_action is None
 
 
 @pytest.mark.parametrize(
