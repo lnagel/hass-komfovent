@@ -8,12 +8,18 @@ from typing import TYPE_CHECKING, Any, ClassVar, Final
 from homeassistant.components.climate import (
     ClimateEntity,
     ClimateEntityFeature,
+    HVACAction,
     HVACMode,
 )
 from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import registers, services
+from .binary_sensor import (
+    BITMASK_COOLING,
+    BITMASK_FAN,
+    BITMASK_HEATING,
+)
 from .const import (
     DOMAIN,
     OperationMode,
@@ -123,6 +129,28 @@ class KomfoventClimate(CoordinatorEntity["KomfoventCoordinator"], ClimateEntity)
         if power:
             return HVACMode.HEAT_COOL
         return HVACMode.OFF
+
+    @property
+    def hvac_action(self) -> HVACAction | None:
+        """Return the current HVAC action."""
+        if not self.coordinator.data:
+            return None
+
+        power = self.coordinator.data.get(registers.REG_POWER)
+        status = self.coordinator.data.get(registers.REG_STATUS)
+
+        # Return None if either power or status is missing, or if device is off
+        if power is None or status is None:
+            return None
+        if power == 0:
+            return HVACAction.OFF
+
+        # Check status bits for active operations (priority: heating > cooling > fan)
+        if status & BITMASK_HEATING:
+            return HVACAction.HEATING
+        if status & BITMASK_COOLING:
+            return HVACAction.COOLING
+        return HVACAction.FAN if status & BITMASK_FAN else HVACAction.IDLE
 
     @property
     def preset_mode(self) -> str | None:
