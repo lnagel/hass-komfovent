@@ -28,6 +28,7 @@ from .const import (
     SchedulerMode,
     TemperatureControl,
 )
+from .helpers import build_device_info
 
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
@@ -247,12 +248,7 @@ class KomfoventSelect(CoordinatorEntity["KomfoventCoordinator"], SelectEntity):
         self._attr_unique_id = (
             f"{coordinator.config_entry.entry_id}_{entity_description.key}"
         )
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, coordinator.config_entry.entry_id)},
-            "name": coordinator.config_entry.title,
-            "manufacturer": "Komfovent",
-            "model": None,
-        }
+        self._attr_device_info = build_device_info(coordinator)
 
     @property
     def current_option(self) -> str | None:

@@ -17,6 +17,7 @@ if TYPE_CHECKING:
 
 from . import registers
 from .const import DOMAIN
+from .helpers import build_device_info
 
 
 async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSwitch]:
@@ -249,12 +250,7 @@ class KomfoventSwitch(CoordinatorEntity["KomfoventCoordinator"], SwitchEntity):
         self._attr_unique_id = (
             f"{coordinator.config_entry.entry_id}_{entity_description.key}"
         )
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, coordinator.config_entry.entry_id)},
-            "name": coordinator.config_entry.title,
-            "manufacturer": "Komfovent",
-            "model": None,
-        }
+        self._attr_device_info = build_device_info(coordinator)
 
     @property
     def is_on(self) -> bool | None:
