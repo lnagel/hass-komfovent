@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pytest
 import voluptuous as vol
-from homeassistant.const import CONF_HOST, CONF_NAME, CONF_PORT
+from homeassistant.const import CONF_HOST, CONF_NAME, CONF_PASSWORD, CONF_PORT
 from homeassistant.data_entry_flow import FlowResultType
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
@@ -57,6 +57,15 @@ class TestKomfoventConfigFlow:
                 },
                 DEFAULT_NAME,
             ),
+            (
+                {
+                    CONF_NAME: "With Password",
+                    CONF_HOST: "192.168.1.100",
+                    CONF_PORT: 502,
+                    CONF_PASSWORD: "secret123",
+                },
+                "With Password",
+            ),
         ],
     )
     async def test_user_step_creates_entry(self, hass, input_data, expected_title):
@@ -100,6 +109,32 @@ class TestReconfigureStep:
         flow = KomfoventConfigFlow()
         flow.hass = hass
         new_data = {CONF_NAME: "New Name", CONF_HOST: "192.168.1.200", CONF_PORT: 503}
+        with (
+            patch.object(flow, "_get_reconfigure_entry", return_value=existing_entry),
+            patch.object(
+                flow,
+                "async_update_reload_and_abort",
+                return_value={
+                    "type": FlowResultType.ABORT,
+                    "reason": "reconfigure_successful",
+                },
+            ) as mock_update,
+        ):
+            await flow.async_step_reconfigure(new_data)
+            mock_update.assert_called_once_with(
+                entry=existing_entry, title="New Name", data_updates=new_data
+            )
+
+    async def test_reconfigure_updates_entry_with_password(self, hass, existing_entry):
+        """Test reconfigure step updates entry with password."""
+        flow = KomfoventConfigFlow()
+        flow.hass = hass
+        new_data = {
+            CONF_NAME: "New Name",
+            CONF_HOST: "192.168.1.200",
+            CONF_PORT: 503,
+            CONF_PASSWORD: "newpassword",
+        }
         with (
             patch.object(flow, "_get_reconfigure_entry", return_value=existing_entry),
             patch.object(
@@ -189,6 +224,23 @@ class TestSchemas:
         result = CONFIG_SCHEMA(data)
         assert result[CONF_NAME] == expected_name
         assert result[CONF_PORT] == expected_port
+
+    def test_config_schema_password_optional(self):
+        """Test config schema accepts data without password."""
+        data = {CONF_NAME: "Test", CONF_HOST: "192.168.1.100", CONF_PORT: 502}
+        result = CONFIG_SCHEMA(data)
+        assert CONF_PASSWORD not in result
+
+    def test_config_schema_password_included(self):
+        """Test config schema accepts data with password."""
+        data = {
+            CONF_NAME: "Test",
+            CONF_HOST: "192.168.1.100",
+            CONF_PORT: 502,
+            CONF_PASSWORD: "test_password",
+        }
+        result = CONFIG_SCHEMA(data)
+        assert result[CONF_PASSWORD] == "test_password"
 
     def test_options_schema_accepts_valid(self):
         """Test options schema accepts valid data."""
