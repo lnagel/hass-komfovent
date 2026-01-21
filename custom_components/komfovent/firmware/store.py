@@ -6,6 +6,7 @@ import logging
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from aiofiles import os as aio_os
 from homeassistant.helpers.storage import Store
 
 from custom_components.komfovent.const import (
@@ -165,10 +166,10 @@ class FirmwareStore:
             Path to the firmware storage directory
 
         """
-        self._storage_dir.mkdir(parents=True, exist_ok=True)
+        await aio_os.makedirs(self._storage_dir, exist_ok=True)
         return self._storage_dir
 
-    def has_firmware_file(self, controller_type: str) -> bool:
+    async def async_has_firmware_file(self, controller_type: str) -> bool:
         """
         Check if firmware file exists for a controller type.
 
@@ -180,7 +181,9 @@ class FirmwareStore:
 
         """
         path = self.get_firmware_path(controller_type)
-        return path is not None and path.exists()
+        if path is None:
+            return False
+        return await aio_os.path.exists(path)
 
     async def async_cleanup_old_files(self, keep_controller_types: set[str]) -> None:
         """
@@ -190,12 +193,14 @@ class FirmwareStore:
             keep_controller_types: Set of controller types to keep
 
         """
-        if not self._storage_dir.exists():
+        if not await aio_os.path.exists(self._storage_dir):
             return
 
-        for filepath in self._storage_dir.glob("*.mbin"):
+        for filename in await aio_os.listdir(self._storage_dir):
+            if not filename.endswith(".mbin"):
+                continue
+
             # Check if file belongs to any active controller type
-            filename = filepath.name
             is_needed = False
             for ct in keep_controller_types:
                 info = self.get_firmware_info(ct)
@@ -205,7 +210,7 @@ class FirmwareStore:
 
             if not is_needed:
                 try:
-                    filepath.unlink()
+                    await aio_os.remove(self._storage_dir / filename)
                     _LOGGER.info("Removed old firmware file: %s", filename)
                 except OSError:
                     _LOGGER.exception("Failed to remove firmware file: %s", filename)

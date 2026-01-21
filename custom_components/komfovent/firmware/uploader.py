@@ -5,7 +5,9 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
+import aiofiles
 import aiohttp
+from aiofiles import os as aio_os
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 if TYPE_CHECKING:
@@ -87,7 +89,7 @@ class FirmwareUploader:
             FirmwareUploadError: If upload fails
 
         """
-        if not firmware_path.exists():
+        if not await aio_os.path.exists(firmware_path):
             msg = f"Firmware file not found: {firmware_path}"
             raise FirmwareUploadError(msg)
 
@@ -95,7 +97,8 @@ class FirmwareUploader:
             msg = f"Invalid firmware file extension: {firmware_path.name}"
             raise FirmwareUploadError(msg)
 
-        firmware_data = firmware_path.read_bytes()
+        async with aiofiles.open(firmware_path, "rb") as f:
+            firmware_data = await f.read()
         total_size = len(firmware_data)
 
         _LOGGER.info(
