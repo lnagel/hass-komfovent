@@ -9,8 +9,51 @@ This document describes the HTTP-based firmware upload protocol used by Komfoven
 | Protocol | HTTP/1.1 over TCP |
 | Endpoint | `POST /g1.html` |
 | Server | `C6` (embedded HTTP server) |
-| Authentication | Session-based (requires prior login) |
+| Authentication | IP-based session (requires prior login) |
 | Encoding | `multipart/form-data` |
+
+## Authentication
+
+The C6 uses IP-based session authentication. Once a client IP logs in successfully, that IP remains authenticated until logout or device restart.
+
+### Login Endpoint
+
+```http
+POST /g1.html HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+
+1=<username>&2=<password>
+```
+
+| Field | Description |
+|-------|-------------|
+| `1` | Username (default: `user`, max 7 chars) |
+| `2` | Password (default: `user`) |
+
+### Login Response
+
+**On success:** Returns the firmware upload form HTML (see `C6-firmware-g1-authorized.html`)
+
+**On failure:** Returns login form with error message visible:
+```html
+<p style="">Incorrect password!</p>
+```
+
+### Logout Endpoint
+
+```http
+POST / HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+
+4=Logout
+```
+
+### Session Behavior
+
+- Sessions are tracked by client IP address (no cookies)
+- Session persists across connections from same IP
+- No explicit session timeout observed
+- Device restart clears all sessions
 
 ## Message Sequence
 
