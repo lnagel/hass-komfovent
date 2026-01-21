@@ -6,6 +6,7 @@ import logging
 import re
 from typing import TYPE_CHECKING
 
+import aiofiles
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.util import dt as dt_util
@@ -235,7 +236,8 @@ class FirmwareChecker:
                 # Save firmware file
                 storage_dir = await self._store.async_ensure_storage_dir()
                 file_path = storage_dir / filename
-                file_path.write_bytes(content)
+                async with aiofiles.open(file_path, "wb") as f:
+                    await f.write(content)
 
                 # Update firmware info
                 firmware_info["file_path"] = str(file_path)
