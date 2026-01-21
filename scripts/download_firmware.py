@@ -2,12 +2,11 @@
 """
 Download Komfovent C6/C6M firmware files.
 
-This script attempts to download firmware from the manufacturer's server.
-Note: External access is typically blocked (403 Forbidden). This script may
-work if run from a whitelisted network or device.
+This script downloads .mbin firmware from the manufacturer's server.
+Only firmware v1.3.15+ (.mbin) is supported. Older .bin firmware is not supported.
 
 Usage:
-    python3 download_firmware.py [--type mbin|bin] [--output firmware.mbin]
+    python3 download_firmware.py [--output firmware.mbin]
 """
 
 import argparse
@@ -18,14 +17,10 @@ from urllib.parse import unquote
 
 import requests
 
-# Firmware download URLs
-FIRMWARE_URLS = {
-    "mbin": "http://www.komfovent.com/Update/Controllers/firmware.php?file=mbin",
-    "bin": "http://www.komfovent.com/Update/Controllers/firmware.php?file=bin",
-}
+# Firmware download URL (only .mbin supported, v1.3.15+)
+FIRMWARE_URL = "http://www.komfovent.com/Update/Controllers/firmware.php?file=mbin"
 
-# Alternative download page
-DOWNLOADS_PAGE = "https://www.komfovent.com/en/page/software"
+# Reference documentation
 DOWNLOADS_PDF = "https://www.komfovent.com/en/downloads/C6_update_EN.pdf"
 
 
@@ -54,17 +49,19 @@ def extract_filename_from_headers(response: requests.Response) -> str | None:
         return content_location.split("/")[-1]
 
     # Try to extract from final URL after redirects
-    if (
-        response.url
-        and response.url != FIRMWARE_URLS.get("mbin")
-        and response.url != FIRMWARE_URLS.get("bin")
-    ):
+    if response.url and response.url != FIRMWARE_URL:
         url_filename = response.url.split("/")[-1]
         # Check if it looks like a firmware file
-        if url_filename.endswith((".mbin", ".bin")):
+        if url_filename.endswith(".mbin"):
             return url_filename
 
     return None
+
+
+def format_version(version: tuple) -> str:
+    """Format version tuple as string for display."""
+    # ("C6", 1, 5, 46, 72) -> "1.5.46.72"
+    return f"{version[1]}.{version[2]}.{version[3]}.{version[4]}"
 
 
 def extract_version_from_filename(filename: str) -> dict | None:
@@ -79,12 +76,14 @@ def extract_version_from_filename(filename: str) -> dict | None:
         filename: Firmware filename
 
     Returns:
-        Dictionary with version info or None
+        Dictionary with version info:
+        - controller_version: ("C6", 1, 5, 46, 72) - 5-tuple for comparison
+        - panel_version: ("P1", 1, 1, 5, 48) or None - 5-tuple for comparison
 
     """
-    # Modern pattern: C6[M]?_v1_v2_v3_v4_P1_p1_p2_p3_p4.ext
+    # Modern pattern: C6[M]?_v1_v2_v3_v4_P1_p1_p2_p3_p4.mbin
     modern_pattern = (
-        r"C6(M)?_(\d+)_(\d+)_(\d+)_(\d+)_P1_(\d+)_(\d+)_(\d+)_(\d+)\.(m?bin)"
+        r"C6(M)?_(\d+)_(\d+)_(\d+)_(\d+)_P1_(\d+)_(\d+)_(\d+)_(\d+)\.(mbin)"
     )
 
     match = re.search(modern_pattern, filename, re.IGNORECASE)
@@ -92,45 +91,28 @@ def extract_version_from_filename(filename: str) -> dict | None:
         model_suffix, v1, v2, v3, v4, p1, p2, p3, p4, ext = match.groups()
 
         model = f"C6{model_suffix}" if model_suffix else "C6"
-        controller_version = f"{v1}.{v2}.{v3}.{v4}"
-        panel_version = f"{p1}.{p2}.{p3}.{p4}"
 
         return {
             "model": model,
-            "version": controller_version,
-            "controller_version": controller_version,
-            "panel_version": panel_version,
-            "v1": int(v1),
-            "v2": int(v2),
-            "v3": int(v3),
-            "v4": int(v4),
-            "panel_v1": int(p1),
-            "panel_v2": int(p2),
-            "panel_v3": int(p3),
-            "panel_v4": int(p4),
+            "controller_version": (model, int(v1), int(v2), int(v3), int(v4)),
+            "panel_version": ("P1", int(p1), int(p2), int(p3), int(p4)),
             "extension": ext,
             "pattern": "modern",
         }
 
-    # Legacy pattern: C6[M]?_v1_v2_v3_v4_date.ext
-    legacy_pattern = r"C6(M)?_(\d+)_(\d+)_(\d+)_(\d+)_(\d+)\.(m?bin)"
+    # Legacy pattern: C6[M]?_v1_v2_v3_v4_date.mbin
+    legacy_pattern = r"C6(M)?_(\d+)_(\d+)_(\d+)_(\d+)_(\d+)\.(mbin)"
 
     match = re.search(legacy_pattern, filename, re.IGNORECASE)
     if match:
         model_suffix, v1, v2, v3, v4, date, ext = match.groups()
 
         model = f"C6{model_suffix}" if model_suffix else "C6"
-        version = f"{v1}.{v2}.{v3}.{v4}"
 
         return {
             "model": model,
-            "version": version,
-            "controller_version": version,
+            "controller_version": (model, int(v1), int(v2), int(v3), int(v4)),
             "panel_version": None,
-            "v1": int(v1),
-            "v2": int(v2),
-            "v3": int(v3),
-            "v4": int(v4),
             "date": date,
             "extension": ext,
             "pattern": "legacy",
@@ -139,34 +121,29 @@ def extract_version_from_filename(filename: str) -> dict | None:
     return None
 
 
-def download_firmware(firmware_type: str = "mbin", output_path: str = None) -> bool:
+def download_firmware(output_path: str | None = None) -> bool:
     """
     Download firmware file from manufacturer.
 
+    Only .mbin firmware (v1.3.15+) is supported.
+
     Args:
-        firmware_type: Type of firmware ("mbin" or "bin")
         output_path: Output file path (optional)
 
     Returns:
         True if successful, False otherwise
 
     """
-    url = FIRMWARE_URLS.get(firmware_type)
-    if not url:
-        print(f"❌ Error: Unknown firmware type '{firmware_type}'")
-        print("   Valid types: mbin, bin")
-        return False
-
     print(f"{'=' * 70}")
-    print(f"Downloading {firmware_type.upper()} firmware")
+    print("Downloading MBIN firmware")
     print(f"{'=' * 70}")
-    print(f"URL: {url}\n")
+    print(f"URL: {FIRMWARE_URL}\n")
 
     try:
         # Use streaming GET to check access and download in one request
         # (HEAD requests don't return Content-Disposition from this PHP endpoint)
         print("1. Connecting to server...")
-        response = requests.get(url, stream=True, timeout=30)
+        response = requests.get(FIRMWARE_URL, stream=True, timeout=30)
 
         print(f"   Status: {response.status_code}")
 
@@ -202,7 +179,8 @@ def download_firmware(firmware_type: str = "mbin", output_path: str = None) -> b
             # Extract version info
             version_info = extract_version_from_filename(filename)
             if version_info:
-                print(f"   Version: {version_info['version']}")
+                cv = version_info["controller_version"]
+                print(f"   Version: {format_version(cv)}")
                 print(f"   Model: {version_info['model']}")
                 if version_info.get("date"):
                     print(f"   Date: {version_info['date']}")
@@ -213,7 +191,7 @@ def download_firmware(firmware_type: str = "mbin", output_path: str = None) -> b
         elif filename:
             output_file = Path(filename)
         else:
-            output_file = Path(f"komfovent_firmware.{firmware_type}")
+            output_file = Path("komfovent_firmware.mbin")
 
         print(f"\n2. Downloading to: {output_file}")
 
@@ -258,9 +236,11 @@ def download_firmware(firmware_type: str = "mbin", output_path: str = None) -> b
             if version_info:
                 print("\n4. Firmware Information:")
                 print(f"   Model: {version_info['model']}")
-                print(f"   Controller Version: {version_info['controller_version']}")
-                if version_info.get("panel_version"):
-                    print(f"   Panel Version: {version_info['panel_version']}")
+                cv = version_info["controller_version"]
+                print(f"   Controller Version: {format_version(cv)}")
+                pv = version_info.get("panel_version")
+                if pv:
+                    print(f"   Panel Version: {format_version(pv)}")
                 if "date" in version_info:
                     print(f"   Build Date: {version_info['date']}")
                 print(f"   Type: {version_info['extension']}")
@@ -309,10 +289,10 @@ def validate_firmware_file(filepath: str) -> bool:
 
     print(f"File: {path}")
 
-    # Check extension
-    if path.suffix not in [".bin", ".mbin"]:
+    # Check extension (only .mbin supported)
+    if path.suffix != ".mbin":
         print(f"❌ Invalid extension: {path.suffix}")
-        print("   Expected: .bin or .mbin")
+        print("   Expected: .mbin (only v1.3.15+ firmware supported)")
         return False
 
     print(f"✅ Extension: {path.suffix}")
@@ -331,9 +311,11 @@ def validate_firmware_file(filepath: str) -> bool:
     if version_info:
         print("\nFirmware Information:")
         print(f"  Model: {version_info['model']}")
-        print(f"  Controller Version: {version_info['controller_version']}")
-        if version_info.get("panel_version"):
-            print(f"  Panel Version: {version_info['panel_version']}")
+        cv = version_info["controller_version"]
+        print(f"  Controller Version: {format_version(cv)}")
+        pv = version_info.get("panel_version")
+        if pv:
+            print(f"  Panel Version: {format_version(pv)}")
         if "date" in version_info:
             print(f"  Build Date: {version_info['date']}")
         print(f"  Type: {version_info['extension']}")
@@ -341,8 +323,8 @@ def validate_firmware_file(filepath: str) -> bool:
     else:
         print("\n⚠️  Could not extract version from filename")
         print("   Expected formats:")
-        print(f"     Modern: C6_1_5_XX_XX_P1_1_1_X_XX.{path.suffix[1:]}")
-        print(f"     Legacy: C6_1_3_XX_XX_YYYYMMDD.{path.suffix[1:]}")
+        print("     Modern: C6_1_5_XX_XX_P1_1_1_X_XX.mbin")
+        print("     Legacy: C6_1_3_XX_XX_YYYYMMDD.mbin")
 
     print(f"\n{'=' * 70}")
     print("✅ File validation passed")
@@ -353,35 +335,27 @@ def validate_firmware_file(filepath: str) -> bool:
     return True
 
 
-def main():
-    """Main entry point."""
+def main() -> None:
+    """Download or validate Komfovent firmware."""
     parser = argparse.ArgumentParser(
-        description="Download Komfovent C6/C6M firmware files",
+        description="Download Komfovent C6/C6M firmware files (.mbin only, v1.3.15+)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Download latest MBIN firmware
-  python3 download_firmware.py --type mbin
+  # Download latest firmware
+  python3 download_firmware.py
 
   # Download to specific file
-  python3 download_firmware.py --type mbin --output firmware_latest.mbin
-
-  # Download BIN firmware (for older controllers)
-  python3 download_firmware.py --type bin
+  python3 download_firmware.py --output firmware_latest.mbin
 
   # Validate an existing firmware file
   python3 download_firmware.py --validate firmware.mbin
 
-Note: This script must be run from the same network as your Komfovent device.
-The manufacturer restricts downloads to residential networks where devices are installed.
-        """,
-    )
+Note: Only .mbin firmware (v1.3.15+) is supported. Older .bin firmware requires
+manual update first.
 
-    parser.add_argument(
-        "--type",
-        choices=["mbin", "bin"],
-        default="mbin",
-        help="Firmware type to download (default: mbin)",
+This script must be run from the same network as your Komfovent device.
+        """,
     )
 
     parser.add_argument(
@@ -402,7 +376,7 @@ The manufacturer restricts downloads to residential networks where devices are i
         sys.exit(0 if success else 1)
 
     # Download mode
-    success = download_firmware(firmware_type=args.type, output_path=args.output)
+    success = download_firmware(output_path=args.output)
 
     sys.exit(0 if success else 1)
 
