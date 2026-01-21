@@ -169,7 +169,9 @@ def _mock_loaded_entry(coordinator):
     entry = MagicMock()
     entry.domain = DOMAIN
     entry.state = ConfigEntryState.LOADED
-    entry.runtime_data = KomfoventRuntimeData(coordinator=coordinator)
+    entry.runtime_data = KomfoventRuntimeData(
+        coordinator=coordinator, firmware_store=MagicMock()
+    )
     return entry
 
 

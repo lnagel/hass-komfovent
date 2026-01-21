@@ -39,7 +39,9 @@ async def test_platform_setup_reads_runtime_data(
     hass, mock_config_entry, mock_coordinator, platform
 ):
     """Each platform reads the coordinator from entry.runtime_data and adds entities."""
-    mock_config_entry.runtime_data = KomfoventRuntimeData(coordinator=mock_coordinator)
+    mock_config_entry.runtime_data = KomfoventRuntimeData(
+        coordinator=mock_coordinator, firmware_store=MagicMock()
+    )
     async_add_entities = MagicMock()
 
     await platform.async_setup_entry(hass, mock_config_entry, async_add_entities)

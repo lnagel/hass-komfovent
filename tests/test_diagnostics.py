@@ -30,7 +30,9 @@ def mock_entry(hass):
     )
     mock_coordinator = MagicMock()
     mock_coordinator.data = {"test": "data"}
-    entry.runtime_data = KomfoventRuntimeData(coordinator=mock_coordinator)
+    entry.runtime_data = KomfoventRuntimeData(
+        coordinator=mock_coordinator, firmware_store=MagicMock()
+    )
     return entry
 
 
