@@ -27,11 +27,28 @@ Controllers with firmware older than v1.3.15 must be manually updated to a newer
 ```
 custom_components/komfovent/
 ├── firmware/
-│   ├── __init__.py       # Package exports
+│   ├── __init__.py       # Package exports, FirmwareInfo types
 │   ├── store.py          # FirmwareStore (HA Store API)
 │   ├── checker.py        # FirmwareChecker (scheduled HTTP)
 │   └── uploader.py       # FirmwareUploader (device HTTP)
 ├── update.py             # KomfoventUpdateEntity
+```
+
+### Runtime Data Structure
+
+```python
+# Domain-level singleton (hass.data[DOMAIN]["domain_data"])
+@dataclass
+class KomfoventDomainData:
+    firmware_store: FirmwareStore
+    firmware_checker: FirmwareChecker
+    entry_count: int = 0
+
+# Per-entry runtime data (hass.data[DOMAIN][entry.entry_id])
+@dataclass
+class KomfoventRuntimeData:
+    coordinator: KomfoventCoordinator
+    firmware_store: FirmwareStore  # Shared reference to domain-level store
 ```
 
 ### Core Classes
@@ -41,16 +58,17 @@ custom_components/komfovent/
 - Provides installed firmware version via `self.data[REG_FIRMWARE]`
 - NOT responsible for firmware checks or caching
 
-**FirmwareStore** - Persistent storage
+**FirmwareStore** - Persistent storage (controller-keyed)
 - Uses `homeassistant.helpers.storage.Store` API
 - Persists to `.storage/komfovent_firmware.json`
-- Stores: `last_checked_at`, `latest_version`, `filename`, `file_path`
+- Stores firmware per controller type ("C6" and "C8")
+- C6 and C6M share the same firmware (both map to "C6")
 
-**FirmwareChecker** - Scheduled firmware checks
+**FirmwareChecker** - Domain-level singleton
 - Uses `async_track_time_interval` for weekly checks
-- Downloads firmware from manufacturer
-- Updates FirmwareStore with metadata
-- Saves binary to `.storage/komfovent/`
+- Downloads firmware once per controller type (not per entry)
+- Tracks registered controller types from all config entries
+- First entry to load starts the checker; last entry to unload stops it
 
 **FirmwareUploader** - Device firmware upload
 - Stateless HTTP client
@@ -59,7 +77,7 @@ custom_components/komfovent/
 
 **KomfoventUpdateEntity** - Home Assistant update entity
 - `installed_version`: reads from `coordinator.data` (Modbus)
-- `latest_version`: reads from FirmwareStore
+- `latest_version`: reads from FirmwareStore (based on coordinator's controller type)
 - `async_install`: uses FirmwareUploader
 
 ### Data Flow
@@ -85,14 +103,17 @@ Komfovent server (firmware.php)
 
 **Setup** (`__init__.py async_setup_entry`):
 1. Create coordinator (existing)
-2. Create FirmwareStore, call `async_load()`
-3. Create FirmwareChecker, call `async_start()`
-4. Store all in `hass.data[DOMAIN][entry.entry_id]`
-5. Register cleanup: `entry.async_on_unload(checker.async_stop)`
+2. First entry: Create domain-level FirmwareStore and FirmwareChecker
+3. Register this entry's controller type with FirmwareChecker
+4. Create per-entry KomfoventRuntimeData with coordinator and shared store
+5. Store in `hass.data[DOMAIN][entry.entry_id]`
+6. First entry: Start FirmwareChecker (`async_start()`)
 
 **Unload** (`__init__.py async_unload_entry`):
-1. `FirmwareChecker.async_stop()` called via `async_on_unload`
-2. Remove entry from `hass.data`
+1. Unregister controller type from FirmwareChecker
+2. Decrement entry count
+3. Last entry: Stop FirmwareChecker (`async_stop()`) and remove domain data
+4. Remove entry from `hass.data`
 
 ### Persistent Storage
 
@@ -100,14 +121,27 @@ Firmware metadata is stored using Home Assistant's Store API:
 
 **Location:** `.storage/komfovent_firmware.json`
 
-**Structure:**
+**Structure (controller-keyed):**
 ```json
 {
-    "last_checked_at": "2025-01-21T10:00:00Z",
-    "filename": "C6_1_5_46_72_P1_1_1_5_48.mbin",
-    "controller_version": [0, 1, 5, 46, 72],
-    "panel_version": [0, 1, 1, 5, 48],
-    "file_path": "/config/.storage/komfovent/C6_1_5_46_72_P1_1_1_5_48.mbin"
+    "firmware": {
+        "C6": {
+            "controller_type": "C6",
+            "filename": "C6_1_5_46_72_P1_1_1_5_48.mbin",
+            "controller_version": [0, 1, 5, 46, 72],
+            "panel_version": [0, 1, 1, 5, 48],
+            "file_path": "/config/.storage/komfovent/C6_1_5_46_72_P1_1_1_5_48.mbin",
+            "last_checked_at": "2025-01-21T10:00:00Z"
+        },
+        "C8": {
+            "controller_type": "C8",
+            "filename": "C8_1_5_46_72_P1_1_1_5_48.mbin",
+            "controller_version": [2, 1, 5, 46, 72],
+            "panel_version": [0, 1, 1, 5, 48],
+            "file_path": "/config/.storage/komfovent/C8_1_5_46_72_P1_1_1_5_48.mbin",
+            "last_checked_at": "2025-01-21T10:00:00Z"
+        }
+    }
 }
 ```
 
@@ -153,10 +187,14 @@ All existing usages of `get_version_from_int()` should be migrated to `get_contr
 
 Both patterns use `.mbin` extension for supported firmware.
 
-### Download URL
+### Download URLs (controller-specific)
 
-```
-http://www.komfovent.com/Update/Controllers/firmware.php?file=mbin
+```python
+FIRMWARE_URLS = {
+    Controller.C6: "http://www.komfovent.com/Update/Controllers/firmware.php?file=mbin",
+    Controller.C6M: "http://www.komfovent.com/Update/Controllers/firmware.php?file=mbin",  # Same as C6
+    Controller.C8: "https://komfovent.com/Update/Controllers/C8/firmware.php?file=mbin",
+}
 ```
 
 ### Upload Protocol
@@ -274,14 +312,18 @@ def test_unsupported_old_firmware()
 
 | File | Changes |
 |------|---------|
-| `firmware/store.py` | NEW - FirmwareStore class |
-| `firmware/checker.py` | NEW - FirmwareChecker class |
+| `firmware/__init__.py` | NEW - FirmwareInfo types, helper functions |
+| `firmware/store.py` | NEW - FirmwareStore class (controller-keyed) |
+| `firmware/checker.py` | NEW - FirmwareChecker class (domain-level singleton) |
 | `firmware/uploader.py` | NEW - FirmwareUploader class |
 | `update.py` | NEW - KomfoventUpdateEntity |
-| `__init__.py` | Add Platform.UPDATE, setup firmware components |
-| `const.py` | Add `Panel` IntEnum, firmware constants |
-| `helpers.py` | Rename to `get_controller_version()`, add `get_panel_version()` |
+| `__init__.py` | Add Platform.UPDATE, KomfoventRuntimeData, KomfoventDomainData, firmware setup |
+| `const.py` | Add `Panel` IntEnum, `FIRMWARE_URLS`, firmware constants |
+| `helpers.py` | Rename `get_version_from_int()` to `get_controller_version()`, add `get_panel_version()` |
 | `coordinator.py` | **No changes** - remains Modbus-only |
+| All platform files | Update to use `runtime_data.coordinator` instead of direct coordinator access |
+| `services.py` | Update `get_coordinator_for_device()` to use RuntimeData |
+| `diagnostics.py` | Update to use RuntimeData |
 
 ## Security Considerations
 
