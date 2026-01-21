@@ -8,6 +8,7 @@ authors = [
     { name = "lnagel", email = "lnagel@users.noreply.github.com" }
 ]
 dependencies = [
+    "aiofiles>=24.1.0",
     "colorlog>=6.10.1",
     "homeassistant>=2025.10.0",
     "pymodbus>=3.10.0",
