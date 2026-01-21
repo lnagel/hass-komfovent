@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Validation script for Komfovent C6/C6M firmware update process.
 
@@ -44,31 +43,42 @@ class KomfoventFirmwareUpdater:
     def login(self) -> bool:
         """Login to the device web interface.
 
+        C6 uses IP-based sessions with form fields:
+        - Field "1": username
+        - Field "2": password
+
         Returns:
             True if login successful, False otherwise
         """
-        login_url = self.base_url
-        print(f"1. Logging in to {login_url}...")
+        print(f"1. Logging in to {self.upload_url}...")
 
         try:
-            # Attempt login
+            # C6 login uses form fields "1" (username) and "2" (password)
             login_data = {
-                "username": self.username,
-                "password": self.password,
+                "1": self.username,
+                "2": self.password,
             }
 
             response = self.session.post(
-                login_url,
+                self.upload_url,
                 data=login_data,
                 timeout=10,
                 allow_redirects=True
             )
 
             if response.status_code == 200:
-                print(f"   ✓ Login successful")
+                # Check if we got the upload form (success) or login form with error
+                if "Incorrect password" in response.text:
+                    print("   ✗ Login failed: Incorrect password")
+                    return False
+                if 'name="11111"' in response.text:
+                    print("   ✓ Login successful")
+                    return True
+                # Assume success if we get 200 and no error
+                print("   ✓ Login successful")
                 return True
             else:
-                print(f"   ✗ Login failed: {response.status_code}")
+                print(f"   ✗ Login failed: HTTP {response.status_code}")
                 return False
 
         except requests.exceptions.RequestException as e:
@@ -161,10 +171,10 @@ class KomfoventFirmwareUpdater:
         try:
             path = Path(firmware_path)
 
-            # Prepare multipart upload
+            # Prepare multipart upload - form field must be "11111" per C6 protocol
             with open(path, "rb") as f:
                 files = {
-                    "file": (path.name, f, "application/octet-stream")
+                    "11111": (path.name, f, "application/octet-stream")
                 }
 
                 print(f"   → Uploading {path.name} to {self.upload_url}...")
@@ -276,11 +286,9 @@ class KomfoventFirmwareUpdater:
         }
 
         try:
-            # Try to get firmware version from web interface
-            # This would require parsing the settings page
-            # For now, we'll just check if device is accessible
-
-            response = self.session.get(self.base_url, timeout=10)
+            # Check if device is accessible via the upload endpoint
+            # (The base URL may redirect or require different handling)
+            response = self.session.get(self.upload_url, timeout=10)
 
             if response.status_code == 200:
                 print(f"   ✓ Device is accessible after update")
@@ -340,6 +348,16 @@ def main():
         "--expected-version",
         help="Expected firmware version after update (for verification)"
     )
+    parser.add_argument(
+        "--yes", "-y",
+        action="store_true",
+        help="Skip confirmation prompt (for automated testing)"
+    )
+    parser.add_argument(
+        "--skip-wait",
+        action="store_true",
+        help="Skip waiting for device restart (for mock testing)"
+    )
 
     args = parser.parse_args()
 
@@ -350,7 +368,7 @@ def main():
     print(f"Firmware file: {args.firmware}")
     print(f"Mode: {'DRY RUN' if args.dry_run else 'LIVE UPDATE'}")
 
-    if not args.dry_run:
+    if not args.dry_run and not args.yes:
         print("\n⚠ WARNING: This will perform an ACTUAL firmware update!")
         print("⚠ Only proceed if you are prepared to update your device.")
         response = input("\nType 'yes' to continue: ")
@@ -396,11 +414,14 @@ def main():
         print("5. ✓ Verify device is accessible")
         sys.exit(0)
 
-    # Step 4: Monitor update progress
-    if not updater.monitor_update_progress():
-        print("\n⚠ WARNING: Update monitoring timed out")
-        print("⚠ Device may still be updating - check manually")
-        sys.exit(1)
+    # Step 4: Monitor update progress (skip for mock testing)
+    if args.skip_wait:
+        print("\n4. Skipping device restart wait (--skip-wait)")
+    else:
+        if not updater.monitor_update_progress():
+            print("\n⚠ WARNING: Update monitoring timed out")
+            print("⚠ Device may still be updating - check manually")
+            sys.exit(1)
 
     # Step 5: Verify update
     verify_result = updater.verify_update(args.expected_version)
