@@ -13,7 +13,7 @@ from custom_components.komfovent import registers
 from custom_components.komfovent.const import DOMAIN, Controller
 from custom_components.komfovent.coordinator import KomfoventCoordinator
 from custom_components.komfovent.modbus import KomfoventModbusClient
-from modbus_server import run_server
+from scripts.modbus_server import run_server
 
 
 @pytest.mark.enable_socket
