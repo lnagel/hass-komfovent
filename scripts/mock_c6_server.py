@@ -15,19 +15,18 @@ import argparse
 import logging
 import re
 import time
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import parse_qs
 
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
 # Server configuration (from packet capture analysis)
 SERVER_NAME = "C6"
 DEFAULT_PROCESSING_DELAY = 1.5  # seconds - simulate firmware flash time
-VALID_EXTENSIONS = {'.bin', '.mbin', '.pbin', '.rbin', '.cfg'}
+VALID_EXTENSIONS = {".bin", ".mbin", ".pbin", ".rbin", ".cfg"}
 FORM_FIELD_NAME = "11111"
 
 # Default credentials
@@ -109,7 +108,7 @@ class C6MockHandler(BaseHTTPRequestHandler):
 
         # Handle login (form fields 1=username, 2=password)
         if "application/x-www-form-urlencoded" in content_type:
-            body = self.rfile.read(content_length).decode('utf-8')
+            body = self.rfile.read(content_length).decode("utf-8")
             params = parse_qs(body)
 
             username = params.get("1", [""])[0]
@@ -135,14 +134,16 @@ class C6MockHandler(BaseHTTPRequestHandler):
 
         # Check authentication for firmware upload
         if not self.is_authenticated():
-            logger.warning("Unauthenticated upload attempt from %s", self.client_address[0])
+            logger.warning(
+                "Unauthenticated upload attempt from %s", self.client_address[0]
+            )
             response = self.get_login_form()
             self.send_c6_headers(len(response))
             self.wfile.write(response.encode())
             return
 
         # Extract boundary
-        boundary_match = re.search(r'boundary=([^\s;]+)', content_type)
+        boundary_match = re.search(r"boundary=([^\s;]+)", content_type)
         if not boundary_match:
             logger.error("No boundary in Content-Type")
             response = self.get_error_response("Missing boundary")
@@ -169,7 +170,7 @@ class C6MockHandler(BaseHTTPRequestHandler):
         filename, file_data = result
 
         # Validate filename extension
-        ext = '.' + filename.rsplit('.', 1)[-1].lower() if '.' in filename else ''
+        ext = "." + filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
         if ext not in VALID_EXTENSIONS:
             logger.error("Invalid file extension: %s", ext)
             response = self.get_error_response(f"Invalid file type: {ext}")
@@ -200,21 +201,21 @@ class C6MockHandler(BaseHTTPRequestHandler):
 
     def parse_multipart(self, body: bytes, boundary: bytes) -> tuple[str, bytes] | None:
         """Parse multipart form data and extract file."""
-        parts = body.split(b'--' + boundary)
+        parts = body.split(b"--" + boundary)
 
         for part in parts:
-            if not part or part.strip() in (b'', b'--', b'--\r\n'):
+            if not part or part.strip() in (b"", b"--", b"--\r\n"):
                 continue
 
             # Split headers from content
-            if b'\r\n\r\n' in part:
-                headers_section, content = part.split(b'\r\n\r\n', 1)
-            elif b'\n\n' in part:
-                headers_section, content = part.split(b'\n\n', 1)
+            if b"\r\n\r\n" in part:
+                headers_section, content = part.split(b"\r\n\r\n", 1)
+            elif b"\n\n" in part:
+                headers_section, content = part.split(b"\n\n", 1)
             else:
                 continue
 
-            headers_str = headers_section.decode('utf-8', errors='replace')
+            headers_str = headers_section.decode("utf-8", errors="replace")
 
             # Check for our form field
             if f'name="{FORM_FIELD_NAME}"' in headers_str:
@@ -224,9 +225,9 @@ class C6MockHandler(BaseHTTPRequestHandler):
                     filename = filename_match.group(1)
 
                     # Remove trailing boundary marker if present
-                    if content.endswith(b'\r\n'):
+                    if content.endswith(b"\r\n"):
                         content = content[:-2]
-                    elif content.endswith(b'\n'):
+                    elif content.endswith(b"\n"):
                         content = content[:-1]
 
                     return filename, content
@@ -236,7 +237,7 @@ class C6MockHandler(BaseHTTPRequestHandler):
     def get_login_form(self, show_error: bool = False) -> str:
         """Generate the login form HTML (matches real device)."""
         error_style = "" if show_error else "display:none"
-        return f'''<!DOCTYPE html><html><head><meta charset="windows-1252"><title>Komfovent</title>
+        return f"""<!DOCTYPE html><html><head><meta charset="windows-1252"><title>Komfovent</title>
 <style>body{{background-color:#f4f4f4;font-family:Verdana;margin:300px auto 0 auto;width:300px}}
 form *{{display:block;margin:5px auto}}div{{color:red;height:40px;line-height:40px;text-align:center}}
 input{{border-width:0;color:#333;font-family:Verdana;height:30px;padding-left:10px;width:180px}}
@@ -246,12 +247,12 @@ input[type=submit]:hover{{background-color:#333}}</style></head>
 <div><p style="{error_style}">Incorrect password!</p></div>
 <input type="text" name="1" value="user" maxlength="7">
 <input type="password" name="2" value="">
-<input type="submit" value="Login"></form></body></html>'''
+<input type="submit" value="Login"></form></body></html>"""
 
     def get_upload_form(self, status_message: str = "") -> str:
         """Generate the upload form HTML (matches real device)."""
         status = status_message if status_message else "Status:"
-        return f'''<!DOCTYPE html><html><head><meta charset="windows-1252"><title>Komfovent</title></head>
+        return f"""<!DOCTYPE html><html><head><meta charset="windows-1252"><title>Komfovent</title></head>
 <body>
 <form class="l" method="post" action="/"><label>user <input name="4" value="Logout" type="submit"></label></form>
 <form class="f" method="post" enctype="multipart/form-data">
@@ -261,7 +262,7 @@ input[type=submit]:hover{{background-color:#333}}</style></head>
 <tr><td id="st">{status}</td></tr>
 </table>
 </form>
-</body></html>'''
+</body></html>"""
 
     def get_success_response(self) -> str:
         """Generate success response HTML."""
@@ -342,15 +343,31 @@ Examples:
 
   # Start on custom port with custom credentials
   uv run mock_c6_server.py --port 8080 --username admin --password secret
-        """
+        """,
     )
 
-    parser.add_argument("--host", default="0.0.0.0", help="Host to bind to (default: 0.0.0.0)")
-    parser.add_argument("--port", type=int, default=8060, help="Port to listen on (default: 8060)")
-    parser.add_argument("--delay", type=float, default=DEFAULT_PROCESSING_DELAY,
-                        help=f"Firmware processing delay in seconds (default: {DEFAULT_PROCESSING_DELAY})")
-    parser.add_argument("--username", default=DEFAULT_USERNAME, help=f"Login username (default: {DEFAULT_USERNAME})")
-    parser.add_argument("--password", default=DEFAULT_PASSWORD, help=f"Login password (default: {DEFAULT_PASSWORD})")
+    parser.add_argument(
+        "--host", default="0.0.0.0", help="Host to bind to (default: 0.0.0.0)"
+    )
+    parser.add_argument(
+        "--port", type=int, default=8060, help="Port to listen on (default: 8060)"
+    )
+    parser.add_argument(
+        "--delay",
+        type=float,
+        default=DEFAULT_PROCESSING_DELAY,
+        help=f"Firmware processing delay in seconds (default: {DEFAULT_PROCESSING_DELAY})",
+    )
+    parser.add_argument(
+        "--username",
+        default=DEFAULT_USERNAME,
+        help=f"Login username (default: {DEFAULT_USERNAME})",
+    )
+    parser.add_argument(
+        "--password",
+        default=DEFAULT_PASSWORD,
+        help=f"Login password (default: {DEFAULT_PASSWORD})",
+    )
 
     args = parser.parse_args()
 

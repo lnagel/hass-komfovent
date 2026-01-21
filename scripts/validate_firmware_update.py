@@ -26,12 +26,14 @@ class KomfoventFirmwareUpdater:
     """Handle Komfovent C6/C6M firmware updates."""
 
     def __init__(self, host: str, username: str = "user", password: str = "user"):
-        """Initialize the firmware updater.
+        """
+        Initialize the firmware updater.
 
         Args:
             host: IP address or hostname of the Komfovent device
             username: Web interface username (default: "user")
             password: Web interface password (default: "user")
+
         """
         self.host = host
         self.username = username
@@ -41,7 +43,8 @@ class KomfoventFirmwareUpdater:
         self.session = requests.Session()
 
     def login(self) -> bool:
-        """Login to the device web interface.
+        """
+        Login to the device web interface.
 
         C6 uses IP-based sessions with form fields:
         - Field "1": username
@@ -49,6 +52,7 @@ class KomfoventFirmwareUpdater:
 
         Returns:
             True if login successful, False otherwise
+
         """
         print(f"1. Logging in to {self.upload_url}...")
 
@@ -60,10 +64,7 @@ class KomfoventFirmwareUpdater:
             }
 
             response = self.session.post(
-                self.upload_url,
-                data=login_data,
-                timeout=10,
-                allow_redirects=True
+                self.upload_url, data=login_data, timeout=10, allow_redirects=True
             )
 
             if response.status_code == 200:
@@ -77,24 +78,25 @@ class KomfoventFirmwareUpdater:
                 # Assume success if we get 200 and no error
                 print("   ✓ Login successful")
                 return True
-            else:
-                print(f"   ✗ Login failed: HTTP {response.status_code}")
-                return False
+            print(f"   ✗ Login failed: HTTP {response.status_code}")
+            return False
 
         except requests.exceptions.RequestException as e:
             print(f"   ✗ Login failed: {e}")
             return False
 
     def validate_firmware_file(self, firmware_path: str) -> dict[str, Any]:
-        """Validate firmware file before upload.
+        """
+        Validate firmware file before upload.
 
         Args:
             firmware_path: Path to firmware file
 
         Returns:
             Dictionary with validation results
+
         """
-        print(f"\n2. Validating firmware file...")
+        print("\n2. Validating firmware file...")
         result = {
             "valid": False,
             "path": firmware_path,
@@ -130,7 +132,7 @@ class KomfoventFirmwareUpdater:
                 print(f"   ⚠ Warning: {result['error']}")
 
             result["valid"] = True
-            print(f"   ✓ File is valid")
+            print("   ✓ File is valid")
             print(f"   ✓ Type: {result['type']}")
             print(f"   ✓ Size: {result['size']:,} bytes")
 
@@ -141,11 +143,10 @@ class KomfoventFirmwareUpdater:
         return result
 
     def upload_firmware(
-        self,
-        firmware_path: str,
-        dry_run: bool = False
+        self, firmware_path: str, dry_run: bool = False
     ) -> dict[str, Any]:
-        """Upload firmware file to device.
+        """
+        Upload firmware file to device.
 
         Args:
             firmware_path: Path to firmware file
@@ -153,8 +154,9 @@ class KomfoventFirmwareUpdater:
 
         Returns:
             Dictionary with upload results
+
         """
-        print(f"\n3. Uploading firmware...")
+        print("\n3. Uploading firmware...")
         result = {
             "success": False,
             "status": None,
@@ -163,7 +165,7 @@ class KomfoventFirmwareUpdater:
         }
 
         if dry_run:
-            print(f"   ⚠ DRY RUN MODE - not actually uploading")
+            print("   ⚠ DRY RUN MODE - not actually uploading")
             result["success"] = True
             result["message"] = "Dry run - no upload performed"
             return result
@@ -173,17 +175,15 @@ class KomfoventFirmwareUpdater:
 
             # Prepare multipart upload - form field must be "11111" per C6 protocol
             with open(path, "rb") as f:
-                files = {
-                    "11111": (path.name, f, "application/octet-stream")
-                }
+                files = {"11111": (path.name, f, "application/octet-stream")}
 
                 print(f"   → Uploading {path.name} to {self.upload_url}...")
-                print(f"   → This may take 30-60 seconds...")
+                print("   → This may take 30-60 seconds...")
 
                 response = self.session.post(
                     self.upload_url,
                     files=files,
-                    timeout=120  # Firmware upload can take time
+                    timeout=120,  # Firmware upload can take time
                 )
 
                 result["status"] = response.status_code
@@ -195,26 +195,26 @@ class KomfoventFirmwareUpdater:
                     if "success" in response_text or "uploaded" in response_text:
                         result["success"] = True
                         result["message"] = "Firmware uploaded successfully"
-                        print(f"   ✓ Upload successful")
+                        print("   ✓ Upload successful")
 
                         # Check for specific success messages
                         if "device is restarting" in response_text:
-                            print(f"   ✓ Device is restarting")
+                            print("   ✓ Device is restarting")
                             result["message"] += " - device restarting"
 
                         if "panel firmware upload success" in response_text:
-                            print(f"   ✓ Panel firmware will also be updated")
+                            print("   ✓ Panel firmware will also be updated")
                             result["message"] += " - panel update included"
 
                     elif "error" in response_text:
                         result["error"] = "Upload failed (see device response)"
-                        print(f"   ✗ Upload failed")
+                        print("   ✗ Upload failed")
                         print(f"   ✗ Response: {response.text[:200]}")
                     else:
                         # Unclear response
                         result["success"] = True
                         result["message"] = "Upload completed (verify manually)"
-                        print(f"   ⚠ Upload completed with unclear response")
+                        print("   ⚠ Upload completed with unclear response")
 
                 else:
                     result["error"] = f"HTTP {response.status_code}"
@@ -230,32 +230,31 @@ class KomfoventFirmwareUpdater:
         return result
 
     def monitor_update_progress(self, timeout: int = 300) -> bool:
-        """Monitor firmware update progress.
+        """
+        Monitor firmware update progress.
 
         Args:
             timeout: Maximum time to wait in seconds (default: 300 = 5 minutes)
 
         Returns:
             True if update completed successfully
+
         """
-        print(f"\n4. Monitoring update progress...")
+        print("\n4. Monitoring update progress...")
         print(f"   ⏱ Maximum wait time: {timeout} seconds")
 
         # Wait for device to restart
-        print(f"   → Waiting for device to restart (60 seconds)...")
+        print("   → Waiting for device to restart (60 seconds)...")
         time.sleep(60)
 
         # Try to reconnect
         start_time = time.time()
         while time.time() - start_time < timeout:
             try:
-                response = self.session.get(
-                    self.base_url,
-                    timeout=5
-                )
+                response = self.session.get(self.base_url, timeout=5)
 
                 if response.status_code == 200:
-                    print(f"   ✓ Device is responding")
+                    print("   ✓ Device is responding")
                     return True
 
             except requests.exceptions.RequestException:
@@ -266,19 +265,21 @@ class KomfoventFirmwareUpdater:
             elapsed = int(time.time() - start_time)
             print(f"   ⏱ Still waiting... ({elapsed}s / {timeout}s)")
 
-        print(f"   ✗ Timeout waiting for device to respond")
+        print("   ✗ Timeout waiting for device to respond")
         return False
 
     def verify_update(self, expected_version: str = None) -> dict[str, Any]:
-        """Verify firmware update was successful.
+        """
+        Verify firmware update was successful.
 
         Args:
             expected_version: Expected firmware version after update
 
         Returns:
             Dictionary with verification results
+
         """
-        print(f"\n5. Verifying firmware update...")
+        print("\n5. Verifying firmware update...")
         result = {
             "success": False,
             "current_version": None,
@@ -291,7 +292,7 @@ class KomfoventFirmwareUpdater:
             response = self.session.get(self.upload_url, timeout=10)
 
             if response.status_code == 200:
-                print(f"   ✓ Device is accessible after update")
+                print("   ✓ Device is accessible after update")
                 result["success"] = True
 
                 if expected_version:
@@ -303,7 +304,7 @@ class KomfoventFirmwareUpdater:
                     else:
                         result["matches_expected"] = False
                         print(f"   ⚠ Could not verify version {expected_version}")
-                        print(f"   ⚠ Manual verification recommended")
+                        print("   ⚠ Manual verification recommended")
             else:
                 print(f"   ✗ Device returned status {response.status_code}")
 
@@ -320,50 +321,43 @@ def main():
         description="Validate Komfovent firmware update process"
     )
     parser.add_argument(
-        "--host",
-        required=True,
-        help="IP address or hostname of Komfovent device"
+        "--host", required=True, help="IP address or hostname of Komfovent device"
     )
     parser.add_argument(
-        "--firmware",
-        required=True,
-        help="Path to firmware file (.bin or .mbin)"
+        "--firmware", required=True, help="Path to firmware file (.bin or .mbin)"
     )
     parser.add_argument(
-        "--username",
-        default="user",
-        help="Web interface username (default: user)"
+        "--username", default="user", help="Web interface username (default: user)"
     )
     parser.add_argument(
-        "--password",
-        default="user",
-        help="Web interface password (default: user)"
+        "--password", default="user", help="Web interface password (default: user)"
     )
     parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="Validate without actually uploading firmware"
+        help="Validate without actually uploading firmware",
     )
     parser.add_argument(
         "--expected-version",
-        help="Expected firmware version after update (for verification)"
+        help="Expected firmware version after update (for verification)",
     )
     parser.add_argument(
-        "--yes", "-y",
+        "--yes",
+        "-y",
         action="store_true",
-        help="Skip confirmation prompt (for automated testing)"
+        help="Skip confirmation prompt (for automated testing)",
     )
     parser.add_argument(
         "--skip-wait",
         action="store_true",
-        help="Skip waiting for device restart (for mock testing)"
+        help="Skip waiting for device restart (for mock testing)",
     )
 
     args = parser.parse_args()
 
-    print("="*70)
+    print("=" * 70)
     print("KOMFOVENT FIRMWARE UPDATE - VALIDATION")
-    print("="*70)
+    print("=" * 70)
     print(f"\nTarget device: {args.host}")
     print(f"Firmware file: {args.firmware}")
     print(f"Mode: {'DRY RUN' if args.dry_run else 'LIVE UPDATE'}")
@@ -378,9 +372,7 @@ def main():
 
     # Initialize updater
     updater = KomfoventFirmwareUpdater(
-        host=args.host,
-        username=args.username,
-        password=args.password
+        host=args.host, username=args.username, password=args.password
     )
 
     # Step 1: Login
@@ -395,10 +387,7 @@ def main():
         sys.exit(1)
 
     # Step 3: Upload firmware
-    upload_result = updater.upload_firmware(
-        args.firmware,
-        dry_run=args.dry_run
-    )
+    upload_result = updater.upload_firmware(args.firmware, dry_run=args.dry_run)
 
     if not upload_result["success"]:
         print(f"\n✗ UPLOAD FAILED: {upload_result.get('error', 'Unknown error')}")
@@ -417,19 +406,18 @@ def main():
     # Step 4: Monitor update progress (skip for mock testing)
     if args.skip_wait:
         print("\n4. Skipping device restart wait (--skip-wait)")
-    else:
-        if not updater.monitor_update_progress():
-            print("\n⚠ WARNING: Update monitoring timed out")
-            print("⚠ Device may still be updating - check manually")
-            sys.exit(1)
+    elif not updater.monitor_update_progress():
+        print("\n⚠ WARNING: Update monitoring timed out")
+        print("⚠ Device may still be updating - check manually")
+        sys.exit(1)
 
     # Step 5: Verify update
     verify_result = updater.verify_update(args.expected_version)
 
     # Summary
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("UPDATE VALIDATION SUMMARY")
-    print("="*70)
+    print("=" * 70)
 
     if verify_result["success"]:
         print("✓ Firmware update completed successfully")

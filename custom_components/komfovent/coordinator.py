@@ -33,6 +33,8 @@ if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
 
+    from .firmware.store import FirmwareStore
+
 _LOGGER = logging.getLogger(__name__)
 
 FUNC_VER_EPOCH_TIME_RW = 21
@@ -223,11 +225,12 @@ class KomfoventRuntimeData:
     """
     Runtime data stored on a Komfovent config entry.
 
-    Wraps the coordinator in a dataclass so additional per-entry runtime
-    objects can be added as fields without touching every platform.
+    Wraps the per-entry runtime objects in a dataclass so additional fields
+    can be added without touching every platform.
     """
 
     coordinator: KomfoventCoordinator
+    firmware_store: FirmwareStore
 
 
 type KomfoventConfigEntry = ConfigEntry[KomfoventRuntimeData]
