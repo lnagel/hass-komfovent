@@ -34,8 +34,8 @@ custom_components/komfovent/
 - Exposes `latest_firmware` in state for entities to read
 
 **`FirmwareManager`** - Firmware operations
-- Check latest version (streaming GET, abort after headers)
-- Download firmware from manufacturer to HA storage
+- Download firmware from manufacturer (extracts version from headers)
+- Cache firmware in HA storage
 - Login and upload firmware to device
 - Version verification after restart
 
@@ -95,31 +95,28 @@ See protocol documentation for full details.
 
 ## Implementation Phases
 
-### Phase 1: Version Detection
+### Phase 1: Version Detection & Download
 
-**Goal:** Coordinator periodically checks for latest firmware version.
+**Goal:** Coordinator periodically downloads latest firmware and caches it.
 
-**Note:** HEAD requests don't return `Content-Disposition` from the PHP endpoint. Must use streaming GET and abort after reading headers.
+**Note:** HEAD requests don't return `Content-Disposition` from the PHP endpoint, so we download the full file and extract version from the response headers.
 
 **Tasks:**
-- [ ] Create `FirmwareManager` class with `async_check_latest_version()`
-- [ ] Implement streaming GET request to manufacturer URL (abort after headers)
-- [ ] Parse version from `Content-Disposition` header filename
-- [ ] Support both modern and legacy filename patterns
-- [ ] Extend coordinator to trigger weekly firmware checks
+- [ ] Create `FirmwareManager` class with `async_download_firmware()`
+- [ ] Download firmware, extract version from `Content-Disposition` header
+- [ ] Parse version from filename (modern and legacy patterns)
+- [ ] Save firmware to HA storage (`.storage/komfovent/`)
+- [ ] Store metadata in coordinator permanent state
+- [ ] Extend coordinator to trigger weekly firmware download
 - [ ] Store version info in coordinator data (`latest_firmware` key)
 - [ ] Create `KomfoventUpdateEntity` reading from coordinator state
 - [ ] Show "not supported" for controllers < v1.3.15
 
-### Phase 2: Download and Upload
+### Phase 2: Upload
 
-**Goal:** Single-click firmware updates via FirmwareManager.
+**Goal:** Single-click firmware upload via FirmwareManager.
 
 **Tasks:**
-- [ ] Implement `FirmwareManager.async_download_firmware()` with progress
-- [ ] Save firmware to HA storage (`.storage/komfovent/`)
-- [ ] Store file metadata in coordinator permanent state
-- [ ] Validate downloaded file (extension, size, signature)
 - [ ] Implement `FirmwareManager.async_upload_firmware()` with login
 - [ ] Handle slow TCP transfer (~57s for 1MB)
 - [ ] Wait for device restart (1-2 minutes)
