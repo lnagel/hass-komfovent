@@ -2,10 +2,20 @@
 
 from __future__ import annotations
 
+from datetime import timedelta
 from enum import IntEnum
 from typing import Final
 
 DOMAIN = "komfovent"
+
+# Firmware update constants
+FIRMWARE_CHECK_INTERVAL: Final = timedelta(days=7)
+FIRMWARE_STORAGE_KEY: Final = "komfovent_firmware"
+FIRMWARE_STORAGE_VERSION: Final = 1
+FIRMWARE_DIR: Final = "komfovent"
+FIRMWARE_MIN_SIZE: Final = 100 * 1024  # 100 KB
+FIRMWARE_MAX_SIZE: Final = 10 * 1024 * 1024  # 10 MB
+FIRMWARE_MIN_SUPPORTED_VERSION: Final = (1, 3, 15)  # v1.3.15 minimum for .mbin support
 
 # Config
 DEFAULT_NAME = "Komfovent"
@@ -41,6 +51,22 @@ class Controller(IntEnum):
     C6M = 1
     C8 = 2
     NA = 15
+
+
+class Panel(IntEnum):
+    """Panel types for firmware versioning."""
+
+    P1 = 0
+    NA = 15
+
+
+# Firmware download URLs per controller type
+# C6 and C6M share the same firmware
+FIRMWARE_URLS: Final[dict[Controller, str]] = {
+    Controller.C6: "http://www.komfovent.com/Update/Controllers/firmware.php?file=mbin",
+    Controller.C6M: "http://www.komfovent.com/Update/Controllers/firmware.php?file=mbin",
+    Controller.C8: "https://komfovent.com/Update/Controllers/C8/firmware.php?file=mbin",
+}
 
 
 class OperationMode(IntEnum):

@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from homeassistant.const import CONF_HOST
 from homeassistant.helpers.device_registry import DeviceInfo
 
-from .const import DOMAIN, Controller
+from .const import DOMAIN, Controller, Panel
 
 if TYPE_CHECKING:
     from .coordinator import KomfoventCoordinator
@@ -43,9 +43,9 @@ def build_device_info(coordinator: KomfoventCoordinator) -> DeviceInfo:
     )
 
 
-def get_version_from_int(value: int) -> tuple[Controller, int, int, int, int]:
+def get_controller_version(value: int) -> tuple[Controller, int, int, int, int]:
     """
-    Convert integer version to component numbers.
+    Convert integer version to controller version tuple.
 
     Args:
         value: Integer containing version information packed as bitfields
@@ -73,3 +73,30 @@ def get_version_from_int(value: int) -> tuple[Controller, int, int, int, int]:
         controller = Controller.NA
 
     return controller, v1, v2, v3, v4
+
+
+def get_panel_version(value: int) -> tuple[Panel, int, int, int, int]:
+    """
+    Convert integer version to panel version tuple.
+
+    Uses the same bitfield layout as controller version.
+
+    Args:
+        value: Integer containing version information packed as bitfields
+
+    Returns:
+        Tuple of (panel, v1, v2, v3, v4) version numbers
+
+    """
+    pt = (value >> 28) & 0xF
+    v1 = (value >> 24) & 0xF
+    v2 = (value >> 20) & 0xF
+    v3 = (value >> 12) & 0xFF
+    v4 = value & 0xFFF
+
+    try:
+        panel = Panel(pt)
+    except ValueError:
+        panel = Panel.NA
+
+    return panel, v1, v2, v3, v4

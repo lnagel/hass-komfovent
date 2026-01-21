@@ -150,7 +150,8 @@ async def async_get_config_entry_diagnostics(
     hass: HomeAssistant, entry: ConfigEntry
 ) -> dict[str, Any]:
     """Return diagnostics for a config entry."""
-    coordinator: KomfoventCoordinator = hass.data[DOMAIN][entry.entry_id]
+    runtime_data = hass.data[DOMAIN][entry.entry_id]
+    coordinator: KomfoventCoordinator = runtime_data.coordinator
 
     host = entry.data[CONF_HOST]
     port = entry.data[CONF_PORT]

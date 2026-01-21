@@ -66,7 +66,8 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Komfovent number entities."""
-    coordinator: KomfoventCoordinator = hass.data[DOMAIN][entry.entry_id]
+    runtime_data = hass.data[DOMAIN][entry.entry_id]
+    coordinator: KomfoventCoordinator = runtime_data.coordinator
 
     step_temperature = entry.options.get(OPT_STEP_TEMPERATURE, DEFAULT_STEP_TEMPERATURE)
     step_flow = entry.options.get(OPT_STEP_FLOW, DEFAULT_STEP_FLOW)
