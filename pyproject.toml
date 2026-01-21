@@ -8,6 +8,7 @@ authors = [
     { name = "lnagel", email = "lnagel@users.noreply.github.com" }
 ]
 dependencies = [
+    "aiofiles",
     "pymodbus",
 ]
 
