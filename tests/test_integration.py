@@ -9,6 +9,7 @@ from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.komfovent import (
+    KomfoventRuntimeData,
     _async_update_listener,
     async_setup_entry,
     async_unload_entry,
@@ -105,12 +106,28 @@ class TestAsyncSetupEntry:
         mock_coordinator.connect = AsyncMock()
         mock_coordinator.async_config_entry_first_refresh = AsyncMock()
         mock_coordinator.update_interval = None
+        mock_coordinator.controller = MagicMock()
+
+        # Create mock firmware components
+        mock_firmware_store = MagicMock()
+        mock_firmware_store.async_load = AsyncMock()
+        mock_firmware_checker = MagicMock()
+        mock_firmware_checker.register_controller_type = MagicMock()
+        mock_firmware_checker.async_start = AsyncMock()
 
         with (
             patch(
                 "custom_components.komfovent.KomfoventCoordinator",
                 return_value=mock_coordinator,
             ) as mock_coordinator_class,
+            patch(
+                "custom_components.komfovent.FirmwareStore",
+                return_value=mock_firmware_store,
+            ),
+            patch(
+                "custom_components.komfovent.FirmwareChecker",
+                return_value=mock_firmware_checker,
+            ),
             patch(
                 "custom_components.komfovent.async_register_services",
                 new_callable=AsyncMock,
@@ -139,12 +156,28 @@ class TestAsyncSetupEntry:
         mock_coordinator.connect = AsyncMock()
         mock_coordinator.async_config_entry_first_refresh = AsyncMock()
         mock_coordinator.update_interval = None
+        mock_coordinator.controller = MagicMock()
+
+        # Create mock firmware components
+        mock_firmware_store = MagicMock()
+        mock_firmware_store.async_load = AsyncMock()
+        mock_firmware_checker = MagicMock()
+        mock_firmware_checker.register_controller_type = MagicMock()
+        mock_firmware_checker.async_start = AsyncMock()
 
         with (
             patch(
                 "custom_components.komfovent.KomfoventCoordinator",
                 return_value=mock_coordinator,
             ) as mock_coordinator_class,
+            patch(
+                "custom_components.komfovent.FirmwareStore",
+                return_value=mock_firmware_store,
+            ),
+            patch(
+                "custom_components.komfovent.FirmwareChecker",
+                return_value=mock_firmware_checker,
+            ),
             patch(
                 "custom_components.komfovent.async_register_services",
                 new_callable=AsyncMock,
@@ -184,9 +217,16 @@ class TestAsyncUpdateListener:
         mock_config_entry_with_updated_options,
     ):
         """Test update listener changes coordinator update_interval."""
-        # Set up hass.data with the coordinator
+        # Create mock runtime data
+        mock_firmware_store = MagicMock()
+        runtime_data = KomfoventRuntimeData(
+            coordinator=mock_coordinator,
+            firmware_store=mock_firmware_store,
+        )
+
+        # Set up hass.data with the runtime data
         hass.data[DOMAIN] = {
-            mock_config_entry_with_updated_options.entry_id: mock_coordinator
+            mock_config_entry_with_updated_options.entry_id: runtime_data
         }
 
         # Call the update listener
@@ -199,8 +239,15 @@ class TestAsyncUpdateListener:
         self, hass: HomeAssistant, mock_coordinator, mock_config_entry
     ):
         """Test update listener uses default when option is missing."""
-        # Set up hass.data with the coordinator
-        hass.data[DOMAIN] = {mock_config_entry.entry_id: mock_coordinator}
+        # Create mock runtime data
+        mock_firmware_store = MagicMock()
+        runtime_data = KomfoventRuntimeData(
+            coordinator=mock_coordinator,
+            firmware_store=mock_firmware_store,
+        )
+
+        # Set up hass.data with the runtime data
+        hass.data[DOMAIN] = {mock_config_entry.entry_id: runtime_data}
 
         # Call the update listener (options is empty by default in mock_config_entry)
         await _async_update_listener(hass, mock_config_entry)
@@ -217,9 +264,32 @@ class TestAsyncUnloadEntry:
     async def test_unload_entry_success(
         self, hass: HomeAssistant, mock_coordinator, mock_config_entry
     ):
-        """Test successful unload removes coordinator from hass.data."""
-        # Set up hass.data with the coordinator
-        hass.data[DOMAIN] = {mock_config_entry.entry_id: mock_coordinator}
+        """Test successful unload removes runtime data from hass.data."""
+        # Create mock domain data
+        from custom_components.komfovent import KomfoventDomainData
+
+        mock_firmware_store = MagicMock()
+        mock_firmware_checker = MagicMock()
+        mock_firmware_checker.unregister_controller_type = MagicMock()
+        mock_firmware_checker.async_stop = AsyncMock()
+
+        domain_data = KomfoventDomainData(
+            firmware_store=mock_firmware_store,
+            firmware_checker=mock_firmware_checker,
+            entry_count=1,
+        )
+
+        # Create mock runtime data
+        runtime_data = KomfoventRuntimeData(
+            coordinator=mock_coordinator,
+            firmware_store=mock_firmware_store,
+        )
+
+        # Set up hass.data with the runtime data and domain data
+        hass.data[DOMAIN] = {
+            mock_config_entry.entry_id: runtime_data,
+            "domain_data": domain_data,
+        }
 
         with patch.object(
             hass.config_entries,
@@ -231,13 +301,39 @@ class TestAsyncUnloadEntry:
 
         assert result is True
         assert mock_config_entry.entry_id not in hass.data[DOMAIN]
+        # Since this was the last entry, domain_data should also be removed
+        assert "domain_data" not in hass.data[DOMAIN]
+        mock_firmware_checker.async_stop.assert_called_once()
 
-    async def test_unload_entry_failure_keeps_coordinator(
+    async def test_unload_entry_failure_keeps_runtime_data(
         self, hass: HomeAssistant, mock_coordinator, mock_config_entry
     ):
-        """Test failed unload keeps coordinator in hass.data."""
-        # Set up hass.data with the coordinator
-        hass.data[DOMAIN] = {mock_config_entry.entry_id: mock_coordinator}
+        """Test failed unload keeps runtime data in hass.data."""
+        # Create mock domain data
+        from custom_components.komfovent import KomfoventDomainData
+
+        mock_firmware_store = MagicMock()
+        mock_firmware_checker = MagicMock()
+        mock_firmware_checker.unregister_controller_type = MagicMock()
+        mock_firmware_checker.async_stop = AsyncMock()
+
+        domain_data = KomfoventDomainData(
+            firmware_store=mock_firmware_store,
+            firmware_checker=mock_firmware_checker,
+            entry_count=1,
+        )
+
+        # Create mock runtime data
+        runtime_data = KomfoventRuntimeData(
+            coordinator=mock_coordinator,
+            firmware_store=mock_firmware_store,
+        )
+
+        # Set up hass.data with the runtime data and domain data
+        hass.data[DOMAIN] = {
+            mock_config_entry.entry_id: runtime_data,
+            "domain_data": domain_data,
+        }
 
         with patch.object(
             hass.config_entries,

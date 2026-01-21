@@ -26,7 +26,8 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Komfovent button from config entry."""
-    coordinator: KomfoventCoordinator = hass.data[DOMAIN][config_entry.entry_id]
+    runtime_data = hass.data[DOMAIN][config_entry.entry_id]
+    coordinator: KomfoventCoordinator = runtime_data.coordinator
 
     async_add_entities(
         [
