@@ -28,17 +28,22 @@ custom_components/komfovent/
 
 ### Core Classes
 
-**`KomfoventUpdateEntity`** - Home Assistant update entity
-- Reports installed version from Modbus registers
-- Checks manufacturer URL for latest version
-- Provides install action for single-click updates
-- Tracks progress during download/upload
+**`KomfoventCoordinator`** (existing, extended)
+- Triggers weekly firmware version check via FirmwareManager
+- Stores firmware check results in coordinator data
+- Exposes `latest_firmware` in state for entities to read
 
 **`FirmwareManager`** - Firmware operations
-- Streaming GET request to detect latest version (abort after headers)
-- Download firmware from manufacturer
-- Login and upload to device
+- Check latest version (streaming GET, abort after headers)
+- Download firmware from manufacturer to HA storage
+- Login and upload firmware to device
 - Version verification after restart
+
+**`KomfoventUpdateEntity`** - Home Assistant update entity (display only)
+- Reads installed version from coordinator data (Modbus)
+- Reads latest version from coordinator data (firmware check results)
+- Triggers install action via FirmwareManager
+- Displays progress during download/upload
 
 ### Firmware Caching
 
@@ -92,35 +97,34 @@ See protocol documentation for full details.
 
 ### Phase 1: Version Detection
 
-**Goal:** Automatically detect latest firmware version from manufacturer.
+**Goal:** Coordinator periodically checks for latest firmware version.
 
 **Note:** HEAD requests don't return `Content-Disposition` from the PHP endpoint. Must use streaming GET and abort after reading headers.
 
 **Tasks:**
-- [ ] Create `FirmwareManager` class
+- [ ] Create `FirmwareManager` class with `async_check_latest_version()`
 - [ ] Implement streaming GET request to manufacturer URL (abort after headers)
 - [ ] Parse version from `Content-Disposition` header filename
 - [ ] Support both modern and legacy filename patterns
-- [ ] Store version info in coordinator permanent state
-- [ ] Cache version checks (1 hour) to minimize server load
-- [ ] Create `KomfoventUpdateEntity` with `installed_version` property
-- [ ] Add `latest_version` property from cached state
+- [ ] Extend coordinator to trigger weekly firmware checks
+- [ ] Store version info in coordinator data (`latest_firmware` key)
+- [ ] Create `KomfoventUpdateEntity` reading from coordinator state
 - [ ] Show "not supported" for controllers < v1.3.15
 
 ### Phase 2: Download and Upload
 
-**Goal:** Single-click firmware updates.
+**Goal:** Single-click firmware updates via FirmwareManager.
 
 **Tasks:**
-- [ ] Implement firmware download with progress tracking
+- [ ] Implement `FirmwareManager.async_download_firmware()` with progress
 - [ ] Save firmware to HA storage (`.storage/komfovent/`)
 - [ ] Store file metadata in coordinator permanent state
 - [ ] Validate downloaded file (extension, size, signature)
-- [ ] Implement device login (fields `1` and `2`)
-- [ ] Implement firmware upload (field `11111`)
+- [ ] Implement `FirmwareManager.async_upload_firmware()` with login
 - [ ] Handle slow TCP transfer (~57s for 1MB)
 - [ ] Wait for device restart (1-2 minutes)
 - [ ] Verify new version via Modbus
+- [ ] Update entity calls FirmwareManager, displays progress
 
 ### Phase 3: Polish
 
