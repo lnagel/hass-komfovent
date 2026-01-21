@@ -183,10 +183,10 @@ After installation, you can configure advanced options through the integration's
 
 ## ModBus tools
 
-The `modbus_dump.py` tool can be used to dump the ModBus data from the Komfovent device. Usage:
+The `scripts/modbus_dump.py` tool can be used to dump the ModBus data from the Komfovent device. Usage:
 
 ```bash
-python3 modbus_dump.py --host <device_ip> [--port 502] [--output registers.json]
+python3 scripts/modbus_dump.py --host <device_ip> [--port 502] [--output registers.json]
 ```
 
 This will scan all known register ranges and save the results to a JSON file. The tool supports these arguments:
@@ -194,10 +194,10 @@ This will scan all known register ranges and save the results to a JSON file. Th
 - `--port`: Optional. ModBus TCP port (default: 502)
 - `--output`: Optional. Output JSON file path (default: registers.json)
 
-The `modbus_server.py` tool can be used to simulate a Komfovent ModBus server for testing purposes. Usage:
+The `scripts/modbus_server.py` tool can be used to simulate a Komfovent ModBus server for testing purposes. Usage:
 
 ```bash
-python3 modbus_server.py [--host 0.0.0.0] [--port 502] [--input registers.json]
+python3 scripts/modbus_server.py [--host 0.0.0.0] [--port 502] [--input registers.json]
 ```
 
 This will start a ModBus TCP server that simulates a Komfovent device using register values from a JSON file. The tool supports these arguments:
