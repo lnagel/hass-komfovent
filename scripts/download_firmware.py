@@ -10,6 +10,7 @@ Usage:
 """
 
 import argparse
+import logging
 import re
 import sys
 from pathlib import Path
@@ -17,16 +18,36 @@ from urllib.parse import unquote
 
 import requests
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
+
 # Firmware download URL (only .mbin supported, v1.3.15+)
 FIRMWARE_URL = "http://www.komfovent.com/Update/Controllers/firmware.php?file=mbin"
 
 # Reference documentation
 DOWNLOADS_PDF = "https://www.komfovent.com/en/downloads/C6_update_EN.pdf"
 
+# HTTP status codes
+HTTP_OK = 200
+HTTP_FORBIDDEN = 403
+
+# File size thresholds (bytes)
+MIN_FIRMWARE_SIZE = 100_000  # 100KB - files smaller than this are suspicious
+MAX_FIRMWARE_SIZE = 10_000_000  # 10MB - files larger than this are suspicious
+
+# Download settings
+CHUNK_SIZE = 8192
+REQUEST_TIMEOUT = 30
+
 
 def extract_filename_from_headers(response: requests.Response) -> str | None:
     """
     Extract filename from response headers.
+
+    Checks Content-Disposition, Content-Location, and final URL for filename.
 
     Args:
         response: HTTP response object
@@ -35,23 +56,18 @@ def extract_filename_from_headers(response: requests.Response) -> str | None:
         Filename if found, None otherwise
 
     """
-    # Check Content-Disposition header
     content_disposition = response.headers.get("Content-Disposition", "")
     if content_disposition:
-        # Example: attachment; filename="C6_1_3_28_38_20180428.mbin"
         match = re.search(r"filename=[\'\"]?([^\'\"]+)[\'\"]?", content_disposition)
         if match:
             return unquote(match.group(1))
 
-    # Check Content-Location header
     content_location = response.headers.get("Content-Location", "")
     if content_location:
         return content_location.split("/")[-1]
 
-    # Try to extract from final URL after redirects
     if response.url and response.url != FIRMWARE_URL:
         url_filename = response.url.split("/")[-1]
-        # Check if it looks like a firmware file
         if url_filename.endswith(".mbin"):
             return url_filename
 
@@ -60,7 +76,6 @@ def extract_filename_from_headers(response: requests.Response) -> str | None:
 
 def format_version(version: tuple) -> str:
     """Format version tuple as string for display."""
-    # ("C6", 1, 5, 46, 72) -> "1.5.46.72"
     return f"{version[1]}.{version[2]}.{version[3]}.{version[4]}"
 
 
@@ -76,12 +91,9 @@ def extract_version_from_filename(filename: str) -> dict | None:
         filename: Firmware filename
 
     Returns:
-        Dictionary with version info:
-        - controller_version: ("C6", 1, 5, 46, 72) - 5-tuple for comparison
-        - panel_version: ("P1", 1, 1, 5, 48) or None - 5-tuple for comparison
+        Dictionary with version info or None if pattern not matched
 
     """
-    # Modern pattern: C6[M]?_v1_v2_v3_v4_P1_p1_p2_p3_p4.mbin
     modern_pattern = (
         r"C6(M)?_(\d+)_(\d+)_(\d+)_(\d+)_P1_(\d+)_(\d+)_(\d+)_(\d+)\.(mbin)"
     )
@@ -89,9 +101,7 @@ def extract_version_from_filename(filename: str) -> dict | None:
     match = re.search(modern_pattern, filename, re.IGNORECASE)
     if match:
         model_suffix, v1, v2, v3, v4, p1, p2, p3, p4, ext = match.groups()
-
         model = f"C6{model_suffix}" if model_suffix else "C6"
-
         return {
             "model": model,
             "controller_version": (model, int(v1), int(v2), int(v3), int(v4)),
@@ -100,15 +110,11 @@ def extract_version_from_filename(filename: str) -> dict | None:
             "pattern": "modern",
         }
 
-    # Legacy pattern: C6[M]?_v1_v2_v3_v4_date.mbin
     legacy_pattern = r"C6(M)?_(\d+)_(\d+)_(\d+)_(\d+)_(\d+)\.(mbin)"
-
     match = re.search(legacy_pattern, filename, re.IGNORECASE)
     if match:
         model_suffix, v1, v2, v3, v4, date, ext = match.groups()
-
         model = f"C6{model_suffix}" if model_suffix else "C6"
-
         return {
             "model": model,
             "controller_version": (model, int(v1), int(v2), int(v3), int(v4)),
@@ -119,6 +125,83 @@ def extract_version_from_filename(filename: str) -> dict | None:
         }
 
     return None
+
+
+def _log_header(title: str) -> None:
+    """Log a section header."""
+    logger.info("=" * 70)
+    logger.info(title)
+    logger.info("=" * 70)
+
+
+def _handle_forbidden_response(response: requests.Response) -> None:
+    """Handle 403 Forbidden response."""
+    logger.error("Access denied (403 Forbidden)")
+    deny_reason = response.headers.get("x-deny-reason")
+    if deny_reason:
+        logger.error("Reason: %s", deny_reason)
+    _log_header("ACCESS DENIED FROM THIS LOCATION")
+    logger.warning("Download access is restricted to residential networks")
+    logger.warning("where Komfovent devices are installed.")
+    logger.info("This script must be run from the same network as your device.")
+    logger.info("The Home Assistant integration will have proper access.")
+
+
+def _log_version_info(version_info: dict) -> None:
+    """Log firmware version information."""
+    cv = version_info["controller_version"]
+    logger.info("Version: %s", format_version(cv))
+    logger.info("Model: %s", version_info["model"])
+    if version_info.get("date"):
+        logger.info("Date: %s", version_info["date"])
+
+
+def _log_detailed_version_info(version_info: dict) -> None:
+    """Log detailed firmware version information."""
+    logger.info("Firmware Information:")
+    logger.info("  Model: %s", version_info["model"])
+    cv = version_info["controller_version"]
+    logger.info("  Controller Version: %s", format_version(cv))
+    pv = version_info.get("panel_version")
+    if pv:
+        logger.info("  Panel Version: %s", format_version(pv))
+    if "date" in version_info:
+        logger.info("  Build Date: %s", version_info["date"])
+    logger.info("  Type: %s", version_info["extension"])
+    logger.info("  Pattern: %s", version_info["pattern"])
+
+
+def _verify_file_size(file_size: int) -> None:
+    """Log file size verification results."""
+    if file_size < MIN_FIRMWARE_SIZE:
+        logger.warning("File seems small (< 100KB)")
+        logger.warning("This might not be a valid firmware file")
+    elif file_size > MAX_FIRMWARE_SIZE:
+        logger.warning("File seems large (> 10MB)")
+        logger.warning("This might not be a valid firmware file")
+    else:
+        logger.info("File size looks reasonable")
+
+
+def _download_with_progress(
+    response: requests.Response, output_file: Path, total_size: int
+) -> None:
+    """Download file with progress logging."""
+    downloaded = 0
+    with output_file.open("wb") as f:
+        for chunk in response.iter_content(chunk_size=CHUNK_SIZE):
+            if chunk:
+                f.write(chunk)
+                downloaded += len(chunk)
+                if total_size > 0:
+                    percent = (downloaded / total_size) * 100
+                    logger.info(
+                        "Progress: %.1f%% (%d / %d bytes)",
+                        percent,
+                        downloaded,
+                        total_size,
+                    )
+    logger.info("Download complete!")
 
 
 def download_firmware(output_path: str | None = None) -> bool:
@@ -134,135 +217,79 @@ def download_firmware(output_path: str | None = None) -> bool:
         True if successful, False otherwise
 
     """
-    print(f"{'=' * 70}")
-    print("Downloading MBIN firmware")
-    print(f"{'=' * 70}")
-    print(f"URL: {FIRMWARE_URL}\n")
+    _log_header("Downloading MBIN firmware")
+    logger.info("URL: %s", FIRMWARE_URL)
 
     try:
-        # Use streaming GET to check access and download in one request
-        # (HEAD requests don't return Content-Disposition from this PHP endpoint)
-        print("1. Connecting to server...")
-        response = requests.get(FIRMWARE_URL, stream=True, timeout=30)
+        logger.info("1. Connecting to server...")
+        response = requests.get(FIRMWARE_URL, stream=True, timeout=REQUEST_TIMEOUT)
+        logger.info("Status: %d", response.status_code)
 
-        print(f"   Status: {response.status_code}")
-
-        if response.status_code == 403:
-            print("   ❌ Access denied (403 Forbidden)")
-
-            # Check for deny reason
-            deny_reason = response.headers.get("x-deny-reason")
-            if deny_reason:
-                print(f"   Reason: {deny_reason}")
-
-            print(f"\n{'=' * 70}")
-            print("ACCESS DENIED FROM THIS LOCATION")
-            print(f"{'=' * 70}\n")
-            print("⚠️  Download access is restricted to residential networks")
-            print("    where Komfovent devices are installed.\n")
-            print("This script must be run from the same network as your device.")
-            print("The Home Assistant integration will have proper access.\n")
-
+        if response.status_code == HTTP_FORBIDDEN:
+            _handle_forbidden_response(response)
             return False
 
-        if response.status_code != 200:
-            print(f"   ❌ Unexpected status code: {response.status_code}")
+        if response.status_code != HTTP_OK:
+            logger.error("Unexpected status code: %d", response.status_code)
             return False
 
-        print("   ✅ Access granted!")
+        logger.info("Access granted!")
 
-        # Get filename from headers (available in streaming GET response)
         filename = extract_filename_from_headers(response)
         if filename:
-            print(f"   Filename: {filename}")
-
-            # Extract version info
+            logger.info("Filename: %s", filename)
             version_info = extract_version_from_filename(filename)
             if version_info:
-                cv = version_info["controller_version"]
-                print(f"   Version: {format_version(cv)}")
-                print(f"   Model: {version_info['model']}")
-                if version_info.get("date"):
-                    print(f"   Date: {version_info['date']}")
+                _log_version_info(version_info)
 
-        # Determine output filename
-        if output_path:
-            output_file = Path(output_path)
-        elif filename:
-            output_file = Path(filename)
-        else:
-            output_file = Path("komfovent_firmware.mbin")
+        output_file = _determine_output_file(output_path, filename)
+        logger.info("2. Downloading to: %s", output_file)
 
-        print(f"\n2. Downloading to: {output_file}")
-
-        # Get total size if available
         total_size = int(response.headers.get("content-length", 0))
+        _download_with_progress(response, output_file, total_size)
 
-        # Download with progress (continuing from same response)
-        downloaded = 0
-        with open(output_file, "wb") as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
-                    downloaded += len(chunk)
+        _verify_downloaded_file(output_file, filename)
+        _log_success()
 
-                    if total_size > 0:
-                        percent = (downloaded / total_size) * 100
-                        print(
-                            f"   Progress: {percent:.1f}% ({downloaded:,} / {total_size:,} bytes)",
-                            end="\r",
-                        )
+    except requests.exceptions.RequestException:
+        logger.exception("Download failed")
+        return False
 
-        print("\n   ✅ Download complete!")
-
-        # Verify file
-        file_size = output_file.stat().st_size
-        print("\n3. Verifying downloaded file...")
-        print(f"   File: {output_file}")
-        print(f"   Size: {file_size:,} bytes ({file_size / 1024 / 1024:.2f} MB)")
-
-        if file_size < 100_000:
-            print("   ⚠️  Warning: File seems small (< 100KB)")
-            print("   This might not be a valid firmware file")
-        elif file_size > 10_000_000:
-            print("   ⚠️  Warning: File seems large (> 10MB)")
-            print("   This might not be a valid firmware file")
-        else:
-            print("   ✅ File size looks reasonable")
-
-        # Extract version from filename
-        if filename:
-            version_info = extract_version_from_filename(str(output_file))
-            if version_info:
-                print("\n4. Firmware Information:")
-                print(f"   Model: {version_info['model']}")
-                cv = version_info["controller_version"]
-                print(f"   Controller Version: {format_version(cv)}")
-                pv = version_info.get("panel_version")
-                if pv:
-                    print(f"   Panel Version: {format_version(pv)}")
-                if "date" in version_info:
-                    print(f"   Build Date: {version_info['date']}")
-                print(f"   Type: {version_info['extension']}")
-                print(f"   Pattern: {version_info['pattern']}")
-
-        print(f"\n{'=' * 70}")
-        print("✅ SUCCESS - Firmware downloaded successfully!")
-        print(f"{'=' * 70}")
-        print("\nNext steps:")
-        print("1. Verify firmware version matches your needs")
-        print("2. Use validate_firmware_update.py to test upload (dry-run)")
-        print("3. Upload to device at http://[device_ip]/g1.html")
-
+    else:
         return True
 
-    except requests.exceptions.RequestException as e:
-        print(f"\n❌ Download failed: {e}")
-        return False
 
-    except Exception as e:
-        print(f"\n❌ Unexpected error: {e}")
-        return False
+def _determine_output_file(output_path: str | None, filename: str | None) -> Path:
+    """Determine the output file path."""
+    if output_path:
+        return Path(output_path)
+    if filename:
+        return Path(filename)
+    return Path("komfovent_firmware.mbin")
+
+
+def _verify_downloaded_file(output_file: Path, filename: str | None) -> None:
+    """Verify the downloaded file."""
+    file_size = output_file.stat().st_size
+    logger.info("3. Verifying downloaded file...")
+    logger.info("File: %s", output_file)
+    logger.info("Size: %d bytes (%.2f MB)", file_size, file_size / 1024 / 1024)
+    _verify_file_size(file_size)
+
+    if filename:
+        version_info = extract_version_from_filename(str(output_file))
+        if version_info:
+            logger.info("4. Firmware Information:")
+            _log_detailed_version_info(version_info)
+
+
+def _log_success() -> None:
+    """Log success message."""
+    _log_header("SUCCESS - Firmware downloaded successfully!")
+    logger.info("Next steps:")
+    logger.info("1. Verify firmware version matches your needs")
+    logger.info("2. Use validate_firmware_update.py to test upload (dry-run)")
+    logger.info("3. Upload to device at http://[device_ip]/g1.html")
 
 
 def validate_firmware_file(filepath: str) -> bool:
@@ -276,61 +303,41 @@ def validate_firmware_file(filepath: str) -> bool:
         True if valid, False otherwise
 
     """
-    print(f"{'=' * 70}")
-    print("Validating firmware file")
-    print(f"{'=' * 70}\n")
+    _log_header("Validating firmware file")
 
     path = Path(filepath)
 
-    # Check file exists
     if not path.exists():
-        print(f"❌ File not found: {filepath}")
+        logger.error("File not found: %s", filepath)
         return False
 
-    print(f"File: {path}")
+    logger.info("File: %s", path)
 
-    # Check extension (only .mbin supported)
     if path.suffix != ".mbin":
-        print(f"❌ Invalid extension: {path.suffix}")
-        print("   Expected: .mbin (only v1.3.15+ firmware supported)")
+        logger.error("Invalid extension: %s", path.suffix)
+        logger.error("Expected: .mbin (only v1.3.15+ firmware supported)")
         return False
 
-    print(f"✅ Extension: {path.suffix}")
+    logger.info("Extension: %s", path.suffix)
 
-    # Check file size
     size = path.stat().st_size
-    print(f"✅ Size: {size:,} bytes ({size / 1024 / 1024:.2f} MB)")
+    logger.info("Size: %d bytes (%.2f MB)", size, size / 1024 / 1024)
+    _verify_file_size(size)
 
-    if size < 100_000:
-        print("⚠️  Warning: File is very small (< 100KB)")
-    elif size > 10_000_000:
-        print("⚠️  Warning: File is very large (> 10MB)")
-
-    # Extract version from filename
     version_info = extract_version_from_filename(path.name)
     if version_info:
-        print("\nFirmware Information:")
-        print(f"  Model: {version_info['model']}")
-        cv = version_info["controller_version"]
-        print(f"  Controller Version: {format_version(cv)}")
-        pv = version_info.get("panel_version")
-        if pv:
-            print(f"  Panel Version: {format_version(pv)}")
-        if "date" in version_info:
-            print(f"  Build Date: {version_info['date']}")
-        print(f"  Type: {version_info['extension']}")
-        print(f"  Pattern: {version_info['pattern']}")
+        _log_detailed_version_info(version_info)
     else:
-        print("\n⚠️  Could not extract version from filename")
-        print("   Expected formats:")
-        print("     Modern: C6_1_5_XX_XX_P1_1_1_X_XX.mbin")
-        print("     Legacy: C6_1_3_XX_XX_YYYYMMDD.mbin")
+        logger.warning("Could not extract version from filename")
+        logger.info("Expected formats:")
+        logger.info("  Modern: C6_1_5_XX_XX_P1_1_1_X_XX.mbin")
+        logger.info("  Legacy: C6_1_3_XX_XX_YYYYMMDD.mbin")
 
-    print(f"\n{'=' * 70}")
-    print("✅ File validation passed")
-    print(f"{'=' * 70}")
-    print("\nThis file can be uploaded to your Komfovent device.")
-    print(f"Use: python3 validate_firmware_update.py --host [IP] --firmware {filepath}")
+    _log_header("File validation passed")
+    logger.info("This file can be uploaded to your Komfovent device.")
+    logger.info(
+        "Use: python3 validate_firmware_update.py --host [IP] --firmware %s", filepath
+    )
 
     return True
 
@@ -370,14 +377,11 @@ This script must be run from the same network as your Komfovent device.
 
     args = parser.parse_args()
 
-    # Validate mode
     if args.validate:
         success = validate_firmware_file(args.validate)
         sys.exit(0 if success else 1)
 
-    # Download mode
     success = download_firmware(output_path=args.output)
-
     sys.exit(0 if success else 1)
 
 
