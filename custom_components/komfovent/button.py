@@ -35,7 +35,7 @@ async def async_setup_entry(
                 ButtonEntityDescription(
                     key="set_system_time",
                     name="Set System Time",
-                    icon="mdi:clock",
+                    translation_key="set_system_time",
                     entity_category=EntityCategory.CONFIG,
                 ),
             ),
@@ -44,7 +44,7 @@ async def async_setup_entry(
                 ButtonEntityDescription(
                     key="clean_filters",
                     name="Clean Filters Calibration",
-                    icon="mdi:air-filter",
+                    translation_key="clean_filters",
                     entity_category=EntityCategory.CONFIG,
                 ),
             ),

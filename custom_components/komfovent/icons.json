@@ -2,6 +2,7 @@
   "entity": {
     "climate": {
       "komfovent_climate": {
+        "default": "mdi:air-filter",
         "state_attributes": {
           "preset_mode": {
             "default": "mdi:fan",
@@ -22,8 +23,70 @@
         }
       }
     },
+    "switch": {
+      "power": {
+        "default": "mdi:power"
+      },
+      "eco_mode": {
+        "default": "mdi:leaf"
+      },
+      "auto_mode": {
+        "default": "mdi:auto-fix"
+      },
+      "aq_impurity_control": {
+        "default": "mdi:air-filter"
+      },
+      "aq_humidity_control": {
+        "default": "mdi:water-percent"
+      },
+      "aq_electric_heater": {
+        "default": "mdi:radiator"
+      },
+      "eco_free_heat_cool": {
+        "default": "mdi:snowflake"
+      },
+      "eco_heater_blocking": {
+        "default": "mdi:radiator-off"
+      },
+      "eco_cooler_blocking": {
+        "default": "mdi:snowflake-off"
+      },
+      "away_electric_heater": {
+        "default": "mdi:radiator"
+      },
+      "normal_electric_heater": {
+        "default": "mdi:radiator"
+      },
+      "intensive_electric_heater": {
+        "default": "mdi:radiator"
+      },
+      "boost_electric_heater": {
+        "default": "mdi:radiator"
+      },
+      "kitchen_electric_heater": {
+        "default": "mdi:radiator"
+      },
+      "fireplace_electric_heater": {
+        "default": "mdi:radiator"
+      },
+      "override_electric_heater": {
+        "default": "mdi:radiator"
+      },
+      "holidays_electric_heater": {
+        "default": "mdi:radiator"
+      }
+    },
+    "button": {
+      "set_system_time": {
+        "default": "mdi:clock"
+      },
+      "clean_filters": {
+        "default": "mdi:air-filter"
+      }
+    },
     "select": {
       "operation_mode": {
+        "default": "mdi:fan",
         "state": {
           "standby": "mdi:power-sleep",
           "away": "mdi:home-export-outline",
@@ -37,6 +100,12 @@
           "air_quality": "mdi:fan-auto",
           "off": "mdi:fan-off"
         }
+      },
+      "aq_outdoor_humidity_sensor": {
+        "default": "mdi:water-percent"
+      },
+      "eco_heat_recovery": {
+        "default": "mdi:heat-wave"
       }
     }
   }

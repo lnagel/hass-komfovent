@@ -29,7 +29,7 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
             entity_description=SwitchEntityDescription(
                 key="power",
                 name="Power",
-                icon="mdi:power",
+                translation_key="power",
                 entity_registry_enabled_default=True,
                 entity_category=None,
             ),
@@ -40,7 +40,7 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
             entity_description=SwitchEntityDescription(
                 key="eco_mode",
                 name="ECO Mode",
-                icon="mdi:leaf",
+                translation_key="eco_mode",
                 entity_registry_enabled_default=True,
                 entity_category=None,
             ),
@@ -51,7 +51,7 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
             entity_description=SwitchEntityDescription(
                 key="auto_mode",
                 name="AUTO Mode",
-                icon="mdi:auto-fix",
+                translation_key="auto_mode",
                 entity_registry_enabled_default=True,
                 entity_category=None,
             ),
@@ -62,7 +62,7 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
             entity_description=SwitchEntityDescription(
                 key="aq_impurity_control",
                 name="AQ Impurity Control",
-                icon="mdi:air-filter",
+                translation_key="aq_impurity_control",
                 entity_registry_enabled_default=True,
                 entity_category=EntityCategory.CONFIG,
             ),
@@ -73,7 +73,7 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
             entity_description=SwitchEntityDescription(
                 key="aq_humidity_control",
                 name="AQ Humidity Control",
-                icon="mdi:water-percent",
+                translation_key="aq_humidity_control",
                 entity_registry_enabled_default=True,
                 entity_category=EntityCategory.CONFIG,
             ),
@@ -84,7 +84,7 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
             entity_description=SwitchEntityDescription(
                 key="aq_electric_heater",
                 name="AQ Electric Heater",
-                icon="mdi:radiator",
+                translation_key="aq_electric_heater",
                 entity_registry_enabled_default=True,
             ),
         ),
@@ -94,7 +94,7 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
             entity_description=SwitchEntityDescription(
                 key="eco_free_heat_cool",
                 name="ECO Free Heating/Cooling",
-                icon="mdi:snowflake",
+                translation_key="eco_free_heat_cool",
                 entity_registry_enabled_default=True,
                 entity_category=None,
             ),
@@ -105,7 +105,7 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
             entity_description=SwitchEntityDescription(
                 key="eco_heater_blocking",
                 name="ECO Heater Blocking",
-                icon="mdi:radiator-off",
+                translation_key="eco_heater_blocking",
                 entity_registry_enabled_default=True,
                 entity_category=None,
             ),
@@ -116,7 +116,7 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
             entity_description=SwitchEntityDescription(
                 key="eco_cooler_blocking",
                 name="ECO Cooler Blocking",
-                icon="mdi:snowflake-off",
+                translation_key="eco_cooler_blocking",
                 entity_registry_enabled_default=True,
                 entity_category=None,
             ),
@@ -127,7 +127,7 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
             entity_description=SwitchEntityDescription(
                 key="away_electric_heater",
                 name="Away Electric Heater",
-                icon="mdi:radiator",
+                translation_key="away_electric_heater",
                 entity_registry_enabled_default=True,
                 entity_registry_visible_default=False,
                 entity_category=EntityCategory.CONFIG,
@@ -139,7 +139,7 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
             entity_description=SwitchEntityDescription(
                 key="normal_electric_heater",
                 name="Normal Electric Heater",
-                icon="mdi:radiator",
+                translation_key="normal_electric_heater",
                 entity_registry_enabled_default=True,
                 entity_registry_visible_default=False,
                 entity_category=EntityCategory.CONFIG,
@@ -151,7 +151,7 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
             entity_description=SwitchEntityDescription(
                 key="intensive_electric_heater",
                 name="Intensive Electric Heater",
-                icon="mdi:radiator",
+                translation_key="intensive_electric_heater",
                 entity_registry_enabled_default=True,
                 entity_registry_visible_default=False,
                 entity_category=EntityCategory.CONFIG,
@@ -163,7 +163,7 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
             entity_description=SwitchEntityDescription(
                 key="boost_electric_heater",
                 name="Boost Electric Heater",
-                icon="mdi:radiator",
+                translation_key="boost_electric_heater",
                 entity_registry_enabled_default=True,
                 entity_registry_visible_default=False,
                 entity_category=EntityCategory.CONFIG,
@@ -175,7 +175,7 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
             entity_description=SwitchEntityDescription(
                 key="kitchen_electric_heater",
                 name="Kitchen Electric Heater",
-                icon="mdi:radiator",
+                translation_key="kitchen_electric_heater",
                 entity_registry_enabled_default=True,
                 entity_registry_visible_default=False,
                 entity_category=EntityCategory.CONFIG,
@@ -187,7 +187,7 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
             entity_description=SwitchEntityDescription(
                 key="fireplace_electric_heater",
                 name="Fireplace Electric Heater",
-                icon="mdi:radiator",
+                translation_key="fireplace_electric_heater",
                 entity_registry_enabled_default=True,
                 entity_registry_visible_default=False,
                 entity_category=EntityCategory.CONFIG,
@@ -199,7 +199,7 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
             entity_description=SwitchEntityDescription(
                 key="override_electric_heater",
                 name="Override Electric Heater",
-                icon="mdi:radiator",
+                translation_key="override_electric_heater",
                 entity_registry_enabled_default=True,
                 entity_registry_visible_default=False,
                 entity_category=EntityCategory.CONFIG,
@@ -211,7 +211,7 @@ async def create_switches(coordinator: KomfoventCoordinator) -> list[KomfoventSw
             entity_description=SwitchEntityDescription(
                 key="holidays_electric_heater",
                 name="Holidays Electric Heater",
-                icon="mdi:radiator",
+                translation_key="holidays_electric_heater",
                 entity_registry_enabled_default=True,
                 entity_registry_visible_default=False,
                 entity_category=EntityCategory.CONFIG,

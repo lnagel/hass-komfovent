@@ -100,8 +100,8 @@ async def async_setup_entry(
             entity_description=SelectEntityDescription(
                 key="aq_outdoor_humidity_sensor",
                 name="AQ Outdoor Humidity Sensor",
+                translation_key="aq_outdoor_humidity_sensor",
                 entity_category=EntityCategory.CONFIG,
-                icon="mdi:water-percent",
                 options=[mode.name.lower() for mode in OutdoorHumiditySensor],
                 entity_registry_enabled_default=False,
             ),
@@ -113,7 +113,7 @@ async def async_setup_entry(
             entity_description=SelectEntityDescription(
                 key="eco_heat_recovery",
                 name="ECO Heat Recovery",
-                icon="mdi:heat-wave",
+                translation_key="eco_heat_recovery",
                 options=[mode.name.lower() for mode in HeatRecoveryControl],
             ),
         ),
