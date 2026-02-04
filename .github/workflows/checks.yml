@@ -26,7 +26,7 @@ jobs:
         with:
           enable-cache: true
       - run: python -c "import sys; print(sys.version)"
-      - run: uv sync --extra test
+      - run: uv sync --dev
       - name: Run tests with coverage
         run: uv run pytest --cov=custom_components/komfovent --cov-branch --cov-report=term --cov-report=xml --junitxml=junit.xml -o junit_family=legacy
       - name: Upload coverage reports to Codecov

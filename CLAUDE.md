@@ -7,12 +7,10 @@ This document provides essential guidelines for AI agents working on this codeba
 **ALWAYS run before any code quality checks:**
 
 ```bash
-uv sync --all-extras
+uv sync --dev
 ```
 
-This installs all dependencies including test and dev extras (pytest, ruff, ty).
-
-The `--all-extras` flag is equivalent to `--extra test --extra dev` and ensures all tools are available.
+This installs all dependencies including dev tools (pytest, ruff, ty).
 
 ## Pre-Commit Checklist
 
@@ -142,7 +140,7 @@ Only amend commits for:
 uv run pytest  # Error: pytest not found
 
 # RIGHT
-uv sync --all-extras
+uv sync --dev
 uv run pytest
 ```
 
@@ -186,7 +184,7 @@ All must pass for PR approval.
 
 ```bash
 # Setup environment
-uv sync --all-extras
+uv sync --dev
 
 # Run tests
 uv run pytest

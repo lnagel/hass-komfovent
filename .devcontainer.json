@@ -1,7 +1,7 @@
 {
     "name": "lnagel/hass-komfovent",
     "image": "mcr.microsoft.com/devcontainers/python:3.13",
-    "postCreateCommand": "uv sync --all-extras",
+    "postCreateCommand": "uv sync --dev",
     "forwardPorts": [
         8123
     ],

@@ -27,7 +27,7 @@ jobs:
             enable-cache: true
 
         - name: "Install dependencies"
-          run: uv sync --extra dev
+          run: uv sync --dev
 
         - name: "Lint"
           run: uv run ruff check .
@@ -53,7 +53,7 @@ jobs:
             enable-cache: true
 
         - name: "Install dependencies"
-          run: uv sync --extra dev --extra test
+          run: uv sync --dev
 
         - name: "Type check"
           run: uv run ty check .
