@@ -32,6 +32,25 @@ uv run ty check
 
 **All checks must pass before committing.** CI will reject PRs that fail any of these.
 
+## Pre-PR Checklist
+
+**BEFORE creating a pull request, validate that your changes have 100% test coverage:**
+
+```bash
+# 1. Generate coverage XML report
+uv run pytest --cov=custom_components/komfovent --cov-branch --cov-report=xml
+
+# 2. Check diff coverage against main branch (100% required)
+uv run diff-cover coverage.xml --compare-branch=main --fail-under=100
+```
+
+**If diff coverage fails:**
+1. Review the output to see which specific lines lack coverage
+2. Add tests for the uncovered lines
+3. Re-run the diff coverage check until it passes
+
+**Why this matters:** Codecov enforces diff coverage on PRs. Validating locally prevents wasted reviewer time on PRs that will fail CI.
+
 ## Project Structure
 
 ```
@@ -205,6 +224,9 @@ uv run ty check
 
 # Full pre-commit check
 uv run pytest && uv run ruff format . && uv run ruff check . --fix && uv run ty check
+
+# Check diff coverage (before creating PR)
+uv run pytest --cov=custom_components/komfovent --cov-branch --cov-report=xml && uv run diff-cover coverage.xml --compare-branch=main --fail-under=100
 
 # Bump version (updates pyproject.toml and manifest.json)
 uv run bump-my-version bump patch  # 0.7.4 -> 0.7.5
