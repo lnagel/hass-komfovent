@@ -90,6 +90,9 @@ When making changes to entity mappings or register handling, ensure the document
 
 ## Testing Requirements
 
+### Test Coverage
+- **Overall**: 85% minimum (enforced in pyproject.toml and CI)
+
 ### Bug Fixes: Reproduce First
 
 When fixing bugs:
