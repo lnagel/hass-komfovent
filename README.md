@@ -147,7 +147,7 @@ If you have issues seeing the data correctly, then please open a new ticket with
 - screenshots of the data in the Komfovent app or web interface
 - diagnostic data from the Komfovent device (see below)
 
-![Download diagnostics data](documentation/diagnostics.png)
+![Download diagnostics data](docs/diagnostics.png)
 
 ## Installation
 
