@@ -55,7 +55,6 @@ async def async_setup_entry(
             entity_description=SelectEntityDescription(
                 key="operation_mode",
                 name="Operation mode",
-                translation_key="operation_mode",
                 options=[mode.name.lower() for mode in OperationMode],
             ),
         ),
@@ -101,7 +100,6 @@ async def async_setup_entry(
                 key="aq_outdoor_humidity_sensor",
                 name="AQ Outdoor Humidity Sensor",
                 entity_category=EntityCategory.CONFIG,
-                icon="mdi:water-percent",
                 options=[mode.name.lower() for mode in OutdoorHumiditySensor],
                 entity_registry_enabled_default=False,
             ),
@@ -113,7 +111,6 @@ async def async_setup_entry(
             entity_description=SelectEntityDescription(
                 key="eco_heat_recovery",
                 name="ECO Heat Recovery",
-                icon="mdi:heat-wave",
                 options=[mode.name.lower() for mode in HeatRecoveryControl],
             ),
         ),
@@ -248,6 +245,7 @@ class KomfoventSelect(CoordinatorEntity["KomfoventCoordinator"], SelectEntity):
         self._attr_unique_id = (
             f"{coordinator.config_entry.entry_id}_{entity_description.key}"
         )
+        self._attr_translation_key = entity_description.key
         self._attr_device_info = build_device_info(coordinator)
 
     @property

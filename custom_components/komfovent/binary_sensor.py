@@ -213,6 +213,7 @@ class KomfoventBinarySensor(
         self._attr_unique_id = (
             f"{coordinator.config_entry.entry_id}_{entity_description.key}"
         )
+        self._attr_translation_key = entity_description.key
         self._attr_device_info = build_device_info(coordinator)
 
     @property
