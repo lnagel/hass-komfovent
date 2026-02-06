@@ -196,6 +196,12 @@ any computation (division, interpolation, averaging). Direct assign-and-read
 without computation can use `==`. Dictionary comparisons with nested floats
 are especially dangerous — assert float fields individually with `approx()`.
 
+### 6. Running Commands with Paths Outside the Working Directory
+Do not use `git -C`, `find /`, or similar flags that reference paths outside the
+current working directory. They are unnecessary and cause permission check failures.
+Prefer relative paths from the project root and avoid changing working directories
+when possible.
+
 ## CI Workflows
 
 The CI runs three workflow files on PRs:
