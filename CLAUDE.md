@@ -141,19 +141,6 @@ This ensures bugs don't regress and documents the expected behavior.
 - Use conventional format: `Fix X`, `Add Y`, `Update Z`
 - PRs are squash-merged, so we can have detailed commit history during development
 
-### When to Amend
-
-Only amend commits for:
-
-- Re-running linter/formatter (formatting fixes)
-- Fixing typos in the same logical change
-- Never amend commits that are already pushed
-
-### When NOT to Amend
-
-- Meaningful code changes should always be new commits
-- Bug fixes that change behavior
-- New features or refactors
 
 ## Common Pitfalls to Avoid
 
