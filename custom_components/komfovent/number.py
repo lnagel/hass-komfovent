@@ -606,10 +606,14 @@ async def async_setup_entry(
         )
 
     # Check if either sensor is a humidity sensor (independent of CO2/VOC)
-    if AirQualitySensorType.HUMIDITY in {
-        sensor1_type,
-        sensor2_type,
-    } or coordinator.controller in {Controller.C8}:
+    if (
+        AirQualitySensorType.HUMIDITY
+        in {
+            sensor1_type,
+            sensor2_type,
+        }
+        or coordinator.controller == Controller.C8
+    ):
         entities.append(
             KomfoventNumber(
                 coordinator=coordinator,
@@ -691,7 +695,7 @@ class FlowNumber(KomfoventNumber):
                 return UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR
             if flow_unit == FlowUnit.LS:
                 return UnitOfVolumeFlowRate.LITERS_PER_SECOND
-        elif self.coordinator.controller in {Controller.C8}:
+        elif self.coordinator.controller == Controller.C8:
             # no flow control or flow unit support
             return PERCENTAGE
 

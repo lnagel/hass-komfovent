@@ -491,9 +491,10 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
         )
 
     # Add pressure sensors if using a flow control mode is variable air volume
-    if coordinator.data and coordinator.data.get(registers.REG_FLOW_CONTROL) in [
-        FlowControl.VARIABLE
-    ]:
+    if (
+        coordinator.data
+        and coordinator.data.get(registers.REG_FLOW_CONTROL) == FlowControl.VARIABLE
+    ):
         entities.extend(
             [
                 KomfoventSensor(
@@ -959,7 +960,7 @@ class FlowSensor(FloatSensor):
                 return UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR
             if flow_unit == FlowUnit.LS:
                 return UnitOfVolumeFlowRate.LITERS_PER_SECOND
-        elif self.coordinator.controller in {Controller.C8}:
+        elif self.coordinator.controller == Controller.C8:
             # no flow control or flow unit support
             return PERCENTAGE
 
