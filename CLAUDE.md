@@ -180,7 +180,16 @@ uv run pytest && uv run ruff format . && uv run ruff check . --fix && uv run ty 
 git commit
 ```
 
-### 3. Fixing Bugs Without Tests
+### 3. Not Updating Documentation
+
+```python
+# WRONG - Added new entity without documenting
+# (creates silent drift between docs and code)
+
+# RIGHT - Update docs/ with new entity details
+```
+
+### 4. Fixing Bugs Without Tests
 
 ```python
 # WRONG - Just fix the code
