@@ -50,7 +50,6 @@ async def create_binary_sensors(
             entity_description=BinarySensorEntityDescription(
                 key="status_starting",
                 name="Status Starting",
-                translation_key="status_starting",
                 entity_registry_enabled_default=False,
             ),
         ),
@@ -61,7 +60,6 @@ async def create_binary_sensors(
             entity_description=BinarySensorEntityDescription(
                 key="status_stopping",
                 name="Status Stopping",
-                translation_key="status_stopping",
                 entity_registry_enabled_default=False,
             ),
         ),
@@ -72,7 +70,6 @@ async def create_binary_sensors(
             entity_description=BinarySensorEntityDescription(
                 key="status_fan",
                 name="Status Fan",
-                translation_key="status_fan",
                 device_class=BinarySensorDeviceClass.RUNNING,
                 entity_registry_enabled_default=False,
             ),
@@ -84,7 +81,6 @@ async def create_binary_sensors(
             entity_description=BinarySensorEntityDescription(
                 key="status_rotor",
                 name="Status Rotor",
-                translation_key="status_rotor",
                 device_class=BinarySensorDeviceClass.RUNNING,
                 entity_registry_enabled_default=False,
             ),
@@ -96,7 +92,6 @@ async def create_binary_sensors(
             entity_description=BinarySensorEntityDescription(
                 key="status_heating",
                 name="Status Heating",
-                translation_key="status_heating",
                 device_class=BinarySensorDeviceClass.RUNNING,
                 entity_registry_enabled_default=False,
             ),
@@ -108,7 +103,6 @@ async def create_binary_sensors(
             entity_description=BinarySensorEntityDescription(
                 key="status_cooling",
                 name="Status Cooling",
-                translation_key="status_cooling",
                 device_class=BinarySensorDeviceClass.RUNNING,
                 entity_registry_enabled_default=False,
             ),
@@ -120,7 +114,6 @@ async def create_binary_sensors(
             entity_description=BinarySensorEntityDescription(
                 key="status_heating_denied",
                 name="Status Heating Denied",
-                translation_key="status_heating_denied",
                 entity_registry_enabled_default=False,
             ),
         ),
@@ -131,7 +124,6 @@ async def create_binary_sensors(
             entity_description=BinarySensorEntityDescription(
                 key="status_cooling_denied",
                 name="Status Cooling Denied",
-                translation_key="status_cooling_denied",
                 entity_registry_enabled_default=False,
             ),
         ),
@@ -142,7 +134,6 @@ async def create_binary_sensors(
             entity_description=BinarySensorEntityDescription(
                 key="status_flow_down",
                 name="Status Flow Down",
-                translation_key="status_flow_down",
                 device_class=BinarySensorDeviceClass.PROBLEM,
             ),
         ),
@@ -153,7 +144,6 @@ async def create_binary_sensors(
             entity_description=BinarySensorEntityDescription(
                 key="status_free_heating",
                 name="Status Free Heating",
-                translation_key="status_free_heating",
                 device_class=BinarySensorDeviceClass.RUNNING,
                 entity_registry_enabled_default=False,
             ),
@@ -165,7 +155,6 @@ async def create_binary_sensors(
             entity_description=BinarySensorEntityDescription(
                 key="status_free_cooling",
                 name="Status Free Cooling",
-                translation_key="status_free_cooling",
                 device_class=BinarySensorDeviceClass.RUNNING,
                 entity_registry_enabled_default=False,
             ),
@@ -177,7 +166,6 @@ async def create_binary_sensors(
             entity_description=BinarySensorEntityDescription(
                 key="status_alarm_fault",
                 name="Status Alarm Fault",
-                translation_key="status_alarm_fault",
                 device_class=BinarySensorDeviceClass.PROBLEM,
             ),
         ),
@@ -188,7 +176,6 @@ async def create_binary_sensors(
             entity_description=BinarySensorEntityDescription(
                 key="status_alarm_warning",
                 name="Status Alarm Warning",
-                translation_key="status_alarm_warning",
                 device_class=BinarySensorDeviceClass.PROBLEM,
             ),
         ),
@@ -226,6 +213,7 @@ class KomfoventBinarySensor(
         self._attr_unique_id = (
             f"{coordinator.config_entry.entry_id}_{entity_description.key}"
         )
+        self._attr_translation_key = entity_description.key
         self._attr_device_info = build_device_info(coordinator)
 
     @property

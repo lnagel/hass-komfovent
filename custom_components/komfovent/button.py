@@ -35,7 +35,6 @@ async def async_setup_entry(
                 ButtonEntityDescription(
                     key="set_system_time",
                     name="Set System Time",
-                    translation_key="set_system_time",
                     entity_category=EntityCategory.CONFIG,
                 ),
             ),
@@ -44,7 +43,6 @@ async def async_setup_entry(
                 ButtonEntityDescription(
                     key="clean_filters",
                     name="Clean Filters Calibration",
-                    translation_key="clean_filters",
                     entity_category=EntityCategory.CONFIG,
                 ),
             ),
@@ -69,6 +67,7 @@ class KomfoventButtonEntity(CoordinatorEntity["KomfoventCoordinator"], ButtonEnt
         self._attr_unique_id = (
             f"{coordinator.config_entry.entry_id}_{entity_description.key}"
         )
+        self._attr_translation_key = entity_description.key
         self._attr_device_info = build_device_info(coordinator)
 
 

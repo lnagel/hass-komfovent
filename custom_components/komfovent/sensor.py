@@ -148,7 +148,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="supply_temperature",
                     name="Supply Temperature",
-                    translation_key="supply_temperature",
                     native_unit_of_measurement=UnitOfTemperature.CELSIUS,
                     device_class=SensorDeviceClass.TEMPERATURE,
                     state_class=SensorStateClass.MEASUREMENT,
@@ -161,7 +160,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="extract_temperature",
                     name="Extract Temperature",
-                    translation_key="extract_temperature",
                     native_unit_of_measurement=UnitOfTemperature.CELSIUS,
                     device_class=SensorDeviceClass.TEMPERATURE,
                     state_class=SensorStateClass.MEASUREMENT,
@@ -174,7 +172,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="outdoor_temperature",
                     name="Outdoor Temperature",
-                    translation_key="outdoor_temperature",
                     native_unit_of_measurement=UnitOfTemperature.CELSIUS,
                     device_class=SensorDeviceClass.TEMPERATURE,
                     state_class=SensorStateClass.MEASUREMENT,
@@ -187,7 +184,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="supply_fan",
                     name="Supply Fan",
-                    translation_key="supply_fan",
                     native_unit_of_measurement=PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
@@ -199,7 +195,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="extract_fan",
                     name="Extract Fan",
-                    translation_key="extract_fan",
                     native_unit_of_measurement=PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
@@ -211,7 +206,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="heat_exchanger",
                     name="Heat Exchanger",
-                    translation_key="heat_exchanger",
                     native_unit_of_measurement=PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
@@ -223,7 +217,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="electric_heater",
                     name="Electric Heater",
-                    translation_key="electric_heater",
                     native_unit_of_measurement=PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
@@ -235,7 +228,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="water_heater",
                     name="Water Heater",
-                    translation_key="water_heater",
                     native_unit_of_measurement=PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
@@ -248,7 +240,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="water_cooler",
                     name="Water Cooler",
-                    translation_key="water_cooler",
                     native_unit_of_measurement=PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
@@ -261,7 +252,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="dx_unit",
                     name="DX Unit",
-                    translation_key="dx_unit",
                     native_unit_of_measurement=PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
@@ -274,7 +264,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="filter_clogging",
                     name="Filter Clogging",
-                    translation_key="filter_clogging",
                     native_unit_of_measurement=PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
@@ -286,7 +275,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="air_dampers",
                     name="Air Dampers",
-                    translation_key="air_dampers",
                     native_unit_of_measurement=PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
@@ -299,7 +287,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="power_consumption",
                     name="Power Consumption",
-                    translation_key="power_consumption",
                     native_unit_of_measurement=UnitOfPower.WATT,
                     device_class=SensorDeviceClass.POWER,
                     state_class=SensorStateClass.MEASUREMENT,
@@ -312,7 +299,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="heater_power",
                     name="Heater Power",
-                    translation_key="heater_power",
                     native_unit_of_measurement=UnitOfPower.WATT,
                     device_class=SensorDeviceClass.POWER,
                     state_class=SensorStateClass.MEASUREMENT,
@@ -325,7 +311,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="heat_recovery",
                     name="Heat Recovery",
-                    translation_key="heat_recovery",
                     native_unit_of_measurement=UnitOfPower.WATT,
                     device_class=SensorDeviceClass.POWER,
                     state_class=SensorStateClass.MEASUREMENT,
@@ -338,7 +323,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="heat_exchanger_efficiency",
                     name="Heat Exchanger Efficiency",
-                    translation_key="heat_exchanger_efficiency",
                     native_unit_of_measurement=PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
@@ -350,7 +334,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="energy_saving",
                     name="Energy Saving",
-                    translation_key="energy_saving",
                     native_unit_of_measurement=PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
@@ -363,7 +346,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="connected_panels",
                     name="Connected Panels",
-                    translation_key="connected_panels",
                     entity_category=EntityCategory.DIAGNOSTIC,
                     entity_registry_enabled_default=False,
                 ),
@@ -374,7 +356,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="heat_exchanger_type",
                     name="Heat Exchanger Type",
-                    translation_key="heat_exchanger_type",
                     entity_category=EntityCategory.DIAGNOSTIC,
                     entity_registry_enabled_default=False,
                 ),
@@ -385,7 +366,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="max_supply_flow",
                     name="Maximum Supply Flow",
-                    translation_key="max_supply_flow",
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
                     entity_category=EntityCategory.DIAGNOSTIC,
@@ -398,7 +378,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="max_extract_flow",
                     name="Maximum Extract Flow",
-                    translation_key="max_extract_flow",
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
                     entity_category=EntityCategory.DIAGNOSTIC,
@@ -411,7 +390,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="supply_flow",
                     name="Supply Flow",
-                    translation_key="supply_flow",
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
                 ),
@@ -422,7 +400,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="extract_flow",
                     name="Extract Flow",
-                    translation_key="extract_flow",
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
                 ),
@@ -433,7 +410,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="controller_firmware",
                     name="Controller firmware",
-                    translation_key="controller_firmware",
                     entity_category=EntityCategory.DIAGNOSTIC,
                 ),
             ),
@@ -443,7 +419,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="system_time",
                     name="System Time",
-                    translation_key="system_time",
                     entity_category=EntityCategory.DIAGNOSTIC,
                     device_class=SensorDeviceClass.TIMESTAMP,
                     entity_registry_enabled_default=False,
@@ -462,7 +437,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_description=SensorEntityDescription(
                         key="flow_unit",
                         name="Flow Unit",
-                        translation_key="flow_unit",
                         entity_category=EntityCategory.DIAGNOSTIC,
                         entity_registry_enabled_default=False,
                     ),
@@ -473,7 +447,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_description=SensorEntityDescription(
                         key="specific_power_input",
                         name="Specific Power Input",
-                        translation_key="specific_power_input",
                         state_class=SensorStateClass.MEASUREMENT,
                         suggested_display_precision=2,
                     ),
@@ -484,7 +457,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_description=SensorEntityDescription(
                         key="total_ahu_energy",
                         name="Total AHU Energy",
-                        translation_key="total_ahu_energy",
                         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
                         device_class=SensorDeviceClass.ENERGY,
                         state_class=SensorStateClass.TOTAL_INCREASING,
@@ -497,7 +469,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_description=SensorEntityDescription(
                         key="total_heater_energy",
                         name="Total Heater Energy",
-                        translation_key="total_heater_energy",
                         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
                         device_class=SensorDeviceClass.ENERGY,
                         state_class=SensorStateClass.TOTAL_INCREASING,
@@ -510,7 +481,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_description=SensorEntityDescription(
                         key="total_recovered_energy",
                         name="Total Recovered Energy",
-                        translation_key="total_recovered_energy",
                         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
                         device_class=SensorDeviceClass.ENERGY,
                         state_class=SensorStateClass.TOTAL_INCREASING,
@@ -533,7 +503,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_description=SensorEntityDescription(
                         key="max_supply_pressure",
                         name="Maximum Supply Pressure",
-                        translation_key="max_supply_pressure",
                         native_unit_of_measurement=UnitOfPressure.PA,
                         state_class=SensorStateClass.MEASUREMENT,
                         suggested_display_precision=0,
@@ -546,7 +515,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_description=SensorEntityDescription(
                         key="max_extract_pressure",
                         name="Maximum Extract Pressure",
-                        translation_key="max_extract_pressure",
                         native_unit_of_measurement=UnitOfPressure.PA,
                         state_class=SensorStateClass.MEASUREMENT,
                         suggested_display_precision=0,
@@ -559,7 +527,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_description=SensorEntityDescription(
                         key="supply_pressure",
                         name="Supply Pressure",
-                        translation_key="supply_pressure",
                         native_unit_of_measurement=UnitOfPressure.PA,
                         state_class=SensorStateClass.MEASUREMENT,
                         suggested_display_precision=0,
@@ -571,7 +538,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_description=SensorEntityDescription(
                         key="extract_pressure",
                         name="Extract Pressure",
-                        translation_key="extract_pressure",
                         native_unit_of_measurement=UnitOfPressure.PA,
                         state_class=SensorStateClass.MEASUREMENT,
                         suggested_display_precision=0,
@@ -591,7 +557,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_description=SensorEntityDescription(
                         key="indoor_absolute_humidity",
                         name="Indoor Absolute Humidity",
-                        translation_key="indoor_absolute_humidity",
                         native_unit_of_measurement=CONCENTRATION_GRAMS_PER_CUBIC_METER,
                         device_class=SensorDeviceClass.ABSOLUTE_HUMIDITY,
                         state_class=SensorStateClass.MEASUREMENT,
@@ -612,7 +577,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_description=SensorEntityDescription(
                         key="outdoor_absolute_humidity",
                         name="Outdoor Absolute Humidity",
-                        translation_key="outdoor_absolute_humidity",
                         native_unit_of_measurement=CONCENTRATION_GRAMS_PER_CUBIC_METER,
                         device_class=SensorDeviceClass.ABSOLUTE_HUMIDITY,
                         state_class=SensorStateClass.MEASUREMENT,
@@ -632,7 +596,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_description=SensorEntityDescription(
                         key="exhaust_temperature",
                         name="Exhaust Temperature",
-                        translation_key="exhaust_temperature",
                         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
                         device_class=SensorDeviceClass.TEMPERATURE,
                         state_class=SensorStateClass.MEASUREMENT,
@@ -655,7 +618,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_description=SensorEntityDescription(
                         key="panel_1_temperature",
                         name="Panel 1 Temperature",
-                        translation_key="panel_1_temperature",
                         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
                         device_class=SensorDeviceClass.TEMPERATURE,
                         state_class=SensorStateClass.MEASUREMENT,
@@ -668,7 +630,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_description=SensorEntityDescription(
                         key="panel_1_humidity",
                         name="Panel 1 Humidity",
-                        translation_key="panel_1_humidity",
                         native_unit_of_measurement=PERCENTAGE,
                         device_class=SensorDeviceClass.HUMIDITY,
                         state_class=SensorStateClass.MEASUREMENT,
@@ -681,7 +642,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_description=SensorEntityDescription(
                         key="panel_1_firmware",
                         name="Panel 1 firmware",
-                        translation_key="panel_1_firmware",
                         entity_category=EntityCategory.DIAGNOSTIC,
                     ),
                 ),
@@ -701,7 +661,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_description=SensorEntityDescription(
                         key="panel_2_temperature",
                         name="Panel 2 Temperature",
-                        translation_key="panel_2_temperature",
                         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
                         device_class=SensorDeviceClass.TEMPERATURE,
                         state_class=SensorStateClass.MEASUREMENT,
@@ -714,7 +673,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_description=SensorEntityDescription(
                         key="panel_2_humidity",
                         name="Panel 2 Humidity",
-                        translation_key="panel_2_humidity",
                         native_unit_of_measurement=PERCENTAGE,
                         device_class=SensorDeviceClass.HUMIDITY,
                         state_class=SensorStateClass.MEASUREMENT,
@@ -727,7 +685,6 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_description=SensorEntityDescription(
                         key="panel_2_firmware",
                         name="Panel 2 firmware",
-                        translation_key="panel_2_firmware",
                         entity_category=EntityCategory.DIAGNOSTIC,
                     ),
                 ),
@@ -773,6 +730,7 @@ class KomfoventSensor(CoordinatorEntity["KomfoventCoordinator"], SensorEntity):
         self._attr_unique_id = (
             f"{coordinator.config_entry.entry_id}_{entity_description.key}"
         )
+        self._attr_translation_key = entity_description.key
         self._attr_device_info = build_device_info(coordinator)
 
     @property

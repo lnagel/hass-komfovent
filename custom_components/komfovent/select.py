@@ -55,7 +55,6 @@ async def async_setup_entry(
             entity_description=SelectEntityDescription(
                 key="operation_mode",
                 name="Operation mode",
-                translation_key="operation_mode",
                 options=[mode.name.lower() for mode in OperationMode],
             ),
         ),
@@ -66,7 +65,6 @@ async def async_setup_entry(
             entity_description=SelectEntityDescription(
                 key="scheduler_mode",
                 name="Scheduler mode",
-                translation_key="scheduler_mode",
                 options=[mode.name.lower() for mode in SchedulerMode],
             ),
         ),
@@ -77,7 +75,6 @@ async def async_setup_entry(
             entity_description=SelectEntityDescription(
                 key="temperature_control",
                 name="Temperature control",
-                translation_key="temperature_control",
                 entity_category=EntityCategory.CONFIG,
                 options=[mode.name.lower() for mode in TemperatureControl],
                 entity_registry_enabled_default=False,
@@ -90,7 +87,6 @@ async def async_setup_entry(
             entity_description=SelectEntityDescription(
                 key="aq_sensor1_type",
                 name="AQ Sensor 1 Type",
-                translation_key="aq_sensor1_type",
                 entity_category=EntityCategory.CONFIG,
                 options=[mode.name.lower() for mode in AirQualitySensorType],
                 entity_registry_enabled_default=False,
@@ -103,7 +99,6 @@ async def async_setup_entry(
             entity_description=SelectEntityDescription(
                 key="aq_outdoor_humidity_sensor",
                 name="AQ Outdoor Humidity Sensor",
-                translation_key="aq_outdoor_humidity_sensor",
                 entity_category=EntityCategory.CONFIG,
                 options=[mode.name.lower() for mode in OutdoorHumiditySensor],
                 entity_registry_enabled_default=False,
@@ -116,7 +111,6 @@ async def async_setup_entry(
             entity_description=SelectEntityDescription(
                 key="eco_heat_recovery",
                 name="ECO Heat Recovery",
-                translation_key="eco_heat_recovery",
                 options=[mode.name.lower() for mode in HeatRecoveryControl],
             ),
         ),
@@ -127,7 +121,6 @@ async def async_setup_entry(
             entity_description=SelectEntityDescription(
                 key="override_activation",
                 name="Override Activation",
-                translation_key="override_activation",
                 options=[mode.name.lower() for mode in OverrideActivation],
                 entity_registry_enabled_default=True,
                 entity_registry_visible_default=False,
@@ -141,7 +134,6 @@ async def async_setup_entry(
             entity_description=SelectEntityDescription(
                 key="holidays_micro_ventilation",
                 name="Holidays Micro-ventilation",
-                translation_key="holidays_micro_ventilation",
                 options=[mode.name.lower() for mode in MicroVentilation],
                 entity_registry_enabled_default=True,
                 entity_registry_visible_default=False,
@@ -155,7 +147,6 @@ async def async_setup_entry(
             entity_description=SelectEntityDescription(
                 key="control_stage_1",
                 name="Control Stage 1",
-                translation_key="control_stage_1",
                 options=[mode.name.lower() for mode in ControlStage],
                 entity_registry_enabled_default=False,
                 entity_category=EntityCategory.CONFIG,
@@ -168,7 +159,6 @@ async def async_setup_entry(
             entity_description=SelectEntityDescription(
                 key="control_stage_2",
                 name="Control Stage 2",
-                translation_key="control_stage_2",
                 options=[mode.name.lower() for mode in ControlStage],
                 entity_registry_enabled_default=False,
                 entity_category=EntityCategory.CONFIG,
@@ -181,7 +171,6 @@ async def async_setup_entry(
             entity_description=SelectEntityDescription(
                 key="external_coil_type",
                 name="External Coil Type",
-                translation_key="external_coil_type",
                 options=[mode.name.lower() for mode in CoilType],
                 entity_registry_enabled_default=False,
                 entity_category=EntityCategory.CONFIG,
@@ -200,7 +189,6 @@ async def async_setup_entry(
                     entity_description=SelectEntityDescription(
                         key="flow_control",
                         name="Flow control",
-                        translation_key="flow_control",
                         entity_category=EntityCategory.CONFIG,
                         options=[mode.name.lower() for mode in FlowControl],
                         entity_registry_enabled_default=False,
@@ -213,7 +201,6 @@ async def async_setup_entry(
                     entity_description=SelectEntityDescription(
                         key="aq_sensor2_type",
                         name="AQ Sensor 2 Type",
-                        translation_key="aq_sensor2_type",
                         entity_category=EntityCategory.CONFIG,
                         options=[mode.name.lower() for mode in AirQualitySensorType],
                         entity_registry_enabled_default=False,
@@ -226,7 +213,6 @@ async def async_setup_entry(
                     entity_description=SelectEntityDescription(
                         key="control_stage_3",
                         name="Control Stage 3",
-                        translation_key="control_stage_3",
                         options=[mode.name.lower() for mode in ControlStage],
                         entity_registry_enabled_default=False,
                         entity_category=EntityCategory.CONFIG,
@@ -259,6 +245,7 @@ class KomfoventSelect(CoordinatorEntity["KomfoventCoordinator"], SelectEntity):
         self._attr_unique_id = (
             f"{coordinator.config_entry.entry_id}_{entity_description.key}"
         )
+        self._attr_translation_key = entity_description.key
         self._attr_device_info = build_device_info(coordinator)
 
     @property

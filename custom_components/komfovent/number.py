@@ -82,7 +82,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="eco_min_supply_temperature",
                 name="ECO Min Supply Temperature",
-                translation_key="eco_min_supply_temperature",
                 native_unit_of_measurement=UnitOfTemperature.CELSIUS,
                 native_min_value=TEMP_SETPOINT_MIN,
                 native_max_value=TEMP_SETPOINT_MAX,
@@ -96,7 +95,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="eco_max_supply_temperature",
                 name="ECO Max Supply Temperature",
-                translation_key="eco_max_supply_temperature",
                 native_unit_of_measurement=UnitOfTemperature.CELSIUS,
                 native_min_value=TEMP_SETPOINT_MIN,
                 native_max_value=TEMP_SETPOINT_MAX,
@@ -110,7 +108,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="aq_minimum_intensity",
                 name="AQ Minimum Intensity",
-                translation_key="aq_minimum_intensity",
                 entity_category=EntityCategory.CONFIG,
                 native_min_value=AQ_INTENSITY_MIN,
                 native_max_value=AQ_INTENSITY_MAX,
@@ -124,7 +121,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="aq_maximum_intensity",
                 name="AQ Maximum Intensity",
-                translation_key="aq_maximum_intensity",
                 entity_category=EntityCategory.CONFIG,
                 native_min_value=AQ_INTENSITY_MIN,
                 native_max_value=AQ_INTENSITY_MAX,
@@ -138,7 +134,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="aq_check_period",
                 name="AQ Check Period",
-                translation_key="aq_check_period",
                 entity_category=EntityCategory.CONFIG,
                 native_min_value=1,
                 native_max_value=24,
@@ -153,7 +148,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="aq_temperature_setpoint",
                 name="AQ Temperature Setpoint",
-                translation_key="aq_temperature_setpoint",
                 native_min_value=TEMP_SETPOINT_MIN,
                 native_max_value=TEMP_SETPOINT_MAX,
                 native_step=step_temperature,
@@ -168,7 +162,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="away_supply_flow",
                 name="Away Supply Flow",
-                translation_key="away_supply_flow",
                 native_min_value=0,
                 native_max_value=200000,
                 native_step=step_flow,
@@ -183,7 +176,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="away_extract_flow",
                 name="Away Extract Flow",
-                translation_key="away_extract_flow",
                 native_min_value=0,
                 native_max_value=200000,
                 native_step=step_flow,
@@ -198,7 +190,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="away_temperature",
                 name="Away Temperature",
-                translation_key="away_temperature",
                 native_unit_of_measurement=UnitOfTemperature.CELSIUS,
                 native_min_value=TEMP_SETPOINT_MIN,
                 native_max_value=TEMP_SETPOINT_MAX,
@@ -216,7 +207,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="normal_supply_flow",
                 name="Normal Supply Flow",
-                translation_key="normal_supply_flow",
                 native_min_value=0,
                 native_max_value=200000,
                 native_step=step_flow,
@@ -231,7 +221,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="normal_extract_flow",
                 name="Normal Extract Flow",
-                translation_key="normal_extract_flow",
                 native_min_value=0,
                 native_max_value=200000,
                 native_step=step_flow,
@@ -246,7 +235,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="normal_temperature",
                 name="Normal Temperature",
-                translation_key="normal_temperature",
                 native_unit_of_measurement=UnitOfTemperature.CELSIUS,
                 native_min_value=TEMP_SETPOINT_MIN,
                 native_max_value=TEMP_SETPOINT_MAX,
@@ -264,7 +252,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="intensive_supply_flow",
                 name="Intensive Supply Flow",
-                translation_key="intensive_supply_flow",
                 native_min_value=0,
                 native_max_value=200000,
                 native_step=step_flow,
@@ -279,7 +266,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="intensive_extract_flow",
                 name="Intensive Extract Flow",
-                translation_key="intensive_extract_flow",
                 native_min_value=0,
                 native_max_value=200000,
                 native_step=step_flow,
@@ -294,7 +280,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="intensive_temperature",
                 name="Intensive Temperature",
-                translation_key="intensive_temperature",
                 native_unit_of_measurement=UnitOfTemperature.CELSIUS,
                 native_min_value=TEMP_SETPOINT_MIN,
                 native_max_value=TEMP_SETPOINT_MAX,
@@ -312,7 +297,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="boost_supply_flow",
                 name="Boost Supply Flow",
-                translation_key="boost_supply_flow",
                 native_min_value=0,
                 native_max_value=200000,
                 native_step=step_flow,
@@ -327,7 +311,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="boost_extract_flow",
                 name="Boost Extract Flow",
-                translation_key="boost_extract_flow",
                 native_min_value=0,
                 native_max_value=200000,
                 native_step=step_flow,
@@ -342,7 +325,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="boost_temperature",
                 name="Boost Temperature",
-                translation_key="boost_temperature",
                 native_unit_of_measurement=UnitOfTemperature.CELSIUS,
                 native_min_value=TEMP_SETPOINT_MIN,
                 native_max_value=TEMP_SETPOINT_MAX,
@@ -360,7 +342,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="kitchen_supply_flow",
                 name="Kitchen Supply Flow",
-                translation_key="kitchen_supply_flow",
                 native_min_value=0,
                 native_max_value=200000,
                 native_step=step_flow,
@@ -375,7 +356,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="kitchen_extract_flow",
                 name="Kitchen Extract Flow",
-                translation_key="kitchen_extract_flow",
                 native_min_value=0,
                 native_max_value=200000,
                 native_step=step_flow,
@@ -390,7 +370,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="kitchen_temperature",
                 name="Kitchen Temperature",
-                translation_key="kitchen_temperature",
                 native_min_value=TEMP_SETPOINT_MIN,
                 native_max_value=TEMP_SETPOINT_MAX,
                 native_step=step_temperature,
@@ -407,7 +386,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="kitchen_timer",
                 name="Kitchen Timer",
-                translation_key="kitchen_timer",
                 native_unit_of_measurement=UnitOfTime.MINUTES,
                 native_min_value=0,
                 native_max_value=300,
@@ -425,7 +403,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="fireplace_supply_flow",
                 name="Fireplace Supply Flow",
-                translation_key="fireplace_supply_flow",
                 native_min_value=0,
                 native_max_value=200000,
                 native_step=step_flow,
@@ -440,7 +417,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="fireplace_extract_flow",
                 name="Fireplace Extract Flow",
-                translation_key="fireplace_extract_flow",
                 native_min_value=0,
                 native_max_value=200000,
                 native_step=step_flow,
@@ -455,7 +431,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="fireplace_temperature",
                 name="Fireplace Temperature",
-                translation_key="fireplace_temperature",
                 native_min_value=TEMP_SETPOINT_MIN,
                 native_max_value=TEMP_SETPOINT_MAX,
                 native_step=step_temperature,
@@ -472,7 +447,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="fireplace_timer",
                 name="Fireplace Timer",
-                translation_key="fireplace_timer",
                 native_unit_of_measurement=UnitOfTime.MINUTES,
                 native_min_value=0,
                 native_max_value=300,
@@ -490,7 +464,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="override_supply_flow",
                 name="Override Supply Flow",
-                translation_key="override_supply_flow",
                 native_min_value=0,
                 native_max_value=200000,
                 native_step=step_flow,
@@ -505,7 +478,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="override_extract_flow",
                 name="Override Extract Flow",
-                translation_key="override_extract_flow",
                 native_min_value=0,
                 native_max_value=200000,
                 native_step=step_flow,
@@ -520,7 +492,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="override_temperature",
                 name="Override Temperature",
-                translation_key="override_temperature",
                 native_min_value=TEMP_SETPOINT_MIN,
                 native_max_value=TEMP_SETPOINT_MAX,
                 native_step=step_temperature,
@@ -537,7 +508,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="override_timer",
                 name="Override Timer",
-                translation_key="override_timer",
                 native_unit_of_measurement=UnitOfTime.MINUTES,
                 native_min_value=0,
                 native_max_value=300,
@@ -554,7 +524,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="override_delay_start",
                 name="Override Delay Start",
-                translation_key="override_delay_start",
                 native_unit_of_measurement=UnitOfTime.MINUTES,
                 native_min_value=0,
                 native_max_value=10,
@@ -571,7 +540,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="override_delay_stop",
                 name="Override Delay Stop",
-                translation_key="override_delay_stop",
                 native_unit_of_measurement=UnitOfTime.MINUTES,
                 native_min_value=0,
                 native_max_value=30,
@@ -589,7 +557,6 @@ async def async_setup_entry(
             entity_description=NumberEntityDescription(
                 key="holidays_temperature",
                 name="Holidays Temperature",
-                translation_key="holidays_temperature",
                 native_min_value=TEMP_SETPOINT_MIN,
                 native_max_value=TEMP_SETPOINT_MAX,
                 native_step=step_temperature,
@@ -615,7 +582,6 @@ async def async_setup_entry(
                 entity_description=NumberEntityDescription(
                     key="aq_co2_setpoint",
                     name="AQ CO2 Setpoint",
-                    translation_key="aq_co2_setpoint",
                     native_step=step_co2,
                     native_unit_of_measurement=CONCENTRATION_PARTS_PER_MILLION,
                     native_min_value=CO2_MIN,
@@ -633,7 +599,6 @@ async def async_setup_entry(
                 entity_description=NumberEntityDescription(
                     key="aq_voc_setpoint",
                     name="AQ VOC Setpoint",
-                    translation_key="aq_voc_setpoint",
                     native_step=step_voc,
                     native_unit_of_measurement=PERCENTAGE,
                 ),
@@ -656,7 +621,6 @@ async def async_setup_entry(
                 entity_description=NumberEntityDescription(
                     key="aq_humidity_setpoint",
                     name="AQ Humidity Setpoint",
-                    translation_key="aq_humidity_setpoint",
                     native_step=step_humidity,
                     native_unit_of_measurement=PERCENTAGE,
                     native_min_value=0,
@@ -688,6 +652,7 @@ class KomfoventNumber(CoordinatorEntity["KomfoventCoordinator"], NumberEntity):
         self._attr_unique_id = (
             f"{coordinator.config_entry.entry_id}_{entity_description.key}"
         )
+        self._attr_translation_key = entity_description.key
         self._attr_device_info = build_device_info(coordinator)
 
     @property
