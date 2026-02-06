@@ -25,7 +25,7 @@ from homeassistant.const import (
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .helpers import build_device_info, get_version_from_int
+from .helpers import build_device_info, get_controller_version
 
 if TYPE_CHECKING:
     from decimal import Decimal
@@ -706,7 +706,8 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the Komfovent sensors."""
-    coordinator: KomfoventCoordinator = hass.data[DOMAIN][entry.entry_id]
+    runtime_data = hass.data[DOMAIN][entry.entry_id]
+    coordinator: KomfoventCoordinator = runtime_data.coordinator
 
     async_add_entities(await create_sensors(coordinator))
 
@@ -818,7 +819,7 @@ class FirmwareVersionSensor(KomfoventSensor):
         except (ValueError, TypeError):
             return None
 
-        controller, v1, v2, v3, v4 = get_version_from_int(value)
+        controller, v1, v2, v3, v4 = get_controller_version(value)
         return f"{controller.name} {v1}.{v2}.{v3}.{v4}"
 
 

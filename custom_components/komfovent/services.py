@@ -24,8 +24,11 @@ def get_coordinator_for_device(
         return None
 
     for entry_id in device_entry.config_entries:
-        if coordinator := hass.data[DOMAIN].get(entry_id):
-            return coordinator
+        if runtime_data := hass.data[DOMAIN].get(entry_id):
+            # Skip domain_data key
+            if entry_id == "domain_data":
+                continue
+            return runtime_data.coordinator
     return None
 
 

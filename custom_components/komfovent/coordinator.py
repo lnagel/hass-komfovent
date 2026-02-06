@@ -25,7 +25,7 @@ from .const import (
     Controller,
 )
 from .core.ema import apply_ema
-from .helpers import get_version_from_int
+from .helpers import get_controller_version
 from .modbus import KomfoventModbusClient
 
 if TYPE_CHECKING:
@@ -92,7 +92,7 @@ class KomfoventCoordinator(TimestampDataUpdateCoordinator[dict[int, Any]]):
         try:
             # Get firmware version and extract functional version from it
             fw_data = await self.client.read(registers.REG_FIRMWARE, 2)
-            fw_version = get_version_from_int(fw_data.get(registers.REG_FIRMWARE, 0))
+            fw_version = get_controller_version(fw_data.get(registers.REG_FIRMWARE, 0))
             self.controller = fw_version[0]
             self.func_version = fw_version[4]
         except (ConnectionError, ModbusException) as error:
