@@ -2,7 +2,7 @@
 
 [![GitHub Release](https://img.shields.io/github/v/release/lnagel/hass-komfovent?style=flat-square)](https://github.com/lnagel/hass-komfovent/releases)
 [![License](https://img.shields.io/github/license/lnagel/hass-komfovent?style=flat-square)](LICENSE)
-[![HACS](https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=flat-square)](https://hacs.xyz/)
+[![HACS](https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=flat-square)](https://my.home-assistant.io/redirect/hacs_repository/?owner=lnagel&repository=hass-komfovent&category=integration)
 [![CI](https://img.shields.io/github/actions/workflow/status/lnagel/hass-komfovent/checks.yml?branch=main&style=flat-square&label=tests)](https://github.com/lnagel/hass-komfovent/actions)
 [![codecov](https://codecov.io/gh/lnagel/hass-komfovent/branch/main/graph/badge.svg)](https://codecov.io/gh/lnagel/hass-komfovent)
 
@@ -150,6 +150,8 @@ If you have issues seeing the data correctly, then please open a new ticket with
 ![Download diagnostics data](docs/diagnostics.png)
 
 ## Installation
+
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=lnagel&repository=hass-komfovent&category=integration)
 
 1. Add this repository to HACS or copy the `custom_components/komfovent` folder to your Home Assistant configuration directory.
 2. Restart Home Assistant.
