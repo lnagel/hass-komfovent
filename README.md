@@ -1,7 +1,7 @@
 # Komfovent integration for Home Assistant
 
 [![GitHub Release](https://img.shields.io/github/v/release/lnagel/hass-komfovent?style=flat-square)](https://github.com/lnagel/hass-komfovent/releases)
-[![License](https://img.shields.io/github/license/lnagel/hass-komfovent?style=flat-square)](LICENSE)
+[![License](https://img.shields.io/github/license/lnagel/hass-komfovent?style=flat-square)](https://github.com/lnagel/hass-komfovent/blob/main/LICENSE)
 [![HACS](https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=flat-square)](https://my.home-assistant.io/redirect/hacs_repository/?owner=lnagel&repository=hass-komfovent&category=integration)
 [![CI](https://img.shields.io/github/actions/workflow/status/lnagel/hass-komfovent/checks.yml?branch=main&style=flat-square&label=tests)](https://github.com/lnagel/hass-komfovent/actions)
 [![codecov](https://codecov.io/gh/lnagel/hass-komfovent/branch/main/graph/badge.svg)](https://codecov.io/gh/lnagel/hass-komfovent)
