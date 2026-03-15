@@ -526,6 +526,19 @@ class TestActiveAlarmsSensor:
         attrs = sensor.extra_state_attributes
         assert attrs["alarm_details"] == {"F127": "Unknown"}
 
+    def test_skips_zero_alarm_codes(self, mock_coordinator):
+        """Test that zero-valued alarm registers are skipped."""
+        mock_coordinator.data[registers.REG_ACTIVE_ALARMS_COUNT] = 2
+        mock_coordinator.data[registers.REG_ACTIVE_ALARM1] = 0x09
+        mock_coordinator.data[registers.REG_ACTIVE_ALARM2] = 0
+        sensor = ActiveAlarmsSensor(
+            mock_coordinator, registers.REG_ACTIVE_ALARMS_COUNT, DESC
+        )
+        assert sensor.native_value == "F9"
+        assert sensor.extra_state_attributes["alarm_details"] == {
+            "F9": "Internal Fire",
+        }
+
 
 async def test_create_sensors_includes_active_alarms(mock_coordinator):
     """Test that create_sensors includes the active_alarms sensor."""
