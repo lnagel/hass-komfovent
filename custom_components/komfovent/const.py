@@ -205,3 +205,78 @@ class ResetSettings(IntEnum):
     AIR_QUALITY = 9
     ECO = 10
     ADVANCED = 11
+
+
+# Alarm reset command value
+ALARM_RESET_COMMAND: Final = 0x99C6
+
+# Alarm code messages mapping raw alarm byte to human-readable message.
+# Faults have MSb=0, Warnings have MSb=1. Lower 7 bits are the alarm number.
+ALARM_CODE_MESSAGES: Final[dict[int, str]] = {
+    # Faults — from MODBUS_C6_2025.pdf pp30-31
+    0x01: "Supply Flow Not Reached",
+    0x02: "Exhaust Flow Not Reached",
+    0x03: "Water Temp B5 Too Low",
+    0x04: "Low Supply Air Temperature",
+    0x05: "High Supply Air Temperature",
+    0x06: "Electric Heater Overheat",
+    0x07: "Heat Exchanger Failure",
+    0x08: "Heat Exchanger Icing",
+    0x09: "Internal Fire",
+    0x0A: "External Fire",
+    0x0B: "Supply Air Temp B1 Short",
+    0x0C: "Supply Air Temp B1 Not Connected",
+    0x0D: "Extract Air Temp B2 Short",
+    0x0E: "Extract Air Temp B2 Not Connected",
+    0x0F: "Outdoor Air Temp B3 Short",
+    0x10: "Outdoor Air Temp B3 Not Connected",
+    0x11: "Exhaust Air Temp B4 Short",
+    0x12: "Exhaust Air Temp B4 Not Connected",
+    0x13: "Water Temp B5 Short",
+    0x14: "Water Temp B5 Not Connected",
+    0x15: "Supply Temp After Hx B10 Short",
+    0x16: "Supply Temp After Hx B10 Not Connected",
+    0x17: "Flash Fail",
+    0x18: "Too Low 24V Supply Voltage",
+    0x19: "Too High 24V Supply Voltage",
+    0x1A: "24V Supply Voltage Overloaded",
+    0x1C: "Room Temperature Sensor Fail",
+    0x1D: "Room Humidity Sensor Fail",
+    0x1E: "Humidity Sensor Failure",
+    0x1F: "Impurity Sensor Failure",
+    0x20: "Heat Exchanger Failure",
+    0x21: "Heat Exchanger Failure",
+    0x22: "Heat Exchanger Failure",
+    0x23: "Heat Exchanger Failure",
+    0x24: "Heat Exchanger Failure",
+    0x25: "Heat Exchanger Failure",
+    0x26: "Air Flow Sensor Failure",
+    0x27: "Air Flow Sensor Failure",
+    0x28: "Communication Error",
+    0x29: "Fire Dampers Failure",
+    0x2A: "Fire Damper Failure",
+    0x2B: "Fire Damper Failure",
+    0x2C: "Fire Damper Failure",
+    0x2D: "Fire Damper Failure",
+    0x2E: "External Fire Alarm",
+    0x2F: "External Fire Alarm",
+    0x30: "External Fire Alarm",
+    0x31: "External Fire Alarm",
+    0x32: "External Fire Alarm",
+    0x33: "Electric Heater Failure",
+    0x34: "Electric Preheater Failure",
+    # Warnings
+    0x81: "Change Air Filter",
+    0x82: "Service Mode",
+    0x83: "Water Temp B5 Too Low",
+    0x84: "Humidity Sensor Failure",
+    0x85: "Impurity Sensor Failure",
+    0x86: "Low Heat Exchanger Efficiency",
+}
+
+
+def format_alarm_code(code: int) -> str:
+    """Format raw alarm byte to manual notation: F9, W1, etc."""
+    number = code & 0x7F
+    prefix = "W" if code & 0x80 else "F"
+    return f"{prefix}{number}"

@@ -8,7 +8,7 @@ from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers import device_registry as dr
 
 from . import KomfoventCoordinator, registers
-from .const import DOMAIN, OperationMode
+from .const import ALARM_RESET_COMMAND, DOMAIN, OperationMode
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -27,6 +27,15 @@ def get_coordinator_for_device(
         if coordinator := hass.data[DOMAIN].get(entry_id):
             return coordinator
     return None
+
+
+async def clear_active_alarms(coordinator: KomfoventCoordinator) -> None:
+    """Reset active alarms and restore previous mode."""
+    await coordinator.client.write(
+        registers.REG_ACTIVE_ALARMS_COUNT, ALARM_RESET_COMMAND
+    )
+    coordinator.set_cooldown(1.0)
+    await coordinator.async_request_refresh()
 
 
 async def clean_filters_calibration(coordinator: KomfoventCoordinator) -> None:
@@ -105,6 +114,14 @@ async def set_system_time(coordinator: KomfoventCoordinator) -> None:
 async def async_register_services(hass: HomeAssistant) -> None:
     """Register services for Komfovent integration."""
 
+    async def handle_clear_active_alarms(call: ServiceCall) -> None:
+        """Handle the clear faults service call."""
+        device_id = call.data["device_id"]
+        if not (coordinator := get_coordinator_for_device(hass, device_id)):
+            _LOGGER.error("Device %s not found", device_id)
+            return
+        await clear_active_alarms(coordinator)
+
     async def handle_clean_filters_calibration(call: ServiceCall) -> None:
         """Handle the clean filters calibration service call."""
         device_id = call.data["device_id"]
@@ -131,6 +148,9 @@ async def async_register_services(hass: HomeAssistant) -> None:
             return
         await set_system_time(coordinator)
 
+    hass.services.async_register(
+        DOMAIN, "clear_active_alarms", handle_clear_active_alarms
+    )
     hass.services.async_register(
         DOMAIN, "clean_filters_calibration", handle_clean_filters_calibration
     )

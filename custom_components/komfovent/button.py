@@ -46,6 +46,14 @@ async def async_setup_entry(
                     entity_category=EntityCategory.CONFIG,
                 ),
             ),
+            KomfoventClearActiveAlarmsButton(
+                coordinator,
+                ButtonEntityDescription(
+                    key="clear_active_alarms",
+                    name="Clear Active Alarms",
+                    entity_category=EntityCategory.CONFIG,
+                ),
+            ),
         ]
     )
 
@@ -85,3 +93,11 @@ class KomfoventCleanFiltersButton(KomfoventButtonEntity):
     async def async_press(self) -> None:
         """Handle the button press."""
         await services.clean_filters_calibration(self.coordinator)
+
+
+class KomfoventClearActiveAlarmsButton(KomfoventButtonEntity):
+    """Button to clear active alarms on Komfovent device."""
+
+    async def async_press(self) -> None:
+        """Handle the button press."""
+        await services.clear_active_alarms(self.coordinator)

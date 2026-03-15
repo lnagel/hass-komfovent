@@ -39,6 +39,7 @@ if TYPE_CHECKING:
 
 from . import registers
 from .const import (
+    ALARM_CODE_MESSAGES,
     DOMAIN,
     AirQualitySensorType,
     ConnectedPanels,
@@ -47,6 +48,7 @@ from .const import (
     FlowUnit,
     HeatExchangerType,
     OutdoorHumiditySensor,
+    format_alarm_code,
 )
 
 # Constants for value validation
@@ -697,6 +699,19 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
     if aq_sensor := create_aq_sensor(coordinator, registers.REG_EXTRACT_AQ_2):
         entities.append(aq_sensor)
 
+    # Active alarms sensor
+    entities.append(
+        ActiveAlarmsSensor(
+            coordinator=coordinator,
+            register_id=registers.REG_ACTIVE_ALARMS_COUNT,
+            entity_description=SensorEntityDescription(
+                key="active_alarms",
+                name="Active Alarms",
+                entity_category=EntityCategory.DIAGNOSTIC,
+            ),
+        )
+    )
+
     return entities
 
 
@@ -1036,3 +1051,57 @@ class SystemTimeSensor(KomfoventSensor):
             return local_epoch + timedelta(seconds=value)
         except (ValueError, TypeError, OSError):
             return None
+
+
+# Alarm code registers in order
+_ALARM_REGISTERS = [
+    registers.REG_ACTIVE_ALARM1,
+    registers.REG_ACTIVE_ALARM2,
+    registers.REG_ACTIVE_ALARM3,
+    registers.REG_ACTIVE_ALARM4,
+    registers.REG_ACTIVE_ALARM5,
+    registers.REG_ACTIVE_ALARM6,
+    registers.REG_ACTIVE_ALARM7,
+    registers.REG_ACTIVE_ALARM8,
+    registers.REG_ACTIVE_ALARM9,
+    registers.REG_ACTIVE_ALARM10,
+]
+
+
+class ActiveAlarmsSensor(KomfoventSensor):
+    """Sensor showing active alarm codes."""
+
+    @property
+    def native_value(self) -> str | None:
+        """Return space-separated alarm codes in manual format, or empty string."""
+        if not self.coordinator.data:
+            return None
+
+        count = self.coordinator.data.get(registers.REG_ACTIVE_ALARMS_COUNT)
+        if count is None or count == 0:
+            return ""
+
+        codes = []
+        for i in range(min(count, len(_ALARM_REGISTERS))):
+            raw = self.coordinator.data.get(_ALARM_REGISTERS[i])
+            if raw:
+                codes.append(format_alarm_code(raw))
+        return " ".join(codes)
+
+    @property
+    def extra_state_attributes(self) -> dict[str, dict[str, str]]:
+        """Return alarm details mapping code string to message."""
+        if not self.coordinator.data:
+            return {"alarm_details": {}}
+
+        count = self.coordinator.data.get(registers.REG_ACTIVE_ALARMS_COUNT)
+        if not count:
+            return {"alarm_details": {}}
+
+        details: dict[str, str] = {}
+        for i in range(min(count, len(_ALARM_REGISTERS))):
+            raw = self.coordinator.data.get(_ALARM_REGISTERS[i])
+            if raw:
+                code_str = format_alarm_code(raw)
+                details[code_str] = ALARM_CODE_MESSAGES.get(raw, "Unknown")
+        return {"alarm_details": details}

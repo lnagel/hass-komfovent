@@ -1,3 +1,15 @@
+clear_active_alarms:
+  name: Clear Active Alarms
+  description: Reset active alarms and restore previous operating mode
+  fields:
+    device_id:
+      name: Device
+      description: The Komfovent device to clear active alarms on
+      required: true
+      selector:
+        device:
+          integration: komfovent
+
 clean_filters_calibration:
   name: Clean Filters Calibration
   description: Calibrate clean filters on the Komfovent unit
