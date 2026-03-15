@@ -8,6 +8,7 @@ from homeassistant.const import PERCENTAGE, UnitOfVolumeFlowRate
 
 from custom_components.komfovent import registers
 from custom_components.komfovent.const import (
+    ALARM_CODE_MESSAGES,
     DOMAIN,
     AirQualitySensorType,
     ConnectedPanels,
@@ -16,9 +17,11 @@ from custom_components.komfovent.const import (
     FlowUnit,
     HeatExchangerType,
     OutdoorHumiditySensor,
+    format_alarm_code,
 )
 from custom_components.komfovent.sensor import (
     AbsoluteHumiditySensor,
+    ActiveAlarmsSensor,
     CO2Sensor,
     ConnectedPanelsSensor,
     DutyCycleSensor,
@@ -419,3 +422,126 @@ def test_create_aq_sensor_no_data(mock_coordinator):
 def test_create_aq_sensor_unknown_register(mock_coordinator):
     """Test unknown register returns None."""
     assert create_aq_sensor(mock_coordinator, 99999) is None
+
+
+# ==================== Format Alarm Code Tests ====================
+
+
+@pytest.mark.parametrize(
+    ("code", "expected"),
+    [
+        (0x09, "F9"),
+        (0x81, "W1"),
+        (0x01, "F1"),
+        (0x86, "W6"),
+        (0x34, "F52"),
+        (0xFF, "W127"),
+    ],
+)
+def test_format_alarm_code(code, expected):
+    """Test format_alarm_code converts raw byte to manual notation."""
+    assert format_alarm_code(code) == expected
+
+
+def test_alarm_code_messages_known():
+    """Test known alarm codes have messages."""
+    assert ALARM_CODE_MESSAGES[0x09] == "Internal Fire"
+    assert ALARM_CODE_MESSAGES[0x81] == "Change Air Filter"
+
+
+def test_alarm_code_messages_unknown_fallback():
+    """Test unknown alarm code is not in the lookup table."""
+    assert 0x7F not in ALARM_CODE_MESSAGES
+
+
+# ==================== Active Alarms Sensor Tests ====================
+
+
+class TestActiveAlarmsSensor:
+    """Tests for ActiveAlarmsSensor."""
+
+    def test_active_alarms_with_faults(self, mock_coordinator):
+        """Test state is space-separated alarm codes when alarms present."""
+        mock_coordinator.data[registers.REG_ACTIVE_ALARMS_COUNT] = 2
+        mock_coordinator.data[registers.REG_ACTIVE_ALARM1] = 0x09
+        mock_coordinator.data[registers.REG_ACTIVE_ALARM2] = 0x81
+        sensor = ActiveAlarmsSensor(
+            mock_coordinator, registers.REG_ACTIVE_ALARMS_COUNT, DESC
+        )
+        assert sensor.native_value == "F9 W1"
+
+    def test_active_alarms_empty_when_count_zero(self, mock_coordinator):
+        """Test state is empty string when count is 0."""
+        mock_coordinator.data[registers.REG_ACTIVE_ALARMS_COUNT] = 0
+        sensor = ActiveAlarmsSensor(
+            mock_coordinator, registers.REG_ACTIVE_ALARMS_COUNT, DESC
+        )
+        assert sensor.native_value == ""
+
+    def test_active_alarms_none_when_no_data(self, mock_coordinator):
+        """Test state is None when data is None."""
+        mock_coordinator.data = None
+        sensor = ActiveAlarmsSensor(
+            mock_coordinator, registers.REG_ACTIVE_ALARMS_COUNT, DESC
+        )
+        assert sensor.native_value is None
+
+    def test_alarm_details_with_faults(self, mock_coordinator):
+        """Test extra_state_attributes has correct code-to-message mapping."""
+        mock_coordinator.data[registers.REG_ACTIVE_ALARMS_COUNT] = 2
+        mock_coordinator.data[registers.REG_ACTIVE_ALARM1] = 0x09
+        mock_coordinator.data[registers.REG_ACTIVE_ALARM2] = 0x81
+        sensor = ActiveAlarmsSensor(
+            mock_coordinator, registers.REG_ACTIVE_ALARMS_COUNT, DESC
+        )
+        attrs = sensor.extra_state_attributes
+        assert attrs["alarm_details"] == {
+            "F9": "Internal Fire",
+            "W1": "Change Air Filter",
+        }
+
+    def test_alarm_details_empty_when_count_zero(self, mock_coordinator):
+        """Test alarm_details is empty dict when no alarms."""
+        mock_coordinator.data[registers.REG_ACTIVE_ALARMS_COUNT] = 0
+        sensor = ActiveAlarmsSensor(
+            mock_coordinator, registers.REG_ACTIVE_ALARMS_COUNT, DESC
+        )
+        assert sensor.extra_state_attributes["alarm_details"] == {}
+
+    def test_alarm_details_empty_when_no_data(self, mock_coordinator):
+        """Test alarm_details is empty dict when data is None."""
+        mock_coordinator.data = None
+        sensor = ActiveAlarmsSensor(
+            mock_coordinator, registers.REG_ACTIVE_ALARMS_COUNT, DESC
+        )
+        assert sensor.extra_state_attributes["alarm_details"] == {}
+
+    def test_alarm_details_unknown_code(self, mock_coordinator):
+        """Test unknown alarm code shows 'Unknown' message."""
+        mock_coordinator.data[registers.REG_ACTIVE_ALARMS_COUNT] = 1
+        mock_coordinator.data[registers.REG_ACTIVE_ALARM1] = 0x7F
+        sensor = ActiveAlarmsSensor(
+            mock_coordinator, registers.REG_ACTIVE_ALARMS_COUNT, DESC
+        )
+        attrs = sensor.extra_state_attributes
+        assert attrs["alarm_details"] == {"F127": "Unknown"}
+
+    def test_skips_zero_alarm_codes(self, mock_coordinator):
+        """Test that zero-valued alarm registers are skipped."""
+        mock_coordinator.data[registers.REG_ACTIVE_ALARMS_COUNT] = 2
+        mock_coordinator.data[registers.REG_ACTIVE_ALARM1] = 0x09
+        mock_coordinator.data[registers.REG_ACTIVE_ALARM2] = 0
+        sensor = ActiveAlarmsSensor(
+            mock_coordinator, registers.REG_ACTIVE_ALARMS_COUNT, DESC
+        )
+        assert sensor.native_value == "F9"
+        assert sensor.extra_state_attributes["alarm_details"] == {
+            "F9": "Internal Fire",
+        }
+
+
+async def test_create_sensors_includes_active_alarms(mock_coordinator):
+    """Test that create_sensors includes the active_alarms sensor."""
+    sensors = await create_sensors(mock_coordinator)
+    keys = {s.entity_description.key for s in sensors}
+    assert "active_alarms" in keys

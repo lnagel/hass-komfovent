@@ -5,11 +5,12 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from custom_components.komfovent import registers
-from custom_components.komfovent.const import DOMAIN, OperationMode
+from custom_components.komfovent.const import ALARM_RESET_COMMAND, DOMAIN, OperationMode
 from custom_components.komfovent.services import (
     DEFAULT_MODE_TIMER,
     async_register_services,
     clean_filters_calibration,
+    clear_active_alarms,
     get_coordinator_for_device,
     set_operation_mode,
     set_system_time,
@@ -31,6 +32,16 @@ TIMER_MODES = [
 ]
 
 # ==================== Tests ====================
+
+
+async def test_clear_active_alarms(mock_coordinator):
+    """Test clear_active_alarms writes reset command to alarm count register."""
+    await clear_active_alarms(mock_coordinator)
+    mock_coordinator.client.write.assert_called_once_with(
+        registers.REG_ACTIVE_ALARMS_COUNT, ALARM_RESET_COMMAND
+    )
+    mock_coordinator.set_cooldown.assert_called_once_with(1.0)
+    mock_coordinator.async_request_refresh.assert_called_once()
 
 
 async def test_clean_filters_calibration(mock_coordinator):
@@ -139,13 +150,56 @@ def test_device_without_coordinator(hass):
         assert get_coordinator_for_device(hass, "device_123") is None
 
 
+async def test_handle_clear_active_alarms(hass, mock_coordinator):
+    """Test handle_clear_active_alarms service handler."""
+    hass.data[DOMAIN] = {"test_entry_id": mock_coordinator}
+    await async_register_services(hass)
+
+    # Get the handler that was registered for clear_active_alarms
+    calls = hass.services.async_register.call_args_list
+    handler = next(c[0][2] for c in calls if c[0][1] == "clear_active_alarms")
+
+    # Mock device registry lookup
+    mock_call = MagicMock()
+    mock_call.data = {"device_id": "device_123"}
+    mock_device = MagicMock()
+    mock_device.config_entries = ["test_entry_id"]
+    with patch("custom_components.komfovent.services.dr.async_get") as mock_get:
+        mock_registry = MagicMock()
+        mock_registry.async_get.return_value = mock_device
+        mock_get.return_value = mock_registry
+        await handler(mock_call)
+
+    mock_coordinator.client.write.assert_called_once_with(
+        registers.REG_ACTIVE_ALARMS_COUNT, ALARM_RESET_COMMAND
+    )
+
+
+async def test_handle_clear_active_alarms_device_not_found(hass):
+    """Test handle_clear_active_alarms when device not found."""
+    hass.data[DOMAIN] = {}
+    await async_register_services(hass)
+
+    calls = hass.services.async_register.call_args_list
+    handler = next(c[0][2] for c in calls if c[0][1] == "clear_active_alarms")
+
+    mock_call = MagicMock()
+    mock_call.data = {"device_id": "nonexistent"}
+    with patch("custom_components.komfovent.services.dr.async_get") as mock_get:
+        mock_registry = MagicMock()
+        mock_registry.async_get.return_value = None
+        mock_get.return_value = mock_registry
+        await handler(mock_call)
+
+
 async def test_registers_all_services(hass):
     """Test that all services are registered."""
     hass.data[DOMAIN] = {}
     await async_register_services(hass)
-    assert hass.services.async_register.call_count == 3
+    assert hass.services.async_register.call_count == 4
     services = [call[0][1] for call in hass.services.async_register.call_args_list]
     assert set(services) == {
+        "clear_active_alarms",
         "clean_filters_calibration",
         "set_operation_mode",
         "set_system_time",

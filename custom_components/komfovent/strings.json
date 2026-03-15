@@ -38,6 +38,16 @@
         }
       }
     },
+    "sensor": {
+      "active_alarms": {
+        "name": "Active Alarms"
+      }
+    },
+    "button": {
+      "clear_active_alarms": {
+        "name": "Clear Active Alarms"
+      }
+    },
     "select": {
       "operation_mode": {
         "name": "Operation Mode",

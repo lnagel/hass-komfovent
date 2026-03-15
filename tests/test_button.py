@@ -8,6 +8,7 @@ from homeassistant.components.button import ButtonEntityDescription
 from custom_components.komfovent.button import (
     KomfoventButtonEntity,
     KomfoventCleanFiltersButton,
+    KomfoventClearActiveAlarmsButton,
     KomfoventSetTimeButton,
 )
 from custom_components.komfovent.const import DOMAIN
@@ -24,6 +25,11 @@ BUTTON_TYPES = [
         KomfoventCleanFiltersButton,
         "clean_filters",
         "custom_components.komfovent.button.services.clean_filters_calibration",
+    ),
+    (
+        KomfoventClearActiveAlarmsButton,
+        "clear_active_alarms",
+        "custom_components.komfovent.button.services.clear_active_alarms",
     ),
 ]
 
