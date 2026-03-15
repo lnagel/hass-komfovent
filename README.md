@@ -47,7 +47,8 @@ The integration provides comprehensive control and monitoring of your Komfovent 
 - Power consumption
 - Energy recovery
 - Specific power input (SPI)
-- Comprehensive alarm monitoring
+- Active alarms monitoring
+- Comprehensive alarm status (fault/warning indicators)
 
 ### Advanced Features
 - Electric heater control for each mode
@@ -57,6 +58,7 @@ The integration provides comprehensive control and monitoring of your Komfovent 
 - Clean filters calibration
 - Firmware version monitoring
 - Detailed diagnostics
+- Clear active alarms remotely
 
 All features are exposed as Home Assistant entities, allowing for easy integration into automations and the user interface.
 
@@ -118,6 +120,16 @@ tap_action:
   data:
     mode: kitchen
     minutes: 5
+```
+
+### Clear Active Alarms
+Clears active fault and warning alarms on the Komfovent unit:
+
+```yaml
+# Example service call
+action: komfovent.clear_active_alarms
+target:
+  device_id: YOUR_DEVICE_ID
 ```
 
 ### Set System Time
