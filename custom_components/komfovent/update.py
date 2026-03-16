@@ -11,7 +11,7 @@ from homeassistant.components.update import (
     UpdateEntity,
     UpdateEntityFeature,
 )
-from homeassistant.const import CONF_HOST
+from homeassistant.const import CONF_HOST, CONF_PASSWORD
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -191,15 +191,16 @@ class KomfoventUpdateEntity(CoordinatorEntity["KomfoventCoordinator"], UpdateEnt
             msg = "Firmware file not available. Wait for firmware check to complete."
             raise HomeAssistantError(msg)
 
-        # Get device host
+        # Get device connection details
         host = self.coordinator.config_entry.data[CONF_HOST]
+        password = self.coordinator.config_entry.data.get(CONF_PASSWORD, "user")
 
         self._installing = True
         self.async_write_ha_state()
 
         try:
             # Create uploader
-            uploader = FirmwareUploader(self.hass, host)
+            uploader = FirmwareUploader(self.hass, host, password=password)
 
             _LOGGER.info(
                 "Starting firmware upload to %s (%s)",
