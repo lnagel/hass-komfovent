@@ -126,7 +126,10 @@ async def test_set_system_time(mock_coordinator):
 def test_get_coordinator_for_device(hass, setup, expected):
     """Test get_coordinator_for_device returns correct result."""
     mock_coordinator = MagicMock()
-    hass.data[DOMAIN] = {"test_entry_id": mock_coordinator} if setup else {}
+    # Create mock runtime data with coordinator attribute
+    mock_runtime_data = MagicMock()
+    mock_runtime_data.coordinator = mock_coordinator
+    hass.data[DOMAIN] = {"test_entry_id": mock_runtime_data} if setup else {}
     mock_device = MagicMock() if setup else None
     if mock_device:
         mock_device.config_entries = ["test_entry_id"]
@@ -152,7 +155,9 @@ def test_device_without_coordinator(hass):
 
 async def test_handle_clear_active_alarms(hass, mock_coordinator):
     """Test handle_clear_active_alarms service handler."""
-    hass.data[DOMAIN] = {"test_entry_id": mock_coordinator}
+    mock_runtime_data = MagicMock()
+    mock_runtime_data.coordinator = mock_coordinator
+    hass.data[DOMAIN] = {"test_entry_id": mock_runtime_data}
     await async_register_services(hass)
 
     # Get the handler that was registered for clear_active_alarms
