@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from typing import TYPE_CHECKING
 
 import aiofiles
@@ -17,6 +18,10 @@ if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
 
 _LOGGER = logging.getLogger(__name__)
+
+# Pattern to extract status message from device response HTML
+# The device returns status in: <td id="st">Status: ...</td>
+_STATUS_PATTERN = re.compile(r'<td\s+id="st">\s*(.*?)\s*</td>', re.IGNORECASE)
 
 # HTTP constants
 HTTP_OK = 200
@@ -201,8 +206,9 @@ class FirmwareUploader:
                 if response.status != HTTP_OK:
                     msg = f"Upload failed with HTTP {response.status}"
                     raise FirmwareUploadError(msg)
-                # Read response to complete the request
-                await response.read()
+                # Parse response body for device status message
+                body = await response.text(encoding="windows-1252")
+                self._check_response_for_errors(body)
         except TimeoutError as err:
             msg = "Upload timed out - device may have slow connection or be processing"
             raise FirmwareUploadError(msg) from err
@@ -210,6 +216,32 @@ class FirmwareUploader:
         # Call progress callback with completion
         if progress_callback:
             progress_callback(len(firmware_data), len(firmware_data))
+
+    @staticmethod
+    def _check_response_for_errors(body: str) -> None:
+        """
+        Check the device response body for error messages.
+
+        The device returns HTTP 200 even on errors, with the status
+        in a <td id="st"> element.
+
+        Args:
+            body: The HTML response body
+
+        Raises:
+            FirmwareUploadError: If the response contains an error status
+
+        """
+        match = _STATUS_PATTERN.search(body)
+        if not match:
+            _LOGGER.debug("No status element found in upload response")
+            return
+
+        status = match.group(1)
+        _LOGGER.debug("Device upload status: %s", status)
+
+        if "error" in status.lower():
+            raise FirmwareUploadError(status)
 
     async def _async_logout(self, session: aiohttp.ClientSession) -> None:
         """
