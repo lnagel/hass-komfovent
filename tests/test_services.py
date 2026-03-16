@@ -155,7 +155,9 @@ def test_device_without_coordinator(hass):
 
 async def test_handle_clear_active_alarms(hass, mock_coordinator):
     """Test handle_clear_active_alarms service handler."""
-    hass.data[DOMAIN] = {"test_entry_id": mock_coordinator}
+    mock_runtime_data = MagicMock()
+    mock_runtime_data.coordinator = mock_coordinator
+    hass.data[DOMAIN] = {"test_entry_id": mock_runtime_data}
     await async_register_services(hass)
 
     # Get the handler that was registered for clear_active_alarms
