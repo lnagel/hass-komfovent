@@ -18,6 +18,7 @@ from __future__ import annotations
 import argparse
 import logging
 import os
+import re
 import sys
 import time
 from pathlib import Path
@@ -103,17 +104,15 @@ class KomfoventFirmwareUpdater:
             logger.exception("Login failed")
             return False
 
-        if response.status_code == HTTP_OK:
-            if "Incorrect password" in response.text:
-                logger.error("Login failed: Incorrect password")
-                return False
-            if 'name="11111"' in response.text:
-                logger.info("Login successful")
-                return True
+        if response.status_code != HTTP_OK:
+            logger.error("Login failed: HTTP %d", response.status_code)
+            return False
+
+        if 'value="Logout"' in response.text:
             logger.info("Login successful")
             return True
 
-        logger.error("Login failed: HTTP %d", response.status_code)
+        logger.error("Login failed: invalid credentials")
         return False
 
     def validate_firmware_file(self, firmware_path: str) -> dict[str, Any]:
@@ -218,35 +217,34 @@ class KomfoventFirmwareUpdater:
     def _parse_upload_response(
         self, response: requests.Response, result: dict[str, Any]
     ) -> None:
-        """Parse the upload response and update result dict."""
+        """Parse the upload response by extracting status from <td id="st">."""
         if response.status_code != HTTP_OK:
             result["error"] = f"HTTP {response.status_code}"
             logger.error("Upload failed: %s", result["error"])
             return
 
-        response_text = response.text.lower()
+        match = re.search(
+            r'<td\s+id="st">\s*(.*?)\s*</td>', response.text, re.IGNORECASE
+        )
+        if not match:
+            result["error"] = "No status element in device response"
+            logger.error("Upload failed: %s", result["error"])
+            return
 
-        if "success" in response_text or "uploaded" in response_text:
+        status = match.group(1)
+        logger.info("Device status: %s", status)
+        status_lower = status.lower()
+
+        if "error" in status_lower:
+            result["error"] = status
+            logger.error("Upload failed: %s", status)
+        elif "success" in status_lower:
             result["success"] = True
-            result["message"] = "Firmware uploaded successfully"
+            result["message"] = status
             logger.info("Upload successful")
-
-            if "device is restarting" in response_text:
-                logger.info("Device is restarting")
-                result["message"] += " - device restarting"
-
-            if "panel firmware upload success" in response_text:
-                logger.info("Panel firmware will also be updated")
-                result["message"] += " - panel update included"
-
-        elif "error" in response_text:
-            result["error"] = "Upload failed (see device response)"
-            logger.error("Upload failed")
-            logger.error("Response: %s", response.text[:200])
         else:
-            result["success"] = True
-            result["message"] = "Upload completed (verify manually)"
-            logger.warning("Upload completed with unclear response")
+            result["error"] = f"Unexpected device response: {status}"
+            logger.error("Upload failed: %s", result["error"])
 
     def monitor_update_progress(self, timeout: int = DEFAULT_UPDATE_TIMEOUT) -> bool:
         """
