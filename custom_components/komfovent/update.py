@@ -17,7 +17,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import registers
 from .const import DOMAIN, FIRMWARE_MIN_SUPPORTED_VERSION
-from .firmware import format_version, get_controller_type_for_firmware
+from .firmware import get_controller_type_for_firmware
 from .firmware.uploader import FirmwareUploader, FirmwareUploadError
 from .helpers import build_device_info, get_controller_version
 
@@ -77,7 +77,7 @@ class KomfoventUpdateEntity(CoordinatorEntity["KomfoventCoordinator"], UpdateEnt
 
     @property
     def installed_version(self) -> str | None:
-        """Return the installed firmware version."""
+        """Return the installed firmware functional version (v4)."""
         if not self.coordinator.data:
             return None
 
@@ -87,18 +87,35 @@ class KomfoventUpdateEntity(CoordinatorEntity["KomfoventCoordinator"], UpdateEnt
 
         try:
             version = get_controller_version(int(raw_value))
-            return format_version(version)
+            return str(version[4])
         except (ValueError, TypeError):
             return None
 
     @property
     def latest_version(self) -> str | None:
-        """Return the latest available firmware version."""
+        """Return the latest available firmware functional version (v4)."""
         controller_type = get_controller_type_for_firmware(self.coordinator.controller)
         if controller_type == "NA":
             return None
 
-        return self._store.get_latest_version(controller_type)
+        info = self._store.get_firmware_info(controller_type)
+        if info is None:
+            return None
+
+        return str(info["controller_version"][4])
+
+    @property
+    def release_summary(self) -> str | None:
+        """Return firmware filename as release summary."""
+        controller_type = get_controller_type_for_firmware(self.coordinator.controller)
+        if controller_type == "NA":
+            return None
+
+        info = self._store.get_firmware_info(controller_type)
+        if info is None:
+            return None
+
+        return info["filename"]
 
     @property
     def release_url(self) -> str | None:
