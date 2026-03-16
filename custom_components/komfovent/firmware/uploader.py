@@ -129,11 +129,12 @@ class FirmwareUploader:
             _LOGGER.info("Firmware upload completed successfully")
 
             # Step 3: Logout (best effort)
-            try:
-                await self._async_logout(session)
-                _LOGGER.debug("Logout successful")
-            except (aiohttp.ClientError, TimeoutError, OSError):
-                _LOGGER.debug("Logout failed (device may be restarting)")
+            # TODO: temporarily disabled for debugging upload issues
+            # try:
+            #     await self._async_logout(session)
+            #     _LOGGER.debug("Logout successful")
+            # except (aiohttp.ClientError, TimeoutError, OSError):
+            #     _LOGGER.debug("Logout failed (device may be restarting)")
 
         except aiohttp.ClientError as err:
             msg = f"Network error during upload: {err}"
@@ -188,10 +189,10 @@ class FirmwareUploader:
         """
         url = f"{self._base_url}{UPLOAD_ENDPOINT}"
 
-        # Create multipart form data
+        # Create multipart form data - only the file field, matching browser behavior.
+        # The device uses IP-based sessions so credentials are not needed after login.
+        # Including extra form fields confuses the device's multipart parser.
         data = aiohttp.FormData()
-        data.add_field(FORM_FIELD_USERNAME, self._username)
-        data.add_field(FORM_FIELD_PASSWORD, self._password)
         data.add_field(
             FORM_FIELD_FIRMWARE,
             firmware_data,
@@ -234,14 +235,18 @@ class FirmwareUploader:
         """
         match = _STATUS_PATTERN.search(body)
         if not match:
-            _LOGGER.debug("No status element found in upload response")
+            _LOGGER.warning("No status element found in device upload response")
             return
 
         status = match.group(1)
         _LOGGER.debug("Device upload status: %s", status)
 
-        if "error" in status.lower():
+        status_lower = status.lower()
+        if "error" in status_lower:
             raise FirmwareUploadError(status)
+        if "success" not in status_lower:
+            msg = f"Unexpected device response after upload: {status}"
+            raise FirmwareUploadError(msg)
 
     async def _async_logout(self, session: aiohttp.ClientSession) -> None:
         """
