@@ -35,8 +35,6 @@ CONNECT_TIMEOUT = 10
 LOGIN_TIMEOUT = 30
 # Upload timeout is long due to slow TCP transfer (~19 KB/s, ~57s for 1MB)
 UPLOAD_TIMEOUT = 300
-LOGOUT_TIMEOUT = 10
-
 # Device restart delay (seconds)
 DEVICE_RESTART_DELAY = 120
 
@@ -127,14 +125,6 @@ class FirmwareUploader:
                 progress_callback,
             )
             _LOGGER.info("Firmware upload completed successfully")
-
-            # Step 3: Logout (best effort)
-            # TODO: temporarily disabled for debugging upload issues
-            # try:
-            #     await self._async_logout(session)
-            #     _LOGGER.debug("Logout successful")
-            # except (aiohttp.ClientError, TimeoutError, OSError):
-            #     _LOGGER.debug("Logout failed (device may be restarting)")
 
         except aiohttp.ClientError as err:
             msg = f"Network error during upload: {err}"
@@ -247,30 +237,6 @@ class FirmwareUploader:
         if "success" not in status_lower:
             msg = f"Unexpected device response after upload: {status}"
             raise FirmwareUploadError(msg)
-
-    async def _async_logout(self, session: aiohttp.ClientSession) -> None:
-        """
-        Perform logout (best effort).
-
-        Args:
-            session: aiohttp client session
-
-        """
-        # The device may restart after upload, so this is best-effort
-        url = f"{self._base_url}{UPLOAD_ENDPOINT}"
-
-        # Send empty form to logout
-        data = aiohttp.FormData()
-        data.add_field(FORM_FIELD_USERNAME, "")
-        data.add_field(FORM_FIELD_PASSWORD, "")
-
-        timeout = aiohttp.ClientTimeout(total=LOGOUT_TIMEOUT)
-        try:
-            async with session.post(url, data=data, timeout=timeout):
-                pass
-        except (aiohttp.ClientError, TimeoutError):
-            # Ignore errors - device may be restarting
-            pass
 
     @staticmethod
     def get_restart_delay() -> int:
