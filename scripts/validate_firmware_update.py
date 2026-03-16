@@ -361,11 +361,14 @@ def _create_parser() -> argparse.ArgumentParser:
         help="Expected firmware version after update (for verification)",
     )
     parser.add_argument(
-        "--yes", "-y", action="store_true",
+        "--yes",
+        "-y",
+        action="store_true",
         help="Skip confirmation prompt (for automated testing)",
     )
     parser.add_argument(
-        "--skip-wait", action="store_true",
+        "--skip-wait",
+        action="store_true",
         help="Skip waiting for device restart (for mock testing)",
     )
     return parser
