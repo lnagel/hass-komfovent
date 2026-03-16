@@ -210,9 +210,7 @@ class C6MockHandler(BaseHTTPRequestHandler):
         self._send_response(self.get_success_response())
         logger.info("Firmware upload complete: %s", filename)
 
-    def _validate_and_process_firmware(
-        self, filename: str, file_data: bytes
-    ) -> bool:
+    def _validate_and_process_firmware(self, filename: str, file_data: bytes) -> bool:
         """Validate firmware and process upload."""
         ext = "." + filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
         if ext not in VALID_EXTENSIONS:
@@ -236,9 +234,7 @@ class C6MockHandler(BaseHTTPRequestHandler):
 
         return True
 
-    def parse_multipart(
-        self, body: bytes, boundary: bytes
-    ) -> tuple[str, bytes] | None:
+    def parse_multipart(self, body: bytes, boundary: bytes) -> tuple[str, bytes] | None:
         """Parse multipart form data and extract file."""
         parts = body.split(b"--" + boundary)
 
@@ -274,7 +270,7 @@ class C6MockHandler(BaseHTTPRequestHandler):
 
     def get_upload_form(self, status_message: str = "") -> str:
         """Generate the upload form HTML (matches real device)."""
-        status = status_message if status_message else "Status:"
+        status = status_message or "Status:"
         return UPLOAD_FORM_TEMPLATE.format(field_name=FORM_FIELD_NAME, status=status)
 
     def get_success_response(self) -> str:
