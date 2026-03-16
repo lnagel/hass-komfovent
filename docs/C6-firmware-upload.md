@@ -158,7 +158,7 @@ HTML page containing the upload form with status message:
 
 **Possible status messages:**
 - `Status: Firmware uploaded successfully, device is restarting. Panel firmware upload success: wait until finished.`
-- (Other error states should be documented as discovered)
+- `Status: Panel firmware upload error: incorrect file.`
 
 ## TCP/Protocol Characteristics
 
