@@ -147,14 +147,16 @@ class FirmwareUploader:
 
         """
         url = f"{self._base_url}{UPLOAD_ENDPOINT}"
-        data = aiohttp.FormData()
-        data.add_field(FORM_FIELD_USERNAME, self._username)
-        data.add_field(FORM_FIELD_PASSWORD, self._password)
+        form_data = {
+            FORM_FIELD_USERNAME: self._username,
+            FORM_FIELD_PASSWORD: self._password,
+        }
 
         timeout = aiohttp.ClientTimeout(total=LOGIN_TIMEOUT)
-        async with session.post(url, data=data, timeout=timeout) as response:
-            if response.status != HTTP_OK:
-                msg = f"Login failed with HTTP {response.status}"
+        async with session.post(url, data=form_data, timeout=timeout) as response:
+            body = await response.text(encoding="windows-1252")
+            if 'value="Logout"' not in body:
+                msg = "Login failed: invalid credentials"
                 raise FirmwareUploadError(msg)
 
     async def _async_upload(
