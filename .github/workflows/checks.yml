@@ -30,7 +30,7 @@ jobs:
       - name: Run tests with coverage
         run: uv run pytest --cov=custom_components/komfovent --cov-branch --cov-report=term --cov-report=xml --junitxml=junit.xml -o junit_family=legacy
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
       - name: Upload test results to Codecov
