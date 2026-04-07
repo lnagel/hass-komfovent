@@ -209,7 +209,8 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Komfovent switches."""
-    coordinator: KomfoventCoordinator = hass.data[DOMAIN][entry.entry_id]
+    runtime_data = hass.data[DOMAIN][entry.entry_id]
+    coordinator: KomfoventCoordinator = runtime_data.coordinator
 
     async_add_entities(await create_switches(coordinator))
 

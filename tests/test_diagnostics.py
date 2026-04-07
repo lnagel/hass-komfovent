@@ -29,7 +29,10 @@ def mock_entry(hass):
     )
     mock_coordinator = MagicMock()
     mock_coordinator.data = {"test": "data"}
-    hass.data[DOMAIN] = {entry.entry_id: mock_coordinator}
+    # Create mock runtime data with coordinator attribute
+    mock_runtime_data = MagicMock()
+    mock_runtime_data.coordinator = mock_coordinator
+    hass.data[DOMAIN] = {entry.entry_id: mock_runtime_data}
     return entry
 
 
