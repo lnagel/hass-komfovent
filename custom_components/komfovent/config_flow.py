@@ -46,7 +46,7 @@ OPTIONS_SCHEMA = vol.Schema(
             OPT_UPDATE_INTERVAL, default=DEFAULT_UPDATE_INTERVAL
         ): NumberSelector(
             NumberSelectorConfig(
-                min=10,
+                min=1,
                 max=300,
                 step=5,
                 mode=NumberSelectorMode.SLIDER,
