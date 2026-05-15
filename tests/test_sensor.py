@@ -3,8 +3,12 @@
 from datetime import datetime
 
 import pytest
-from homeassistant.components.sensor import SensorEntityDescription
-from homeassistant.const import PERCENTAGE, UnitOfVolumeFlowRate
+from homeassistant.components.sensor import (
+    SensorDeviceClass,
+    SensorEntityDescription,
+    SensorStateClass,
+)
+from homeassistant.const import PERCENTAGE, UnitOfEnergy, UnitOfVolumeFlowRate
 
 from custom_components.komfovent import registers
 from custom_components.komfovent.const import (
@@ -355,11 +359,35 @@ def test_system_time_sensor(mock_coordinator, data, is_datetime):
 # ==================== Factory Functions ====================
 
 
+# All 9 energy counters are C6/C6M-only. Sorted by register address.
+# (key, register_id, entity_registry_enabled_default)
+ENERGY_ENTITIES = [
+    ("daily_ahu_energy", registers.REG_AHU_DAY, False),
+    ("monthly_ahu_energy", registers.REG_AHU_MONTH, False),
+    ("total_ahu_energy", registers.REG_AHU_TOTAL, True),
+    ("daily_heater_energy", registers.REG_HEATER_DAY, False),
+    ("monthly_heater_energy", registers.REG_HEATER_MONTH, False),
+    ("total_heater_energy", registers.REG_HEATER_TOTAL, True),
+    ("daily_recovered_energy", registers.REG_RECOVERY_DAY, False),
+    ("monthly_recovered_energy", registers.REG_RECOVERY_MONTH, False),
+    ("total_recovered_energy", registers.REG_RECOVERY_TOTAL, True),
+]
+ENERGY_KEYS = {entry[0] for entry in ENERGY_ENTITIES}
+
+
 @pytest.mark.parametrize(
     ("controller", "expected", "unexpected"),
     [
-        (Controller.C6, {"supply_temperature", "flow_unit"}, set()),
-        (Controller.C8, {"supply_temperature"}, {"flow_unit", "specific_power_input"}),
+        (
+            Controller.C6,
+            {"supply_temperature", "flow_unit"} | ENERGY_KEYS,
+            set(),
+        ),
+        (
+            Controller.C8,
+            {"supply_temperature"},
+            {"flow_unit", "specific_power_input"} | ENERGY_KEYS,
+        ),
     ],
 )
 async def test_create_sensors_controller(
@@ -371,6 +399,22 @@ async def test_create_sensors_controller(
     keys = {s.entity_description.key for s in sensors}
     assert expected <= keys
     assert not (unexpected & keys)
+
+
+@pytest.mark.parametrize(("key", "register_id", "enabled_default"), ENERGY_ENTITIES)
+async def test_energy_sensor_properties(
+    mock_coordinator, key, register_id, enabled_default
+):
+    """All C6 energy meters share the same HA shape: kWh, ENERGY, TOTAL_INCREASING."""
+    sensors = await create_sensors(mock_coordinator)
+    sensor = next(s for s in sensors if s.entity_description.key == key)
+    assert isinstance(sensor, FloatX1000Sensor)
+    assert sensor.register_id == register_id
+    desc = sensor.entity_description
+    assert desc.state_class == SensorStateClass.TOTAL_INCREASING
+    assert desc.device_class == SensorDeviceClass.ENERGY
+    assert desc.native_unit_of_measurement == UnitOfEnergy.KILO_WATT_HOUR
+    assert desc.entity_registry_enabled_default is enabled_default
 
 
 async def test_create_sensors_count(mock_coordinator):
