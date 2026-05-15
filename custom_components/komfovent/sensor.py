@@ -455,6 +455,32 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 ),
                 FloatX1000Sensor(
                     coordinator=coordinator,
+                    register_id=registers.REG_AHU_DAY,
+                    entity_description=SensorEntityDescription(
+                        key="daily_ahu_energy",
+                        name="Daily AHU Energy",
+                        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+                        device_class=SensorDeviceClass.ENERGY,
+                        state_class=SensorStateClass.TOTAL_INCREASING,
+                        suggested_display_precision=3,
+                        entity_registry_enabled_default=False,
+                    ),
+                ),
+                FloatX1000Sensor(
+                    coordinator=coordinator,
+                    register_id=registers.REG_AHU_MONTH,
+                    entity_description=SensorEntityDescription(
+                        key="monthly_ahu_energy",
+                        name="Monthly AHU Energy",
+                        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+                        device_class=SensorDeviceClass.ENERGY,
+                        state_class=SensorStateClass.TOTAL_INCREASING,
+                        suggested_display_precision=3,
+                        entity_registry_enabled_default=False,
+                    ),
+                ),
+                FloatX1000Sensor(
+                    coordinator=coordinator,
                     register_id=registers.REG_AHU_TOTAL,
                     entity_description=SensorEntityDescription(
                         key="total_ahu_energy",
@@ -467,6 +493,32 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 ),
                 FloatX1000Sensor(
                     coordinator=coordinator,
+                    register_id=registers.REG_HEATER_DAY,
+                    entity_description=SensorEntityDescription(
+                        key="daily_heater_energy",
+                        name="Daily Heater Energy",
+                        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+                        device_class=SensorDeviceClass.ENERGY,
+                        state_class=SensorStateClass.TOTAL_INCREASING,
+                        suggested_display_precision=3,
+                        entity_registry_enabled_default=False,
+                    ),
+                ),
+                FloatX1000Sensor(
+                    coordinator=coordinator,
+                    register_id=registers.REG_HEATER_MONTH,
+                    entity_description=SensorEntityDescription(
+                        key="monthly_heater_energy",
+                        name="Monthly Heater Energy",
+                        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+                        device_class=SensorDeviceClass.ENERGY,
+                        state_class=SensorStateClass.TOTAL_INCREASING,
+                        suggested_display_precision=3,
+                        entity_registry_enabled_default=False,
+                    ),
+                ),
+                FloatX1000Sensor(
+                    coordinator=coordinator,
                     register_id=registers.REG_HEATER_TOTAL,
                     entity_description=SensorEntityDescription(
                         key="total_heater_energy",
@@ -475,6 +527,32 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                         device_class=SensorDeviceClass.ENERGY,
                         state_class=SensorStateClass.TOTAL_INCREASING,
                         suggested_display_precision=3,
+                    ),
+                ),
+                FloatX1000Sensor(
+                    coordinator=coordinator,
+                    register_id=registers.REG_RECOVERY_DAY,
+                    entity_description=SensorEntityDescription(
+                        key="daily_recovered_energy",
+                        name="Daily Recovered Energy",
+                        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+                        device_class=SensorDeviceClass.ENERGY,
+                        state_class=SensorStateClass.TOTAL_INCREASING,
+                        suggested_display_precision=3,
+                        entity_registry_enabled_default=False,
+                    ),
+                ),
+                FloatX1000Sensor(
+                    coordinator=coordinator,
+                    register_id=registers.REG_RECOVERY_MONTH,
+                    entity_description=SensorEntityDescription(
+                        key="monthly_recovered_energy",
+                        name="Monthly Recovered Energy",
+                        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+                        device_class=SensorDeviceClass.ENERGY,
+                        state_class=SensorStateClass.TOTAL_INCREASING,
+                        suggested_display_precision=3,
+                        entity_registry_enabled_default=False,
                     ),
                 ),
                 FloatX1000Sensor(
