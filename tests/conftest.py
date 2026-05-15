@@ -9,13 +9,31 @@ from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.komfovent.const import DOMAIN, Controller
+from custom_components.komfovent.modbus import convert_register_block
+from custom_components.komfovent.registers import (
+    REGISTERS_16BIT_SIGNED,
+    REGISTERS_16BIT_UNSIGNED,
+    REGISTERS_32BIT_UNSIGNED,
+)
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
+_CLASSIFIED_REGISTERS = (
+    REGISTERS_16BIT_UNSIGNED
+    | REGISTERS_16BIT_SIGNED
+    | REGISTERS_32BIT_UNSIGNED
+    # high-word slots needed by convert_register_block for 32-bit combine
+    | {reg + 1 for reg in REGISTERS_32BIT_UNSIGNED}
+)
 
 
 def load_register_fixture(fixture_name: str) -> dict[int, int]:
     """
     Load a JSON fixture file and transform to register dict format.
+
+    Fixture files store raw uint16 wire data as exported by the
+    diagnostics dump. Production stores the post-conversion view
+    (signed temps, combined 32-bit values), so we apply the same
+    conversion here to match.
 
     Args:
         fixture_name: Name of the fixture file (e.g., "C6_registers_0.json")
@@ -28,11 +46,13 @@ def load_register_fixture(fixture_name: str) -> dict[int, int]:
     with json_path.open() as f:
         register_data = json.load(f)
 
-    return {
+    raw = {
         reg: value
         for block_start, values in register_data.items()
         for reg, value in enumerate(values, start=int(block_start))
+        if reg in _CLASSIFIED_REGISTERS
     }
+    return convert_register_block(raw)
 
 
 def get_controller_from_fixture_name(fixture_name: str) -> Controller:
@@ -161,22 +181,17 @@ def mock_modbus_client() -> MagicMock:
     mock_client.connect = AsyncMock(return_value=True)
     mock_client.close = AsyncMock()
 
-    json_file = Path(__file__).parent / Path("fixtures/C6_registers_0.json")
+    transformed_data = load_register_fixture("C6_registers_0.json")
 
-    with json_file.open() as f:
-        register_data = json.load(f)
-        transformed_data = {
-            reg: value
-            for block_start, values in register_data.items()
-            for reg, value in enumerate(values, start=int(block_start))
-        }
-
-    # Set up read to return data from our fixture
+    # Set up read to return data from our fixture, mirroring
+    # KomfoventModbusClient.read which only returns converted registers
+    # within the requested window.
     async def mock_read(register: int, count: int) -> dict[int, int]:
-        result = {}
-        for reg in range(register, register + count):
-            result[reg] = transformed_data.get(reg, 0)
-        return result
+        return {
+            reg: value
+            for reg, value in transformed_data.items()
+            if register <= reg < register + count
+        }
 
     mock_client.read = AsyncMock(side_effect=mock_read)
     mock_client.write = AsyncMock()

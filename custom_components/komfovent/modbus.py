@@ -15,6 +15,39 @@ from .registers import (
 _LOGGER = logging.getLogger(__name__)
 
 
+def convert_register_block(block: dict[int, int]) -> dict[int, int]:
+    """Apply signed and 32-bit conversions to a raw uint16 register block."""
+    converted: set[int] = set()
+    data: dict[int, int] = {}
+
+    for reg, value in block.items():
+        if reg in REGISTERS_16BIT_UNSIGNED:
+            # For 16-bit unsigned registers, use value directly
+            converted.add(reg)
+            data[reg] = value
+        elif reg in REGISTERS_16BIT_SIGNED:
+            # For 16-bit signed registers, convert uint16 to int16
+            converted.add(reg)
+            data[reg] = value - (value >> 15 << 16)
+        elif reg in REGISTERS_32BIT_UNSIGNED:
+            # For 32-bit registers, combine with next register
+            if reg + 1 not in block:
+                msg = f"Register {reg + 1} value not retrieved"
+                raise ValueError(msg)
+            converted.add(reg)
+            converted.add(reg + 1)
+            data[reg] = (value << 16) + block[reg + 1]
+
+    if not_converted := set(block.keys()) - converted:
+        msg = (
+            f"Registers {not_converted} not found in either "
+            "16-bit or 32-bit register sets"
+        )
+        raise NotImplementedError(msg)
+
+    return data
+
+
 class KomfoventModbusClient:
     """Modbus client for Komfovent devices."""
 
@@ -49,37 +82,8 @@ class KomfoventModbusClient:
             msg = f"Error reading registers at {register}"
             raise ModbusException(msg)
 
-        # Create dictionary with absolute register numbers as keys
         block = dict(enumerate(result.registers, start=register))
-        converted = set()
-        data = {}
-
-        for reg, value in block.items():
-            if reg in REGISTERS_16BIT_UNSIGNED:
-                # For 16-bit unsigned registers, use value directly
-                converted.add(reg)
-                data[reg] = value
-            elif reg in REGISTERS_16BIT_SIGNED:
-                # For 16-bit signed registers, use need to convert uint16 to int16
-                converted.add(reg)
-                data[reg] = value - (value >> 15 << 16)
-            elif reg in REGISTERS_32BIT_UNSIGNED:
-                # For 32-bit registers, combine with next register
-                if reg + 1 not in block:
-                    msg = f"Register {reg + 1} value not retrieved"
-                    raise ValueError(msg)
-                converted.add(reg)
-                converted.add(reg + 1)
-                data[reg] = (value << 16) + block[reg + 1]
-
-        if not_converted := set(block.keys()) - converted:
-            msg = (
-                f"Registers {not_converted} not found in either "
-                "16-bit or 32-bit register sets"
-            )
-            raise NotImplementedError(msg)
-
-        return data
+        return convert_register_block(block)
 
     async def write(self, register: int, value: int) -> None:
         """Write to holding register."""
