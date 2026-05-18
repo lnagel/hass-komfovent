@@ -8,7 +8,8 @@ from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers import device_registry as dr
 
 from . import KomfoventCoordinator, registers
-from .const import ALARM_RESET_COMMAND, DOMAIN, OperationMode
+from .const import ALARM_RESET_COMMAND, DOMAIN, Controller, OperationMode
+from .coordinator import FUNC_VER_EPOCH_TIME_RW
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -100,14 +101,25 @@ async def set_operation_mode(
 
 async def set_system_time(coordinator: KomfoventCoordinator) -> None:
     """Set system time on the Komfovent unit."""
-    # Initialize local epoch (1970-01-01 00:00:00 in local timezone)
     local_tz = zoneinfo.ZoneInfo(str(coordinator.hass.config.time_zone))
+    now = datetime.now(tz=local_tz)
+
+    if (
+        coordinator.controller == Controller.C6
+        and coordinator.func_version < FUNC_VER_EPOCH_TIME_RW
+    ):
+        # Legacy C6 firmware: REG_EPOCH_TIME is RO. Use the RW registers
+        # documented in MODBUS_C6.md instead. REG_WEEK_DAY (32) is derived
+        # by the controller.
+        await coordinator.client.write(registers.REG_TIME, (now.hour << 8) | now.minute)
+        await coordinator.client.write(registers.REG_YEAR, now.year)
+        await coordinator.client.write(
+            registers.REG_MONTH_DAY, (now.month << 8) | now.day
+        )
+        return
+
     local_epoch = datetime(1970, 1, 1, tzinfo=local_tz)
-
-    # Calculate local time as seconds since local epoch
-    local_time = int((datetime.now(tz=local_tz) - local_epoch).total_seconds())
-
-    # Write local time to the Komfovent unit
+    local_time = int((now - local_epoch).total_seconds())
     await coordinator.client.write(registers.REG_EPOCH_TIME, local_time)
 
 

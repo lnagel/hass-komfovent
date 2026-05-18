@@ -1,11 +1,17 @@
 """Tests for Komfovent services."""
 
-from unittest.mock import MagicMock, patch
+from datetime import UTC, datetime
+from unittest.mock import MagicMock, call, patch
 
 import pytest
 
 from custom_components.komfovent import registers
-from custom_components.komfovent.const import ALARM_RESET_COMMAND, DOMAIN, OperationMode
+from custom_components.komfovent.const import (
+    ALARM_RESET_COMMAND,
+    DOMAIN,
+    Controller,
+    OperationMode,
+)
 from custom_components.komfovent.services import (
     DEFAULT_MODE_TIMER,
     async_register_services,
@@ -112,14 +118,48 @@ async def test_unsupported_mode_logs_warning(mock_coordinator, mode):
         mock_logger.warning.assert_called_once()
 
 
-async def test_set_system_time(mock_coordinator):
-    """Test set_system_time writes epoch time."""
+async def test_set_system_time_legacy_c6_writes_29_30_31(mock_coordinator):
+    """Legacy C6 firmware (func_version < 21) writes regs 29/30/31, not 33."""
     mock_coordinator.hass.config.time_zone = "UTC"
+    mock_coordinator.controller = Controller.C6
+    mock_coordinator.func_version = 20
+
+    frozen = datetime(2026, 5, 18, 14, 35, 12, tzinfo=UTC)
+    with patch("custom_components.komfovent.services.datetime") as mock_datetime:
+        mock_datetime.now.return_value = frozen
+        await set_system_time(mock_coordinator)
+
+    assert mock_coordinator.client.write.call_args_list == [
+        call(registers.REG_TIME, (14 << 8) | 35),
+        call(registers.REG_YEAR, 2026),
+        call(registers.REG_MONTH_DAY, (5 << 8) | 18),
+    ]
+
+
+@pytest.mark.parametrize(
+    ("controller", "func_version"),
+    [
+        (Controller.C6, 21),  # boundary: first version where reg 33 is RW
+        (Controller.C6, 67),  # typical modern C6
+        (Controller.C6M, 20),  # C6M is unaffected by the C6-only fix
+        (Controller.C6M, 71),  # typical modern C6M
+        (Controller.C8, 20),  # C8 is unaffected even at low func_version
+        (Controller.C8, 27),  # typical C8
+    ],
+)
+async def test_set_system_time_writes_epoch(mock_coordinator, controller, func_version):
+    """All non-legacy-C6 combinations write the 32-bit REG_EPOCH_TIME."""
+    mock_coordinator.hass.config.time_zone = "UTC"
+    mock_coordinator.controller = controller
+    mock_coordinator.func_version = func_version
+
     await set_system_time(mock_coordinator)
-    call_args = mock_coordinator.client.write.call_args[0]
-    assert call_args[0] == registers.REG_EPOCH_TIME
-    assert isinstance(call_args[1], int)
-    assert call_args[1] > 0
+
+    mock_coordinator.client.write.assert_called_once()
+    reg, value = mock_coordinator.client.write.call_args[0]
+    assert reg == registers.REG_EPOCH_TIME
+    assert isinstance(value, int)
+    assert value > 0
 
 
 @pytest.mark.parametrize(("setup", "expected"), [(True, True), (False, False)])
