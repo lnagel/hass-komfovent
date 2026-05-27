@@ -440,6 +440,32 @@ async def test_create_sensors_panels(
 
 
 @pytest.mark.parametrize(
+    ("heating_config", "expected_in", "expected_out"),
+    [
+        (0b010, {"water_temperature"}, set()),  # water only
+        (0b011, {"water_temperature"}, set()),  # water + electric
+        (0b001, set(), {"water_temperature"}),  # electric only
+        (0, set(), {"water_temperature"}),  # nothing configured
+    ],
+)
+async def test_create_sensors_water_temperature(
+    mock_coordinator, heating_config, expected_in, expected_out
+):
+    """Test water temperature sensor creation based on heating config bitmask."""
+    mock_coordinator.data[registers.REG_HEATING_CONFIG] = heating_config
+    keys = {s.entity_description.key for s in await create_sensors(mock_coordinator)}
+    assert expected_in <= keys
+    assert not (expected_out & keys)
+
+
+async def test_create_sensors_water_temperature_missing_key(mock_coordinator):
+    """Water temperature sensor is not created when REG_HEATING_CONFIG is missing."""
+    mock_coordinator.data.pop(registers.REG_HEATING_CONFIG, None)
+    keys = {s.entity_description.key for s in await create_sensors(mock_coordinator)}
+    assert "water_temperature" not in keys
+
+
+@pytest.mark.parametrize(
     ("sensor_type", "outdoor", "expected_class", "expected_key"), AQ_SENSORS
 )
 def test_create_aq_sensor(

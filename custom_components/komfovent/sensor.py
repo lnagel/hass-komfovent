@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import zoneinfo
 from datetime import date, datetime, timedelta
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Final
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -135,6 +135,12 @@ def create_aq_sensor(
             suggested_display_precision=0,
         ),
     )
+
+
+# REG_HEATING_CONFIG (901) bitmask
+BITMASK_HEATING_CONFIG_ELECTRIC: Final = 1 << 0  # 1
+BITMASK_HEATING_CONFIG_WATER: Final = 1 << 1  # 2
+BITMASK_HEATING_CONFIG_DX: Final = 1 << 2  # 4
 
 
 async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSensor]:
@@ -676,6 +682,28 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_description=SensorEntityDescription(
                         key="exhaust_temperature",
                         name="Exhaust Temperature",
+                        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                        device_class=SensorDeviceClass.TEMPERATURE,
+                        state_class=SensorStateClass.MEASUREMENT,
+                        suggested_display_precision=1,
+                    ),
+                ),
+            ]
+        )
+
+    # Add water temperature if water heater/cooler is configured (heating config bit 1)
+    heating_config = (
+        coordinator.data.get(registers.REG_HEATING_CONFIG) if coordinator.data else None
+    )
+    if heating_config is not None and heating_config & BITMASK_HEATING_CONFIG_WATER:
+        entities.extend(
+            [
+                TemperatureSensor(
+                    coordinator=coordinator,
+                    register_id=registers.REG_WATER_TEMP,
+                    entity_description=SensorEntityDescription(
+                        key="water_temperature",
+                        name="Water Temperature",
                         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
                         device_class=SensorDeviceClass.TEMPERATURE,
                         state_class=SensorStateClass.MEASUREMENT,
