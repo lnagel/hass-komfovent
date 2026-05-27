@@ -134,7 +134,6 @@ async def create_binary_sensors(
             entity_description=BinarySensorEntityDescription(
                 key="status_flow_down",
                 name="Status Flow Down",
-                device_class=BinarySensorDeviceClass.PROBLEM,
             ),
         ),
         KomfoventStatusBinarySensor(
