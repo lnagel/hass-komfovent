@@ -28,8 +28,8 @@ from custom_components.komfovent.sensor import (
     ActiveAlarmsSensor,
     CO2Sensor,
     ConnectedPanelsSensor,
+    ControllerFirmwareVersionSensor,
     DutyCycleSensor,
-    FirmwareVersionSensor,
     FloatSensor,
     FloatX10Sensor,
     FloatX100Sensor,
@@ -38,6 +38,7 @@ from custom_components.komfovent.sensor import (
     FlowUnitSensor,
     HeatExchangerTypeSensor,
     KomfoventSensor,
+    PanelFirmwareVersionSensor,
     RelativeHumiditySensor,
     SPISensor,
     SystemTimeSensor,
@@ -300,17 +301,30 @@ def test_enum_sensors_invalid(mock_coordinator, sensor_class):
 
 
 class TestFirmwareVersionSensor:
-    """Tests for FirmwareVersionSensor."""
+    """Tests for the firmware version sensors."""
 
     @pytest.mark.parametrize(
         ("value", "expected"),
         [(18886660, "C6 1.2.3.4"), (0, None), ("invalid", None), (None, None)],
     )
-    def test_firmware_values(self, mock_coordinator, value, expected):
-        """Test firmware version parsing."""
+    def test_controller_firmware_values(self, mock_coordinator, value, expected):
+        """Test controller firmware version parsing."""
         mock_coordinator.data = None if value is None else {100: value}
         assert (
-            FirmwareVersionSensor(mock_coordinator, 100, DESC).native_value == expected
+            ControllerFirmwareVersionSensor(mock_coordinator, 100, DESC).native_value
+            == expected
+        )
+
+    @pytest.mark.parametrize(
+        ("value", "expected"),
+        [(17838105, "P1 1.1.3.25"), (0, None), ("invalid", None), (None, None)],
+    )
+    def test_panel_firmware_values(self, mock_coordinator, value, expected):
+        """Test panel firmware version parsing uses the panel type prefix."""
+        mock_coordinator.data = None if value is None else {100: value}
+        assert (
+            PanelFirmwareVersionSensor(mock_coordinator, 100, DESC).native_value
+            == expected
         )
 
 

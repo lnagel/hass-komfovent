@@ -43,6 +43,13 @@ class Controller(IntEnum):
     NA = 15
 
 
+class Panel(IntEnum):
+    """Control panel types for firmware versioning."""
+
+    P1 = 0
+    NA = 15
+
+
 class OperationMode(IntEnum):
     """Operation modes."""
 

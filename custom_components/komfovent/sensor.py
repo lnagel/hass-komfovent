@@ -25,7 +25,7 @@ from homeassistant.const import (
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .helpers import build_device_info, get_version_from_int
+from .helpers import build_device_info, get_controller_version, get_panel_version
 
 if TYPE_CHECKING:
     from decimal import Decimal
@@ -410,7 +410,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     suggested_display_precision=0,
                 ),
             ),
-            FirmwareVersionSensor(
+            ControllerFirmwareVersionSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_FIRMWARE,
                 entity_description=SensorEntityDescription(
@@ -742,7 +742,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                         suggested_display_precision=0,
                     ),
                 ),
-                FirmwareVersionSensor(
+                PanelFirmwareVersionSensor(
                     coordinator=coordinator,
                     register_id=registers.REG_PANEL1_FW,
                     entity_description=SensorEntityDescription(
@@ -785,7 +785,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                         suggested_display_precision=0,
                     ),
                 ),
-                FirmwareVersionSensor(
+                PanelFirmwareVersionSensor(
                     coordinator=coordinator,
                     register_id=registers.REG_PANEL2_FW,
                     entity_description=SensorEntityDescription(
@@ -920,7 +920,11 @@ class FloatX1000Sensor(KomfoventSensor):
 
 
 class FirmwareVersionSensor(KomfoventSensor):
-    """Firmware version sensor."""
+    """Base firmware version sensor for a packed version register."""
+
+    def _format_version(self, value: int) -> str:
+        """Format a packed version integer into a display string."""
+        raise NotImplementedError
 
     @property
     def native_value(self) -> str | None:
@@ -937,8 +941,25 @@ class FirmwareVersionSensor(KomfoventSensor):
         except (ValueError, TypeError):
             return None
 
-        controller, v1, v2, v3, v4 = get_version_from_int(value)
+        return self._format_version(value)
+
+
+class ControllerFirmwareVersionSensor(FirmwareVersionSensor):
+    """Controller firmware version sensor."""
+
+    def _format_version(self, value: int) -> str:
+        """Format the controller firmware version."""
+        controller, v1, v2, v3, v4 = get_controller_version(value)
         return f"{controller.name} {v1}.{v2}.{v3}.{v4}"
+
+
+class PanelFirmwareVersionSensor(FirmwareVersionSensor):
+    """Control panel firmware version sensor."""
+
+    def _format_version(self, value: int) -> str:
+        """Format the panel firmware version."""
+        panel, v1, v2, v3, v4 = get_panel_version(value)
+        return f"{panel.name} {v1}.{v2}.{v3}.{v4}"
 
 
 class DutyCycleSensor(FloatX10Sensor):
