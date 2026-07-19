@@ -20,11 +20,10 @@ from homeassistant.const import (
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 if TYPE_CHECKING:
-    from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-    from .coordinator import KomfoventCoordinator
+    from .coordinator import KomfoventConfigEntry, KomfoventCoordinator
 
 from . import registers
 from .const import (
@@ -34,7 +33,6 @@ from .const import (
     DEFAULT_STEP_TEMPERATURE,
     DEFAULT_STEP_TIMER,
     DEFAULT_STEP_VOC,
-    DOMAIN,
     OPT_STEP_CO2,
     OPT_STEP_FLOW,
     OPT_STEP_HUMIDITY,
@@ -61,12 +59,12 @@ VOC_MAX = 100
 
 
 async def async_setup_entry(
-    hass: HomeAssistant,
-    entry: ConfigEntry,
+    hass: HomeAssistant,  # noqa: ARG001
+    entry: KomfoventConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Komfovent number entities."""
-    coordinator: KomfoventCoordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator = entry.runtime_data.coordinator
 
     step_temperature = entry.options.get(OPT_STEP_TEMPERATURE, DEFAULT_STEP_TEMPERATURE)
     step_flow = entry.options.get(OPT_STEP_FLOW, DEFAULT_STEP_FLOW)

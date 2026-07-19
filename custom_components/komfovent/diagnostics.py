@@ -9,15 +9,13 @@ from homeassistant.const import CONF_HOST, CONF_PORT
 from pymodbus import ModbusException
 from pymodbus.client import AsyncModbusTcpClient
 
-from .const import DOMAIN
 from .registers import REGISTERS_32BIT_UNSIGNED
 
 if TYPE_CHECKING:
-    from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
     from pymodbus.pdu import ModbusPDU
 
-    from .coordinator import KomfoventCoordinator
+    from .coordinator import KomfoventConfigEntry
 
 logger = logging.getLogger(__name__)
 
@@ -147,10 +145,11 @@ async def dump_registers(host: str, port: int) -> dict[int, list[int]]:
 
 
 async def async_get_config_entry_diagnostics(
-    hass: HomeAssistant, entry: ConfigEntry
+    hass: HomeAssistant,  # noqa: ARG001
+    entry: KomfoventConfigEntry,
 ) -> dict[str, Any]:
     """Return diagnostics for a config entry."""
-    coordinator: KomfoventCoordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator = entry.runtime_data.coordinator
 
     host = entry.data[CONF_HOST]
     port = entry.data[CONF_PORT]

@@ -21,18 +21,16 @@ from .binary_sensor import (
     BITMASK_HEATING,
 )
 from .const import (
-    DOMAIN,
     OperationMode,
     TemperatureControl,
 )
 from .helpers import build_device_info
 
 if TYPE_CHECKING:
-    from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-    from .coordinator import KomfoventCoordinator
+    from .coordinator import KomfoventConfigEntry, KomfoventCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -41,12 +39,12 @@ SETPOINT_MAX_TEMP: Final = 40  # Maximum temperature supported by device (raw va
 
 
 async def async_setup_entry(
-    hass: HomeAssistant,
-    entry: ConfigEntry,
+    hass: HomeAssistant,  # noqa: ARG001
+    entry: KomfoventConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the Komfovent climate device."""
-    coordinator: KomfoventCoordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator = entry.runtime_data.coordinator
     async_add_entities([KomfoventClimate(coordinator)])
 
 

@@ -30,17 +30,15 @@ from .helpers import build_device_info, get_version_from_int
 if TYPE_CHECKING:
     from decimal import Decimal
 
-    from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
     from homeassistant.helpers.typing import StateType
 
-    from .coordinator import KomfoventCoordinator
+    from .coordinator import KomfoventConfigEntry, KomfoventCoordinator
 
 from . import registers
 from .const import (
     ALARM_CODE_MESSAGES,
-    DOMAIN,
     AirQualitySensorType,
     ConnectedPanels,
     Controller,
@@ -822,12 +820,12 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
 
 
 async def async_setup_entry(
-    hass: HomeAssistant,
-    entry: ConfigEntry,
+    hass: HomeAssistant,  # noqa: ARG001
+    entry: KomfoventConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the Komfovent sensors."""
-    coordinator: KomfoventCoordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator = entry.runtime_data.coordinator
 
     async_add_entities(await create_sensors(coordinator))
 

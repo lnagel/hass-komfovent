@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 from unittest.mock import MagicMock, call, patch
 
 import pytest
+from homeassistant.config_entries import ConfigEntryState
 
 from custom_components.komfovent import registers
 from custom_components.komfovent.const import (
@@ -12,6 +13,7 @@ from custom_components.komfovent.const import (
     Controller,
     OperationMode,
 )
+from custom_components.komfovent.coordinator import KomfoventRuntimeData
 from custom_components.komfovent.services import (
     DEFAULT_MODE_TIMER,
     async_register_services,
@@ -162,11 +164,22 @@ async def test_set_system_time_writes_epoch(mock_coordinator, controller, func_v
     assert value > 0
 
 
+def _mock_loaded_entry(coordinator):
+    """Build a mock LOADED komfovent config entry exposing the coordinator."""
+    entry = MagicMock()
+    entry.domain = DOMAIN
+    entry.state = ConfigEntryState.LOADED
+    entry.runtime_data = KomfoventRuntimeData(coordinator=coordinator)
+    return entry
+
+
 @pytest.mark.parametrize(("setup", "expected"), [(True, True), (False, False)])
 def test_get_coordinator_for_device(hass, setup, expected):
     """Test get_coordinator_for_device returns correct result."""
     mock_coordinator = MagicMock()
-    hass.data[DOMAIN] = {"test_entry_id": mock_coordinator} if setup else {}
+    hass.config_entries.async_get_entry.return_value = (
+        _mock_loaded_entry(mock_coordinator) if setup else None
+    )
     mock_device = MagicMock() if setup else None
     if mock_device:
         mock_device.config_entries = ["test_entry_id"]
@@ -180,7 +193,7 @@ def test_get_coordinator_for_device(hass, setup, expected):
 
 def test_device_without_coordinator(hass):
     """Test returns None when device has no matching coordinator."""
-    hass.data[DOMAIN] = {}
+    hass.config_entries.async_get_entry.return_value = None
     mock_device = MagicMock()
     mock_device.config_entries = ["nonexistent_entry"]
     with patch("custom_components.komfovent.services.dr.async_get") as mock_get:
@@ -192,7 +205,9 @@ def test_device_without_coordinator(hass):
 
 async def test_handle_clear_active_alarms(hass, mock_coordinator):
     """Test handle_clear_active_alarms service handler."""
-    hass.data[DOMAIN] = {"test_entry_id": mock_coordinator}
+    hass.config_entries.async_get_entry.return_value = _mock_loaded_entry(
+        mock_coordinator
+    )
     await async_register_services(hass)
 
     # Get the handler that was registered for clear_active_alarms
@@ -217,7 +232,6 @@ async def test_handle_clear_active_alarms(hass, mock_coordinator):
 
 async def test_handle_clear_active_alarms_device_not_found(hass):
     """Test handle_clear_active_alarms when device not found."""
-    hass.data[DOMAIN] = {}
     await async_register_services(hass)
 
     calls = hass.services.async_register.call_args_list
@@ -234,7 +248,6 @@ async def test_handle_clear_active_alarms_device_not_found(hass):
 
 async def test_registers_all_services(hass):
     """Test that all services are registered."""
-    hass.data[DOMAIN] = {}
     await async_register_services(hass)
     assert hass.services.async_register.call_count == 4
     services = [call[0][1] for call in hass.services.async_register.call_args_list]

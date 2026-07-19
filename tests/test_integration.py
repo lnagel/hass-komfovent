@@ -18,6 +18,7 @@ from custom_components.komfovent.const import (
     DOMAIN,
     OPT_UPDATE_INTERVAL,
 )
+from custom_components.komfovent.coordinator import KomfoventRuntimeData
 
 
 @pytest.fixture
@@ -44,7 +45,6 @@ def mock_config_entry_with_options():
 async def test_setup_entry(hass: HomeAssistant, mock_config_entry, mock_modbus_client):
     """Test the integration sets up successfully."""
     # Initialize HomeAssistant mocks
-    hass.data.setdefault(DOMAIN, {})
     hass.services = AsyncMock()
     hass.services.async_register = MagicMock()  # Use sync mock for register
     hass.config = MagicMock()  # Use sync mock for config
@@ -77,13 +77,12 @@ async def test_setup_entry(hass: HomeAssistant, mock_config_entry, mock_modbus_c
         await coordinator.async_refresh()
 
         # Simulate what async_setup_entry does
-        hass.data.setdefault(DOMAIN, {})[mock_config_entry.entry_id] = coordinator
+        mock_config_entry.runtime_data = KomfoventRuntimeData(coordinator=coordinator)
         await mock_register_services(hass)
         await hass.config_entries.async_forward_entry_setups(mock_config_entry, [])
 
-        # Verify data structures were created
-        assert mock_config_entry.entry_id in hass.data[DOMAIN]
-        coordinator = hass.data[DOMAIN][mock_config_entry.entry_id]
+        # Verify runtime data was stored on the entry
+        assert mock_config_entry.runtime_data.coordinator is coordinator
 
         # Verify coordinator has data
         assert coordinator.data is not None
@@ -184,10 +183,10 @@ class TestAsyncUpdateListener:
         mock_config_entry_with_updated_options,
     ):
         """Test update listener changes coordinator update_interval."""
-        # Set up hass.data with the coordinator
-        hass.data[DOMAIN] = {
-            mock_config_entry_with_updated_options.entry_id: mock_coordinator
-        }
+        # Attach runtime data with the coordinator to the entry
+        mock_config_entry_with_updated_options.runtime_data = KomfoventRuntimeData(
+            coordinator=mock_coordinator
+        )
 
         # Call the update listener
         await _async_update_listener(hass, mock_config_entry_with_updated_options)
@@ -199,8 +198,10 @@ class TestAsyncUpdateListener:
         self, hass: HomeAssistant, mock_coordinator, mock_config_entry
     ):
         """Test update listener uses default when option is missing."""
-        # Set up hass.data with the coordinator
-        hass.data[DOMAIN] = {mock_config_entry.entry_id: mock_coordinator}
+        # Attach runtime data with the coordinator to the entry
+        mock_config_entry.runtime_data = KomfoventRuntimeData(
+            coordinator=mock_coordinator
+        )
 
         # Call the update listener (options is empty by default in mock_config_entry)
         await _async_update_listener(hass, mock_config_entry)
@@ -217,27 +218,29 @@ class TestAsyncUnloadEntry:
     async def test_unload_entry_success(
         self, hass: HomeAssistant, mock_coordinator, mock_config_entry
     ):
-        """Test successful unload removes coordinator from hass.data."""
-        # Set up hass.data with the coordinator
-        hass.data[DOMAIN] = {mock_config_entry.entry_id: mock_coordinator}
+        """Test successful platform unload returns True."""
+        mock_config_entry.runtime_data = KomfoventRuntimeData(
+            coordinator=mock_coordinator
+        )
 
         with patch.object(
             hass.config_entries,
             "async_unload_platforms",
             new_callable=AsyncMock,
             return_value=True,
-        ):
+        ) as mock_unload:
             result = await async_unload_entry(hass, mock_config_entry)
 
         assert result is True
-        assert mock_config_entry.entry_id not in hass.data[DOMAIN]
+        mock_unload.assert_awaited_once()
 
-    async def test_unload_entry_failure_keeps_coordinator(
+    async def test_unload_entry_failure(
         self, hass: HomeAssistant, mock_coordinator, mock_config_entry
     ):
-        """Test failed unload keeps coordinator in hass.data."""
-        # Set up hass.data with the coordinator
-        hass.data[DOMAIN] = {mock_config_entry.entry_id: mock_coordinator}
+        """Test failed platform unload returns False."""
+        mock_config_entry.runtime_data = KomfoventRuntimeData(
+            coordinator=mock_coordinator
+        )
 
         with patch.object(
             hass.config_entries,
@@ -248,4 +251,3 @@ class TestAsyncUnloadEntry:
             result = await async_unload_entry(hass, mock_config_entry)
 
         assert result is False
-        assert mock_config_entry.entry_id in hass.data[DOMAIN]

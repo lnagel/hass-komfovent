@@ -4,6 +4,7 @@ import logging
 import zoneinfo
 from datetime import datetime
 
+from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers import device_registry as dr
 
@@ -25,8 +26,13 @@ def get_coordinator_for_device(
         return None
 
     for entry_id in device_entry.config_entries:
-        if coordinator := hass.data[DOMAIN].get(entry_id):
-            return coordinator
+        entry = hass.config_entries.async_get_entry(entry_id)
+        if (
+            entry is not None
+            and entry.domain == DOMAIN
+            and entry.state is ConfigEntryState.LOADED
+        ):
+            return entry.runtime_data.coordinator
     return None
 
 
