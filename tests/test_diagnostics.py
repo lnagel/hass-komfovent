@@ -8,6 +8,7 @@ from pymodbus import ModbusException
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.komfovent.const import DOMAIN
+from custom_components.komfovent.coordinator import KomfoventRuntimeData
 from custom_components.komfovent.diagnostics import (
     ERR_READ_FAILED,
     RANGES,
@@ -29,7 +30,7 @@ def mock_entry(hass):
     )
     mock_coordinator = MagicMock()
     mock_coordinator.data = {"test": "data"}
-    hass.data[DOMAIN] = {entry.entry_id: mock_coordinator}
+    entry.runtime_data = KomfoventRuntimeData(coordinator=mock_coordinator)
     return entry
 
 

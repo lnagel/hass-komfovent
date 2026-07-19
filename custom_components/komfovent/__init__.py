@@ -11,16 +11,16 @@ from homeassistant.const import Platform
 from .const import (
     DEFAULT_EMA_TIME_CONSTANT,
     DEFAULT_UPDATE_INTERVAL,
-    DOMAIN,
     OPT_EMA_TIME_CONSTANT,
     OPT_UPDATE_INTERVAL,
 )
-from .coordinator import KomfoventCoordinator
+from .coordinator import KomfoventCoordinator, KomfoventRuntimeData
 from .services import async_register_services
 
 if TYPE_CHECKING:
-    from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
+
+    from .coordinator import KomfoventConfigEntry
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -37,7 +37,7 @@ PLATFORMS = [
 ]
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+async def async_setup_entry(hass: HomeAssistant, entry: KomfoventConfigEntry) -> bool:
     """Set up Komfovent from a config entry."""
     update_interval = entry.options.get(OPT_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL)
     ema_time_constant = entry.options.get(
@@ -54,7 +54,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     await coordinator.async_config_entry_first_refresh()
 
-    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
+    entry.runtime_data = KomfoventRuntimeData(coordinator=coordinator)
 
     await async_register_services(hass)
 
@@ -65,9 +65,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return True
 
 
-async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
+async def _async_update_listener(
+    hass: HomeAssistant,  # noqa: ARG001
+    entry: KomfoventConfigEntry,
+) -> None:
     """Handle options update."""
-    coordinator: KomfoventCoordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator = entry.runtime_data.coordinator
     update_interval = entry.options.get(OPT_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL)
     coordinator.update_interval = timedelta(seconds=update_interval)
     coordinator.ema_time_constant = entry.options.get(
@@ -76,9 +79,6 @@ async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> Non
     _LOGGER.debug("Update interval changed to %s seconds", update_interval)
 
 
-async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+async def async_unload_entry(hass: HomeAssistant, entry: KomfoventConfigEntry) -> bool:
     """Unload a config entry."""
-    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
-    if unload_ok:
-        hass.data[DOMAIN].pop(entry.entry_id)
-    return unload_ok
+    return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)

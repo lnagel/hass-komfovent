@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
@@ -215,3 +216,18 @@ class KomfoventCoordinator(TimestampDataUpdateCoordinator[dict[int, Any]]):
                     tau=self.ema_time_constant,
                     dt=dt,
                 )
+
+
+@dataclass
+class KomfoventRuntimeData:
+    """
+    Runtime data stored on a Komfovent config entry.
+
+    Wraps the coordinator in a dataclass so additional per-entry runtime
+    objects can be added as fields without touching every platform.
+    """
+
+    coordinator: KomfoventCoordinator
+
+
+type KomfoventConfigEntry = ConfigEntry[KomfoventRuntimeData]
