@@ -191,9 +191,9 @@ Both patterns use `.mbin` extension for supported firmware.
 
 ```python
 FIRMWARE_URLS = {
-    Controller.C6: "http://www.komfovent.com/Update/Controllers/firmware.php?file=mbin",
-    Controller.C6M: "http://www.komfovent.com/Update/Controllers/firmware.php?file=mbin",  # Same as C6
-    Controller.C8: "https://komfovent.com/Update/Controllers/C8/firmware.php?file=mbin",
+    Controller.C6: "https://www.komfovent.com/Update/Controllers/firmware.php?file=mbin",
+    Controller.C6M: "https://www.komfovent.com/Update/Controllers/firmware.php?file=mbin",  # Same as C6
+    Controller.C8: "https://www.komfovent.com/Update/Controllers/C8/firmware.php?file=mbin",
 }
 ```
 
