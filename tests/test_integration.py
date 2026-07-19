@@ -9,6 +9,7 @@ from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.komfovent import (
+    KomfoventDomainData,
     _async_update_listener,
     async_setup_entry,
     async_unload_entry,
@@ -77,7 +78,9 @@ async def test_setup_entry(hass: HomeAssistant, mock_config_entry, mock_modbus_c
         await coordinator.async_refresh()
 
         # Simulate what async_setup_entry does
-        mock_config_entry.runtime_data = KomfoventRuntimeData(coordinator=coordinator)
+        mock_config_entry.runtime_data = KomfoventRuntimeData(
+            coordinator=coordinator, firmware_store=MagicMock()
+        )
         await mock_register_services(hass)
         await hass.config_entries.async_forward_entry_setups(mock_config_entry, [])
 
@@ -104,12 +107,28 @@ class TestAsyncSetupEntry:
         mock_coordinator.connect = AsyncMock()
         mock_coordinator.async_config_entry_first_refresh = AsyncMock()
         mock_coordinator.update_interval = None
+        mock_coordinator.controller = MagicMock()
+
+        # Create mock firmware components
+        mock_firmware_store = MagicMock()
+        mock_firmware_store.async_load = AsyncMock()
+        mock_firmware_checker = MagicMock()
+        mock_firmware_checker.register_controller_type = MagicMock()
+        mock_firmware_checker.async_start = AsyncMock()
 
         with (
             patch(
                 "custom_components.komfovent.KomfoventCoordinator",
                 return_value=mock_coordinator,
             ) as mock_coordinator_class,
+            patch(
+                "custom_components.komfovent.FirmwareStore",
+                return_value=mock_firmware_store,
+            ),
+            patch(
+                "custom_components.komfovent.FirmwareChecker",
+                return_value=mock_firmware_checker,
+            ),
             patch(
                 "custom_components.komfovent.async_register_services",
                 new_callable=AsyncMock,
@@ -138,12 +157,28 @@ class TestAsyncSetupEntry:
         mock_coordinator.connect = AsyncMock()
         mock_coordinator.async_config_entry_first_refresh = AsyncMock()
         mock_coordinator.update_interval = None
+        mock_coordinator.controller = MagicMock()
+
+        # Create mock firmware components
+        mock_firmware_store = MagicMock()
+        mock_firmware_store.async_load = AsyncMock()
+        mock_firmware_checker = MagicMock()
+        mock_firmware_checker.register_controller_type = MagicMock()
+        mock_firmware_checker.async_start = AsyncMock()
 
         with (
             patch(
                 "custom_components.komfovent.KomfoventCoordinator",
                 return_value=mock_coordinator,
             ) as mock_coordinator_class,
+            patch(
+                "custom_components.komfovent.FirmwareStore",
+                return_value=mock_firmware_store,
+            ),
+            patch(
+                "custom_components.komfovent.FirmwareChecker",
+                return_value=mock_firmware_checker,
+            ),
             patch(
                 "custom_components.komfovent.async_register_services",
                 new_callable=AsyncMock,
@@ -185,7 +220,7 @@ class TestAsyncUpdateListener:
         """Test update listener changes coordinator update_interval."""
         # Attach runtime data with the coordinator to the entry
         mock_config_entry_with_updated_options.runtime_data = KomfoventRuntimeData(
-            coordinator=mock_coordinator
+            coordinator=mock_coordinator, firmware_store=MagicMock()
         )
 
         # Call the update listener
@@ -200,7 +235,7 @@ class TestAsyncUpdateListener:
         """Test update listener uses default when option is missing."""
         # Attach runtime data with the coordinator to the entry
         mock_config_entry.runtime_data = KomfoventRuntimeData(
-            coordinator=mock_coordinator
+            coordinator=mock_coordinator, firmware_store=MagicMock()
         )
 
         # Call the update listener (options is empty by default in mock_config_entry)
@@ -218,9 +253,21 @@ class TestAsyncUnloadEntry:
     async def test_unload_entry_success(
         self, hass: HomeAssistant, mock_coordinator, mock_config_entry
     ):
-        """Test successful platform unload returns True."""
+        """Test successful unload tears down the last entry's domain data."""
+        mock_firmware_store = MagicMock()
+        mock_firmware_checker = MagicMock()
+        mock_firmware_checker.unregister_controller_type = MagicMock()
+        mock_firmware_checker.async_stop = AsyncMock()
+
+        hass.data[DOMAIN] = {
+            "domain_data": KomfoventDomainData(
+                firmware_store=mock_firmware_store,
+                firmware_checker=mock_firmware_checker,
+                entry_count=1,
+            )
+        }
         mock_config_entry.runtime_data = KomfoventRuntimeData(
-            coordinator=mock_coordinator
+            coordinator=mock_coordinator, firmware_store=mock_firmware_store
         )
 
         with patch.object(
@@ -233,13 +280,30 @@ class TestAsyncUnloadEntry:
 
         assert result is True
         mock_unload.assert_awaited_once()
+        mock_firmware_checker.unregister_controller_type.assert_called_once_with(
+            mock_coordinator.controller
+        )
+        # Last entry: checker stopped and domain data removed
+        mock_firmware_checker.async_stop.assert_awaited_once()
+        assert "domain_data" not in hass.data[DOMAIN]
 
     async def test_unload_entry_failure(
         self, hass: HomeAssistant, mock_coordinator, mock_config_entry
     ):
-        """Test failed platform unload returns False."""
+        """Test failed platform unload returns False and keeps domain data."""
+        mock_firmware_store = MagicMock()
+        mock_firmware_checker = MagicMock()
+        mock_firmware_checker.async_stop = AsyncMock()
+
+        hass.data[DOMAIN] = {
+            "domain_data": KomfoventDomainData(
+                firmware_store=mock_firmware_store,
+                firmware_checker=mock_firmware_checker,
+                entry_count=1,
+            )
+        }
         mock_config_entry.runtime_data = KomfoventRuntimeData(
-            coordinator=mock_coordinator
+            coordinator=mock_coordinator, firmware_store=mock_firmware_store
         )
 
         with patch.object(
@@ -251,3 +315,6 @@ class TestAsyncUnloadEntry:
             result = await async_unload_entry(hass, mock_config_entry)
 
         assert result is False
+        # Failed unload leaves domain data untouched
+        assert "domain_data" in hass.data[DOMAIN]
+        mock_firmware_checker.async_stop.assert_not_called()
