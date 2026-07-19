@@ -25,7 +25,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Firmware download URL (only .mbin supported, v1.3.15+)
-FIRMWARE_URL = "http://www.komfovent.com/Update/Controllers/firmware.php?file=mbin"
+FIRMWARE_URL = "https://www.komfovent.com/Update/Controllers/firmware.php?file=mbin"
 
 # Reference documentation
 DOWNLOADS_PDF = "https://www.komfovent.com/en/downloads/C6_update_EN.pdf"
