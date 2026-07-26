@@ -1,11 +1,11 @@
 """Tests for Komfovent integration initialization."""
 
 from datetime import timedelta
+from typing import TYPE_CHECKING
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from homeassistant.const import CONF_HOST, CONF_PORT
-from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.komfovent import (
@@ -19,6 +19,9 @@ from custom_components.komfovent.const import (
     OPT_UPDATE_INTERVAL,
 )
 from custom_components.komfovent.coordinator import KomfoventRuntimeData
+
+if TYPE_CHECKING:
+    from homeassistant.core import HomeAssistant
 
 
 @pytest.fixture

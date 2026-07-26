@@ -94,6 +94,7 @@ target-version = "py314"
 select = ["ALL"]
 ignore = [
     "ANN401", # Dynamically typed expressions (typing.Any) are disallowed
+    "CPY001", # Missing copyright notice at top of file
     "D203", # no-blank-line-before-class (incompatible with formatter)
     "D212", # multi-line-summary-first-line (incompatible with formatter)
     "COM812", # incompatible with formatter
@@ -117,6 +118,7 @@ max-complexity = 25
     "EM101", # Allow string literals in exceptions
     "ERA001", # Allow commented-out code in test data tables
     "PLR0913", # Allow many arguments in parametrized tests
+    "PLR0917", # Allow many positional arguments in parametrized tests
     "S101", # Allow assert in tests
     "S106", # Allow hardcoded passwords in tests
     "S311", # Allow pseudo-random generators in tests

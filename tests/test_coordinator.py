@@ -1,17 +1,20 @@
 """Tests for the Komfovent coordinator."""
 
 from datetime import timedelta
+from typing import TYPE_CHECKING
 from unittest.mock import AsyncMock, patch
 
 import pytest
 from homeassistant.const import CONF_HOST, CONF_PORT
-from homeassistant.core import HomeAssistant
 from homeassistant.util.dt import utcnow
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.komfovent.const import DOMAIN
 from custom_components.komfovent.coordinator import KomfoventCoordinator
 from custom_components.komfovent.registers import REG_SUPPLY_TEMP
+
+if TYPE_CHECKING:
+    from homeassistant.core import HomeAssistant
 
 
 @pytest.fixture
