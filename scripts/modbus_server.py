@@ -31,8 +31,12 @@ async def run_server(host: str, port: int, register_data: dict[str, list[int]]) 
         register_data: Dictionary of register numbers and values
 
     """
-    # Convert register data to Modbus block format
-    block_values = {int(k): v for k, v in register_data.items()}
+    # Convert register data to Modbus block format. Keys are 1-based register
+    # numbers while the data block is addressed from zero, and pymodbus rejects
+    # empty value lists, so unpopulated blocks are dropped.
+    block_values = {
+        int(k) - 1: values for k, values in register_data.items() if values
+    }
 
     # Initialize data storage
     holding_registers = ModbusSparseDataBlock(block_values)
