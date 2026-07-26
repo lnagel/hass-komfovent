@@ -140,7 +140,9 @@ class TestKomfoventSensor:
     def test_device_info(self, mock_coordinator):
         """Test device_info property."""
         sensor = KomfoventSensor(mock_coordinator, registers.REG_POWER, DESC)
-        assert sensor.device_info["identifiers"] == {(DOMAIN, "test_entry_id")}
+        device_info = sensor.device_info
+        assert device_info is not None
+        assert device_info["identifiers"] == {(DOMAIN, "test_entry_id")}
 
     @pytest.mark.parametrize(
         ("data", "expected"),
@@ -172,10 +174,11 @@ def test_scaling_sensors_none(mock_coordinator, sensor_class):
     assert sensor_class(mock_coordinator, 100, DESC).native_value is None
 
 
-def test_float_x1000_invalid_type(mock_coordinator):
-    """Test FloatX1000Sensor returns None for invalid type."""
+@pytest.mark.parametrize("sensor_class", [FloatSensor, FloatX1000Sensor])
+def test_float_sensors_invalid_type(mock_coordinator, sensor_class):
+    """Test float sensors return None for invalid type."""
     mock_coordinator.data = {100: "invalid"}
-    assert FloatX1000Sensor(mock_coordinator, 100, DESC).native_value is None
+    assert sensor_class(mock_coordinator, 100, DESC).native_value is None
 
 
 # ==================== Validation Sensor Tests ====================
@@ -493,6 +496,7 @@ def test_create_aq_sensor(
     if expected_class is None:
         assert result is None
     else:
+        assert result is not None
         assert isinstance(result, expected_class)
         assert result.entity_description.key == expected_key
 

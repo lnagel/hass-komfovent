@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Any, ClassVar, Final
+from typing import TYPE_CHECKING, Any, Final
 
 from homeassistant.components.climate import (
     ClimateEntity,
@@ -51,16 +51,14 @@ async def async_setup_entry(
 class KomfoventClimate(CoordinatorEntity["KomfoventCoordinator"], ClimateEntity):
     """Representation of a Komfovent climate device."""
 
-    _attr_has_entity_name: ClassVar[bool] = True
-    _attr_name: ClassVar[None] = None
-    _attr_temperature_unit: ClassVar[str] = UnitOfTemperature.CELSIUS
-    _attr_hvac_modes: ClassVar[list[str]] = [HVACMode.OFF, HVACMode.HEAT_COOL]
-    _attr_supported_features: ClassVar[int] = (
+    _attr_has_entity_name = True
+    _attr_name = None
+    _attr_temperature_unit = UnitOfTemperature.CELSIUS
+    _attr_hvac_modes = [HVACMode.OFF, HVACMode.HEAT_COOL]
+    _attr_supported_features = (
         ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.PRESET_MODE
     )
-    _attr_preset_modes: ClassVar[list[str]] = [
-        mode.name.lower() for mode in OperationMode
-    ]
+    _attr_preset_modes = [mode.name.lower() for mode in OperationMode]
     _attr_translation_key = "komfovent_climate"
     coordinator: KomfoventCoordinator
 
@@ -86,7 +84,7 @@ class KomfoventClimate(CoordinatorEntity["KomfoventCoordinator"], ClimateEntity)
 
             if (temp := self.coordinator.data.get(temp_key)) is not None:
                 return float(temp) / 10
-        except (ValueError, KeyError):
+        except ValueError, KeyError:
             _LOGGER.warning("Invalid temperature control mode")
 
         return None
@@ -104,7 +102,7 @@ class KomfoventClimate(CoordinatorEntity["KomfoventCoordinator"], ClimateEntity)
             temp_reg = MODE_TEMP_MAPPING[mode]
             if (temp := self.coordinator.data.get(temp_reg)) is not None:
                 return float(temp) / 10
-        except (ValueError, KeyError):
+        except ValueError, KeyError:
             _LOGGER.warning("Invalid operation mode or temperature value")
 
         return None
@@ -173,7 +171,7 @@ class KomfoventClimate(CoordinatorEntity["KomfoventCoordinator"], ClimateEntity)
                 self.coordinator.data.get(registers.REG_OPERATION_MODE)
             )
             reg = MODE_TEMP_MAPPING[mode]
-        except (ValueError, KeyError):
+        except ValueError, KeyError:
             _LOGGER.warning("Invalid operation mode, using normal setpoint")
             reg = registers.REG_NORMAL_SETPOINT
 
@@ -184,7 +182,7 @@ class KomfoventClimate(CoordinatorEntity["KomfoventCoordinator"], ClimateEntity)
             try:
                 await self.coordinator.client.write(reg, value)
                 await self.coordinator.async_request_refresh()
-            except (ConnectionError, TimeoutError):
+            except ConnectionError, TimeoutError:
                 _LOGGER.exception("Failed to set temperature")
         else:
             _LOGGER.warning(

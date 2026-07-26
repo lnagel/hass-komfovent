@@ -3,13 +3,13 @@ name = "hass-komfovent"
 version = "0.10.3"
 description = "A Home Assistant integration for Komfovent C6, C6M and C8 ventilation units through Modbus TCP"
 readme = "README.md"
-requires-python = ">=3.13.2"
+requires-python = ">=3.14.2"
 authors = [
     { name = "lnagel", email = "lnagel@users.noreply.github.com" }
 ]
 dependencies = [
     "colorlog>=6.10.1",
-    "homeassistant>=2025.10.0",
+    "homeassistant>=2026.3.0",
     "pymodbus>=3.10.0",
 ]
 
@@ -88,16 +88,18 @@ replace = '"version": "{new_version}"'
 
 [tool.ruff]
 line-length = 88
-target-version = "py313"
+target-version = "py314"
 
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
     "ANN401", # Dynamically typed expressions (typing.Any) are disallowed
+    "CPY001", # Missing copyright notice at top of file
     "D203", # no-blank-line-before-class (incompatible with formatter)
     "D212", # multi-line-summary-first-line (incompatible with formatter)
     "COM812", # incompatible with formatter
     "ISC001", # incompatible with formatter
+    "RUF012", # Home Assistant entity _attr_* defaults cannot be ClassVar
 ]
 
 [tool.ruff.lint.flake8-pytest-style]
@@ -117,6 +119,7 @@ max-complexity = 25
     "EM101", # Allow string literals in exceptions
     "ERA001", # Allow commented-out code in test data tables
     "PLR0913", # Allow many arguments in parametrized tests
+    "PLR0917", # Allow many positional arguments in parametrized tests
     "S101", # Allow assert in tests
     "S106", # Allow hardcoded passwords in tests
     "S311", # Allow pseudo-random generators in tests
@@ -128,4 +131,4 @@ max-complexity = 25
 ]
 
 [tool.ty.environment]
-python-version = "3.13"
+python-version = "3.14"

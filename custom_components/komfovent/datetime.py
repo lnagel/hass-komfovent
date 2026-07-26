@@ -95,7 +95,7 @@ class KomfoventDateTime(CoordinatorEntity["KomfoventCoordinator"], DateTimeEntit
 
             # Convert seconds since local epoch to datetime
             return local_epoch + timedelta(seconds=value)
-        except (ValueError, TypeError, OSError):
+        except ValueError, TypeError, OSError:
             return None
 
     async def async_set_value(self, value: datetime) -> None:

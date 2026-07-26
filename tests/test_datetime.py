@@ -37,7 +37,9 @@ def test_entity_properties(mock_coordinator):
     dt = KomfoventDateTime(mock_coordinator, 100, DESC)
     assert dt.register_id == 100
     assert dt.unique_id == "test_entry_id_test_datetime"
-    assert dt.device_info["identifiers"] == {(DOMAIN, "test_entry_id")}
+    device_info = dt.device_info
+    assert device_info is not None
+    assert device_info["identifiers"] == {(DOMAIN, "test_entry_id")}
 
 
 # ==================== Native Value Tests ====================
@@ -51,6 +53,7 @@ def test_native_value(mock_coordinator, seconds, timezone, year, month, day):
     mock_coordinator.data = {100: seconds}
     mock_coordinator.hass.config.time_zone = timezone
     result = KomfoventDateTime(mock_coordinator, 100, DESC).native_value
+    assert result is not None
     assert result.year == year
     assert result.month == month
     assert result.day == day

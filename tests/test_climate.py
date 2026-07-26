@@ -52,9 +52,9 @@ class TestKomfoventClimate:
 
     def test_device_info(self, mock_coordinator):
         """Test device_info property."""
-        assert KomfoventClimate(mock_coordinator).device_info["identifiers"] == {
-            (DOMAIN, "test_entry_id")
-        }
+        device_info = KomfoventClimate(mock_coordinator).device_info
+        assert device_info is not None
+        assert device_info["identifiers"] == {(DOMAIN, "test_entry_id")}
 
     def test_modes(self, mock_coordinator):
         """Test preset_modes and hvac_modes lists."""

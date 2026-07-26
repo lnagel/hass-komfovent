@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from enum import IntEnum
@@ -225,7 +225,7 @@ async def async_setup_entry(
 class KomfoventSelect(CoordinatorEntity["KomfoventCoordinator"], SelectEntity):
     """Representation of a Komfovent select entity."""
 
-    _attr_has_entity_name: ClassVar[bool] = True
+    _attr_has_entity_name = True
     coordinator: KomfoventCoordinator
 
     def __init__(

@@ -73,7 +73,9 @@ def test_entity_properties(mock_coordinator):
     n = KomfoventNumber(mock_coordinator, 100, DESC)
     assert n.register_id == 100
     assert n.unique_id == "test_entry_id_test_number"
-    assert n.device_info["identifiers"] == {(DOMAIN, "test_entry_id")}
+    device_info = n.device_info
+    assert device_info is not None
+    assert device_info["identifiers"] == {(DOMAIN, "test_entry_id")}
 
 
 @pytest.mark.parametrize(("data", "expected"), NATIVE_VALUE_CASES)

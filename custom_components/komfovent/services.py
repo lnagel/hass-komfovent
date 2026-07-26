@@ -3,14 +3,17 @@
 import logging
 import zoneinfo
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from homeassistant.config_entries import ConfigEntryState
-from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers import device_registry as dr
 
 from . import KomfoventCoordinator, registers
 from .const import ALARM_RESET_COMMAND, DOMAIN, Controller, OperationMode
 from .coordinator import FUNC_VER_EPOCH_TIME_RW
+
+if TYPE_CHECKING:
+    from homeassistant.core import HomeAssistant, ServiceCall
 
 _LOGGER = logging.getLogger(__name__)
 
