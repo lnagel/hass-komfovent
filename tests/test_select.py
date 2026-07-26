@@ -46,7 +46,9 @@ def test_entity_properties(mock_coordinator):
     assert s.register_id == 100
     assert s.enum_class == SchedulerMode
     assert s.unique_id == "test_entry_id_test"
-    assert s.device_info["identifiers"] == {(DOMAIN, "test_entry_id")}
+    device_info = s.device_info
+    assert device_info is not None
+    assert device_info["identifiers"] == {(DOMAIN, "test_entry_id")}
 
 
 # ==================== Current Option Tests ====================

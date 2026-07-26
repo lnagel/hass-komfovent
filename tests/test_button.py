@@ -61,6 +61,7 @@ class TestKomfoventButtonEntity:
         button = KomfoventButtonEntity(mock_coordinator, description)
 
         device_info = button.device_info
+        assert device_info is not None
         assert device_info["identifiers"] == {(DOMAIN, "test_entry_id")}
         assert device_info["name"] == "Komfovent"
         assert device_info["manufacturer"] == "Komfovent"

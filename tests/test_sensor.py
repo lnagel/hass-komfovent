@@ -140,7 +140,9 @@ class TestKomfoventSensor:
     def test_device_info(self, mock_coordinator):
         """Test device_info property."""
         sensor = KomfoventSensor(mock_coordinator, registers.REG_POWER, DESC)
-        assert sensor.device_info["identifiers"] == {(DOMAIN, "test_entry_id")}
+        device_info = sensor.device_info
+        assert device_info is not None
+        assert device_info["identifiers"] == {(DOMAIN, "test_entry_id")}
 
     @pytest.mark.parametrize(
         ("data", "expected"),
@@ -493,6 +495,7 @@ def test_create_aq_sensor(
     if expected_class is None:
         assert result is None
     else:
+        assert result is not None
         assert isinstance(result, expected_class)
         assert result.entity_description.key == expected_key
 
