@@ -34,9 +34,7 @@ async def run_server(host: str, port: int, register_data: dict[str, list[int]]) 
     # Convert register data to Modbus block format. Keys are 1-based register
     # numbers while the data block is addressed from zero, and pymodbus rejects
     # empty value lists, so unpopulated blocks are dropped.
-    block_values = {
-        int(k) - 1: values for k, values in register_data.items() if values
-    }
+    block_values = {int(k) - 1: values for k, values in register_data.items() if values}
 
     # Initialize data storage
     holding_registers = ModbusSparseDataBlock(block_values)
@@ -82,7 +80,7 @@ def main() -> None:
         # Run server
         asyncio.run(run_server(args.host, args.port, register_data))
 
-    except (FileNotFoundError, json.JSONDecodeError, ValueError):
+    except FileNotFoundError, json.JSONDecodeError, ValueError:
         _LOGGER.exception("Failed to load register data")
         sys.exit(1)
     except Exception:  # pylint: disable=broad-except

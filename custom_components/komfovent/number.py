@@ -666,7 +666,7 @@ class KomfoventNumber(CoordinatorEntity["KomfoventCoordinator"], NumberEntity):
 
         try:
             return float(value)
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             return None
 
     async def async_set_native_value(self, value: float) -> None:

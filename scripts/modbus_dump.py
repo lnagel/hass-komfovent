@@ -38,7 +38,7 @@ def main() -> None:
             "Successfully dumped %d registers to %s", len(registers), args.output
         )
 
-    except (ConnectionError, ModbusException):
+    except ConnectionError, ModbusException:
         logger.exception("Error occurred")
         sys.exit(1)
 

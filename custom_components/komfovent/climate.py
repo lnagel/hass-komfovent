@@ -86,7 +86,7 @@ class KomfoventClimate(CoordinatorEntity["KomfoventCoordinator"], ClimateEntity)
 
             if (temp := self.coordinator.data.get(temp_key)) is not None:
                 return float(temp) / 10
-        except (ValueError, KeyError):
+        except ValueError, KeyError:
             _LOGGER.warning("Invalid temperature control mode")
 
         return None
@@ -104,7 +104,7 @@ class KomfoventClimate(CoordinatorEntity["KomfoventCoordinator"], ClimateEntity)
             temp_reg = MODE_TEMP_MAPPING[mode]
             if (temp := self.coordinator.data.get(temp_reg)) is not None:
                 return float(temp) / 10
-        except (ValueError, KeyError):
+        except ValueError, KeyError:
             _LOGGER.warning("Invalid operation mode or temperature value")
 
         return None
@@ -173,7 +173,7 @@ class KomfoventClimate(CoordinatorEntity["KomfoventCoordinator"], ClimateEntity)
                 self.coordinator.data.get(registers.REG_OPERATION_MODE)
             )
             reg = MODE_TEMP_MAPPING[mode]
-        except (ValueError, KeyError):
+        except ValueError, KeyError:
             _LOGGER.warning("Invalid operation mode, using normal setpoint")
             reg = registers.REG_NORMAL_SETPOINT
 
@@ -184,7 +184,7 @@ class KomfoventClimate(CoordinatorEntity["KomfoventCoordinator"], ClimateEntity)
             try:
                 await self.coordinator.client.write(reg, value)
                 await self.coordinator.async_request_refresh()
-            except (ConnectionError, TimeoutError):
+            except ConnectionError, TimeoutError:
                 _LOGGER.exception("Failed to set temperature")
         else:
             _LOGGER.warning(

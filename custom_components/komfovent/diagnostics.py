@@ -156,7 +156,7 @@ async def async_get_config_entry_diagnostics(
 
     try:
         registers = await dump_registers(host, port)
-    except (ConnectionError, ModbusException):
+    except ConnectionError, ModbusException:
         logger.exception("Failed to dump registers")
         registers = {}
 

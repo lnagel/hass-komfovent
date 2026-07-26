@@ -873,7 +873,7 @@ class FloatSensor(KomfoventSensor):
 
         try:
             return float(value)  # type: ignore[arg-type]
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             return None
 
 
@@ -915,7 +915,7 @@ class FloatX1000Sensor(KomfoventSensor):
 
         try:
             return float(raw_value) / 1000  # type: ignore[arg-type]
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             return None
 
 
@@ -938,7 +938,7 @@ class FirmwareVersionSensor(KomfoventSensor):
 
         try:
             value = int(raw_value)  # type: ignore[arg-type]
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             return None
 
         return self._format_version(value)
@@ -1004,7 +1004,7 @@ class RelativeHumiditySensor(KomfoventSensor):
 
         try:
             value = int(raw_value)  # type: ignore[arg-type]
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             return None
 
         if 0 <= value <= MAX_HUMIDITY:
@@ -1039,7 +1039,7 @@ class CO2Sensor(KomfoventSensor):
 
         try:
             value = int(raw_value)  # type: ignore[arg-type]
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             return None
 
         if 0 <= value <= MAX_CO2_PPM:
@@ -1074,7 +1074,7 @@ class VOCSensor(KomfoventSensor):
 
         try:
             value = int(raw_value)  # type: ignore[arg-type]
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             return None
 
         if 0 <= value <= MAX_VOC:
@@ -1120,7 +1120,7 @@ class HeatExchangerTypeSensor(KomfoventSensor):
 
         try:
             return HeatExchangerType(raw_value).name.lower()  # type: ignore[arg-type]
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             return None
 
 
@@ -1136,7 +1136,7 @@ class ConnectedPanelsSensor(KomfoventSensor):
 
         try:
             return ConnectedPanels(raw_value).name.lower()  # type: ignore[arg-type]
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             return None
 
 
@@ -1152,7 +1152,7 @@ class FlowUnitSensor(KomfoventSensor):
 
         try:
             return FlowUnit(raw_value).name.lower()  # type: ignore[arg-type]
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             return None
 
 
@@ -1174,7 +1174,7 @@ class SystemTimeSensor(KomfoventSensor):
 
             # Convert seconds since local epoch to datetime
             return local_epoch + timedelta(seconds=value)
-        except (ValueError, TypeError, OSError):
+        except ValueError, TypeError, OSError:
             return None
 
 
