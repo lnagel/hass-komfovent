@@ -155,9 +155,12 @@ class TestOptionsFlow:
         entry = MockConfigEntry(
             domain=DOMAIN, entry_id="test_entry_id", options=options
         )
+        entry.add_to_hass(hass)
         flow = OptionsFlowHandler()
         flow.hass = hass
-        flow._config_entry = entry
+        # OptionsFlow.config_entry resolves the entry from the flow handler,
+        # which is the config entry id.
+        flow.handler = entry.entry_id
         result = await flow.async_step_init(user_input)
         assert result["type"] == expected_type
 
