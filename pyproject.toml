@@ -99,6 +99,7 @@ ignore = [
     "D212", # multi-line-summary-first-line (incompatible with formatter)
     "COM812", # incompatible with formatter
     "ISC001", # incompatible with formatter
+    "RUF012", # Home Assistant entity _attr_* defaults cannot be ClassVar
 ]
 
 [tool.ruff.lint.flake8-pytest-style]

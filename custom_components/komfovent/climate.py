@@ -54,11 +54,11 @@ class KomfoventClimate(CoordinatorEntity["KomfoventCoordinator"], ClimateEntity)
     _attr_has_entity_name = True
     _attr_name = None
     _attr_temperature_unit = UnitOfTemperature.CELSIUS
-    _attr_hvac_modes = [HVACMode.OFF, HVACMode.HEAT_COOL]  # noqa: RUF012
+    _attr_hvac_modes = [HVACMode.OFF, HVACMode.HEAT_COOL]
     _attr_supported_features = (
         ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.PRESET_MODE
     )
-    _attr_preset_modes = [mode.name.lower() for mode in OperationMode]  # noqa: RUF012
+    _attr_preset_modes = [mode.name.lower() for mode in OperationMode]
     _attr_translation_key = "komfovent_climate"
     coordinator: KomfoventCoordinator
 
