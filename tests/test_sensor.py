@@ -174,10 +174,11 @@ def test_scaling_sensors_none(mock_coordinator, sensor_class):
     assert sensor_class(mock_coordinator, 100, DESC).native_value is None
 
 
-def test_float_x1000_invalid_type(mock_coordinator):
-    """Test FloatX1000Sensor returns None for invalid type."""
+@pytest.mark.parametrize("sensor_class", [FloatSensor, FloatX1000Sensor])
+def test_float_sensors_invalid_type(mock_coordinator, sensor_class):
+    """Test float sensors return None for invalid type."""
     mock_coordinator.data = {100: "invalid"}
-    assert FloatX1000Sensor(mock_coordinator, 100, DESC).native_value is None
+    assert sensor_class(mock_coordinator, 100, DESC).native_value is None
 
 
 # ==================== Validation Sensor Tests ====================
