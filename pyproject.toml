@@ -74,7 +74,7 @@ serialize = ["{major}.{minor}.{patch}"]
 commit = true
 tag = true
 tag_name = "v{new_version}"
-pre_commit_hooks = ["uv lock && git add uv.lock"]
+pre_commit_hooks = ["uv lock", "git add uv.lock"]
 
 [[tool.bumpversion.files]]
 filename = "pyproject.toml"
