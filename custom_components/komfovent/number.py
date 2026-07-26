@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING
 
 from homeassistant.components.number import (
     NumberDeviceClass,
@@ -634,7 +634,7 @@ async def async_setup_entry(
 class KomfoventNumber(CoordinatorEntity["KomfoventCoordinator"], NumberEntity):
     """Base representation of a Komfovent number entity."""
 
-    _attr_has_entity_name: ClassVar[bool] = True
+    _attr_has_entity_name = True
     coordinator: KomfoventCoordinator
 
     def __init__(

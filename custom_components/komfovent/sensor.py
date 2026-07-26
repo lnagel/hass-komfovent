@@ -853,12 +853,17 @@ class KomfoventSensor(CoordinatorEntity["KomfoventCoordinator"], SensorEntity):
         self._attr_device_info = build_device_info(coordinator)
 
     @property
-    def native_value(self) -> StateType | date | datetime | Decimal:
-        """Return the state of the sensor."""
+    def raw_value(self) -> int | None:
+        """Return the unconverted register value backing this sensor."""
         if not self.coordinator.data:
             return None
 
         return self.coordinator.data.get(self.register_id)
+
+    @property
+    def native_value(self) -> StateType | date | datetime | Decimal:
+        """Return the state of the sensor."""
+        return self.raw_value
 
 
 class FloatSensor(KomfoventSensor):
@@ -867,12 +872,12 @@ class FloatSensor(KomfoventSensor):
     @property
     def native_value(self) -> float | None:
         """Return the float value of the sensor."""
-        value = super().native_value
+        value = self.raw_value
         if value is None:
             return None
 
         try:
-            return float(value)  # type: ignore[arg-type]
+            return float(value)
         except ValueError, TypeError:
             return None
 
@@ -909,12 +914,12 @@ class FloatX1000Sensor(KomfoventSensor):
     @property
     def native_value(self) -> float | None:
         """Return the energy value in kWh."""
-        raw_value = super().native_value
+        raw_value = self.raw_value
         if raw_value is None:
             return None
 
         try:
-            return float(raw_value) / 1000  # type: ignore[arg-type]
+            return float(raw_value) / 1000
         except ValueError, TypeError:
             return None
 
@@ -929,7 +934,7 @@ class FirmwareVersionSensor(KomfoventSensor):
     @property
     def native_value(self) -> str | None:
         """Return the firmware version string."""
-        raw_value = super().native_value
+        raw_value = self.raw_value
         if raw_value is None:
             return None
 
@@ -937,7 +942,7 @@ class FirmwareVersionSensor(KomfoventSensor):
             return None
 
         try:
-            value = int(raw_value)  # type: ignore[arg-type]
+            value = int(raw_value)
         except ValueError, TypeError:
             return None
 
@@ -998,12 +1003,12 @@ class RelativeHumiditySensor(KomfoventSensor):
     @property
     def native_value(self) -> int | None:
         """Return the humidity value if within valid range."""
-        raw_value = super().native_value
+        raw_value = self.raw_value
         if raw_value is None:
             return None
 
         try:
-            value = int(raw_value)  # type: ignore[arg-type]
+            value = int(raw_value)
         except ValueError, TypeError:
             return None
 
@@ -1033,12 +1038,12 @@ class CO2Sensor(KomfoventSensor):
     @property
     def native_value(self) -> int | None:
         """Return the CO2 value if within valid range."""
-        raw_value = super().native_value
+        raw_value = self.raw_value
         if raw_value is None:
             return None
 
         try:
-            value = int(raw_value)  # type: ignore[arg-type]
+            value = int(raw_value)
         except ValueError, TypeError:
             return None
 
@@ -1068,12 +1073,12 @@ class VOCSensor(KomfoventSensor):
     @property
     def native_value(self) -> int | None:
         """Return the VOC value if within valid range."""
-        raw_value = super().native_value
+        raw_value = self.raw_value
         if raw_value is None:
             return None
 
         try:
-            value = int(raw_value)  # type: ignore[arg-type]
+            value = int(raw_value)
         except ValueError, TypeError:
             return None
 
@@ -1114,12 +1119,12 @@ class HeatExchangerTypeSensor(KomfoventSensor):
     @property
     def native_value(self) -> str | None:
         """Return the heat exchanger type name."""
-        raw_value = super().native_value
+        raw_value = self.raw_value
         if raw_value is None:
             return None
 
         try:
-            return HeatExchangerType(raw_value).name.lower()  # type: ignore[arg-type]
+            return HeatExchangerType(raw_value).name.lower()
         except ValueError, TypeError:
             return None
 
@@ -1130,12 +1135,12 @@ class ConnectedPanelsSensor(KomfoventSensor):
     @property
     def native_value(self) -> str | None:
         """Return the connected panels state name."""
-        raw_value = super().native_value
+        raw_value = self.raw_value
         if raw_value is None:
             return None
 
         try:
-            return ConnectedPanels(raw_value).name.lower()  # type: ignore[arg-type]
+            return ConnectedPanels(raw_value).name.lower()
         except ValueError, TypeError:
             return None
 
@@ -1146,12 +1151,12 @@ class FlowUnitSensor(KomfoventSensor):
     @property
     def native_value(self) -> str | None:
         """Return the flow units state name."""
-        raw_value = super().native_value
+        raw_value = self.raw_value
         if raw_value is None:
             return None
 
         try:
-            return FlowUnit(raw_value).name.lower()  # type: ignore[arg-type]
+            return FlowUnit(raw_value).name.lower()
         except ValueError, TypeError:
             return None
 
@@ -1162,12 +1167,12 @@ class SystemTimeSensor(KomfoventSensor):
     @property
     def native_value(self) -> datetime | None:
         """Return the system time as datetime from Unix timestamp."""
-        raw_value = super().native_value
+        raw_value = self.raw_value
         if raw_value is None:
             return None
 
         try:
-            value = int(raw_value)  # type: ignore[arg-type]
+            value = int(raw_value)
             # Initialize local epoch (1970-01-01 00:00:00 in local timezone)
             local_tz = zoneinfo.ZoneInfo(str(self.coordinator.hass.config.time_zone))
             local_epoch = datetime(1970, 1, 1, tzinfo=local_tz)
