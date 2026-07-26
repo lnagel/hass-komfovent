@@ -3,13 +3,13 @@ name = "hass-komfovent"
 version = "0.10.3"
 description = "A Home Assistant integration for Komfovent C6, C6M and C8 ventilation units through Modbus TCP"
 readme = "README.md"
-requires-python = ">=3.13.2"
+requires-python = ">=3.14.2"
 authors = [
     { name = "lnagel", email = "lnagel@users.noreply.github.com" }
 ]
 dependencies = [
     "colorlog>=6.10.1",
-    "homeassistant>=2025.10.0",
+    "homeassistant>=2026.3.0",
     "pymodbus>=3.10.0",
 ]
 
@@ -88,7 +88,7 @@ replace = '"version": "{new_version}"'
 
 [tool.ruff]
 line-length = 88
-target-version = "py313"
+target-version = "py314"
 
 [tool.ruff.lint]
 select = ["ALL"]
@@ -128,4 +128,4 @@ max-complexity = 25
 ]
 
 [tool.ty.environment]
-python-version = "3.13"
+python-version = "3.14"
