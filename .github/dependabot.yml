@@ -15,21 +15,13 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    versioning-strategy: increase-if-necessary
     groups:
       home-assistant-test-stack:
         patterns:
           - "pytest-homeassistant-custom-component"
-          - "homeassistant"
-          - "pytest"
-          - "pytest-asyncio"
-          - "pytest-cov"
       dev-tooling:
         dependency-type: "development"
         exclude-patterns:
           - "pytest-homeassistant-custom-component"
-          - "pytest"
-          - "pytest-asyncio"
-          - "pytest-cov"
         patterns:
           - "*"
