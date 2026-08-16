@@ -1096,7 +1096,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "homeassistant", specifier = ">=2026.3.0" },
-    { name = "pymodbus", specifier = ">=3.10.0" },
+    { name = "pymodbus" },
 ]
 
 [package.metadata.requires-dev]
