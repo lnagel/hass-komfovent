@@ -1077,7 +1077,6 @@ name = "hass-komfovent"
 version = "0.10.4"
 source = { virtual = "." }
 dependencies = [
-    { name = "homeassistant" },
     { name = "pymodbus" },
 ]
 
@@ -1085,27 +1084,18 @@ dependencies = [
 dev = [
     { name = "bump-my-version" },
     { name = "diff-cover" },
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
-    { name = "pytest-cov" },
     { name = "pytest-homeassistant-custom-component" },
     { name = "ruff" },
     { name = "ty" },
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "homeassistant", specifier = ">=2026.3.0" },
-    { name = "pymodbus" },
-]
+requires-dist = [{ name = "pymodbus" }]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "bump-my-version" },
     { name = "diff-cover" },
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
-    { name = "pytest-cov" },
     { name = "pytest-homeassistant-custom-component", specifier = "==0.13.355" },
     { name = "ruff" },
     { name = "ty" },
