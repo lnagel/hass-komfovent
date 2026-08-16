@@ -20,14 +20,16 @@ updates:
       home-assistant-test-stack:
         patterns:
           - "pytest-homeassistant-custom-component"
+          - "homeassistant"
+          - "pytest"
+          - "pytest-asyncio"
+          - "pytest-cov"
       dev-tooling:
         dependency-type: "development"
         exclude-patterns:
           - "pytest-homeassistant-custom-component"
+          - "pytest"
+          - "pytest-asyncio"
+          - "pytest-cov"
         patterns:
           - "*"
-    ignore:
-      - dependency-name: "homeassistant"
-      - dependency-name: "pytest"
-      - dependency-name: "pytest-asyncio"
-      - dependency-name: "pytest-cov"
