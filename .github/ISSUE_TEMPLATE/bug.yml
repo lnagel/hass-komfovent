@@ -48,7 +48,10 @@ body:
   validations:
     required: true
 
-- type: textarea
+- type: upload
   attributes:
     label: "Diagnostics dump"
     description: "Drag the diagnostics dump file here. (see https://www.home-assistant.io/integrations/diagnostics/ for info)"
+  validations:
+    required: false
+    accept: ".json"
