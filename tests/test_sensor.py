@@ -1,5 +1,6 @@
 """Tests for Komfovent sensor platform."""
 
+import math
 from datetime import datetime
 
 import pytest
@@ -30,6 +31,8 @@ from custom_components.komfovent.sensor import (
     ConnectedPanelsSensor,
     ControllerFirmwareVersionSensor,
     DutyCycleSensor,
+    DxCoolingSensor,
+    DxHeatingSensor,
     FloatSensor,
     FloatX10Sensor,
     FloatX100Sensor,
@@ -55,6 +58,8 @@ DESC = SensorEntityDescription(key="test", name="Test")
 # (sensor_class, raw, expected, min, max, out_of_range, low_out_of_range)
 VALIDATION_SENSORS = [
     (DutyCycleSensor, 500, 50.0, 0, 1000, 1010, -10),
+    (DxHeatingSensor, 500, 50.0, -1000, 1000, 1010, -1010),
+    (DxCoolingSensor, -500, 50.0, -1000, 1000, 1010, -1010),
     (TemperatureSensor, 215, 21.5, -500, 1200, 1210, -510),
     (RelativeHumiditySensor, 65, 65, 0, 125, 126, None),
     (AbsoluteHumiditySensor, 850, 8.5, 1, 10000, 10001, 0),
@@ -166,7 +171,15 @@ def test_scaling_sensors(mock_coordinator, sensor_class, raw, expected):
 
 
 @pytest.mark.parametrize(
-    "sensor_class", [FloatSensor, FloatX10Sensor, FloatX100Sensor, FloatX1000Sensor]
+    "sensor_class",
+    [
+        FloatSensor,
+        FloatX10Sensor,
+        FloatX100Sensor,
+        FloatX1000Sensor,
+        DxHeatingSensor,
+        DxCoolingSensor,
+    ],
 )
 def test_scaling_sensors_none(mock_coordinator, sensor_class):
     """Test scaling sensors return None when no data."""
@@ -633,3 +646,27 @@ async def test_create_sensors_includes_active_alarms(mock_coordinator):
     sensors = await create_sensors(mock_coordinator)
     keys = {s.entity_description.key for s in sensors}
     assert "active_alarms" in keys
+
+
+@pytest.mark.parametrize(
+    ("sensor_class", "raw"),
+    [(DxHeatingSensor, -500), (DxCoolingSensor, 500), (DxCoolingSensor, 0)],
+)
+def test_dx_opposite_direction_is_zero(mock_coordinator, sensor_class, raw):
+    """Each DX entity reads a positive zero while not running that way."""
+    mock_coordinator.data = {100: raw}
+    value = sensor_class(mock_coordinator, 100, DESC).native_value
+    assert value == 0.0
+    assert math.copysign(1, value) > 0
+
+
+@pytest.mark.parametrize(
+    ("key", "sensor_class"),
+    [("dx_heating", DxHeatingSensor), ("dx_cooling", DxCoolingSensor)],
+)
+async def test_create_sensors_dx(mock_coordinator, key, sensor_class):
+    """Register 916 is exposed as a separate heating and cooling entity."""
+    sensors = await create_sensors(mock_coordinator)
+    sensor = next(s for s in sensors if s.entity_description.key == key)
+    assert isinstance(sensor, sensor_class)
+    assert sensor.register_id == registers.REG_DX_UNIT

@@ -252,12 +252,24 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_registry_enabled_default=False,
                 ),
             ),
-            DutyCycleSensor(
+            DxHeatingSensor(
                 coordinator=coordinator,
                 register_id=registers.REG_DX_UNIT,
                 entity_description=SensorEntityDescription(
-                    key="dx_unit",
-                    name="DX Unit",
+                    key="dx_heating",
+                    name="DX Heating",
+                    native_unit_of_measurement=PERCENTAGE,
+                    state_class=SensorStateClass.MEASUREMENT,
+                    suggested_display_precision=0,
+                    entity_registry_enabled_default=False,
+                ),
+            ),
+            DxCoolingSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_DX_UNIT,
+                entity_description=SensorEntityDescription(
+                    key="dx_cooling",
+                    name="DX Cooling",
                     native_unit_of_measurement=PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
@@ -980,6 +992,47 @@ class DutyCycleSensor(FloatX10Sensor):
         if MIN_DUTY_CYCLE <= value <= MAX_DUTY_CYCLE:
             return value
         return None
+
+
+class DxUnitSensor(FloatX10Sensor):
+    """Signed DX unit signal: negative is cooling, positive is heating."""
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the signed DX level if within valid range."""
+        value = super().native_value
+        if value is None:
+            return None
+
+        if -MAX_DUTY_CYCLE <= value <= MAX_DUTY_CYCLE:
+            return value
+        return None
+
+
+class DxHeatingSensor(DxUnitSensor):
+    """Heating duty cycle of the DX unit."""
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the heating share of the signal, zero while cooling."""
+        value = super().native_value
+        if value is None:
+            return None
+
+        return max(value, 0.0)
+
+
+class DxCoolingSensor(DxUnitSensor):
+    """Cooling duty cycle of the DX unit."""
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the cooling share of the signal, zero while heating."""
+        value = super().native_value
+        if value is None:
+            return None
+
+        return max(0.0, -value)
 
 
 class TemperatureSensor(FloatX10Sensor):
