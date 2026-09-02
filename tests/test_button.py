@@ -4,6 +4,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 from homeassistant.components.button import ButtonEntityDescription
+from homeassistant.helpers.device_registry import DeviceInfo
 
 from custom_components.komfovent.button import (
     KomfoventButtonEntity,
@@ -11,7 +12,7 @@ from custom_components.komfovent.button import (
     KomfoventClearActiveAlarmsButton,
     KomfoventSetTimeButton,
 )
-from custom_components.komfovent.helpers import build_device_info
+from custom_components.komfovent.const import DOMAIN
 
 # ==================== Data Tables ====================
 
@@ -60,7 +61,13 @@ class TestKomfoventButtonEntity:
         description = ButtonEntityDescription(key="test_button", name="Test")
         button = KomfoventButtonEntity(mock_coordinator, description)
 
-        assert button.device_info == build_device_info(mock_coordinator)
+        assert button.device_info == DeviceInfo(
+            identifiers={(DOMAIN, "test_entry_id")},
+            name="Komfovent",
+            manufacturer="Komfovent",
+            model="C6",
+            configuration_url="http://192.168.1.100",
+        )
 
 
 # ==================== Button Specific Tests ====================
