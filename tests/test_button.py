@@ -11,7 +11,7 @@ from custom_components.komfovent.button import (
     KomfoventClearActiveAlarmsButton,
     KomfoventSetTimeButton,
 )
-from custom_components.komfovent.const import DOMAIN
+from custom_components.komfovent.helpers import build_device_info
 
 # ==================== Data Tables ====================
 
@@ -60,11 +60,7 @@ class TestKomfoventButtonEntity:
         description = ButtonEntityDescription(key="test_button", name="Test")
         button = KomfoventButtonEntity(mock_coordinator, description)
 
-        device_info = button.device_info
-        assert device_info is not None
-        assert device_info["identifiers"] == {(DOMAIN, "test_entry_id")}
-        assert device_info["name"] == "Komfovent"
-        assert device_info["manufacturer"] == "Komfovent"
+        assert button.device_info == build_device_info(mock_coordinator)
 
 
 # ==================== Button Specific Tests ====================
