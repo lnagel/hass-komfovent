@@ -10,9 +10,9 @@ from homeassistant.components.number import (
     NumberEntityDescription,
 )
 from homeassistant.const import (
-    CONCENTRATION_PARTS_PER_MILLION,
     PERCENTAGE,
     EntityCategory,
+    UnitOfRatio,
     UnitOfTemperature,
     UnitOfTime,
     UnitOfVolumeFlowRate,
@@ -581,7 +581,7 @@ async def async_setup_entry(
                     key="aq_co2_setpoint",
                     name="AQ CO2 Setpoint",
                     native_step=step_co2,
-                    native_unit_of_measurement=CONCENTRATION_PARTS_PER_MILLION,
+                    native_unit_of_measurement=UnitOfRatio.PARTS_PER_MILLION,
                     native_min_value=CO2_MIN,
                     native_max_value=CO2_MAX,
                     device_class=NumberDeviceClass.CO2,
