@@ -1,4 +1,4 @@
-name: "Lint"
+name: Lint
 
 on:
   push:
@@ -8,52 +8,55 @@ on:
     branches:
       - "main"
 
+permissions:
+  contents: read
+
 jobs:
   ruff:
     name: "Ruff"
     runs-on: "ubuntu-latest"
     steps:
-        - name: "Checkout the repository"
-          uses: "actions/checkout@v7"
+      - name: Checkout the repository
+        uses: actions/checkout@v7
 
-        - name: "Set up Python"
-          uses: actions/setup-python@v7
-          with:
-            python-version: "3.14"
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
 
-        - name: "Set up uv"
-          uses: astral-sh/setup-uv@v7
-          with:
-            enable-cache: true
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
 
-        - name: "Install dependencies"
-          run: uv sync --dev
+      - name: Install dependencies
+        run: uv sync --dev
 
-        - name: "Lint"
-          run: uv run ruff check .
+      - name: Lint
+        run: uv run ruff check .
 
-        - name: "Format"
-          run: uv run ruff format . --check
+      - name: Format
+        run: uv run ruff format . --check
 
   typecheck:
     name: "Type Check"
     runs-on: "ubuntu-latest"
     steps:
-        - name: "Checkout the repository"
-          uses: "actions/checkout@v7"
+      - name: Checkout the repository
+        uses: actions/checkout@v7
 
-        - name: "Set up Python"
-          uses: actions/setup-python@v7
-          with:
-            python-version: "3.14"
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
 
-        - name: "Set up uv"
-          uses: astral-sh/setup-uv@v7
-          with:
-            enable-cache: true
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
 
-        - name: "Install dependencies"
-          run: uv sync --dev
+      - name: Install dependencies
+        run: uv sync --dev
 
-        - name: "Type check"
-          run: uv run ty check .
+      - name: Type check
+        run: uv run ty check

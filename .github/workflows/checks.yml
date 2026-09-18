@@ -2,10 +2,10 @@ name: Code Quality Checks
 
 on:
   push:
-    branches: ["main"]
+    branches:
+      - main
   pull_request:
 
-# Kill existing jobs
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -13,26 +13,35 @@ concurrency:
 jobs:
   run-unittest:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.14"]
-
+    name: Run unit tests
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
+      - name: Checkout the repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
         with:
-          python-version: ${{ matrix.python-version }}
-      - uses: astral-sh/setup-uv@v7
+          python-version: "3.14"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
-      - run: python -c "import sys; print(sys.version)"
-      - run: uv sync --dev
+
+      - name: Show Python version
+        run: python --version
+
+      - name: Install dependencies
+        run: uv sync --dev
+
       - name: Run tests with coverage
-        run: uv run pytest --cov=custom_components/komfovent --cov-branch --cov-report=term --cov-report=xml --junitxml=junit.xml -o junit_family=legacy
-      - name: Upload coverage reports to Codecov
+        run: uv run pytest --cov=custom_components/komfovent --cov-branch --cov-report=xml --cov-report=term --junitxml=junit.xml -o junit_family=legacy
+
+      - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+
       - name: Upload test results to Codecov
         if: ${{ !cancelled() }}
         uses: codecov/test-results-action@v1
