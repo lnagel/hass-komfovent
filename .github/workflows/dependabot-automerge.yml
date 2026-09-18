@@ -1,0 +1,38 @@
+name: Dependabot auto-merge
+
+on: pull_request
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  automerge:
+    name: Auto-merge lockfile updates
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+      PR: ${{ github.event.pull_request.number }}
+
+    steps:
+      - name: Check whether the PR only changes uv.lock
+        id: scope
+        run: |
+          files=$(gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[].filename' | sort -u)
+          printf 'changed files:\n%s\n' "$files"
+          if [ "$files" = "uv.lock" ]; then
+            echo "lock_only=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "lock_only=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Enable auto-merge
+        if: steps.scope.outputs.lock_only == 'true'
+        run: gh pr merge --auto --squash --repo "$REPO" "$PR"
+
+      - name: Revoke auto-merge
+        if: steps.scope.outputs.lock_only != 'true'
+        run: gh pr merge --disable-auto --repo "$REPO" "$PR" || true
