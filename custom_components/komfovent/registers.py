@@ -152,6 +152,29 @@ REG_ACTIVE_ALARM8 = 608  # Active alarm 8 code
 REG_ACTIVE_ALARM9 = 609  # Active alarm 9 code
 REG_ACTIVE_ALARM10 = 610  # Active alarm 10 code
 
+# Scheduler (300-555), read on a slow cycle.
+# 4 programs (SchedulerMode 0-3) x 4 rows x 16 registers. Each row: weekday bitmask
+# (bit0 = Monday ... bit6 = Sunday, 0 = unused row), then 5 intervals of
+# (operation mode, start minute, end minute), minutes counted from midnight.
+# Layout confirmed on a C6 (Walendów, 2026-09-26) against the unit's own schedule.
+REG_SCHEDULER_START = 300
+SCHEDULER_PROGRAMS = 4
+SCHEDULER_ROWS = 4
+SCHEDULER_ROW_SIZE = 16
+SCHEDULER_INTERVALS = 5
+SCHEDULER_SIZE = SCHEDULER_PROGRAMS * SCHEDULER_ROWS * SCHEDULER_ROW_SIZE  # 256
+
+# Alarm history (611-861), read on a slow cycle.
+# 611 holds the number of stored records; records of 5 registers follow from 612,
+# newest first: year, month << 8 | day, hour << 8 | minute, second, alarm code.
+# Layout checked against the diagnostics dumps of 13 C6/C6M units: the count always
+# matches the records present and the timestamps run newest to oldest.
+REG_ALARM_HISTORY_COUNT = 611
+REG_ALARM_HISTORY_START = 612
+ALARM_HISTORY_RECORD_SIZE = 5
+ALARM_HISTORY_RECORDS = 50
+ALARM_HISTORY_SIZE = ALARM_HISTORY_RECORD_SIZE * ALARM_HISTORY_RECORDS  # 250
+
 # Sensor registers
 # Unit status bitmask values:
 # Starting=0, Stopping=1, Fan=2, Rotor=3, Heating=4, Cooling=5,
@@ -421,3 +444,11 @@ REGISTERS_APPLY_EMA = {
     REG_SPI,
     REG_ENERGY_SAVING,
 }
+
+# Scheduler and alarm history blocks are plain 16-bit unsigned values.
+REGISTERS_16BIT_UNSIGNED |= set(
+    range(REG_SCHEDULER_START, REG_SCHEDULER_START + SCHEDULER_SIZE)
+)
+REGISTERS_16BIT_UNSIGNED |= set(
+    range(REG_ALARM_HISTORY_COUNT, REG_ALARM_HISTORY_START + ALARM_HISTORY_SIZE)
+)

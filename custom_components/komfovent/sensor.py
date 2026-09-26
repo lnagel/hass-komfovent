@@ -24,6 +24,7 @@ from homeassistant.const import (
 )
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.util import dt as dt_util
 
 from .helpers import build_device_info, get_controller_version, get_panel_version
 
@@ -45,7 +46,9 @@ from .const import (
     FlowControl,
     FlowUnit,
     HeatExchangerType,
+    OperationMode,
     OutdoorHumiditySensor,
+    SchedulerMode,
     format_alarm_code,
 )
 
@@ -828,6 +831,33 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
         )
     )
 
+    # Scheduler: the mode the active program sets now, all programs as attributes.
+    # The layout is confirmed on C6/C6M only; the C8 dump does not fit it.
+    if coordinator.controller in {Controller.C6, Controller.C6M}:
+        entities.append(
+            SchedulerSensor(
+                coordinator=coordinator,
+                register_id=registers.REG_SCHEDULER_MODE,
+                entity_description=SensorEntityDescription(
+                    key="scheduler",
+                    name="Scheduler",
+                ),
+            )
+        )
+
+    # Alarm history: latest alarm code, full list as attributes
+    entities.append(
+        AlarmHistorySensor(
+            coordinator=coordinator,
+            register_id=registers.REG_ALARM_HISTORY_COUNT,
+            entity_description=SensorEntityDescription(
+                key="alarm_history",
+                name="Alarm History",
+                entity_category=EntityCategory.DIAGNOSTIC,
+            ),
+        )
+    )
+
     return entities
 
 
@@ -1288,3 +1318,151 @@ class ActiveAlarmsSensor(KomfoventSensor):
                 code_str = format_alarm_code(raw)
                 details[code_str] = ALARM_CODE_MESSAGES.get(raw, "Unknown")
         return {"alarm_details": details}
+
+
+_WEEKDAYS = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+
+
+def _hhmm(minutes: int) -> str:
+    """Minutes from midnight as HH:MM (1440 -> 24:00)."""
+    return f"{minutes // 60:02d}:{minutes % 60:02d}"
+
+
+def _mode_name(raw: int) -> str:
+    """Operation mode number as its lower-case name, or the number if unknown."""
+    try:
+        return OperationMode(raw).name.lower()
+    except ValueError:
+        return str(raw)
+
+
+def _days(mask: int) -> list[str]:
+    """Weekday bitmask (bit0 = Monday) as weekday names."""
+    return [day for bit, day in enumerate(_WEEKDAYS) if mask & (1 << bit)]
+
+
+def decode_scheduler_program(data: dict[int, int], program: int) -> list[dict]:
+    """Rows of one scheduler program: weekdays and (mode, start, end) intervals."""
+    rows = []
+    base = registers.REG_SCHEDULER_START + program * (
+        registers.SCHEDULER_ROWS * registers.SCHEDULER_ROW_SIZE
+    )
+    for row in range(registers.SCHEDULER_ROWS):
+        start = base + row * registers.SCHEDULER_ROW_SIZE
+        mask = data.get(start)
+        if not mask:
+            continue
+        intervals = []
+        for i in range(registers.SCHEDULER_INTERVALS):
+            reg = start + 1 + i * 3
+            mode, begin, end = data.get(reg), data.get(reg + 1), data.get(reg + 2)
+            if mode is None or begin is None or end is None or end <= begin:
+                continue
+            intervals.append(
+                {"mode": _mode_name(mode), "start": _hhmm(begin), "end": _hhmm(end)}
+            )
+        rows.append({"days": _days(mask), "intervals": intervals, "_mask": mask})
+    return rows
+
+
+class SchedulerSensor(KomfoventSensor):
+    """Operation mode the active scheduler program sets for the current time."""
+
+    def _program(self) -> tuple[int | None, list[dict]]:
+        data = self.coordinator.data or {}
+        program = data.get(registers.REG_SCHEDULER_MODE)
+        if program is None or registers.REG_SCHEDULER_START not in data:
+            return program, []
+        return program, decode_scheduler_program(data, program)
+
+    @property
+    def native_value(self) -> str | None:
+        """Return the scheduled mode now, per the unit's active program."""
+        _, rows = self._program()
+        if not rows:
+            return None
+        now = dt_util.now()
+        minute = now.hour * 60 + now.minute
+        bit = 1 << now.weekday()
+        for row in rows:
+            if not row["_mask"] & bit:
+                continue
+            for interval in row["intervals"]:
+                begin = int(interval["start"][:2]) * 60 + int(interval["start"][3:])
+                end = int(interval["end"][:2]) * 60 + int(interval["end"][3:])
+                if begin <= minute < end:
+                    return interval["mode"]
+        return None
+
+    @property
+    def extra_state_attributes(self) -> dict:
+        """Return the active program and all programs."""
+        data = self.coordinator.data or {}
+        program, rows = self._program()
+        try:
+            name = SchedulerMode(program).name.lower() if program is not None else None
+        except ValueError:
+            name = str(program)
+        clean = lambda rs: [{k: v for k, v in r.items() if k != "_mask"} for r in rs]  # noqa: E731
+        return {
+            "program": name,
+            "schedule": clean(rows),
+            "programs": {
+                mode.name.lower(): clean(decode_scheduler_program(data, mode.value))
+                for mode in SchedulerMode
+            }
+            if registers.REG_SCHEDULER_START in data
+            else {},
+        }
+
+
+def decode_alarm_history(data: dict[int, int]) -> list[dict]:
+    """Alarm history records, newest first, as many as the unit says it stores."""
+    count = data.get(registers.REG_ALARM_HISTORY_COUNT) or 0
+    history = []
+    for n in range(min(count, registers.ALARM_HISTORY_RECORDS)):
+        reg = (
+            registers.REG_ALARM_HISTORY_START + n * registers.ALARM_HISTORY_RECORD_SIZE
+        )
+        year, month_day, hour_minute, second, code = (
+            data.get(reg + i) for i in range(registers.ALARM_HISTORY_RECORD_SIZE)
+        )
+        if code is None or year is None or month_day is None or hour_minute is None:
+            break
+        try:
+            moment = datetime(  # noqa: DTZ001 - the unit stores local time without zone
+                year,
+                month_day >> 8,
+                month_day & 0xFF,
+                hour_minute >> 8,
+                hour_minute & 0xFF,
+                second or 0,
+            ).isoformat()
+        except TypeError, ValueError:
+            moment = None
+        history.append(
+            {
+                "code": format_alarm_code(code),
+                "message": ALARM_CODE_MESSAGES.get(code, "Unknown"),
+                "time": moment,
+            }
+        )
+    return history
+
+
+class AlarmHistorySensor(KomfoventSensor):
+    """Most recent alarm from the unit's alarm history."""
+
+    @property
+    def native_value(self) -> str | None:
+        """Return the code of the most recent alarm, or empty string."""
+        data = self.coordinator.data or {}
+        if registers.REG_ALARM_HISTORY_COUNT not in data:
+            return None
+        history = decode_alarm_history(data)
+        return history[0]["code"] if history else ""
+
+    @property
+    def extra_state_attributes(self) -> dict:
+        """Return the full alarm history."""
+        return {"history": decode_alarm_history(self.coordinator.data or {})}

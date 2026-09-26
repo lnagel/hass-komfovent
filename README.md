@@ -48,12 +48,14 @@ The integration provides comprehensive control and monitoring of your Komfovent 
 - Energy recovery
 - Specific power input (SPI)
 - Active alarms monitoring
+- Alarm history with timestamps
 - Comprehensive alarm status (fault/warning indicators)
 
 ### Advanced Features
 - Electric heater control for each mode
 - Timer-based operation for kitchen/fireplace/override modes
 - Scheduler operation with multiple modes
+- Scheduler programs readable, with the mode scheduled right now (C6/C6M)
 - System time synchronization
 - Clean filters calibration
 - Firmware version monitoring
