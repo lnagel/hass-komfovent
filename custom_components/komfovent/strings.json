@@ -41,6 +41,12 @@
     "sensor": {
       "active_alarms": {
         "name": "Active Alarms"
+      },
+      "alarm_history": {
+        "name": "Alarm History"
+      },
+      "scheduler": {
+        "name": "Scheduler"
       }
     },
     "button": {

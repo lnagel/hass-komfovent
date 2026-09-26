@@ -35,6 +35,9 @@ if TYPE_CHECKING:
 
 _LOGGER = logging.getLogger(__name__)
 
+# Scheduler and alarm history change rarely; they are read on this slower cycle.
+SLOW_UPDATE_INTERVAL = timedelta(minutes=10)
+
 FUNC_VER_EPOCH_TIME_RW = 21
 FUNC_VER_AQ_HUMIDITY = 38
 FUNC_VER_EXHAUST_TEMP = 67
@@ -69,6 +72,10 @@ class KomfoventCoordinator(TimestampDataUpdateCoordinator[dict[int, Any]]):
             port=config_entry.data[CONF_PORT],
         )
         self.ema_time_constant = ema_time_constant
+        # Scheduler and alarm history change rarely; read them on a slow cycle and
+        # carry the last values over between fast updates.
+        self._slow_data: dict[int, int] = {}
+        self._slow_read_at: datetime | None = None
 
     def set_cooldown(self, seconds: float) -> None:
         """Set a cooldown period before the next update can proceed."""
@@ -131,12 +138,12 @@ class KomfoventCoordinator(TimestampDataUpdateCoordinator[dict[int, Any]]):
             else:
                 data.update(await self.client.read(registers.REG_ECO_MIN_TEMP, 18))
 
-            # Skip scheduler (300-555)
+            # Scheduler (300-555) and alarm history (611-861) on a slow cycle
+            await self._update_slow_blocks()
+            data.update(self._slow_data)
 
             # Read active alarms (600-610)
             data.update(await self.client.read(registers.REG_ACTIVE_ALARMS_COUNT, 11))
-
-            # Skip alarm history (611-861)
 
             # Read monitoring (900-957)
             if (
@@ -196,6 +203,31 @@ class KomfoventCoordinator(TimestampDataUpdateCoordinator[dict[int, Any]]):
 
         self._apply_ema_on_update_data(data)
         return data
+
+    async def _update_slow_blocks(self) -> None:
+        """
+        Refresh scheduler and alarm history at most every SLOW_UPDATE_INTERVAL.
+
+        A failure here never fails the whole update: the previous values stay.
+        """
+        now = utcnow()
+        if self._slow_read_at and now - self._slow_read_at < SLOW_UPDATE_INTERVAL:
+            return
+        fresh: dict[int, int] = {}
+        try:
+            for start, size in (
+                (registers.REG_SCHEDULER_START, registers.SCHEDULER_SIZE),
+                (registers.REG_ALARM_HISTORY_COUNT, registers.ALARM_HISTORY_SIZE + 1),
+            ):
+                for offset in range(0, size, 100):
+                    fresh.update(
+                        await self.client.read(start + offset, min(100, size - offset))
+                    )
+        except (ConnectionError, ModbusException) as error:
+            _LOGGER.debug("Failed to read scheduler / alarm history: %s", error)
+            return
+        self._slow_data = fresh
+        self._slow_read_at = now
 
     def _apply_ema_on_update_data(self, data: dict[int, Any]) -> None:
         """Apply EMA filtering to selected registers."""
