@@ -23,6 +23,8 @@ body:
         required: true
       - label: This issue is not a duplicate issue of any [previous issues](https://github.com/lnagel/hass-komfovent/issues?q=is%3Aissue+label%3A%22Bug%22+)..
         required: true
+      - label: I observed this issue on my own installation, and the logs and diagnostics are real (not AI-generated).
+        required: true
 - type: textarea
   attributes:
     label: "Describe the issue"
