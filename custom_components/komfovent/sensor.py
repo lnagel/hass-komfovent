@@ -876,7 +876,6 @@ class KomfoventSensor(KomfoventCoordinatorEntity, SensorEntity):
         if not self.coordinator.data:
             return None
 
-        # Without air flow these readings are meaningless, report unknown
         if (
             self.register_id in registers.REGISTERS_UNKNOWN_WITHOUT_FLOW
             and not flow_present(self.coordinator.data)
