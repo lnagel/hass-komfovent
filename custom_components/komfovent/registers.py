@@ -421,7 +421,6 @@ REGISTERS_APPLY_EMA = {
     REG_SPI,
     REG_ENERGY_SAVING,
 }
-# Panel sensors measure room air, unaffected by fans starting or stopping
 REGISTERS_EMA_RESET_ON_FLOW_CHANGE = REGISTERS_APPLY_EMA - {
     REG_PANEL1_TEMP,
     REG_PANEL1_RH,
