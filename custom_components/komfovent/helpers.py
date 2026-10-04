@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from homeassistant.const import CONF_HOST
 from homeassistant.helpers.device_registry import DeviceInfo
 
-from .const import DOMAIN, Controller, Panel
+from . import registers
+from .const import BITMASK_FAN, DOMAIN, Controller, Panel
 
 if TYPE_CHECKING:
     from .coordinator import KomfoventCoordinator
@@ -41,6 +42,25 @@ def build_device_info(coordinator: KomfoventCoordinator) -> DeviceInfo:
         model=model,
         configuration_url=f"http://{host}",
     )
+
+
+def flow_present(data: dict[int, Any] | None) -> bool:
+    """
+    Return whether air is flowing through the unit.
+
+    The fan bit of the status register is the single source of truth. Flow is
+    assumed present when the status is unknown, so incomplete data never resets
+    filters or blanks sensors.
+
+    Args:
+        data: Register values as stored by the coordinator
+
+    Returns:
+        True if the fans are running or the status register is missing
+
+    """
+    status = data.get(registers.REG_STATUS) if data else None
+    return status is None or bool(status & BITMASK_FAN)
 
 
 def _unpack_version(value: int) -> tuple[int, int, int, int, int]:
