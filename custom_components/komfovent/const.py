@@ -33,6 +33,21 @@ DEFAULT_STEP_CO2: Final = 25.0
 DEFAULT_STEP_VOC: Final = 5.0
 DEFAULT_STEP_TIMER: Final = 5.0
 
+# REG_STATUS (900) bitmask
+BITMASK_STARTING: Final = 1 << 0  # 1
+BITMASK_STOPPING: Final = 1 << 1  # 2
+BITMASK_FAN: Final = 1 << 2  # 4
+BITMASK_ROTOR: Final = 1 << 3  # 8
+BITMASK_HEATING: Final = 1 << 4  # 16
+BITMASK_COOLING: Final = 1 << 5  # 32
+BITMASK_HEATING_DENIED: Final = 1 << 6  # 64
+BITMASK_COOLING_DENIED: Final = 1 << 7  # 128
+BITMASK_FLOW_DOWN: Final = 1 << 8  # 256
+BITMASK_FREE_HEATING: Final = 1 << 9  # 512
+BITMASK_FREE_COOLING: Final = 1 << 10  # 1024
+BITMASK_ALARM_F: Final = 1 << 11  # 2048
+BITMASK_ALARM_W: Final = 1 << 12  # 4096
+
 
 class Controller(IntEnum):
     """Controllers."""

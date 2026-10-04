@@ -9,9 +9,14 @@ from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.util.dt import utcnow
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.komfovent.const import DOMAIN
+from custom_components.komfovent.const import BITMASK_FAN, DOMAIN
 from custom_components.komfovent.coordinator import KomfoventCoordinator
-from custom_components.komfovent.registers import REG_SUPPLY_TEMP
+from custom_components.komfovent.registers import (
+    REG_PANEL1_TEMP,
+    REG_SPI,
+    REG_STATUS,
+    REG_SUPPLY_TEMP,
+)
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -214,3 +219,73 @@ class TestEmaFiltering:
 
             # Non-EMA register should remain unchanged
             assert data[999] == 100
+
+    @pytest.mark.parametrize(
+        ("previous_status", "status", "expected_spi"),
+        [
+            # Fans stop: the step passes through unfiltered
+            (BITMASK_FAN, 0, 0),
+            # Fans start: the step passes through unfiltered
+            (0, BITMASK_FAN, 0),
+            # No flow change: filtered as usual, 0.0909 * 0 + 0.9091 * 300
+            (BITMASK_FAN, BITMASK_FAN, 272.7),
+            (0, 0, 272.7),
+            # Status missing: flow assumed present, no reset
+            (None, BITMASK_FAN, 272.7),
+            (BITMASK_FAN, None, 272.7),
+        ],
+    )
+    def test_ema_reset_on_flow_change(
+        self,
+        hass: HomeAssistant,
+        mock_config_entry,
+        previous_status,
+        status,
+        expected_spi,
+    ) -> None:
+        """Test flow-dependent registers skip EMA when the fans start or stop."""
+        with patch(
+            "custom_components.komfovent.coordinator.KomfoventModbusClient",
+            return_value=AsyncMock(),
+        ):
+            coordinator = KomfoventCoordinator(
+                hass, config_entry=mock_config_entry, ema_time_constant=300
+            )
+            coordinator.data = {REG_SPI: 300, REG_PANEL1_TEMP: 200}
+            if previous_status is not None:
+                coordinator.data[REG_STATUS] = previous_status
+            coordinator.last_update_success_time = utcnow() - timedelta(seconds=30)
+
+            data = {REG_SPI: 0, REG_PANEL1_TEMP: 250}
+            if status is not None:
+                data[REG_STATUS] = status
+            coordinator._apply_ema_on_update_data(data)
+
+            assert data[REG_SPI] == pytest.approx(expected_spi, rel=0.01)
+            # Panel sensors are filtered regardless of flow changes
+            assert data[REG_PANEL1_TEMP] == pytest.approx(204.5, rel=0.01)
+
+    def test_ema_resumes_after_flow_change(
+        self, hass: HomeAssistant, mock_config_entry
+    ) -> None:
+        """Test filtering continues from the raw value after a reset."""
+        with patch(
+            "custom_components.komfovent.coordinator.KomfoventModbusClient",
+            return_value=AsyncMock(),
+        ):
+            coordinator = KomfoventCoordinator(
+                hass, config_entry=mock_config_entry, ema_time_constant=300
+            )
+            coordinator.data = {REG_STATUS: 0, REG_SPI: 0}
+            coordinator.last_update_success_time = utcnow() - timedelta(seconds=30)
+
+            # Fans start: raw value seeds the filter
+            data = {REG_STATUS: BITMASK_FAN, REG_SPI: 300}
+            coordinator._apply_ema_on_update_data(data)
+            assert data[REG_SPI] == 300
+
+            # Next poll is filtered from that seed: 0.0909 * 400 + 0.9091 * 300
+            coordinator.data = data
+            data = {REG_STATUS: BITMASK_FAN, REG_SPI: 400}
+            coordinator._apply_ema_on_update_data(data)
+            assert data[REG_SPI] == pytest.approx(309.1, rel=0.01)

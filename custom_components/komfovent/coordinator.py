@@ -26,7 +26,7 @@ from .const import (
     Controller,
 )
 from .core.ema import apply_ema
-from .helpers import get_controller_version
+from .helpers import flow_present, get_controller_version
 from .modbus import KomfoventModbusClient
 
 if TYPE_CHECKING:
@@ -208,7 +208,13 @@ class KomfoventCoordinator(TimestampDataUpdateCoordinator[dict[int, Any]]):
 
         dt = (utcnow() - self.last_update_success_time).total_seconds()
 
+        # Restart the filter of flow-dependent registers when the fans start or
+        # stop, so the step shows as a sharp edge instead of a slow ramp
+        flow_changed = flow_present(data) != flow_present(self.data)
+
         for reg in registers.REGISTERS_APPLY_EMA:
+            if flow_changed and reg in registers.REGISTERS_EMA_RESET_ON_FLOW_CHANGE:
+                continue
             if reg in data:
                 data[reg] = apply_ema(
                     current=data[reg],
