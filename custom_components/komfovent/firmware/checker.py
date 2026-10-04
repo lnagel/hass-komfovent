@@ -7,6 +7,7 @@ import re
 from typing import TYPE_CHECKING
 
 import aiofiles
+import aiohttp
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.util import dt as dt_util
@@ -35,6 +36,7 @@ if TYPE_CHECKING:
 _LOGGER = logging.getLogger(__name__)
 
 HTTP_OK = 200
+DOWNLOAD_TIMEOUT = 60
 
 # Firmware filename pattern matches both modern and legacy formats:
 # Modern format: C6_1_5_46_72_P1_1_1_5_48.mbin
@@ -180,7 +182,8 @@ class FirmwareChecker:
             _LOGGER.debug("Downloading firmware for %s from %s", controller_type, url)
 
             session = async_get_clientsession(self._hass)
-            async with session.get(url, timeout=60) as response:
+            timeout = aiohttp.ClientTimeout(total=DOWNLOAD_TIMEOUT)
+            async with session.get(url, timeout=timeout) as response:
                 if response.status != HTTP_OK:
                     _LOGGER.warning(
                         "Failed to download firmware for %s: HTTP %d",

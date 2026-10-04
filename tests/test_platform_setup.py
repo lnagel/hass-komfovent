@@ -12,6 +12,7 @@ from custom_components.komfovent import (
     select,
     sensor,
     switch,
+    update,
 )
 from custom_components.komfovent import (
     datetime as komfovent_datetime,
@@ -27,6 +28,7 @@ PLATFORM_MODULES = [
     select,
     sensor,
     switch,
+    update,
 ]
 
 
