@@ -421,15 +421,13 @@ REGISTERS_APPLY_EMA = {
     REG_SPI,
     REG_ENERGY_SAVING,
 }
-# Flow-dependent measurements step when the fans start or stop, so their EMA
-# restarts from the raw value. Panel sensors measure room air and keep filtering.
+# Panel sensors measure room air, unaffected by fans starting or stopping
 REGISTERS_EMA_RESET_ON_FLOW_CHANGE = REGISTERS_APPLY_EMA - {
     REG_PANEL1_TEMP,
     REG_PANEL1_RH,
     REG_PANEL2_TEMP,
     REG_PANEL2_RH,
 }
-# Measurements that are meaningless without air flow, reported as unknown
 REGISTERS_UNKNOWN_WITHOUT_FLOW = {
     REG_INDOOR_ABS_HUMIDITY,
     REG_OUTDOOR_ABS_HUMIDITY,

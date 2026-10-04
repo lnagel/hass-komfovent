@@ -208,8 +208,7 @@ class KomfoventCoordinator(TimestampDataUpdateCoordinator[dict[int, Any]]):
 
         dt = (utcnow() - self.last_update_success_time).total_seconds()
 
-        # Restart the filter of flow-dependent registers when the fans start or
-        # stop, so the step shows as a sharp edge instead of a slow ramp
+        # Skipping the filter once reseeds it from the raw value
         flow_changed = flow_present(data) != flow_present(self.data)
 
         for reg in registers.REGISTERS_APPLY_EMA:

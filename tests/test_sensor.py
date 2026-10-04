@@ -701,7 +701,7 @@ def test_flow_dependent_sensors_unknown_without_flow(
     mock_coordinator.data = {register_id: raw, registers.REG_STATUS: 0}
     assert sensor.native_value is None
 
-    # Status missing: flow assumed present
+    # Missing status counts as flow present
     mock_coordinator.data = {register_id: raw}
     assert sensor.native_value == pytest.approx(expected)
 
