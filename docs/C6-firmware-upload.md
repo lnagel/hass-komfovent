@@ -227,7 +227,7 @@ Server does not support RFC 1323 window scaling.
 ```python
 # Key server characteristics to replicate:
 RECEIVE_BUFFER_SIZE = 1470  # bytes
-PROCESSING_DELAY = 1.5      # seconds (simulate firmware flash)
+PROCESSING_DELAY = 1.5  # seconds (simulate firmware flash)
 SERVER_HEADER = "C6"
 ```
 
@@ -269,20 +269,17 @@ Cache-Control: no-cache
 ```python
 import requests
 
+
 def upload_firmware(host: str, firmware_path: str) -> bool:
     url = f"http://{host}/g1.html"
 
-    with open(firmware_path, 'rb') as f:
+    with open(firmware_path, "rb") as f:
         files = {
-            '11111': (
-                os.path.basename(firmware_path),
-                f,
-                'application/octet-stream'
-            )
+            "11111": (os.path.basename(firmware_path), f, "application/octet-stream")
         }
         headers = {
-            'Origin': f'http://{host}',
-            'Referer': f'http://{host}/g1.html',
+            "Origin": f"http://{host}",
+            "Referer": f"http://{host}/g1.html",
         }
 
         # Use longer timeout due to slow upload + processing
@@ -290,10 +287,10 @@ def upload_firmware(host: str, firmware_path: str) -> bool:
             url,
             files=files,
             headers=headers,
-            timeout=120  # 2 minutes for large files
+            timeout=120,  # 2 minutes for large files
         )
 
-    return 'uploaded successfully' in response.text
+    return "uploaded successfully" in response.text
 ```
 
 ### Expected Timing

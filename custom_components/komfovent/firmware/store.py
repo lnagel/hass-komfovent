@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from aiofiles import os as aio_os
 from homeassistant.helpers.storage import Store
@@ -53,7 +53,7 @@ class FirmwareStore:
         """Load stored firmware data from disk."""
         stored = await self._store.async_load()
         if stored is not None:
-            self._data = stored  # type: ignore[assignment]
+            self._data = cast("StoredFirmwareData", stored)
             _LOGGER.debug(
                 "Loaded firmware store with %d entries",
                 len(self._data.get("firmware", {})),
@@ -64,7 +64,7 @@ class FirmwareStore:
 
     async def async_save(self) -> None:
         """Save firmware data to disk."""
-        await self._store.async_save(self._data)  # type: ignore[arg-type]
+        await self._store.async_save(cast("dict[str, Any]", self._data))
         _LOGGER.debug("Saved firmware store")
 
     def get_firmware_info(self, controller_type: str) -> FirmwareInfo | None:

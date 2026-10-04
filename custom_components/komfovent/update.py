@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING, Any
 
 from homeassistant.components.update import (
     UpdateDeviceClass,
@@ -46,10 +46,10 @@ async def async_setup_entry(
 class KomfoventUpdateEntity(CoordinatorEntity["KomfoventCoordinator"], UpdateEntity):
     """Representation of a Komfovent firmware update entity."""
 
-    _attr_has_entity_name: ClassVar[bool] = True
-    _attr_name: ClassVar[str] = "Firmware"
-    _attr_device_class: ClassVar[UpdateDeviceClass] = UpdateDeviceClass.FIRMWARE
-    _attr_supported_features: ClassVar[int] = (
+    _attr_has_entity_name = True
+    _attr_name = "Firmware"
+    _attr_device_class = UpdateDeviceClass.FIRMWARE
+    _attr_supported_features = (
         UpdateEntityFeature.INSTALL | UpdateEntityFeature.PROGRESS
     )
     coordinator: KomfoventCoordinator
@@ -86,7 +86,7 @@ class KomfoventUpdateEntity(CoordinatorEntity["KomfoventCoordinator"], UpdateEnt
         try:
             version = get_controller_version(int(raw_value))
             return str(version[4])
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             return None
 
     @property
@@ -150,7 +150,7 @@ class KomfoventUpdateEntity(CoordinatorEntity["KomfoventCoordinator"], UpdateEnt
 
         try:
             version = get_controller_version(int(raw_value))
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             return False
         else:
             # Compare v1, v2, v3 with minimum supported version
