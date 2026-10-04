@@ -44,6 +44,7 @@ class KomfoventDomainData:
     firmware_checker: FirmwareChecker
     entry_count: int = 0
 
+
 # Per-entry runtime data (hass.data[DOMAIN][entry.entry_id])
 @dataclass
 class KomfoventRuntimeData:
@@ -159,6 +160,7 @@ Rename and split the existing `get_version_from_int()` helper:
 ```python
 class Panel(IntEnum):
     """Panel types for firmware versioning."""
+
     P1 = 0
     NA = 15
 ```
@@ -168,6 +170,7 @@ class Panel(IntEnum):
 def get_controller_version(value: int) -> tuple[Controller, int, int, int, int]:
     """Convert integer to controller version tuple."""
     # Renamed from get_version_from_int()
+
 
 def get_panel_version(value: int) -> tuple[Panel, int, int, int, int]:
     """Convert integer to panel version tuple."""
