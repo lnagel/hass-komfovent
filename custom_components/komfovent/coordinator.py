@@ -209,7 +209,9 @@ class KomfoventCoordinator(TimestampDataUpdateCoordinator[dict[int, Any]]):
         dt = (utcnow() - self.last_update_success_time).total_seconds()
 
         # Skipping the filter once reseeds it from the raw value
-        flow_changed = flow_present(data) != flow_present(self.data)
+        flow = flow_present(data)
+        previous_flow = flow_present(self.data)
+        flow_changed = None not in (flow, previous_flow) and flow != previous_flow
 
         for reg in registers.REGISTERS_APPLY_EMA:
             if flow_changed and reg in registers.REGISTERS_EMA_RESET_ON_FLOW_CHANGE:

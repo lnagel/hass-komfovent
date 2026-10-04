@@ -692,7 +692,7 @@ async def test_create_sensors_dx(mock_coordinator, key, sensor_class):
 def test_flow_dependent_sensors_unknown_without_flow(
     mock_coordinator, sensor_class, register_id, raw, expected
 ):
-    """Test flow-dependent sensors report unknown while the fans are stopped."""
+    """Test flow-dependent sensors report unknown unless the fans are running."""
     sensor = sensor_class(mock_coordinator, register_id, DESC)
 
     mock_coordinator.data = {register_id: raw, registers.REG_STATUS: BITMASK_FAN}
@@ -701,9 +701,8 @@ def test_flow_dependent_sensors_unknown_without_flow(
     mock_coordinator.data = {register_id: raw, registers.REG_STATUS: 0}
     assert sensor.native_value is None
 
-    # Missing status counts as flow present
     mock_coordinator.data = {register_id: raw}
-    assert sensor.native_value == pytest.approx(expected)
+    assert sensor.native_value is None
 
 
 @pytest.mark.parametrize(

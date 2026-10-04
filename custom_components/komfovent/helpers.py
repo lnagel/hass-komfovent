@@ -44,23 +44,23 @@ def build_device_info(coordinator: KomfoventCoordinator) -> DeviceInfo:
     )
 
 
-def flow_present(data: dict[int, Any] | None) -> bool:
+def flow_present(data: dict[int, Any] | None) -> bool | None:
     """
     Return whether air is flowing through the unit.
 
-    The fan bit of the status register is the single source of truth. Flow is
-    assumed present when the status is unknown, so incomplete data never resets
-    filters or blanks sensors.
+    The fan bit of the status register is the single source of truth.
 
     Args:
         data: Register values as stored by the coordinator
 
     Returns:
-        True if the fans are running or the status register is missing
+        True if the fans are running, None if the status register is missing
 
     """
     status = data.get(registers.REG_STATUS) if data else None
-    return status is None or bool(status & BITMASK_FAN)
+    if status is None:
+        return None
+    return bool(status & BITMASK_FAN)
 
 
 def _unpack_version(value: int) -> tuple[int, int, int, int, int]:
