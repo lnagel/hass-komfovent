@@ -228,9 +228,10 @@ class TestEmaFiltering:
             # 0.0909 * 0 + 0.9091 * 300
             (BITMASK_FAN, BITMASK_FAN, 272.7),
             (0, 0, 272.7),
-            # Missing status counts as flow present
+            # Unknown flow never resets
             (None, BITMASK_FAN, 272.7),
             (BITMASK_FAN, None, 272.7),
+            (None, None, 272.7),
         ],
     )
     def test_ema_reset_on_flow_change(
