@@ -47,24 +47,10 @@ value. Flow presence is taken from the fan bit of the status register (900).
 All filtered registers are reset except the panel sensors (Panel 1/2 temperature
 and RH), which measure room air and are filtered continuously.
 
-## Unknown Without Flow
-
-These measurements are meaningless while the fans are stopped and are reported
-as unknown until flow returns:
-
-| Category    | Registers                                   |
-|-------------|---------------------------------------------|
-| Humidity    | Indoor Absolute, Outdoor Absolute           |
-| Air Quality | Extract AQ 1, Extract AQ 2                  |
-| Efficiency  | Heat Exchanger Efficiency, SPI, Energy Saving |
-
-Temperatures, pressures, heat recovery and the heat exchanger signal keep
-reporting their values while stopped.
-
 ## Implementation
 
 - `core/ema.py` - The `apply_ema()` function
 - `coordinator.py` - `_apply_ema_on_update_data()` applies filtering before returning data
-- `registers.py` - `REGISTERS_APPLY_EMA` defines which registers to filter, `REGISTERS_EMA_RESET_ON_FLOW_CHANGE` which of them reset and `REGISTERS_UNKNOWN_WITHOUT_FLOW` which report unknown
+- `registers.py` - `REGISTERS_APPLY_EMA` defines which registers to filter and `REGISTERS_EMA_RESET_ON_FLOW_CHANGE` which of them reset
 - `helpers.py` - `flow_present()` determines flow presence from the status register
 - `config_flow.py` - Options flow for `ema_time_constant` setting
