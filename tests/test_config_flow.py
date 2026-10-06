@@ -2,8 +2,8 @@
 
 from unittest.mock import patch
 
-import probatio
 import pytest
+import voluptuous as vol
 from homeassistant.const import CONF_HOST, CONF_NAME, CONF_PORT
 from homeassistant.data_entry_flow import FlowResultType
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -173,7 +173,7 @@ class TestSchemas:
 
     def test_config_schema_requires_host(self):
         """Test config schema requires host."""
-        with pytest.raises(probatio.MultipleInvalid):
+        with pytest.raises(vol.MultipleInvalid):
             CONFIG_SCHEMA({CONF_NAME: "Test"})
 
     @pytest.mark.parametrize(
