@@ -2,7 +2,7 @@
 
 from typing import Any
 
-import voluptuous as vol
+import probatio
 from homeassistant.config_entries import (
     ConfigEntry,
     ConfigFlow,
@@ -33,16 +33,16 @@ from .const import (
     OPT_UPDATE_INTERVAL,
 )
 
-CONFIG_SCHEMA = vol.Schema(
+CONFIG_SCHEMA = probatio.Schema(
     {
-        vol.Required(CONF_NAME, default=DEFAULT_NAME): str,
-        vol.Required(CONF_HOST): str,
-        vol.Required(CONF_PORT, default=DEFAULT_PORT): int,
+        probatio.Required(CONF_NAME, default=DEFAULT_NAME): str,
+        probatio.Required(CONF_HOST): str,
+        probatio.Required(CONF_PORT, default=DEFAULT_PORT): int,
     }
 )
-OPTIONS_SCHEMA = vol.Schema(
+OPTIONS_SCHEMA = probatio.Schema(
     {
-        vol.Optional(
+        probatio.Optional(
             OPT_UPDATE_INTERVAL, default=DEFAULT_UPDATE_INTERVAL
         ): NumberSelector(
             NumberSelectorConfig(
@@ -53,7 +53,7 @@ OPTIONS_SCHEMA = vol.Schema(
                 unit_of_measurement="seconds",
             )
         ),
-        vol.Optional(
+        probatio.Optional(
             OPT_EMA_TIME_CONSTANT, default=DEFAULT_EMA_TIME_CONSTANT
         ): NumberSelector(
             NumberSelectorConfig(
@@ -64,12 +64,12 @@ OPTIONS_SCHEMA = vol.Schema(
                 unit_of_measurement="seconds",
             )
         ),
-        vol.Optional(OPT_STEP_FLOW): vol.Coerce(float),
-        vol.Optional(OPT_STEP_TEMPERATURE): vol.Coerce(float),
-        vol.Optional(OPT_STEP_HUMIDITY): vol.Coerce(float),
-        vol.Optional(OPT_STEP_CO2): vol.Coerce(float),
-        vol.Optional(OPT_STEP_VOC): vol.Coerce(float),
-        vol.Optional(OPT_STEP_TIMER): vol.Coerce(float),
+        probatio.Optional(OPT_STEP_FLOW): probatio.Coerce(float),
+        probatio.Optional(OPT_STEP_TEMPERATURE): probatio.Coerce(float),
+        probatio.Optional(OPT_STEP_HUMIDITY): probatio.Coerce(float),
+        probatio.Optional(OPT_STEP_CO2): probatio.Coerce(float),
+        probatio.Optional(OPT_STEP_VOC): probatio.Coerce(float),
+        probatio.Optional(OPT_STEP_TIMER): probatio.Coerce(float),
     }
 )
 
