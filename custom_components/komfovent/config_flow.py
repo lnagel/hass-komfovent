@@ -3,9 +3,6 @@
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    # Home Assistant 2026.9+ aliases voluptuous to probatio at runtime, but the
-    # real voluptuous package is still installed as a transitive dependency.
-    # Type check against probatio so the schemas match Home Assistant's types.
     import probatio as vol
 else:
     import voluptuous as vol
