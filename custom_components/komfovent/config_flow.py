@@ -1,8 +1,14 @@
 """Config flow for Komfovent integration."""
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-import voluptuous as vol
+if TYPE_CHECKING:
+    # Home Assistant 2026.9+ aliases voluptuous to probatio at runtime, but the
+    # real voluptuous package is still installed as a transitive dependency.
+    # Type check against probatio so the schemas match Home Assistant's types.
+    import probatio as vol
+else:
+    import voluptuous as vol
 from homeassistant.config_entries import (
     ConfigEntry,
     ConfigFlow,
