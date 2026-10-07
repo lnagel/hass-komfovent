@@ -1,8 +1,11 @@
 """Config flow for Komfovent integration."""
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-import voluptuous as vol
+if TYPE_CHECKING:
+    import probatio as vol
+else:
+    import voluptuous as vol
 from homeassistant.config_entries import (
     ConfigEntry,
     ConfigFlow,
