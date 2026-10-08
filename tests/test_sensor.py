@@ -14,6 +14,7 @@ from homeassistant.const import PERCENTAGE, UnitOfEnergy, UnitOfVolumeFlowRate
 from custom_components.komfovent import registers
 from custom_components.komfovent.const import (
     ALARM_CODE_MESSAGES,
+    BITMASK_FAN,
     DOMAIN,
     AirQualitySensorType,
     ConnectedPanels,
@@ -670,3 +671,60 @@ async def test_create_sensors_dx(mock_coordinator, key, sensor_class):
     sensor = next(s for s in sensors if s.entity_description.key == key)
     assert isinstance(sensor, sensor_class)
     assert sensor.register_id == registers.REG_DX_UNIT
+
+
+# ==================== Flow Presence ====================
+
+
+@pytest.mark.parametrize(
+    ("sensor_class", "register_id", "raw", "expected"),
+    [
+        (SPISensor, registers.REG_SPI, 2500, 2.5),
+        (CO2Sensor, registers.REG_EXTRACT_AQ_1, 800, 800),
+        (VOCSensor, registers.REG_EXTRACT_AQ_2, 50, 50),
+        (RelativeHumiditySensor, registers.REG_EXTRACT_AQ_2, 45, 45),
+        (AbsoluteHumiditySensor, registers.REG_INDOOR_ABS_HUMIDITY, 850, 8.5),
+        (AbsoluteHumiditySensor, registers.REG_OUTDOOR_ABS_HUMIDITY, 850, 8.5),
+        (KomfoventSensor, registers.REG_HEAT_EFFICIENCY, 80, 80),
+        (KomfoventSensor, registers.REG_ENERGY_SAVING, 70, 70),
+    ],
+)
+def test_flow_dependent_sensors_unknown_without_flow(
+    mock_coordinator, sensor_class, register_id, raw, expected
+):
+    """Test flow-dependent sensors report unknown unless the fans are running."""
+    sensor = sensor_class(mock_coordinator, register_id, DESC)
+
+    mock_coordinator.data = {register_id: raw, registers.REG_STATUS: BITMASK_FAN}
+    assert sensor.native_value == pytest.approx(expected)
+
+    mock_coordinator.data = {register_id: raw, registers.REG_STATUS: 0}
+    assert sensor.native_value is None
+
+    mock_coordinator.data = {register_id: raw}
+    assert sensor.native_value is None
+
+
+@pytest.mark.parametrize(
+    ("sensor_class", "register_id", "raw", "expected"),
+    [
+        (TemperatureSensor, registers.REG_SUPPLY_TEMP, 215, 21.5),
+        (TemperatureSensor, registers.REG_EXTRACT_TEMP, 215, 21.5),
+        (TemperatureSensor, registers.REG_OUTDOOR_TEMP, 215, 21.5),
+        (TemperatureSensor, registers.REG_EXHAUST_TEMP, 215, 21.5),
+        (TemperatureSensor, registers.REG_WATER_TEMP, 215, 21.5),
+        (TemperatureSensor, registers.REG_PANEL1_TEMP, 215, 21.5),
+        (RelativeHumiditySensor, registers.REG_PANEL1_RH, 45, 45),
+        (KomfoventSensor, registers.REG_SUPPLY_PRESSURE, 0, 0),
+        (KomfoventSensor, registers.REG_EXTRACT_PRESSURE, 0, 0),
+        (KomfoventSensor, registers.REG_HEAT_RECOVERY, 0, 0),
+        (DutyCycleSensor, registers.REG_HEAT_EXCHANGER, 0, 0),
+    ],
+)
+def test_other_sensors_report_without_flow(
+    mock_coordinator, sensor_class, register_id, raw, expected
+):
+    """Test temperatures, pressures and panel sensors report while stopped."""
+    sensor = sensor_class(mock_coordinator, register_id, DESC)
+    mock_coordinator.data = {register_id: raw, registers.REG_STATUS: 0}
+    assert sensor.native_value == pytest.approx(expected)

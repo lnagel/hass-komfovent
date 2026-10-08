@@ -25,7 +25,12 @@ from homeassistant.const import (
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .helpers import build_device_info, get_controller_version, get_panel_version
+from .helpers import (
+    build_device_info,
+    flow_present,
+    get_controller_version,
+    get_panel_version,
+)
 
 if TYPE_CHECKING:
     from decimal import Decimal
@@ -868,6 +873,12 @@ class KomfoventSensor(CoordinatorEntity["KomfoventCoordinator"], SensorEntity):
     def raw_value(self) -> int | None:
         """Return the unconverted register value backing this sensor."""
         if not self.coordinator.data:
+            return None
+
+        if (
+            self.register_id in registers.REGISTERS_UNKNOWN_WITHOUT_FLOW
+            and not flow_present(self.coordinator.data)
+        ):
             return None
 
         return self.coordinator.data.get(self.register_id)

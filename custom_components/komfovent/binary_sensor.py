@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Final
+from typing import TYPE_CHECKING
 
 from homeassistant.components.binary_sensor import (
     BinarySensorDeviceClass,
@@ -18,22 +18,22 @@ if TYPE_CHECKING:
     from .coordinator import KomfoventConfigEntry, KomfoventCoordinator
 
 from . import registers
+from .const import (
+    BITMASK_ALARM_F,
+    BITMASK_ALARM_W,
+    BITMASK_COOLING,
+    BITMASK_COOLING_DENIED,
+    BITMASK_FAN,
+    BITMASK_FLOW_DOWN,
+    BITMASK_FREE_COOLING,
+    BITMASK_FREE_HEATING,
+    BITMASK_HEATING,
+    BITMASK_HEATING_DENIED,
+    BITMASK_ROTOR,
+    BITMASK_STARTING,
+    BITMASK_STOPPING,
+)
 from .helpers import build_device_info
-
-# Status bitmask values
-BITMASK_STARTING: Final = 1 << 0  # 1
-BITMASK_STOPPING: Final = 1 << 1  # 2
-BITMASK_FAN: Final = 1 << 2  # 4
-BITMASK_ROTOR: Final = 1 << 3  # 8
-BITMASK_HEATING: Final = 1 << 4  # 16
-BITMASK_COOLING: Final = 1 << 5  # 32
-BITMASK_HEATING_DENIED: Final = 1 << 6  # 64
-BITMASK_COOLING_DENIED: Final = 1 << 7  # 128
-BITMASK_FLOW_DOWN: Final = 1 << 8  # 256
-BITMASK_FREE_HEATING: Final = 1 << 9  # 512
-BITMASK_FREE_COOLING: Final = 1 << 10  # 1024
-BITMASK_ALARM_F: Final = 1 << 11  # 2048
-BITMASK_ALARM_W: Final = 1 << 12  # 4096
 
 
 async def create_binary_sensors(
