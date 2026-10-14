@@ -10,7 +10,6 @@ if TYPE_CHECKING:
 
 from homeassistant.components.select import SelectEntity, SelectEntityDescription
 from homeassistant.const import EntityCategory
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import registers, services
 from .const import (
@@ -27,6 +26,7 @@ from .const import (
     SchedulerMode,
     TemperatureControl,
 )
+from .entity import KomfoventCoordinatorEntity
 from .helpers import build_device_info
 
 if TYPE_CHECKING:
@@ -222,7 +222,7 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
-class KomfoventSelect(CoordinatorEntity["KomfoventCoordinator"], SelectEntity):
+class KomfoventSelect(KomfoventCoordinatorEntity, SelectEntity):
     """Representation of a Komfovent select entity."""
 
     _attr_has_entity_name = True
@@ -245,9 +245,13 @@ class KomfoventSelect(CoordinatorEntity["KomfoventCoordinator"], SelectEntity):
         )
         self._attr_translation_key = entity_description.key
         self._attr_device_info = build_device_info(coordinator)
+        self._update_attrs()
 
-    @property
-    def current_option(self) -> str | None:
+    def _update_attrs(self) -> None:
+        """Set the selected option from coordinator data."""
+        self._attr_current_option = self._compute_current_option()
+
+    def _compute_current_option(self) -> str | None:
         """Return the current selected option."""
         if not self.coordinator.data:
             return None

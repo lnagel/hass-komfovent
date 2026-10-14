@@ -595,10 +595,11 @@ class TestActiveAlarmsSensor:
         sensor = ActiveAlarmsSensor(
             mock_coordinator, registers.REG_ACTIVE_ALARMS_COUNT, DESC
         )
-        attrs = sensor.extra_state_attributes
-        assert attrs["alarm_details"] == {
-            "F9": "Internal Fire",
-            "W1": "Change Air Filter",
+        assert sensor.extra_state_attributes == {
+            "alarm_details": {
+                "F9": "Internal Fire",
+                "W1": "Change Air Filter",
+            }
         }
 
     def test_alarm_details_empty_when_count_zero(self, mock_coordinator):
@@ -607,7 +608,7 @@ class TestActiveAlarmsSensor:
         sensor = ActiveAlarmsSensor(
             mock_coordinator, registers.REG_ACTIVE_ALARMS_COUNT, DESC
         )
-        assert sensor.extra_state_attributes["alarm_details"] == {}
+        assert sensor.extra_state_attributes == {"alarm_details": {}}
 
     def test_alarm_details_empty_when_no_data(self, mock_coordinator):
         """Test alarm_details is empty dict when data is None."""
@@ -615,7 +616,7 @@ class TestActiveAlarmsSensor:
         sensor = ActiveAlarmsSensor(
             mock_coordinator, registers.REG_ACTIVE_ALARMS_COUNT, DESC
         )
-        assert sensor.extra_state_attributes["alarm_details"] == {}
+        assert sensor.extra_state_attributes == {"alarm_details": {}}
 
     def test_alarm_details_unknown_code(self, mock_coordinator):
         """Test unknown alarm code shows 'Unknown' message."""
@@ -624,8 +625,7 @@ class TestActiveAlarmsSensor:
         sensor = ActiveAlarmsSensor(
             mock_coordinator, registers.REG_ACTIVE_ALARMS_COUNT, DESC
         )
-        attrs = sensor.extra_state_attributes
-        assert attrs["alarm_details"] == {"F127": "Unknown"}
+        assert sensor.extra_state_attributes == {"alarm_details": {"F127": "Unknown"}}
 
     def test_skips_zero_alarm_codes(self, mock_coordinator):
         """Test that zero-valued alarm registers are skipped."""
@@ -636,8 +636,8 @@ class TestActiveAlarmsSensor:
             mock_coordinator, registers.REG_ACTIVE_ALARMS_COUNT, DESC
         )
         assert sensor.native_value == "F9"
-        assert sensor.extra_state_attributes["alarm_details"] == {
-            "F9": "Internal Fire",
+        assert sensor.extra_state_attributes == {
+            "alarm_details": {"F9": "Internal Fire"}
         }
 
 

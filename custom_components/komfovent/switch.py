@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING
 
 from homeassistant.components.switch import SwitchEntity, SwitchEntityDescription
 from homeassistant.const import EntityCategory
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -15,6 +14,7 @@ if TYPE_CHECKING:
     from .coordinator import KomfoventConfigEntry, KomfoventCoordinator
 
 from . import registers
+from .entity import KomfoventCoordinatorEntity
 from .helpers import build_device_info
 
 
@@ -212,7 +212,7 @@ async def async_setup_entry(
     async_add_entities(await create_switches(coordinator))
 
 
-class KomfoventSwitch(CoordinatorEntity["KomfoventCoordinator"], SwitchEntity):
+class KomfoventSwitch(KomfoventCoordinatorEntity, SwitchEntity):
     """Representation of a Komfovent switch."""
 
     _attr_has_entity_name = True
@@ -233,9 +233,13 @@ class KomfoventSwitch(CoordinatorEntity["KomfoventCoordinator"], SwitchEntity):
         )
         self._attr_translation_key = entity_description.key
         self._attr_device_info = build_device_info(coordinator)
+        self._update_attrs()
 
-    @property
-    def is_on(self) -> bool | None:
+    def _update_attrs(self) -> None:
+        """Set the switch state from coordinator data."""
+        self._attr_is_on = self._compute_is_on()
+
+    def _compute_is_on(self) -> bool | None:
         """Return True if entity is on."""
         if not self.coordinator.data:
             return None

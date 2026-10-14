@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING
 
 from homeassistant.components.datetime import DateTimeEntity, DateTimeEntityDescription
 from homeassistant.const import EntityCategory
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -17,6 +16,7 @@ if TYPE_CHECKING:
     from .coordinator import KomfoventConfigEntry, KomfoventCoordinator
 
 from . import registers
+from .entity import KomfoventCoordinatorEntity
 from .helpers import build_device_info
 
 
@@ -56,7 +56,7 @@ async def async_setup_entry(
     )
 
 
-class KomfoventDateTime(CoordinatorEntity["KomfoventCoordinator"], DateTimeEntity):
+class KomfoventDateTime(KomfoventCoordinatorEntity, DateTimeEntity):
     """Representation of a Komfovent datetime entity."""
 
     _attr_has_entity_name = True
@@ -77,9 +77,13 @@ class KomfoventDateTime(CoordinatorEntity["KomfoventCoordinator"], DateTimeEntit
         )
         self._attr_translation_key = entity_description.key
         self._attr_device_info = build_device_info(coordinator)
+        self._update_attrs()
 
-    @property
-    def native_value(self) -> datetime | None:
+    def _update_attrs(self) -> None:
+        """Set the datetime value from coordinator data."""
+        self._attr_native_value = self._compute_native_value()
+
+    def _compute_native_value(self) -> datetime | None:
         """Return the datetime value."""
         if not self.coordinator.data:
             return None
