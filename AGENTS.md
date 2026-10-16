@@ -1,4 +1,4 @@
-# CLAUDE.md - AI Agent Guidelines
+# AGENTS.md - AI Agent Guidelines
 
 This document provides essential guidelines for AI agents working on this codebase.
 
