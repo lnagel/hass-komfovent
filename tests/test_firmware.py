@@ -325,9 +325,12 @@ class TestFirmwareChecker:
 
         storage_hass.async_create_background_task.assert_not_called()
 
-    async def test_start_and_stop(self, checker):
+    async def test_start_and_stop(self, checker, storage_hass):
         """Test start registers the interval once and stop removes it."""
         unsub = MagicMock()
+        initial_task = MagicMock()
+        initial_task.done.return_value = False
+        storage_hass.async_create_background_task.return_value = initial_task
         with (
             patch(
                 "custom_components.komfovent.firmware.checker.async_track_time_interval",
@@ -340,7 +343,12 @@ class TestFirmwareChecker:
 
             mock_track.assert_called_once()
             assert mock_track.call_args.args[2] == FIRMWARE_CHECK_INTERVAL
-            mock_check.assert_awaited_once()
+
+            # Initial check runs in the background instead of blocking setup
+            storage_hass.async_create_background_task.assert_called_once()
+            mock_check.assert_called_once()
+            mock_check.assert_not_awaited()
+            await storage_hass.async_create_background_task.call_args.args[0]
 
             await mock_track.call_args.args[1](None)
             assert mock_check.await_count == 2
@@ -348,6 +356,26 @@ class TestFirmwareChecker:
         await checker.async_stop()
         await checker.async_stop()
         unsub.assert_called_once()
+        initial_task.cancel.assert_called_once()
+
+    async def test_stop_after_initial_check_finished(self, checker, storage_hass):
+        """Test stop does not cancel a completed initial check."""
+        initial_task = MagicMock()
+        initial_task.done.return_value = True
+        storage_hass.async_create_background_task.return_value = initial_task
+        with (
+            patch(
+                "custom_components.komfovent.firmware.checker.async_track_time_interval",
+                return_value=MagicMock(),
+            ),
+            patch.object(checker, "async_check_for_updates", AsyncMock()),
+        ):
+            await checker.async_start()
+            storage_hass.async_create_background_task.call_args.args[0].close()
+
+        await checker.async_stop()
+
+        initial_task.cancel.assert_not_called()
 
     async def test_check_skipped_without_controller_types(self, checker, mock_session):
         """Test no download happens without registered controller types."""

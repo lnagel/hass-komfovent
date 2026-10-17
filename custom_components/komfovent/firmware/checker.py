@@ -27,6 +27,7 @@ from custom_components.komfovent.firmware import (
 )
 
 if TYPE_CHECKING:
+    import asyncio
     from collections.abc import Callable
     from datetime import datetime
 
@@ -72,6 +73,7 @@ class FirmwareChecker:
         self._hass = hass
         self._store = store
         self._unsub_interval: Callable[[], None] | None = None
+        self._initial_check: asyncio.Task[None] | None = None
         # Number of registered config entries per firmware type ("C6", "C8")
         self._type_counts: Counter[str] = Counter()
         self._checking = False
@@ -141,11 +143,20 @@ class FirmwareChecker:
             FIRMWARE_CHECK_INTERVAL,
         )
 
-        # Run an initial check
-        await self.async_check_for_updates()
+        # Run the initial check in the background so the download does not
+        # delay config entry setup
+        self._initial_check = self._hass.async_create_background_task(
+            self.async_check_for_updates(),
+            name="komfovent initial firmware check",
+        )
 
     async def async_stop(self) -> None:
         """Stop the firmware checker."""
+        if self._initial_check is not None:
+            if not self._initial_check.done():
+                self._initial_check.cancel()
+            self._initial_check = None
+
         if self._unsub_interval is not None:
             self._unsub_interval()
             self._unsub_interval = None
