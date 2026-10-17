@@ -33,7 +33,7 @@ DEFAULT_STEP_CO2: Final = 25.0
 DEFAULT_STEP_VOC: Final = 5.0
 DEFAULT_STEP_TIMER: Final = 5.0
 
-# REG_STATUS (900) bitmask
+# Status bitmask values
 BITMASK_STARTING: Final = 1 << 0  # 1
 BITMASK_STOPPING: Final = 1 << 1  # 2
 BITMASK_FAN: Final = 1 << 2  # 4

@@ -225,10 +225,8 @@ class TestEmaFiltering:
         [
             (BITMASK_FAN, 0, 0),
             (0, BITMASK_FAN, 0),
-            # 0.0909 * 0 + 0.9091 * 300
             (BITMASK_FAN, BITMASK_FAN, 272.7),
             (0, 0, 272.7),
-            # Unknown flow never resets
             (None, BITMASK_FAN, 272.7),
             (BITMASK_FAN, None, 272.7),
             (None, None, 272.7),
@@ -286,7 +284,6 @@ class TestEmaFiltering:
             coordinator._apply_ema_on_update_data(data)
             assert data[REG_SPI] == 300
 
-            # 0.0909 * 400 + 0.9091 * 300
             coordinator.data = data
             data = {REG_STATUS: BITMASK_FAN, REG_SPI: 400}
             coordinator._apply_ema_on_update_data(data)
