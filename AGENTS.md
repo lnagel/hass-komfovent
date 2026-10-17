@@ -70,6 +70,8 @@ custom_components/komfovent/    # Main integration code
 ├── sensor.py                   # Sensor entities
 ├── services.py                 # Home Assistant services
 ├── switch.py                   # Switch entities
+├── update.py                   # Firmware update entity
+├── firmware/                   # Firmware download, storage and upload
 ├── manifest.json               # Integration manifest
 └── translations/               # UI translations
 
