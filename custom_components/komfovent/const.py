@@ -15,7 +15,11 @@ FIRMWARE_STORAGE_VERSION: Final = 1
 FIRMWARE_DIR: Final = "komfovent"
 FIRMWARE_MIN_SIZE: Final = 100 * 1024  # 100 KB
 FIRMWARE_MAX_SIZE: Final = 10 * 1024 * 1024  # 10 MB
-FIRMWARE_MIN_SUPPORTED_VERSION: Final = (1, 3, 15)  # v1.3.15 minimum for .mbin support
+FIRMWARE_MIN_SUPPORTED_VERSION_C6: Final = (
+    1,
+    3,
+    15,
+)  # v1.3.15 minimum for .mbin support
 
 # Config
 DEFAULT_NAME = "Komfovent"

@@ -15,7 +15,7 @@ from homeassistant.const import CONF_HOST, CONF_PASSWORD
 from homeassistant.exceptions import HomeAssistantError
 
 from . import registers
-from .const import FIRMWARE_MIN_SUPPORTED_VERSION
+from .const import FIRMWARE_MIN_SUPPORTED_VERSION_C6
 from .entity import KomfoventCoordinatorEntity
 from .firmware import FirmwareInfo, get_controller_type_for_firmware
 from .firmware.uploader import FirmwareUploader, FirmwareUploadError
@@ -120,8 +120,12 @@ class KomfoventUpdateEntity(KomfoventCoordinatorEntity, UpdateEntity):
         """
         Check if firmware update is supported for this device.
 
-        Returns True if the installed firmware version is >= v1.3.15.
+        C6/C6M controllers need v1.3.15 or newer for .mbin uploads. C8
+        controllers supported .mbin uploads from launch.
         """
+        if get_controller_type_for_firmware(self.coordinator.controller) != "C6":
+            return True
+
         if not self.coordinator.data:
             return False
 
@@ -136,7 +140,7 @@ class KomfoventUpdateEntity(KomfoventCoordinatorEntity, UpdateEntity):
         else:
             # Compare v1, v2, v3 with minimum supported version
             installed = (version[1], version[2], version[3])
-            return installed >= FIRMWARE_MIN_SUPPORTED_VERSION
+            return installed >= FIRMWARE_MIN_SUPPORTED_VERSION_C6
 
     @property
     def entity_picture(self) -> str | None:
@@ -168,7 +172,7 @@ class KomfoventUpdateEntity(KomfoventCoordinatorEntity, UpdateEntity):
 
         # Check if firmware update is supported
         if not self._is_firmware_supported:
-            min_ver = ".".join(map(str, FIRMWARE_MIN_SUPPORTED_VERSION))
+            min_ver = ".".join(map(str, FIRMWARE_MIN_SUPPORTED_VERSION_C6))
             msg = (
                 f"Firmware update not supported. Device firmware must be "
                 f"v{min_ver} or newer. Please update manually first."

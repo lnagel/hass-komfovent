@@ -153,18 +153,36 @@ def test_available(entity, mock_coordinator, last_update_success, data, expected
 
 
 @pytest.mark.parametrize(
-    ("version", "expected"),
+    ("controller", "version", "expected"),
     [
-        ((1, 3, 15, 1), True),
-        ((1, 3, 14, 99), False),
-        ((1, 5, 46, 72), True),
+        (Controller.C6, (1, 3, 15, 1), True),
+        (Controller.C6, (1, 3, 14, 99), False),
+        (Controller.C6, (1, 5, 46, 72), True),
+        (Controller.C6M, (1, 3, 14, 99), False),
+        (Controller.C8, (1, 1, 14, 27), True),
+        (Controller.C8, (1, 0, 0, 1), True),
     ],
 )
-def test_is_firmware_supported(entity, mock_coordinator, version, expected):
-    """Test minimum firmware version for updates."""
-    mock_coordinator.data = {registers.REG_FIRMWARE: pack_version(0, *version)}
+def test_is_firmware_supported(entity, mock_coordinator, controller, version, expected):
+    """Test the minimum firmware version only applies to C6 controllers."""
+    mock_coordinator.controller = controller
+    mock_coordinator.data = {
+        registers.REG_FIRMWARE: pack_version(controller.value, *version)
+    }
 
     assert entity._is_firmware_supported is expected
+
+
+async def test_install_c8_below_c6_minimum(entity, mock_coordinator, mock_uploader):
+    """Test C8 firmware below the C6 minimum version can be installed."""
+    mock_coordinator.controller = Controller.C8
+    mock_coordinator.data = {
+        registers.REG_FIRMWARE: pack_version(Controller.C8.value, 1, 1, 14, 27)
+    }
+
+    await entity.async_install(None, backup=False)
+
+    mock_uploader.return_value.async_upload_firmware.assert_awaited_once()
 
 
 async def test_install(entity, mock_coordinator, mock_uploader, firmware_path):
