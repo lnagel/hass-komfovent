@@ -5,6 +5,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import aiohttp
 import pytest
+from homeassistant.exceptions import UnsupportedStorageVersionError
 
 from custom_components.komfovent.const import (
     FIRMWARE_CHECK_INTERVAL,
@@ -19,7 +20,10 @@ from custom_components.komfovent.firmware import (
     is_newer_version,
 )
 from custom_components.komfovent.firmware.checker import FirmwareChecker
-from custom_components.komfovent.firmware.store import FirmwareStore
+from custom_components.komfovent.firmware.store import (
+    FirmwareDataStore,
+    FirmwareStore,
+)
 from custom_components.komfovent.firmware.uploader import (
     DEVICE_RESTART_DELAY,
     FirmwareUploader,
@@ -87,9 +91,9 @@ def storage_hass(hass, tmp_path):
 
 @pytest.fixture
 def mock_ha_store():
-    """Patch the Home Assistant Store used by FirmwareStore."""
+    """Patch the Home Assistant Store subclass used by FirmwareStore."""
     with patch(
-        "custom_components.komfovent.firmware.store.Store", autospec=True
+        "custom_components.komfovent.firmware.store.FirmwareDataStore", autospec=True
     ) as store_class:
         store_class.return_value.async_load = AsyncMock(return_value=None)
         store_class.return_value.async_save = AsyncMock()
@@ -184,9 +188,7 @@ class TestFirmwareStore:
         await store.async_load()
 
         assert store.get_firmware_info("C6") is None
-        assert store.get_latest_version("C6") is None
         assert store.get_firmware_path("C6") is None
-        assert await store.async_has_firmware_file("C6") is False
 
     async def test_load_stored_data(self, store, mock_ha_store):
         """Test loading stored data exposes firmware info."""
@@ -196,58 +198,62 @@ class TestFirmwareStore:
         await store.async_load()
 
         assert store.get_firmware_info("C6") == info
-        assert store.get_latest_version("C6") == "1.5.46.72"
         assert store.get_firmware_path("C6") == Path(info["file_path"])
 
-    async def test_set_and_remove_firmware_info(self, store, mock_ha_store):
-        """Test setting and removing firmware info persists changes."""
+    async def test_load_drops_malformed_entries(self, store, mock_ha_store, caplog):
+        """Test malformed stored entries are dropped instead of failing setup."""
+        info = make_firmware_info()
+        mock_ha_store.async_load.return_value = {
+            "firmware": {
+                "C6": info,
+                "C8": {"filename": C8_FILENAME},
+                "C9": {**info, "controller_version": 72},
+                "C10": {**info, "controller_version": [1, 5]},
+                "C11": "invalid",
+            }
+        }
+
+        await store.async_load()
+
+        assert store.get_firmware_info("C6") == info
+        assert store.get_firmware_info("C8") is None
+        assert "Discarding 4 malformed firmware store entries" in caplog.text
+
+    async def test_load_unreadable_store_starts_fresh(
+        self, store, mock_ha_store, caplog
+    ):
+        """Test data from a newer storage version is discarded, not raised."""
+        mock_ha_store.async_load.side_effect = UnsupportedStorageVersionError(
+            "komfovent_firmware", 2, 1
+        )
+
+        await store.async_load()
+
+        assert store.get_firmware_info("C6") is None
+        assert "Discarding unreadable firmware store" in caplog.text
+
+    async def test_set_firmware_info(self, store, mock_ha_store):
+        """Test setting firmware info persists it."""
         info = make_firmware_info()
 
         await store.async_set_firmware_info("C6", info)
+
         assert store.get_firmware_info("C6") == info
-        mock_ha_store.async_save.assert_awaited_once()
+        mock_ha_store.async_save.assert_awaited_once_with({"firmware": {"C6": info}})
 
-        await store.async_remove_firmware_info("C6")
-        assert store.get_firmware_info("C6") is None
-        assert mock_ha_store.async_save.await_count == 2
-
-        # Removing a missing entry does not save again
-        await store.async_remove_firmware_info("C6")
-        assert mock_ha_store.async_save.await_count == 2
-
-    async def test_set_firmware_info_recreates_missing_key(self, store, mock_ha_store):
-        """Test firmware info can be set when stored data lacks the key."""
-        mock_ha_store.async_load.return_value = {}
-        await store.async_load()
-
-        await store.async_set_firmware_info("C8", make_firmware_info("C8"))
-
-        assert store.get_firmware_info("C8") is not None
-
-    async def test_storage_dir(self, store, tmp_path):
+    async def test_ensure_storage_dir(self, store, tmp_path):
         """Test storage directory is created on demand."""
         expected = tmp_path / ".storage" / "komfovent"
-        assert store.get_storage_dir() == expected
         assert not expected.exists()
 
         assert await store.async_ensure_storage_dir() == expected
         assert expected.is_dir()
 
-    async def test_has_firmware_file(self, store, firmware_file):
-        """Test firmware file presence is checked on disk."""
-        await store.async_set_firmware_info(
-            "C6", make_firmware_info(file_path=str(firmware_file))
-        )
-        assert await store.async_has_firmware_file("C6") is True
-
-        firmware_file.unlink()
-        assert await store.async_has_firmware_file("C6") is False
-
-    async def test_cleanup_without_storage_dir(self, store):
+    async def test_cleanup_without_storage_dir(self, store, tmp_path):
         """Test cleanup is a no-op when the storage directory is missing."""
         await store.async_cleanup_old_files({"C6"})
 
-        assert not store.get_storage_dir().exists()
+        assert not (tmp_path / ".storage" / "komfovent").exists()
 
     async def test_cleanup_old_files(self, store):
         """Test cleanup removes only unreferenced firmware files."""
@@ -279,6 +285,29 @@ class TestFirmwareStore:
             await store.async_cleanup_old_files(set())
 
         assert "Failed to remove firmware file" in caplog.text
+
+
+class TestFirmwareDataStore:
+    """Tests for the versioned Home Assistant Store subclass."""
+
+    @pytest.mark.parametrize(
+        ("old_data", "expected"),
+        [
+            (
+                {"firmware": {"C6": {"filename": C6_FILENAME}}},
+                {"C6": {"filename": C6_FILENAME}},
+            ),
+            ({}, {}),
+        ],
+        ids=["keeps_firmware", "missing_firmware"],
+    )
+    async def test_migrate(self, storage_hass, old_data, expected):
+        """Test migration keeps the firmware entries in the current format."""
+        data_store = FirmwareDataStore(storage_hass, 1, "komfovent_firmware")
+
+        migrated = await data_store._async_migrate_func(1, 0, old_data)
+
+        assert migrated == {"firmware": expected}
 
 
 # ==================== FirmwareChecker Tests ====================
