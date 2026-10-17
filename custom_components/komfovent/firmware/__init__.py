@@ -2,18 +2,15 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypedDict
+from typing import TypedDict
 
-if TYPE_CHECKING:
-    from custom_components.komfovent.const import Controller as ControllerType
+from custom_components.komfovent.const import Controller
 
 
 class FirmwareInfo(TypedDict):
     """Firmware information for a specific controller type."""
 
-    controller_type: (
-        str  # "C6", "C6M", or "C8" - stored as string for JSON serialization
-    )
+    controller_type: str  # "C6" or "C8", stored as string for JSON serialization
     filename: str
     controller_version: tuple[int, int, int, int, int]  # (enum, v1, v2, v3, v4)
     panel_version: tuple[int, int, int, int, int]  # (enum, v1, v2, v3, v4)
@@ -32,29 +29,7 @@ def format_version(version: tuple[int, int, int, int, int]) -> str:
     return f"{version[1]}.{version[2]}.{version[3]}.{version[4]}"
 
 
-def is_newer_version(
-    installed: tuple[int, int, int, int, int],
-    available: tuple[int, int, int, int, int],
-) -> bool:
-    """
-    Check if available version is newer than installed.
-
-    Komfovent uses functional version (v4, the last element) to determine
-    update eligibility. This ensures panel-only updates are not missed.
-
-    Args:
-        installed: Installed version tuple (enum, v1, v2, v3, v4)
-        available: Available version tuple (enum, v1, v2, v3, v4)
-
-    Returns:
-        True if available version is newer than installed
-
-    """
-    # Compare functional versions (v4)
-    return available[4] > installed[4]
-
-
-def get_controller_type_for_firmware(controller: ControllerType) -> str:
+def get_controller_type_for_firmware(controller: Controller) -> str:
     """
     Get the firmware controller type string for a given controller.
 
@@ -64,13 +39,9 @@ def get_controller_type_for_firmware(controller: ControllerType) -> str:
         controller: The controller enum value
 
     Returns:
-        Controller type string ("C6" or "C8")
+        Controller type string ("C6", "C8" or "NA")
 
     """
-    # Import here to avoid circular imports
-    from custom_components.komfovent.const import Controller  # noqa: PLC0415
-
-    # C6 and C6M share firmware
     if controller in {Controller.C6, Controller.C6M}:
         return "C6"
     if controller == Controller.C8:
@@ -83,5 +54,4 @@ __all__ = [
     "StoredFirmwareData",
     "format_version",
     "get_controller_type_for_firmware",
-    "is_newer_version",
 ]

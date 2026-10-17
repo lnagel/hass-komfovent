@@ -17,7 +17,6 @@ from custom_components.komfovent.firmware import (
     FirmwareInfo,
     format_version,
     get_controller_type_for_firmware,
-    is_newer_version,
 )
 from custom_components.komfovent.firmware.checker import FirmwareChecker
 from custom_components.komfovent.firmware.store import (
@@ -25,7 +24,6 @@ from custom_components.komfovent.firmware.store import (
     FirmwareStore,
 )
 from custom_components.komfovent.firmware.uploader import (
-    DEVICE_RESTART_DELAY,
     FirmwareUploader,
     FirmwareUploadError,
 )
@@ -148,19 +146,6 @@ def firmware_file(tmp_path) -> Path:
 def test_format_version():
     """Test version tuple is formatted without the type element."""
     assert format_version((0, 1, 5, 46, 72)) == "1.5.46.72"
-
-
-@pytest.mark.parametrize(
-    ("installed", "available", "expected"),
-    [
-        ((0, 1, 5, 46, 71), (0, 1, 5, 46, 72), True),
-        ((0, 1, 5, 46, 72), (0, 1, 5, 46, 72), False),
-        ((0, 1, 5, 46, 73), (0, 1, 5, 46, 72), False),
-    ],
-)
-def test_is_newer_version(installed, available, expected):
-    """Test comparison uses the functional version."""
-    assert is_newer_version(installed, available) is expected
 
 
 @pytest.mark.parametrize(
@@ -432,7 +417,7 @@ class TestFirmwareChecker:
 
         await checker.async_check_for_updates()
 
-        assert mock_session.get.call_args.args[0] == FIRMWARE_URLS[Controller.C6]
+        assert mock_session.get.call_args.args[0] == FIRMWARE_URLS["C6"]
         info = store.get_firmware_info("C6")
         assert info is not None
         assert info["filename"] == C6_FILENAME
@@ -471,26 +456,17 @@ class TestFirmwareChecker:
         """Test C8 firmware without panel version is parsed."""
         mock_session.get.return_value = firmware_response(C8_FILENAME)
 
-        await checker.async_force_check("C8")
+        await checker._async_check_controller_type("C8")
 
-        assert mock_session.get.call_args.args[0] == FIRMWARE_URLS[Controller.C8]
+        assert mock_session.get.call_args.args[0] == FIRMWARE_URLS["C8"]
         info = store.get_firmware_info("C8")
         assert info is not None
         assert info["controller_version"] == (Controller.C8.value, 1, 2, 3, 4)
         assert info["panel_version"] == (0, 0, 0, 0, 0)
 
-    async def test_force_check_all(self, checker):
-        """Test force check without a type checks all registered types."""
-        with patch.object(
-            checker, "async_check_for_updates", AsyncMock()
-        ) as mock_check:
-            await checker.async_force_check()
-
-        mock_check.assert_awaited_once()
-
     async def test_check_unknown_controller_type(self, checker, mock_session, caplog):
         """Test an unknown controller type is rejected."""
-        await checker.async_force_check("C4")
+        await checker._async_check_controller_type("C4")
 
         mock_session.get.assert_not_called()
         assert "Unknown controller type" in caplog.text
@@ -518,7 +494,7 @@ class TestFirmwareChecker:
         """Test invalid download responses are not stored."""
         mock_session.get.return_value = response
 
-        await checker.async_force_check("C6")
+        await checker._async_check_controller_type("C6")
 
         assert message in caplog.text
         assert store.get_firmware_info("C6") is None
@@ -536,7 +512,7 @@ class TestFirmwareChecker:
         """Test download errors are logged and not raised."""
         mock_session.get.side_effect = error
 
-        await checker.async_force_check("C6")
+        await checker._async_check_controller_type("C6")
 
         assert message in caplog.text
         assert store.get_firmware_info("C6") is None
@@ -567,16 +543,14 @@ class TestFirmwareUploader:
             make_response(text=LOGIN_OK_BODY),
             make_response(text=UPLOAD_OK_BODY),
         ]
-        progress = MagicMock()
         uploader = FirmwareUploader(hass, "192.168.1.100", password="secret")
 
-        assert await uploader.async_upload_firmware(firmware_file, progress) is True
+        await uploader.async_upload_firmware(firmware_file)
 
         login_call, upload_call = upload_session.post.call_args_list
         assert login_call.args[0] == "http://192.168.1.100/g1.html"
         assert login_call.kwargs["data"] == {"1": "user", "2": "secret"}
         assert isinstance(upload_call.kwargs["data"], aiohttp.FormData)
-        progress.assert_called_once_with(len(FIRMWARE_CONTENT), len(FIRMWARE_CONTENT))
 
     @pytest.mark.parametrize("password", [None, "", "user"])
     async def test_login_default_password(
@@ -608,7 +582,7 @@ class TestFirmwareUploader:
         ]
         uploader = FirmwareUploader(hass, "192.168.1.100", password="secret")
 
-        assert await uploader.async_upload_firmware(firmware_file) is True
+        await uploader.async_upload_firmware(firmware_file)
 
         logins = [c.kwargs["data"] for c in upload_session.post.call_args_list[:2]]
         assert logins == [{"1": "user", "2": "secret"}, {"1": "user", "2": "user"}]
@@ -733,7 +707,3 @@ class TestFirmwareUploader:
 
         with pytest.raises(FirmwareUploadError, match=message):
             await uploader.async_upload_firmware(firmware_file)
-
-    def test_restart_delay(self):
-        """Test restart delay is exposed."""
-        assert FirmwareUploader.get_restart_delay() == DEVICE_RESTART_DELAY
