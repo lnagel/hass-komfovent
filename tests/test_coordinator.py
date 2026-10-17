@@ -129,7 +129,7 @@ async def test_paused_updates_keep_last_data(
         await coordinator.connect()
 
         # Without data yet, a paused coordinator still performs the first read
-        coordinator.pause_updates()
+        await coordinator.async_pause_updates()
         await coordinator.async_refresh()
         assert coordinator.data[1] == 42
         reads = mock_client.read.await_count
@@ -140,7 +140,13 @@ async def test_paused_updates_keep_last_data(
         assert coordinator.data[1] == 42
         assert coordinator.last_update_success is True
 
-        coordinator.resume_updates()
+        # Pausing drops the connection, resuming reconnects once
+        mock_client.close.assert_awaited_once()
+        connects = mock_client.connect.await_count
+        await coordinator.async_resume_updates()
+        await coordinator.async_resume_updates()
+        assert mock_client.connect.await_count == connects + 1
+
         await coordinator.async_refresh()
         assert mock_client.read.await_count > reads
         assert coordinator.data[1] == 43
