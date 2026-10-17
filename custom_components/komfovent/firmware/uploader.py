@@ -154,6 +154,9 @@ class FirmwareUploader:
 
         timeout = aiohttp.ClientTimeout(total=LOGIN_TIMEOUT)
         async with session.post(url, data=form_data, timeout=timeout) as response:
+            if response.status != HTTP_OK:
+                msg = f"Login failed with HTTP {response.status}"
+                raise FirmwareUploadError(msg)
             body = await response.text(encoding="windows-1252")
             if 'value="Logout"' not in body:
                 msg = "Login failed: invalid credentials"
@@ -222,13 +225,15 @@ class FirmwareUploader:
             body: The HTML response body
 
         Raises:
-            FirmwareUploadError: If the response contains an error status
+            FirmwareUploadError: If the response has no or an error status
 
         """
         match = _STATUS_PATTERN.search(body)
         if not match:
-            _LOGGER.warning("No status element found in device upload response")
-            return
+            # The device answers HTTP 200 even on errors, so without a status
+            # element the outcome of the upload is unknown
+            msg = "Device did not report an upload status"
+            raise FirmwareUploadError(msg)
 
         status = match.group(1)
         _LOGGER.debug("Device upload status: %s", status)
