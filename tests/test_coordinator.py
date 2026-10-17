@@ -250,17 +250,22 @@ class TestEmaFiltering:
             coordinator = KomfoventCoordinator(
                 hass, config_entry=mock_config_entry, ema_time_constant=300
             )
-            coordinator.data = {REG_SPI: 300, REG_PANEL1_TEMP: 200}
+            coordinator.data = {
+                REG_SPI: 300,
+                REG_SUPPLY_TEMP: 200,
+                REG_PANEL1_TEMP: 200,
+            }
             if previous_status is not None:
                 coordinator.data[REG_STATUS] = previous_status
             coordinator.last_update_success_time = utcnow() - timedelta(seconds=30)
 
-            data = {REG_SPI: 0, REG_PANEL1_TEMP: 250}
+            data = {REG_SPI: 0, REG_SUPPLY_TEMP: 250, REG_PANEL1_TEMP: 250}
             if status is not None:
                 data[REG_STATUS] = status
             coordinator._apply_ema_on_update_data(data)
 
             assert data[REG_SPI] == pytest.approx(expected_spi, rel=0.01)
+            assert data[REG_SUPPLY_TEMP] == pytest.approx(204.5, rel=0.01)
             assert data[REG_PANEL1_TEMP] == pytest.approx(204.5, rel=0.01)
 
     def test_ema_resumes_after_flow_change(

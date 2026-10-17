@@ -44,8 +44,9 @@ step would show as a slow ramp in history, so on the update where the flow state
 changes the filter is skipped for these registers and restarts from the raw
 value. Flow presence is taken from the fan bit of the status register (900).
 
-All filtered registers are reset except the panel sensors (Panel 1/2 temperature
-and RH), which measure room air and are filtered continuously.
+Reset registers: Heat Exchanger signal, Recovery and Efficiency, Indoor and
+Outdoor Absolute Humidity, Extract AQ 1 and 2, SPI and Energy Saving.
+Temperatures, pressures and panel sensors are filtered continuously.
 
 ## Implementation
 
