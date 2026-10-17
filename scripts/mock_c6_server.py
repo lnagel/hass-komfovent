@@ -19,7 +19,7 @@ import os
 import re
 import time
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from typing import Any
+from typing import Any, cast
 from urllib.parse import parse_qs
 
 logging.basicConfig(
@@ -84,7 +84,11 @@ SUCCESS_STATUS = (
 class C6MockHandler(BaseHTTPRequestHandler):
     """HTTP request handler simulating C6 firmware upload endpoint."""
 
-    server: C6MockServer
+    @property
+    def mock_server(self) -> C6MockServer:
+        """Return the server typed as the mock server."""
+        return cast("C6MockServer", self.server)
+
     server_version = "C6"
     sys_version = ""
 
@@ -95,13 +99,16 @@ class C6MockHandler(BaseHTTPRequestHandler):
     def is_authenticated(self) -> bool:
         """Check if client IP is authenticated."""
         client_ip = self.client_address[0]
-        return client_ip in self.server.authenticated_ips
+        return client_ip in self.mock_server.authenticated_ips
 
     def authenticate(self, username: str, password: str) -> bool:
         """Authenticate user and track session by IP."""
-        if username == self.server.username and password == self.server.password:
+        if (
+            username == self.mock_server.username
+            and password == self.mock_server.password
+        ):
             client_ip = self.client_address[0]
-            self.server.authenticated_ips.add(client_ip)
+            self.mock_server.authenticated_ips.add(client_ip)
             logger.info("Authenticated client: %s", client_ip)
             return True
         return False
@@ -109,7 +116,7 @@ class C6MockHandler(BaseHTTPRequestHandler):
     def logout(self) -> None:
         """Remove client from authenticated sessions."""
         client_ip = self.client_address[0]
-        self.server.authenticated_ips.discard(client_ip)
+        self.mock_server.authenticated_ips.discard(client_ip)
         logger.info("Logged out client: %s", client_ip)
 
     def send_c6_headers(self, content_length: int, status: int = 200) -> None:
@@ -220,7 +227,7 @@ class C6MockHandler(BaseHTTPRequestHandler):
             )
             return False
 
-        self.server.last_upload = {
+        self.mock_server.last_upload = {
             "filename": filename,
             "size": len(file_data),
             "timestamp": time.time(),
@@ -228,7 +235,7 @@ class C6MockHandler(BaseHTTPRequestHandler):
 
         logger.info("Received firmware: %s (%d bytes)", filename, len(file_data))
 
-        delay = self.server.processing_delay
+        delay = self.mock_server.processing_delay
         logger.info("Processing firmware (%.1fs delay)...", delay)
         time.sleep(delay)
 

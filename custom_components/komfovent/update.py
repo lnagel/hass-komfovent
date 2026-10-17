@@ -13,11 +13,11 @@ from homeassistant.components.update import (
 )
 from homeassistant.const import CONF_HOST, CONF_PASSWORD
 from homeassistant.exceptions import HomeAssistantError
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import registers
 from .const import FIRMWARE_MIN_SUPPORTED_VERSION
-from .firmware import get_controller_type_for_firmware
+from .entity import KomfoventCoordinatorEntity
+from .firmware import FirmwareInfo, get_controller_type_for_firmware
 from .firmware.uploader import FirmwareUploader, FirmwareUploadError
 from .helpers import build_device_info, get_controller_version
 
@@ -43,7 +43,7 @@ async def async_setup_entry(
     async_add_entities([KomfoventUpdateEntity(coordinator, store)])
 
 
-class KomfoventUpdateEntity(CoordinatorEntity["KomfoventCoordinator"], UpdateEntity):
+class KomfoventUpdateEntity(KomfoventCoordinatorEntity, UpdateEntity):
     """Representation of a Komfovent firmware update entity."""
 
     _attr_has_entity_name = True
@@ -52,7 +52,6 @@ class KomfoventUpdateEntity(CoordinatorEntity["KomfoventCoordinator"], UpdateEnt
     _attr_supported_features = (
         UpdateEntityFeature.INSTALL | UpdateEntityFeature.PROGRESS
     )
-    coordinator: KomfoventCoordinator
 
     def __init__(
         self,
@@ -71,10 +70,22 @@ class KomfoventUpdateEntity(CoordinatorEntity["KomfoventCoordinator"], UpdateEnt
         self._store = store
         self._attr_unique_id = f"{coordinator.config_entry.entry_id}_firmware_update"
         self._attr_device_info = build_device_info(coordinator)
-        self._installing = False
 
-    @property
-    def installed_version(self) -> str | None:
+        self._update_attrs()
+
+    def _update_attrs(self) -> None:
+        """Set version attributes from coordinator data and the firmware store."""
+        self._attr_installed_version = self._compute_installed_version()
+
+        info = self._get_firmware_info()
+        if info is None:
+            self._attr_latest_version = None
+            self._attr_release_summary = None
+        else:
+            self._attr_latest_version = str(info["controller_version"][4])
+            self._attr_release_summary = info["filename"]
+
+    def _compute_installed_version(self) -> str | None:
         """Return the installed firmware functional version (v4)."""
         if not self.coordinator.data:
             return None
@@ -89,42 +100,12 @@ class KomfoventUpdateEntity(CoordinatorEntity["KomfoventCoordinator"], UpdateEnt
         except ValueError, TypeError:
             return None
 
-    @property
-    def latest_version(self) -> str | None:
-        """Return the latest available firmware functional version (v4)."""
+    def _get_firmware_info(self) -> FirmwareInfo | None:
+        """Return the stored firmware info for this controller type."""
         controller_type = get_controller_type_for_firmware(self.coordinator.controller)
         if controller_type == "NA":
             return None
-
-        info = self._store.get_firmware_info(controller_type)
-        if info is None:
-            return None
-
-        return str(info["controller_version"][4])
-
-    @property
-    def release_summary(self) -> str | None:
-        """Return firmware filename as release summary."""
-        controller_type = get_controller_type_for_firmware(self.coordinator.controller)
-        if controller_type == "NA":
-            return None
-
-        info = self._store.get_firmware_info(controller_type)
-        if info is None:
-            return None
-
-        return info["filename"]
-
-    @property
-    def release_url(self) -> str | None:
-        """Return the URL for firmware release notes."""
-        # Komfovent doesn't provide release notes URLs
-        return None
-
-    @property
-    def in_progress(self) -> bool | int:
-        """Return if an update is in progress."""
-        return self._installing
+        return self._store.get_firmware_info(controller_type)
 
     @property
     def available(self) -> bool:
@@ -181,7 +162,7 @@ class KomfoventUpdateEntity(CoordinatorEntity["KomfoventCoordinator"], UpdateEnt
             HomeAssistantError: If installation fails
 
         """
-        if self._installing:
+        if self._attr_in_progress:
             msg = "Firmware update already in progress"
             raise HomeAssistantError(msg)
 
@@ -210,7 +191,7 @@ class KomfoventUpdateEntity(CoordinatorEntity["KomfoventCoordinator"], UpdateEnt
         host = self.coordinator.config_entry.data[CONF_HOST]
         password = self.coordinator.config_entry.data.get(CONF_PASSWORD, "user")
 
-        self._installing = True
+        self._attr_in_progress = True
         self.async_write_ha_state()
 
         try:
@@ -254,5 +235,5 @@ class KomfoventUpdateEntity(CoordinatorEntity["KomfoventCoordinator"], UpdateEnt
             msg = f"Firmware update failed: {err}"
             raise HomeAssistantError(msg) from err
         finally:
-            self._installing = False
+            self._attr_in_progress = False
             self.async_write_ha_state()

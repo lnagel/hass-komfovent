@@ -95,6 +95,7 @@ def test_installed_version(entity, mock_coordinator):
 def test_installed_version_unknown(entity, mock_coordinator, data):
     """Test installed version is unknown without firmware register data."""
     mock_coordinator.data = data
+    entity._update_attrs()
 
     assert entity.installed_version is None
     assert entity._is_firmware_supported is False
@@ -103,6 +104,7 @@ def test_installed_version_unknown(entity, mock_coordinator, data):
 def test_invalid_firmware_register(entity, mock_coordinator):
     """Test a non-numeric firmware register is handled."""
     mock_coordinator.data = {registers.REG_FIRMWARE: "invalid"}
+    entity._update_attrs()
 
     assert entity.installed_version is None
     assert entity._is_firmware_supported is False
@@ -118,6 +120,7 @@ def test_latest_version(entity, mock_store):
 def test_latest_version_without_firmware(entity, mock_store):
     """Test latest version is unknown when no firmware was downloaded."""
     mock_store.get_firmware_info.return_value = None
+    entity._update_attrs()
 
     assert entity.latest_version is None
     assert entity.release_summary is None
@@ -126,6 +129,7 @@ def test_latest_version_without_firmware(entity, mock_store):
 def test_latest_version_unknown_controller(entity, mock_coordinator):
     """Test latest version is unknown for unsupported controllers."""
     mock_coordinator.controller = Controller.NA
+    entity._update_attrs()
 
     assert entity.latest_version is None
     assert entity.release_summary is None
@@ -143,6 +147,7 @@ def test_available(entity, mock_coordinator, last_update_success, data, expected
     """Test availability follows the coordinator."""
     mock_coordinator.last_update_success = last_update_success
     mock_coordinator.data = data
+    entity._update_attrs()
 
     assert entity.available is expected
 
@@ -179,7 +184,7 @@ async def test_install(entity, mock_coordinator, mock_uploader, firmware_path):
 
 async def test_install_already_in_progress(entity, mock_uploader):
     """Test a second install is rejected while one is running."""
-    entity._installing = True
+    entity._attr_in_progress = True
 
     with pytest.raises(HomeAssistantError, match="already in progress"):
         await entity.async_install(None, backup=False)
@@ -200,6 +205,7 @@ async def test_install_unsupported_firmware(entity, mock_coordinator, mock_uploa
 async def test_install_unknown_controller(entity, mock_coordinator, mock_uploader):
     """Test install is rejected for unsupported controllers."""
     mock_coordinator.controller = Controller.NA
+    entity._update_attrs()
 
     with pytest.raises(HomeAssistantError, match="Unknown controller type"):
         await entity.async_install(None, backup=False)
