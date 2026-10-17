@@ -191,6 +191,9 @@ class KomfoventUpdateEntity(KomfoventCoordinatorEntity, UpdateEntity):
             msg = "Firmware file not available. Wait for firmware check to complete."
             raise HomeAssistantError(msg)
 
+        # The functional version the device should report after flashing
+        expected_version = self.latest_version
+
         # Get device connection details
         host = self.coordinator.config_entry.data[CONF_HOST]
         password = self.coordinator.config_entry.data.get(CONF_PASSWORD, "user")
@@ -198,8 +201,9 @@ class KomfoventUpdateEntity(KomfoventCoordinatorEntity, UpdateEntity):
         self._attr_in_progress = True
         self.async_write_ha_state()
 
+        # Stop Modbus polling while the device is flashing and restarting
+        self.coordinator.pause_updates()
         try:
-            # Create uploader
             uploader = FirmwareUploader(self.hass, host, password=password)
 
             _LOGGER.info(
@@ -207,28 +211,13 @@ class KomfoventUpdateEntity(KomfoventCoordinatorEntity, UpdateEntity):
                 self.coordinator.config_entry.title,
                 host,
             )
-
-            # Upload firmware
             await uploader.async_upload_firmware(firmware_path)
 
             _LOGGER.info(
                 "Firmware upload complete, waiting %d seconds for device restart",
                 FirmwareUploader.get_restart_delay(),
             )
-
-            # Set cooldown on coordinator to prevent Modbus errors during restart
-            self.coordinator.set_cooldown(FirmwareUploader.get_restart_delay())
-
-            # Wait for device to restart
             await asyncio.sleep(FirmwareUploader.get_restart_delay())
-
-            # Request a refresh to get the new version
-            await self.coordinator.async_request_refresh()
-
-            _LOGGER.info(
-                "Firmware update completed for %s",
-                self.coordinator.config_entry.title,
-            )
 
         except FirmwareUploadError as err:
             _LOGGER.exception("Firmware upload failed")
@@ -239,5 +228,39 @@ class KomfoventUpdateEntity(KomfoventCoordinatorEntity, UpdateEntity):
             msg = f"Firmware update failed: {err}"
             raise HomeAssistantError(msg) from err
         finally:
+            self.coordinator.resume_updates()
             self._attr_in_progress = False
             self.async_write_ha_state()
+
+        # Read the version the device reports after restarting
+        await self.coordinator.async_refresh()
+        self._verify_installed_version(expected_version)
+
+        _LOGGER.info(
+            "Firmware update completed for %s",
+            self.coordinator.config_entry.title,
+        )
+
+    def _verify_installed_version(self, expected_version: str | None) -> None:
+        """
+        Verify the device reports the flashed firmware after restarting.
+
+        Raises:
+            HomeAssistantError: If the device is unreachable or reports
+                another version
+
+        """
+        if not self.coordinator.last_update_success:
+            msg = (
+                "Firmware was uploaded, but the device did not respond after "
+                "restarting. Check the device."
+            )
+            raise HomeAssistantError(msg)
+
+        installed_version = self._compute_installed_version()
+        if installed_version != expected_version:
+            msg = (
+                f"Firmware was uploaded, but the device reports version "
+                f"{installed_version} instead of {expected_version}"
+            )
+            raise HomeAssistantError(msg)

@@ -50,7 +50,15 @@ def mock_store(firmware_path):
 @pytest.fixture
 def entity(hass, mock_coordinator, mock_store) -> KomfoventUpdateEntity:
     """Create an update entity with state writes mocked."""
-    mock_coordinator.set_cooldown = MagicMock()
+
+    async def refresh_with_flashed_firmware():
+        # The device reports the uploaded functional version after restart
+        mock_coordinator.data = {registers.REG_FIRMWARE: pack_version(0, 1, 5, 46, 72)}
+
+    mock_coordinator.last_update_success = True
+    mock_coordinator.async_refresh = AsyncMock(
+        side_effect=refresh_with_flashed_firmware
+    )
     update_entity = KomfoventUpdateEntity(mock_coordinator, mock_store)
     update_entity.hass = hass
     update_entity.async_write_ha_state = MagicMock()
@@ -186,18 +194,56 @@ async def test_install_c8_below_c6_minimum(entity, mock_coordinator, mock_upload
 
 
 async def test_install(entity, mock_coordinator, mock_uploader, firmware_path):
-    """Test install uploads firmware, waits for restart and refreshes."""
+    """Test install uploads firmware, waits for restart and verifies it."""
+    manager = MagicMock()
+    manager.attach_mock(mock_coordinator.pause_updates, "pause")
+    manager.attach_mock(mock_uploader.return_value.async_upload_firmware, "upload")
+    manager.attach_mock(mock_uploader.sleep, "sleep")
+    manager.attach_mock(mock_coordinator.resume_updates, "resume")
+    manager.attach_mock(mock_coordinator.async_refresh, "refresh")
+
     await entity.async_install(None, backup=False)
 
     mock_uploader.assert_called_once_with(entity.hass, "192.168.1.100", password="user")
+    # Polling is paused for the whole upload and restart, then resumed
+    assert [c[0] for c in manager.mock_calls] == [
+        "pause",
+        "upload",
+        "sleep",
+        "resume",
+        "refresh",
+    ]
     mock_uploader.return_value.async_upload_firmware.assert_awaited_once_with(
         firmware_path
     )
-    mock_coordinator.set_cooldown.assert_called_once_with(DEVICE_RESTART_DELAY)
     mock_uploader.sleep.assert_awaited_once_with(DEVICE_RESTART_DELAY)
-    mock_coordinator.async_request_refresh.assert_awaited_once()
     assert entity.in_progress is False
     assert entity.async_write_ha_state.call_count == 2
+
+
+async def test_install_device_not_back_after_restart(
+    entity, mock_coordinator, mock_uploader
+):
+    """Test install fails when the device does not respond after restart."""
+
+    async def failed_refresh():
+        mock_coordinator.last_update_success = False
+
+    mock_coordinator.async_refresh.side_effect = failed_refresh
+
+    with pytest.raises(HomeAssistantError, match="did not respond"):
+        await entity.async_install(None, backup=False)
+
+    mock_coordinator.resume_updates.assert_called()
+    assert entity.in_progress is False
+
+
+async def test_install_version_not_changed(entity, mock_coordinator, mock_uploader):
+    """Test install fails when the device still reports the old version."""
+    mock_coordinator.async_refresh.side_effect = None
+
+    with pytest.raises(HomeAssistantError, match="reports version 38 instead of 72"):
+        await entity.async_install(None, backup=False)
 
 
 async def test_install_already_in_progress(entity, mock_uploader):
@@ -261,5 +307,8 @@ async def test_install_failure(entity, mock_coordinator, mock_uploader, error, m
     with pytest.raises(HomeAssistantError, match=message):
         await entity.async_install(None, backup=False)
 
-    mock_coordinator.set_cooldown.assert_not_called()
+    # Polling resumes right away instead of waiting for a restart
+    mock_coordinator.resume_updates.assert_called_once()
+    mock_uploader.sleep.assert_not_awaited()
+    mock_coordinator.async_refresh.assert_not_awaited()
     assert entity.in_progress is False

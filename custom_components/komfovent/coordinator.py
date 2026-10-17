@@ -51,6 +51,7 @@ class KomfoventCoordinator(TimestampDataUpdateCoordinator[dict[int, Any]]):
     client: KomfoventModbusClient
     ema_time_constant: int
     _cooldown_until: datetime | None = None
+    _updates_paused: bool = False
 
     def __init__(
         self,
@@ -75,6 +76,14 @@ class KomfoventCoordinator(TimestampDataUpdateCoordinator[dict[int, Any]]):
     def set_cooldown(self, seconds: float) -> None:
         """Set a cooldown period before the next update can proceed."""
         self._cooldown_until = utcnow() + timedelta(seconds=seconds)
+
+    def pause_updates(self) -> None:
+        """Stop polling the device and keep the last data (e.g. while flashing)."""
+        self._updates_paused = True
+
+    def resume_updates(self) -> None:
+        """Resume polling the device."""
+        self._updates_paused = False
 
     async def _wait_for_cooldown(self) -> None:
         """Wait for cooldown period to expire if set."""
@@ -107,6 +116,14 @@ class KomfoventCoordinator(TimestampDataUpdateCoordinator[dict[int, Any]]):
 
     async def _async_update_data(self) -> dict[int, Any]:
         """Fetch data from Komfovent."""
+        if self._updates_paused and self.data is not None:
+            _LOGGER.debug("Updates paused, keeping last data")
+            return self.data
+
+        return await self._async_read_device_data()
+
+    async def _async_read_device_data(self) -> dict[int, Any]:
+        """Read all register blocks from the device."""
         await self._wait_for_cooldown()
 
         data = {}
