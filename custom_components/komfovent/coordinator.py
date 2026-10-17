@@ -33,6 +33,8 @@ if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
 
+    from .firmware.store import FirmwareStore
+
 _LOGGER = logging.getLogger(__name__)
 
 FUNC_VER_EPOCH_TIME_RW = 21
@@ -49,6 +51,7 @@ class KomfoventCoordinator(TimestampDataUpdateCoordinator[dict[int, Any]]):
     client: KomfoventModbusClient
     ema_time_constant: int
     _cooldown_until: datetime | None = None
+    _updates_paused: bool = False
 
     def __init__(
         self,
@@ -73,6 +76,19 @@ class KomfoventCoordinator(TimestampDataUpdateCoordinator[dict[int, Any]]):
     def set_cooldown(self, seconds: float) -> None:
         """Set a cooldown period before the next update can proceed."""
         self._cooldown_until = utcnow() + timedelta(seconds=seconds)
+
+    async def async_pause_updates(self) -> None:
+        """Stop polling and drop the connection, keeping the last data."""
+        self._updates_paused = True
+        # A device restart resets the socket, so reconnect fresh on resume
+        await self.client.close()
+
+    async def async_resume_updates(self) -> None:
+        """Reconnect and resume polling the device."""
+        if not self._updates_paused:
+            return
+        self._updates_paused = False
+        await self.client.connect()
 
     async def _wait_for_cooldown(self) -> None:
         """Wait for cooldown period to expire if set."""
@@ -105,6 +121,14 @@ class KomfoventCoordinator(TimestampDataUpdateCoordinator[dict[int, Any]]):
 
     async def _async_update_data(self) -> dict[int, Any]:
         """Fetch data from Komfovent."""
+        if self._updates_paused and self.data is not None:
+            _LOGGER.debug("Updates paused, keeping last data")
+            return self.data
+
+        return await self._async_read_device_data()
+
+    async def _async_read_device_data(self) -> dict[int, Any]:
+        """Read all register blocks from the device."""
         await self._wait_for_cooldown()
 
         data = {}
@@ -234,6 +258,13 @@ class KomfoventRuntimeData:
     """
 
     coordinator: KomfoventCoordinator
+    # Shared firmware store, None when firmware updates are disabled
+    firmware_store: FirmwareStore | None = None
+
+    @property
+    def firmware_enabled(self) -> bool:
+        """Return whether firmware updates are enabled for this entry."""
+        return self.firmware_store is not None
 
 
 type KomfoventConfigEntry = ConfigEntry[KomfoventRuntimeData]

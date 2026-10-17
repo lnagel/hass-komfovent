@@ -1,0 +1,361 @@
+"""Tests for Komfovent update platform."""
+
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
+from homeassistant.components.update import UpdateDeviceClass, UpdateEntityFeature
+from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT
+from homeassistant.exceptions import HomeAssistantError
+from pytest_homeassistant_custom_component.common import MockConfigEntry
+
+from custom_components.komfovent import registers
+from custom_components.komfovent.const import DOMAIN, Controller
+from custom_components.komfovent.coordinator import KomfoventRuntimeData
+from custom_components.komfovent.firmware import FirmwareInfo
+from custom_components.komfovent.firmware.uploader import (
+    DEVICE_RESTART_DELAY,
+    FirmwareUploadError,
+)
+from custom_components.komfovent.update import (
+    KomfoventUpdateEntity,
+    async_setup_entry,
+)
+
+FIRMWARE_FILENAME = "C6_1_5_46_72_P1_1_1_5_48.mbin"
+
+
+def pack_version(device_type: int, v1: int, v2: int, v3: int, v4: int) -> int:
+    """Pack a version into the firmware register format."""
+    return device_type << 28 | v1 << 24 | v2 << 20 | v3 << 12 | v4
+
+
+@pytest.fixture
+def firmware_path(tmp_path):
+    """Create a firmware file on disk."""
+    path = tmp_path / FIRMWARE_FILENAME
+    path.write_bytes(b"firmware")
+    return path
+
+
+@pytest.fixture
+def mock_store(firmware_path):
+    """Create a mock firmware store holding one C6 firmware."""
+    info = FirmwareInfo(
+        controller_type="C6",
+        filename=FIRMWARE_FILENAME,
+        controller_version=(0, 1, 5, 46, 72),
+        panel_version=(1, 1, 1, 5, 48),
+        file_path=str(firmware_path),
+        last_checked_at="2026-01-01T00:00:00+00:00",
+    )
+    store = MagicMock()
+    store.get_firmware_info.side_effect = {"C6": info, "C8": info}.get
+    store.get_firmware_path.side_effect = {"C6": firmware_path, "C8": firmware_path}.get
+    return store
+
+
+@pytest.fixture
+def entity(hass, mock_coordinator, mock_store) -> KomfoventUpdateEntity:
+    """Create an update entity with state writes mocked."""
+
+    async def refresh_with_flashed_firmware():
+        # The device reports the uploaded functional version after restart
+        mock_coordinator.data = {registers.REG_FIRMWARE: pack_version(0, 1, 5, 46, 72)}
+
+    mock_coordinator.last_update_success = True
+    mock_coordinator.async_refresh = AsyncMock(
+        side_effect=refresh_with_flashed_firmware
+    )
+    update_entity = KomfoventUpdateEntity(mock_coordinator, mock_store)
+    update_entity.hass = hass
+    update_entity.async_write_ha_state = MagicMock()
+    return update_entity
+
+
+@pytest.fixture
+def mock_sleep():
+    """Patch the wait for the device restart."""
+    with patch(
+        "custom_components.komfovent.update.asyncio.sleep", AsyncMock()
+    ) as mock_sleep:
+        yield mock_sleep
+
+
+@pytest.fixture
+def mock_uploader(mock_sleep):
+    """Patch the firmware uploader; the restart wait is patched too."""
+    with patch(
+        "custom_components.komfovent.update.FirmwareUploader", autospec=True
+    ) as uploader_class:
+        yield uploader_class
+
+
+async def test_setup_entry_without_firmware_store(
+    hass, mock_config_entry, mock_coordinator
+):
+    """Test no entity is added when firmware updates are disabled."""
+    mock_config_entry.runtime_data = KomfoventRuntimeData(coordinator=mock_coordinator)
+    async_add_entities = MagicMock()
+
+    await async_setup_entry(hass, mock_config_entry, async_add_entities)
+
+    async_add_entities.assert_not_called()
+
+
+def test_attributes(entity):
+    """Test static entity attributes."""
+    assert entity.unique_id == "test_entry_id_firmware_update"
+    assert entity.translation_key == "firmware"
+    assert entity.device_class == UpdateDeviceClass.FIRMWARE
+    assert entity.supported_features == (
+        UpdateEntityFeature.INSTALL | UpdateEntityFeature.PROGRESS
+    )
+    assert entity.release_url is None
+    assert entity.entity_picture is None
+    assert entity.in_progress is False
+
+
+def test_installed_version(entity, mock_coordinator):
+    """Test installed version is the functional version."""
+    assert entity.installed_version == "38"
+
+
+@pytest.mark.parametrize("data", [None, {}, {registers.REG_FIRMWARE: 0}])
+def test_installed_version_unknown(entity, mock_coordinator, data):
+    """Test installed version is unknown without firmware register data."""
+    mock_coordinator.data = data
+    entity._update_attrs()
+
+    assert entity.installed_version is None
+    assert entity._is_firmware_supported is False
+
+
+def test_invalid_firmware_register(entity, mock_coordinator):
+    """Test a non-numeric firmware register is handled."""
+    mock_coordinator.data = {registers.REG_FIRMWARE: "invalid"}
+    entity._update_attrs()
+
+    assert entity.installed_version is None
+    assert entity._is_firmware_supported is False
+
+
+def test_latest_version(entity, mock_store):
+    """Test latest version and summary come from the store."""
+    assert entity.latest_version == "72"
+    assert entity.release_summary == FIRMWARE_FILENAME
+    mock_store.get_firmware_info.assert_called_with("C6")
+
+
+def test_latest_version_without_firmware(entity, mock_store):
+    """Test latest version is unknown when no firmware was downloaded."""
+    mock_store.get_firmware_info.side_effect = lambda _: None
+    entity._update_attrs()
+
+    assert entity.latest_version is None
+    assert entity.release_summary is None
+
+
+def test_latest_version_unknown_controller(entity, mock_coordinator):
+    """Test latest version is unknown for unsupported controllers."""
+    mock_coordinator.controller = Controller.NA
+    entity._update_attrs()
+
+    assert entity.latest_version is None
+    assert entity.release_summary is None
+
+
+@pytest.mark.parametrize(
+    ("last_update_success", "data", "expected"),
+    [
+        (True, {registers.REG_FIRMWARE: 1}, True),
+        (False, {registers.REG_FIRMWARE: 1}, False),
+    ],
+)
+def test_available(entity, mock_coordinator, last_update_success, data, expected):
+    """Test availability follows the coordinator."""
+    mock_coordinator.last_update_success = last_update_success
+    mock_coordinator.data = data
+    entity._update_attrs()
+
+    assert entity.available is expected
+
+
+@pytest.mark.parametrize(
+    ("controller", "version", "expected"),
+    [
+        (Controller.C6, (1, 3, 15, 1), True),
+        (Controller.C6, (1, 3, 14, 99), False),
+        (Controller.C6, (1, 5, 46, 72), True),
+        (Controller.C6M, (1, 3, 14, 99), False),
+        (Controller.C8, (1, 1, 14, 27), True),
+        (Controller.C8, (1, 0, 0, 1), True),
+    ],
+)
+def test_is_firmware_supported(entity, mock_coordinator, controller, version, expected):
+    """Test the minimum firmware version only applies to C6 controllers."""
+    mock_coordinator.controller = controller
+    mock_coordinator.data = {
+        registers.REG_FIRMWARE: pack_version(controller.value, *version)
+    }
+
+    assert entity._is_firmware_supported is expected
+
+
+async def test_install_c8_below_c6_minimum(entity, mock_coordinator, mock_uploader):
+    """Test C8 firmware below the C6 minimum version can be installed."""
+    mock_coordinator.controller = Controller.C8
+    mock_coordinator.data = {
+        registers.REG_FIRMWARE: pack_version(Controller.C8.value, 1, 1, 14, 27)
+    }
+
+    await entity.async_install(None, backup=False)
+
+    mock_uploader.return_value.async_upload_firmware.assert_awaited_once()
+
+
+async def test_install(
+    entity, mock_coordinator, mock_uploader, mock_sleep, firmware_path
+):
+    """Test install uploads firmware, waits for restart and verifies it."""
+    manager = MagicMock()
+    manager.attach_mock(mock_coordinator.async_pause_updates, "pause")
+    manager.attach_mock(mock_uploader.return_value.async_upload_firmware, "upload")
+    manager.attach_mock(mock_sleep, "sleep")
+    manager.attach_mock(mock_coordinator.async_resume_updates, "resume")
+    manager.attach_mock(mock_coordinator.async_refresh, "refresh")
+
+    await entity.async_install(None, backup=False)
+
+    mock_uploader.assert_called_once_with(entity.hass, "192.168.1.100", password=None)
+    # Resumed to verify; the final resume in finally is a no-op here
+    assert [c[0] for c in manager.mock_calls] == [
+        "pause",
+        "upload",
+        "sleep",
+        "resume",
+        "refresh",
+        "resume",
+    ]
+    mock_uploader.return_value.async_upload_firmware.assert_awaited_once_with(
+        firmware_path
+    )
+    mock_sleep.assert_awaited_once_with(DEVICE_RESTART_DELAY)
+    assert entity.in_progress is False
+    assert entity.async_write_ha_state.call_count == 2
+
+
+async def test_install_in_progress_until_verified(
+    entity, mock_coordinator, mock_uploader
+):
+    """Test install stays in progress until the device reports the new version."""
+    flashed_refresh = mock_coordinator.async_refresh.side_effect
+    in_progress_at = {}
+
+    async def refresh():
+        in_progress_at["refresh"] = entity.in_progress
+        await flashed_refresh()
+
+    mock_coordinator.async_refresh.side_effect = refresh
+    written = []
+    entity.async_write_ha_state.side_effect = lambda: written.append(entity.in_progress)
+
+    await entity.async_install(None, backup=False)
+
+    # No "not in progress" state is written while the old version is current
+    assert in_progress_at["refresh"] is True
+    assert written == [True, False]
+
+
+async def test_install_uses_configured_password(
+    entity, mock_coordinator, mock_uploader
+):
+    """Test the configured password is passed to the uploader."""
+    mock_coordinator.config_entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={CONF_HOST: "192.168.1.100", CONF_PORT: 502, CONF_PASSWORD: "secret"},
+    )
+
+    await entity.async_install(None, backup=False)
+
+    mock_uploader.assert_called_once_with(
+        entity.hass, "192.168.1.100", password="secret"
+    )
+
+
+async def test_install_device_not_back_after_restart(
+    entity, mock_coordinator, mock_uploader
+):
+    """Test install fails when the device does not respond after restart."""
+
+    async def failed_refresh():
+        mock_coordinator.last_update_success = False
+
+    mock_coordinator.async_refresh.side_effect = failed_refresh
+
+    with pytest.raises(HomeAssistantError, match="did not respond"):
+        await entity.async_install(None, backup=False)
+
+    mock_coordinator.async_resume_updates.assert_called()
+    assert entity.in_progress is False
+
+
+async def test_install_version_not_changed(entity, mock_coordinator, mock_uploader):
+    """Test install fails when the device still reports the old version."""
+    mock_coordinator.async_refresh.side_effect = None
+
+    with pytest.raises(HomeAssistantError, match="reports version 38 instead of 72"):
+        await entity.async_install(None, backup=False)
+
+
+async def test_install_already_in_progress(entity, mock_uploader):
+    """Test a second install is rejected while one is running."""
+    entity._attr_in_progress = True
+
+    with pytest.raises(HomeAssistantError, match="already in progress"):
+        await entity.async_install(None, backup=False)
+
+    mock_uploader.assert_not_called()
+
+
+async def test_install_unsupported_firmware(entity, mock_coordinator, mock_uploader):
+    """Test install is rejected for too old firmware."""
+    mock_coordinator.data = {registers.REG_FIRMWARE: pack_version(0, 1, 3, 14, 1)}
+
+    with pytest.raises(HomeAssistantError, match="not supported"):
+        await entity.async_install(None, backup=False)
+
+    mock_uploader.assert_not_called()
+
+
+async def test_install_without_firmware(entity, mock_coordinator, mock_uploader):
+    """Test install is rejected without downloaded firmware for the controller."""
+    mock_coordinator.controller = Controller.NA
+    entity._update_attrs()
+
+    with pytest.raises(HomeAssistantError, match="not available"):
+        await entity.async_install(None, backup=False)
+
+    mock_uploader.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    ("error", "message"),
+    [
+        (FirmwareUploadError("Login failed"), "Firmware upload failed: Login failed"),
+        (RuntimeError("boom"), "Firmware update failed: boom"),
+    ],
+)
+async def test_install_failure(
+    entity, mock_coordinator, mock_uploader, mock_sleep, error, message
+):
+    """Test upload failures are raised and progress is reset."""
+    mock_uploader.return_value.async_upload_firmware.side_effect = error
+
+    with pytest.raises(HomeAssistantError, match=message):
+        await entity.async_install(None, backup=False)
+
+    # Polling resumes right away instead of waiting for a restart
+    mock_coordinator.async_resume_updates.assert_called_once()
+    mock_sleep.assert_not_awaited()
+    mock_coordinator.async_refresh.assert_not_awaited()
+    assert entity.in_progress is False

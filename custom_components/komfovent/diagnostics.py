@@ -5,7 +5,8 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Any
 
-from homeassistant.const import CONF_HOST, CONF_PORT
+from homeassistant.components.diagnostics import async_redact_data
+from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT
 from pymodbus import ModbusException
 from pymodbus.client import AsyncModbusTcpClient
 
@@ -18,6 +19,8 @@ if TYPE_CHECKING:
     from .coordinator import KomfoventConfigEntry
 
 logger = logging.getLogger(__name__)
+
+TO_REDACT = {CONF_PASSWORD}
 
 # Register ranges
 INTEGRATION_RANGES = [
@@ -161,7 +164,7 @@ async def async_get_config_entry_diagnostics(
         registers = {}
 
     return {
-        "config_entry": entry.as_dict(),
+        "config_entry": async_redact_data(entry.as_dict(), TO_REDACT),
         "registers": registers,
         "coordinator_data": coordinator.data,
     }

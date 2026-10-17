@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pytest
 import voluptuous as vol
-from homeassistant.const import CONF_HOST, CONF_NAME, CONF_PORT
+from homeassistant.const import CONF_HOST, CONF_NAME, CONF_PASSWORD, CONF_PORT
 from homeassistant.data_entry_flow import FlowResultType
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
@@ -19,6 +19,7 @@ from custom_components.komfovent.const import (
     DEFAULT_PORT,
     DEFAULT_UPDATE_INTERVAL,
     DOMAIN,
+    OPT_FIRMWARE_UPDATES,
     OPT_STEP_CO2,
     OPT_STEP_FLOW,
     OPT_STEP_HUMIDITY,
@@ -56,6 +57,15 @@ class TestKomfoventConfigFlow:
                     CONF_PORT: DEFAULT_PORT,
                 },
                 DEFAULT_NAME,
+            ),
+            (
+                {
+                    CONF_NAME: "With Password",
+                    CONF_HOST: "192.168.1.100",
+                    CONF_PORT: 502,
+                    CONF_PASSWORD: "secret123",
+                },
+                "With Password",
             ),
         ],
     )
@@ -95,11 +105,21 @@ class TestReconfigureStep:
         assert result["type"] == FlowResultType.FORM
         assert result["step_id"] == "reconfigure"
 
-    async def test_reconfigure_updates_entry(self, hass, existing_entry):
+    @pytest.mark.parametrize(
+        "password",
+        [{}, {CONF_PASSWORD: "newpassword"}],
+        ids=["no_password", "password"],
+    )
+    async def test_reconfigure_updates_entry(self, hass, existing_entry, password):
         """Test reconfigure step updates entry with new data."""
         flow = KomfoventConfigFlow()
         flow.hass = hass
-        new_data = {CONF_NAME: "New Name", CONF_HOST: "192.168.1.200", CONF_PORT: 503}
+        new_data = {
+            CONF_NAME: "New Name",
+            CONF_HOST: "192.168.1.200",
+            CONF_PORT: 503,
+            **password,
+        }
         with (
             patch.object(flow, "_get_reconfigure_entry", return_value=existing_entry),
             patch.object(
@@ -136,6 +156,7 @@ class TestOptionsFlow:
                 FlowResultType.FORM,
             ),
             ({}, {OPT_STEP_TEMPERATURE: 0.5}, FlowResultType.CREATE_ENTRY),
+            ({}, {OPT_FIRMWARE_UPDATES: False}, FlowResultType.CREATE_ENTRY),
             (
                 {},
                 {
@@ -193,6 +214,15 @@ class TestSchemas:
         assert result[CONF_NAME] == expected_name
         assert result[CONF_PORT] == expected_port
 
+    @pytest.mark.parametrize("password", [None, "test_password"])
+    def test_config_schema_password_optional(self, password):
+        """Test config schema accepts data with and without password."""
+        data = {CONF_NAME: "Test", CONF_HOST: "192.168.1.100", CONF_PORT: 502}
+        if password is not None:
+            data[CONF_PASSWORD] = password
+        result = CONFIG_SCHEMA(data)
+        assert result.get(CONF_PASSWORD) == password
+
     def test_options_schema_accepts_valid(self):
         """Test options schema accepts valid data."""
         data = {OPT_STEP_FLOW: 10.0, OPT_STEP_TEMPERATURE: 0.5}
@@ -210,3 +240,7 @@ class TestSchemas:
         """Test options schema accepts empty dict and applies defaults."""
         result = OPTIONS_SCHEMA({})
         assert result[OPT_UPDATE_INTERVAL] == DEFAULT_UPDATE_INTERVAL
+        assert result[OPT_FIRMWARE_UPDATES] is True
+        assert (
+            OPTIONS_SCHEMA({OPT_FIRMWARE_UPDATES: False})[OPT_FIRMWARE_UPDATES] is False
+        )
