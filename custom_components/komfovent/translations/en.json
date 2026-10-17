@@ -10,7 +10,11 @@
           "step_humidity": "Step for humidity entities",
           "step_co2": "Step for CO2 entities",
           "step_voc": "Step for VOC entities",
-          "step_timer": "Step for timer entities"
+          "step_timer": "Step for timer entities",
+          "firmware_updates": "Check for firmware updates"
+        },
+        "data_description": {
+          "firmware_updates": "Download the latest controller firmware from Komfovent weekly and offer it as an update"
         }
       }
     }

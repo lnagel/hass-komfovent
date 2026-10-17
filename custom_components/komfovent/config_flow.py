@@ -15,6 +15,7 @@ from homeassistant.config_entries import (
 from homeassistant.const import CONF_HOST, CONF_NAME, CONF_PASSWORD, CONF_PORT
 from homeassistant.core import callback
 from homeassistant.helpers.selector import (
+    BooleanSelector,
     NumberSelector,
     NumberSelectorConfig,
     NumberSelectorMode,
@@ -25,11 +26,13 @@ from homeassistant.helpers.selector import (
 
 from .const import (
     DEFAULT_EMA_TIME_CONSTANT,
+    DEFAULT_FIRMWARE_UPDATES,
     DEFAULT_NAME,
     DEFAULT_PORT,
     DEFAULT_UPDATE_INTERVAL,
     DOMAIN,
     OPT_EMA_TIME_CONSTANT,
+    OPT_FIRMWARE_UPDATES,
     OPT_STEP_CO2,
     OPT_STEP_FLOW,
     OPT_STEP_HUMIDITY,
@@ -79,6 +82,9 @@ OPTIONS_SCHEMA = vol.Schema(
         vol.Optional(OPT_STEP_CO2): vol.Coerce(float),
         vol.Optional(OPT_STEP_VOC): vol.Coerce(float),
         vol.Optional(OPT_STEP_TIMER): vol.Coerce(float),
+        vol.Optional(
+            OPT_FIRMWARE_UPDATES, default=DEFAULT_FIRMWARE_UPDATES
+        ): BooleanSelector(),
     }
 )
 

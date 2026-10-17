@@ -19,6 +19,7 @@ from custom_components.komfovent.const import (
     DEFAULT_PORT,
     DEFAULT_UPDATE_INTERVAL,
     DOMAIN,
+    OPT_FIRMWARE_UPDATES,
     OPT_STEP_CO2,
     OPT_STEP_FLOW,
     OPT_STEP_HUMIDITY,
@@ -171,6 +172,7 @@ class TestOptionsFlow:
                 FlowResultType.FORM,
             ),
             ({}, {OPT_STEP_TEMPERATURE: 0.5}, FlowResultType.CREATE_ENTRY),
+            ({}, {OPT_FIRMWARE_UPDATES: False}, FlowResultType.CREATE_ENTRY),
             (
                 {},
                 {
@@ -262,3 +264,9 @@ class TestSchemas:
         """Test options schema accepts empty dict and applies defaults."""
         result = OPTIONS_SCHEMA({})
         assert result[OPT_UPDATE_INTERVAL] == DEFAULT_UPDATE_INTERVAL
+        assert result[OPT_FIRMWARE_UPDATES] is True
+
+    def test_options_schema_firmware_updates_disabled(self):
+        """Test options schema keeps firmware updates disabled."""
+        result = OPTIONS_SCHEMA({OPT_FIRMWARE_UPDATES: False})
+        assert result[OPT_FIRMWARE_UPDATES] is False

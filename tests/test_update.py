@@ -10,12 +10,16 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.komfovent import registers
 from custom_components.komfovent.const import DOMAIN, Controller
+from custom_components.komfovent.coordinator import KomfoventRuntimeData
 from custom_components.komfovent.firmware import FirmwareInfo
 from custom_components.komfovent.firmware.uploader import (
     DEVICE_RESTART_DELAY,
     FirmwareUploadError,
 )
-from custom_components.komfovent.update import KomfoventUpdateEntity
+from custom_components.komfovent.update import (
+    KomfoventUpdateEntity,
+    async_setup_entry,
+)
 
 FIRMWARE_FILENAME = "C6_1_5_46_72_P1_1_1_5_48.mbin"
 
@@ -82,6 +86,18 @@ def mock_uploader():
         uploader_class.return_value.async_upload_firmware = AsyncMock(return_value=True)
         uploader_class.sleep = mock_sleep
         yield uploader_class
+
+
+async def test_setup_entry_without_firmware_store(
+    hass, mock_config_entry, mock_coordinator
+):
+    """Test no entity is added when firmware updates are disabled."""
+    mock_config_entry.runtime_data = KomfoventRuntimeData(coordinator=mock_coordinator)
+    async_add_entities = MagicMock()
+
+    await async_setup_entry(hass, mock_config_entry, async_add_entities)
+
+    async_add_entities.assert_not_called()
 
 
 def test_attributes(entity):
