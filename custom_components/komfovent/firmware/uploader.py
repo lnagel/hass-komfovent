@@ -18,8 +18,7 @@ if TYPE_CHECKING:
 
 _LOGGER = logging.getLogger(__name__)
 
-# Pattern to extract status message from device response HTML
-# The device returns status in: <td id="st">Status: ...</td>
+# The device reports the upload result in <td id="st">Status: ...</td>
 _STATUS_PATTERN = re.compile(r'<td\s+id="st">\s*(.*?)\s*</td>', re.IGNORECASE)
 
 # HTTP constants
@@ -29,8 +28,7 @@ FORM_FIELD_USERNAME = "1"
 FORM_FIELD_PASSWORD = "2"  # noqa: S105
 FORM_FIELD_FIRMWARE = "11111"
 
-# Factory credentials; the device resets the password to this default after
-# every firmware upgrade
+# Factory credentials; the device restores this password after every upgrade
 DEFAULT_USERNAME = "user"
 DEFAULT_PASSWORD = "user"  # noqa: S105
 
@@ -204,9 +202,7 @@ class FirmwareUploader:
         """
         url = f"{self._base_url}{UPLOAD_ENDPOINT}"
 
-        # Create multipart form data - only the file field, matching browser behavior.
-        # The device uses IP-based sessions so credentials are not needed after login.
-        # Including extra form fields confuses the device's multipart parser.
+        # File field only: the session is IP-based and extra fields confuse the device
         data = aiohttp.FormData()
         data.add_field(
             FORM_FIELD_FIRMWARE,
@@ -246,8 +242,7 @@ class FirmwareUploader:
         """
         match = _STATUS_PATTERN.search(body)
         if not match:
-            # The device answers HTTP 200 even on errors, so without a status
-            # element the outcome of the upload is unknown
+            # The device answers HTTP 200 even on errors, so the outcome is unknown
             msg = "Device did not report an upload status"
             raise FirmwareUploadError(msg)
 

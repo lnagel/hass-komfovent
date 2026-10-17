@@ -107,8 +107,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: KomfoventConfigEntry) ->
         entry, _get_platforms(firmware_enabled=firmware_enabled)
     )
 
-    # Register for firmware checks only once setup succeeded, so a failed
-    # setup (which is never unloaded) cannot leave the checker running
+    # Register only after setup succeeded; a failed setup is never unloaded
     if domain_data is not None:
         domain_data.firmware_entries.add(entry.entry_id)
         domain_data.firmware_checker.register_controller_type(coordinator.controller)

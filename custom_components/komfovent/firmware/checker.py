@@ -40,9 +40,7 @@ _LOGGER = logging.getLogger(__name__)
 HTTP_OK = 200
 DOWNLOAD_TIMEOUT = 60
 
-# Firmware filename pattern matches both modern and legacy formats:
-# Modern format: C6_1_5_46_72_P1_1_1_5_48.mbin
-# Legacy format: C6_1_3_28_38_20180428.mbin
+# e.g. C6_1_5_46_72_P1_1_1_5_48.mbin, or legacy C6_1_3_28_38_20180428.mbin
 FIRMWARE_FILENAME_PATTERN = re.compile(
     r"^(C6|C8)_(\d+)_(\d+)_(\d+)_(\d+)(?:_P(\d+)_(\d+)_(\d+)_(\d+)_(\d+))?(?:_\d{8})?\.mbin$"
 )
@@ -143,8 +141,7 @@ class FirmwareChecker:
             FIRMWARE_CHECK_INTERVAL,
         )
 
-        # Run the initial check in the background so the download does not
-        # delay config entry setup
+        # In the background so the download does not delay entry setup
         self._initial_check = self._hass.async_create_background_task(
             self.async_check_for_updates(),
             name="komfovent initial firmware check",
