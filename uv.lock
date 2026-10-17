@@ -1157,7 +1157,7 @@ wheels = [
 
 [[package]]
 name = "hass-komfovent"
-version = "0.10.7"
+version = "0.11.0"
 source = { virtual = "." }
 dependencies = [
     { name = "pymodbus" },
