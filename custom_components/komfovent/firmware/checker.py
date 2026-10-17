@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import re
+from collections import Counter
 from typing import TYPE_CHECKING
 
 import aiofiles
@@ -71,32 +72,57 @@ class FirmwareChecker:
         self._hass = hass
         self._store = store
         self._unsub_interval: Callable[[], None] | None = None
-        self._active_controller_types: set[str] = set()
+        # Number of registered config entries per firmware type ("C6", "C8")
+        self._type_counts: Counter[str] = Counter()
         self._checking = False
+
+    @property
+    def active_controller_types(self) -> set[str]:
+        """Return the firmware types with at least one registered entry."""
+        return set(self._type_counts)
 
     def register_controller_type(self, controller: Controller) -> None:
         """
-        Register a controller type as active.
+        Register a config entry's controller type as active.
+
+        If the checker is already running and this is the first entry of its
+        firmware type, that type is checked immediately in the background.
 
         Args:
             controller: The controller type to register
 
         """
         ct = get_controller_type_for_firmware(controller)
-        if ct != "NA":
-            self._active_controller_types.add(ct)
-            _LOGGER.debug("Registered controller type: %s", ct)
+        if ct == "NA":
+            return
+
+        is_new_type = ct not in self._type_counts
+        self._type_counts[ct] += 1
+        _LOGGER.debug("Registered controller type: %s", ct)
+
+        if is_new_type and self._unsub_interval is not None:
+            self._hass.async_create_background_task(
+                self._async_check_controller_type(ct),
+                name=f"komfovent firmware check {ct}",
+            )
 
     def unregister_controller_type(self, controller: Controller) -> None:
         """
-        Unregister a controller type.
+        Unregister a config entry's controller type.
+
+        The type stays active while other entries of the same type remain.
 
         Args:
             controller: The controller type to unregister
 
         """
         ct = get_controller_type_for_firmware(controller)
-        self._active_controller_types.discard(ct)
+        if ct not in self._type_counts:
+            return
+
+        self._type_counts[ct] -= 1
+        if self._type_counts[ct] <= 0:
+            del self._type_counts[ct]
         _LOGGER.debug("Unregistered controller type: %s", ct)
 
     async def async_start(self) -> None:
@@ -135,7 +161,8 @@ class FirmwareChecker:
             _LOGGER.debug("Firmware check already in progress, skipping")
             return
 
-        if not self._active_controller_types:
+        types_to_check = self.active_controller_types
+        if not types_to_check:
             _LOGGER.debug(
                 "No active controller types registered, skipping firmware check"
             )
@@ -145,17 +172,11 @@ class FirmwareChecker:
         try:
             _LOGGER.debug(
                 "Checking firmware for controller types: %s",
-                ", ".join(self._active_controller_types),
+                ", ".join(sorted(types_to_check)),
             )
 
-            # Check each controller type separately
-            # C6 and C6M share firmware, so we only check C6
-            types_to_check = set(self._active_controller_types)
-            if "C6M" in types_to_check:
-                types_to_check.discard("C6M")
-                types_to_check.add("C6")
-
-            for ct in types_to_check:
+            # C6 and C6M share firmware and are both registered as "C6"
+            for ct in sorted(types_to_check):
                 await self._async_check_controller_type(ct)
 
         finally:
@@ -258,7 +279,7 @@ class FirmwareChecker:
                 )
 
                 # Clean up old firmware files
-                await self._store.async_cleanup_old_files(self._active_controller_types)
+                await self._store.async_cleanup_old_files(self.active_controller_types)
 
         except TimeoutError:
             _LOGGER.warning(
