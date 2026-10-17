@@ -7,13 +7,15 @@ from homeassistant.components.climate import HVACAction, HVACMode
 from homeassistant.const import ATTR_TEMPERATURE
 
 from custom_components.komfovent import registers
-from custom_components.komfovent.binary_sensor import (
+from custom_components.komfovent.climate import KomfoventClimate
+from custom_components.komfovent.const import (
     BITMASK_COOLING,
     BITMASK_FAN,
     BITMASK_HEATING,
+    DOMAIN,
+    OperationMode,
+    TemperatureControl,
 )
-from custom_components.komfovent.climate import KomfoventClimate
-from custom_components.komfovent.const import DOMAIN, OperationMode, TemperatureControl
 
 # ==================== Data Tables ====================
 

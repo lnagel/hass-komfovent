@@ -44,7 +44,7 @@ def build_device_info(coordinator: KomfoventCoordinator) -> DeviceInfo:
     )
 
 
-def flow_present(data: dict[int, Any] | None) -> bool | None:
+def flow_present(data: dict[int, Any]) -> bool | None:
     """
     Return whether air is flowing through the unit.
 
@@ -57,7 +57,7 @@ def flow_present(data: dict[int, Any] | None) -> bool | None:
         True if the fans are running, None if the status register is missing
 
     """
-    status = data.get(registers.REG_STATUS) if data else None
+    status = data.get(registers.REG_STATUS)
     if status is None:
         return None
     return bool(status & BITMASK_FAN)

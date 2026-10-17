@@ -50,7 +50,7 @@ The integration provides comprehensive control and monitoring of your Komfovent 
 - Active alarms monitoring
 - Comprehensive alarm status (fault/warning indicators)
 
-Measurements that are meaningless without air flow are reported as unknown while the fans are stopped: specific power input, heat exchanger efficiency, energy saving, absolute humidity and the extract air quality sensors (CO2, VOC, humidity).
+Measurements that are meaningless without air flow are reported as unknown while the fans are stopped: specific power input, heat exchanger efficiency, energy saving, absolute humidity and the air quality sensors (CO2, VOC, humidity).
 
 ### Advanced Features
 - Electric heater control for each mode
