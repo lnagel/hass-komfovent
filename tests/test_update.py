@@ -4,10 +4,12 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from homeassistant.components.update import UpdateDeviceClass, UpdateEntityFeature
+from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT
 from homeassistant.exceptions import HomeAssistantError
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.komfovent import registers
-from custom_components.komfovent.const import Controller
+from custom_components.komfovent.const import DOMAIN, Controller
 from custom_components.komfovent.firmware import FirmwareInfo
 from custom_components.komfovent.firmware.uploader import (
     DEVICE_RESTART_DELAY,
@@ -204,7 +206,7 @@ async def test_install(entity, mock_coordinator, mock_uploader, firmware_path):
 
     await entity.async_install(None, backup=False)
 
-    mock_uploader.assert_called_once_with(entity.hass, "192.168.1.100", password="user")
+    mock_uploader.assert_called_once_with(entity.hass, "192.168.1.100", password=None)
     # Polling is paused for the whole upload and restart, then resumed
     assert [c[0] for c in manager.mock_calls] == [
         "pause",
@@ -219,6 +221,22 @@ async def test_install(entity, mock_coordinator, mock_uploader, firmware_path):
     mock_uploader.sleep.assert_awaited_once_with(DEVICE_RESTART_DELAY)
     assert entity.in_progress is False
     assert entity.async_write_ha_state.call_count == 2
+
+
+async def test_install_uses_configured_password(
+    entity, mock_coordinator, mock_uploader
+):
+    """Test the configured password is passed to the uploader."""
+    mock_coordinator.config_entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={CONF_HOST: "192.168.1.100", CONF_PORT: 502, CONF_PASSWORD: "secret"},
+    )
+
+    await entity.async_install(None, backup=False)
+
+    mock_uploader.assert_called_once_with(
+        entity.hass, "192.168.1.100", password="secret"
+    )
 
 
 async def test_install_device_not_back_after_restart(

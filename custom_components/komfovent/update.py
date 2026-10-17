@@ -196,7 +196,7 @@ class KomfoventUpdateEntity(KomfoventCoordinatorEntity, UpdateEntity):
 
         # Get device connection details
         host = self.coordinator.config_entry.data[CONF_HOST]
-        password = self.coordinator.config_entry.data.get(CONF_PASSWORD, "user")
+        password = self.coordinator.config_entry.data.get(CONF_PASSWORD)
 
         self._attr_in_progress = True
         self.async_write_ha_state()

@@ -32,6 +32,7 @@ C8_FILENAME = "C8_1_2_3_4.mbin"
 FIRMWARE_CONTENT = b"\x00" * FIRMWARE_MIN_SIZE
 
 LOGIN_OK_BODY = '<input type="submit" value="Logout">'
+LOGIN_REJECTED_BODY = '<input type="submit" value="Login">'
 UPLOAD_OK_BODY = '<td id="st">Status: firmware uploaded successfully</td>'
 
 
@@ -547,6 +548,67 @@ class TestFirmwareUploader:
         assert login_call.kwargs["data"] == {"1": "user", "2": "secret"}
         assert isinstance(upload_call.kwargs["data"], aiohttp.FormData)
         progress.assert_called_once_with(len(FIRMWARE_CONTENT), len(FIRMWARE_CONTENT))
+
+    @pytest.mark.parametrize("password", [None, "", "user"])
+    async def test_login_default_password(
+        self, hass, upload_session, firmware_file, password
+    ):
+        """Test a blank or default password logs in once with the default."""
+        upload_session.post.side_effect = [
+            make_response(text=LOGIN_REJECTED_BODY),
+        ]
+        uploader = FirmwareUploader(hass, "192.168.1.100", password=password)
+
+        with pytest.raises(FirmwareUploadError, match="invalid credentials"):
+            await uploader.async_upload_firmware(firmware_file)
+
+        upload_session.post.assert_called_once()
+        assert upload_session.post.call_args.kwargs["data"] == {
+            "1": "user",
+            "2": "user",
+        }
+
+    async def test_login_falls_back_to_default_password(
+        self, hass, upload_session, firmware_file, caplog
+    ):
+        """Test a rejected password is retried with the default password."""
+        upload_session.post.side_effect = [
+            make_response(text=LOGIN_REJECTED_BODY),
+            make_response(text=LOGIN_OK_BODY),
+            make_response(text=UPLOAD_OK_BODY),
+        ]
+        uploader = FirmwareUploader(hass, "192.168.1.100", password="secret")
+
+        assert await uploader.async_upload_firmware(firmware_file) is True
+
+        logins = [c.kwargs["data"] for c in upload_session.post.call_args_list[:2]]
+        assert logins == [{"1": "user", "2": "secret"}, {"1": "user", "2": "user"}]
+        assert "logged in with the default password" in caplog.text
+
+    async def test_login_fallback_rejected(self, hass, upload_session, firmware_file):
+        """Test login fails when both the password and the default are rejected."""
+        upload_session.post.side_effect = [
+            make_response(text=LOGIN_REJECTED_BODY),
+            make_response(text=LOGIN_REJECTED_BODY),
+        ]
+        uploader = FirmwareUploader(hass, "192.168.1.100", password="secret")
+
+        with pytest.raises(FirmwareUploadError, match="invalid credentials"):
+            await uploader.async_upload_firmware(firmware_file)
+
+        assert upload_session.post.call_count == 2
+
+    async def test_login_http_error_is_not_retried(
+        self, hass, upload_session, firmware_file
+    ):
+        """Test only a rejected password triggers the fallback, not HTTP errors."""
+        upload_session.post.return_value = make_response(status=500)
+        uploader = FirmwareUploader(hass, "192.168.1.100", password="secret")
+
+        with pytest.raises(FirmwareUploadError, match="HTTP 500"):
+            await uploader.async_upload_firmware(firmware_file)
+
+        upload_session.post.assert_called_once()
 
     async def test_upload_without_status_element(
         self, hass, upload_session, firmware_file

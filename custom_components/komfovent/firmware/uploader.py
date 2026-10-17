@@ -30,6 +30,11 @@ FORM_FIELD_USERNAME = "1"
 FORM_FIELD_PASSWORD = "2"  # noqa: S105
 FORM_FIELD_FIRMWARE = "11111"
 
+# Factory credentials; the device resets the password to this default after
+# every firmware upgrade
+DEFAULT_USERNAME = "user"
+DEFAULT_PASSWORD = "user"  # noqa: S105
+
 # Timeouts (in seconds)
 CONNECT_TIMEOUT = 10
 LOGIN_TIMEOUT = 30
@@ -54,8 +59,8 @@ class FirmwareUploader:
         self,
         hass: HomeAssistant,
         host: str,
-        username: str = "user",
-        password: str = "user",  # noqa: S107
+        username: str = DEFAULT_USERNAME,
+        password: str | None = None,
     ) -> None:
         """
         Initialize the firmware uploader.
@@ -64,13 +69,16 @@ class FirmwareUploader:
             hass: Home Assistant instance
             host: Device hostname or IP address
             username: Login username (default: "user")
-            password: Login password (default: "user")
+            password: Login password; blank uses the default password
 
         """
         self._hass = hass
         self._host = host
         self._username = username
-        self._password = password
+        # Passwords to try in order, without duplicates
+        self._passwords = list(
+            dict.fromkeys(p for p in (password, DEFAULT_PASSWORD) if p)
+        )
         self._base_url = f"http://{host}"
 
     async def async_upload_firmware(
@@ -139,6 +147,9 @@ class FirmwareUploader:
         """
         Perform login to establish session.
 
+        Tries the configured password first and falls back to the default
+        password, which the device restores after every firmware upgrade.
+
         Args:
             session: aiohttp client session
 
@@ -146,10 +157,40 @@ class FirmwareUploader:
             FirmwareUploadError: If login fails
 
         """
+        for password in self._passwords:
+            if await self._async_try_login(session, password):
+                if password != self._passwords[0]:
+                    _LOGGER.warning(
+                        "Configured password was rejected by %s, logged in with "
+                        "the default password instead",
+                        self._host,
+                    )
+                return
+
+        msg = "Login failed: invalid credentials"
+        raise FirmwareUploadError(msg)
+
+    async def _async_try_login(
+        self, session: aiohttp.ClientSession, password: str
+    ) -> bool:
+        """
+        Attempt a single login with the given password.
+
+        Args:
+            session: aiohttp client session
+            password: Password to log in with
+
+        Returns:
+            True if the device accepted the credentials
+
+        Raises:
+            FirmwareUploadError: If the device answers with an HTTP error
+
+        """
         url = f"{self._base_url}{UPLOAD_ENDPOINT}"
         form_data = {
             FORM_FIELD_USERNAME: self._username,
-            FORM_FIELD_PASSWORD: self._password,
+            FORM_FIELD_PASSWORD: password,
         }
 
         timeout = aiohttp.ClientTimeout(total=LOGIN_TIMEOUT)
@@ -158,9 +199,7 @@ class FirmwareUploader:
                 msg = f"Login failed with HTTP {response.status}"
                 raise FirmwareUploadError(msg)
             body = await response.text(encoding="windows-1252")
-            if 'value="Logout"' not in body:
-                msg = "Login failed: invalid credentials"
-                raise FirmwareUploadError(msg)
+            return 'value="Logout"' in body
 
     async def _async_upload(
         self,
