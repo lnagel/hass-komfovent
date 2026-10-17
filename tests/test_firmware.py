@@ -549,17 +549,27 @@ class TestFirmwareUploader:
         progress.assert_called_once_with(len(FIRMWARE_CONTENT), len(FIRMWARE_CONTENT))
 
     async def test_upload_without_status_element(
-        self, hass, upload_session, firmware_file, caplog
+        self, hass, upload_session, firmware_file
     ):
-        """Test a response without status element is accepted with a warning."""
+        """Test a response without status element is treated as a failure."""
         upload_session.post.side_effect = [
             make_response(text=LOGIN_OK_BODY),
             make_response(text="<html></html>"),
         ]
         uploader = FirmwareUploader(hass, "192.168.1.100")
 
-        assert await uploader.async_upload_firmware(firmware_file) is True
-        assert "No status element found" in caplog.text
+        with pytest.raises(FirmwareUploadError, match="did not report"):
+            await uploader.async_upload_firmware(firmware_file)
+
+    async def test_login_http_error(self, hass, upload_session, firmware_file):
+        """Test a login HTTP error prevents the upload."""
+        upload_session.post.return_value = make_response(status=500, text=LOGIN_OK_BODY)
+        uploader = FirmwareUploader(hass, "192.168.1.100")
+
+        with pytest.raises(FirmwareUploadError, match="Login failed with HTTP 500"):
+            await uploader.async_upload_firmware(firmware_file)
+
+        upload_session.post.assert_called_once()
 
     async def test_upload_missing_file(self, hass, upload_session, tmp_path):
         """Test a missing firmware file is rejected."""
