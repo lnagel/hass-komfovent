@@ -17,7 +17,6 @@ if TYPE_CHECKING:
     from .coordinator import KomfoventConfigEntry, KomfoventCoordinator
 
 from . import registers
-from .entity import KomfoventCoordinatorEntity
 from .const import (
     BITMASK_ALARM_F,
     BITMASK_ALARM_W,
@@ -33,6 +32,7 @@ from .const import (
     BITMASK_STARTING,
     BITMASK_STOPPING,
 )
+from .entity import KomfoventCoordinatorEntity
 from .helpers import build_device_info
 
 

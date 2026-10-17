@@ -693,15 +693,16 @@ def test_flow_dependent_sensors_unknown_without_flow(
     mock_coordinator, sensor_class, register_id, raw, expected
 ):
     """Test flow-dependent sensors report unknown unless the fans are running."""
-    sensor = sensor_class(mock_coordinator, register_id, DESC)
-
     mock_coordinator.data = {register_id: raw, registers.REG_STATUS: BITMASK_FAN}
+    sensor = sensor_class(mock_coordinator, register_id, DESC)
     assert sensor.native_value == pytest.approx(expected)
 
     mock_coordinator.data = {register_id: raw, registers.REG_STATUS: 0}
+    sensor = sensor_class(mock_coordinator, register_id, DESC)
     assert sensor.native_value is None
 
     mock_coordinator.data = {register_id: raw}
+    sensor = sensor_class(mock_coordinator, register_id, DESC)
     assert sensor.native_value is None
 
 
@@ -725,6 +726,6 @@ def test_other_sensors_report_without_flow(
     mock_coordinator, sensor_class, register_id, raw, expected
 ):
     """Test temperatures, pressures and panel sensors report while stopped."""
-    sensor = sensor_class(mock_coordinator, register_id, DESC)
     mock_coordinator.data = {register_id: raw, registers.REG_STATUS: 0}
+    sensor = sensor_class(mock_coordinator, register_id, DESC)
     assert sensor.native_value == pytest.approx(expected)
