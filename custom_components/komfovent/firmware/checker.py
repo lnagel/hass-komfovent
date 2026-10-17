@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 
 import aiofiles
 import aiohttp
+from aiohttp import hdrs
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.util import dt as dt_util
@@ -18,6 +19,7 @@ from custom_components.komfovent.const import (
     FIRMWARE_MAX_SIZE,
     FIRMWARE_MIN_SIZE,
     FIRMWARE_URLS,
+    USER_AGENT,
     Controller,
 )
 from custom_components.komfovent.firmware import (
@@ -208,7 +210,8 @@ class FirmwareChecker:
 
             session = async_get_clientsession(self._hass)
             timeout = aiohttp.ClientTimeout(total=DOWNLOAD_TIMEOUT)
-            async with session.get(url, timeout=timeout) as response:
+            headers = {hdrs.USER_AGENT: USER_AGENT}
+            async with session.get(url, headers=headers, timeout=timeout) as response:
                 if response.status != HTTP_OK:
                     _LOGGER.warning(
                         "Failed to download firmware for %s: HTTP %d",

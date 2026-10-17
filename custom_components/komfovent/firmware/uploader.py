@@ -9,7 +9,10 @@ from typing import TYPE_CHECKING
 import aiofiles
 import aiohttp
 from aiofiles import os as aio_os
+from aiohttp import hdrs
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+
+from custom_components.komfovent.const import USER_AGENT
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -24,6 +27,7 @@ _STATUS_PATTERN = re.compile(r'<td\s+id="st">\s*(.*?)\s*</td>', re.IGNORECASE)
 # HTTP constants
 HTTP_OK = 200
 UPLOAD_ENDPOINT = "/g1.html"
+HEADERS = {hdrs.USER_AGENT: USER_AGENT}
 FORM_FIELD_USERNAME = "1"
 FORM_FIELD_PASSWORD = "2"  # noqa: S105
 FORM_FIELD_FIRMWARE = "11111"
@@ -175,7 +179,9 @@ class FirmwareUploader:
         }
 
         timeout = aiohttp.ClientTimeout(total=LOGIN_TIMEOUT)
-        async with session.post(url, data=form_data, timeout=timeout) as response:
+        async with session.post(
+            url, data=form_data, headers=HEADERS, timeout=timeout
+        ) as response:
             if response.status != HTTP_OK:
                 msg = f"Login failed with HTTP {response.status}"
                 raise FirmwareUploadError(msg)
@@ -214,7 +220,9 @@ class FirmwareUploader:
         timeout = aiohttp.ClientTimeout(total=UPLOAD_TIMEOUT)
 
         try:
-            async with session.post(url, data=data, timeout=timeout) as response:
+            async with session.post(
+                url, data=data, headers=HEADERS, timeout=timeout
+            ) as response:
                 if response.status != HTTP_OK:
                     msg = f"Upload failed with HTTP {response.status}"
                     raise FirmwareUploadError(msg)

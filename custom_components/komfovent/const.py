@@ -2,11 +2,19 @@
 
 from __future__ import annotations
 
+import json
 from datetime import timedelta
 from enum import IntEnum
+from pathlib import Path
 from typing import Final
 
+from homeassistant.helpers.aiohttp_client import SERVER_SOFTWARE
+
 DOMAIN = "komfovent"
+
+MANIFEST_PATH = Path(__file__).parent / "manifest.json"
+VERSION: Final = json.loads(MANIFEST_PATH.read_text())["version"]
+USER_AGENT: Final = f"hass-komfovent/{VERSION} {SERVER_SOFTWARE}"
 
 # Firmware update constants
 FIRMWARE_CHECK_INTERVAL: Final = timedelta(days=7)
@@ -15,11 +23,7 @@ FIRMWARE_STORAGE_VERSION: Final = 1
 FIRMWARE_DIR: Final = "komfovent"
 FIRMWARE_MIN_SIZE: Final = 100 * 1024  # 100 KB
 FIRMWARE_MAX_SIZE: Final = 10 * 1024 * 1024  # 10 MB
-FIRMWARE_MIN_SUPPORTED_VERSION_C6: Final = (
-    1,
-    3,
-    15,
-)  # v1.3.15 minimum for .mbin support
+FIRMWARE_MIN_SUPPORTED_VERSION_C6: Final = (1, 3, 15)  # .mbin needs v1.3.15+
 
 # Config
 DEFAULT_NAME = "Komfovent"
