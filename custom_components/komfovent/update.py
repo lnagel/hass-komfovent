@@ -37,10 +37,12 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Komfovent update entity."""
-    coordinator = entry.runtime_data.coordinator
     store = entry.runtime_data.firmware_store
+    if store is None:
+        # Only set up when firmware updates are enabled for the entry
+        return
 
-    async_add_entities([KomfoventUpdateEntity(coordinator, store)])
+    async_add_entities([KomfoventUpdateEntity(entry.runtime_data.coordinator, store)])
 
 
 class KomfoventUpdateEntity(KomfoventCoordinatorEntity, UpdateEntity):

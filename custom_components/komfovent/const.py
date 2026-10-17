@@ -36,10 +36,12 @@ OPT_STEP_HUMIDITY: Final = "step_humidity"
 OPT_STEP_CO2: Final = "step_co2"
 OPT_STEP_VOC: Final = "step_voc"
 OPT_STEP_TIMER: Final = "step_timer"
+OPT_FIRMWARE_UPDATES: Final = "firmware_updates"
 
 # Defaults
 DEFAULT_UPDATE_INTERVAL = 30
 DEFAULT_EMA_TIME_CONSTANT = 300
+DEFAULT_FIRMWARE_UPDATES: Final = True
 DEFAULT_STEP_FLOW: Final = 5.0
 DEFAULT_STEP_TEMPERATURE: Final = 0.5
 DEFAULT_STEP_HUMIDITY: Final = 5.0

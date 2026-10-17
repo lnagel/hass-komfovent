@@ -248,12 +248,18 @@ class KomfoventRuntimeData:
     """
     Runtime data stored on a Komfovent config entry.
 
-    Wraps the per-entry runtime objects in a dataclass so additional fields
-    can be added without touching every platform.
+    Wraps the coordinator in a dataclass so additional per-entry runtime
+    objects can be added as fields without touching every platform.
     """
 
     coordinator: KomfoventCoordinator
-    firmware_store: FirmwareStore
+    # Shared firmware store, None when firmware updates are disabled
+    firmware_store: FirmwareStore | None = None
+
+    @property
+    def firmware_enabled(self) -> bool:
+        """Return whether firmware updates are enabled for this entry."""
+        return self.firmware_store is not None
 
 
 type KomfoventConfigEntry = ConfigEntry[KomfoventRuntimeData]

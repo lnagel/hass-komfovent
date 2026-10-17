@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import timedelta
 from typing import TYPE_CHECKING
 
@@ -11,9 +11,11 @@ from homeassistant.const import Platform
 
 from .const import (
     DEFAULT_EMA_TIME_CONSTANT,
+    DEFAULT_FIRMWARE_UPDATES,
     DEFAULT_UPDATE_INTERVAL,
     DOMAIN,
     OPT_EMA_TIME_CONSTANT,
+    OPT_FIRMWARE_UPDATES,
     OPT_UPDATE_INTERVAL,
 )
 from .coordinator import KomfoventCoordinator, KomfoventRuntimeData
@@ -48,7 +50,29 @@ class KomfoventDomainData:
 
     firmware_store: FirmwareStore
     firmware_checker: FirmwareChecker
-    entry_count: int = 0
+    # Config entries with firmware updates enabled
+    firmware_entries: set[str] = field(default_factory=set)
+
+
+def _get_platforms(*, firmware_enabled: bool) -> list[Platform]:
+    """Return the platforms to set up for an entry."""
+    if firmware_enabled:
+        return PLATFORMS
+    return [platform for platform in PLATFORMS if platform != Platform.UPDATE]
+
+
+async def _async_get_domain_data(hass: HomeAssistant) -> KomfoventDomainData:
+    """Return the shared firmware components, creating them on first use."""
+    domain = hass.data.setdefault(DOMAIN, {})
+    if "domain_data" not in domain:
+        firmware_store = FirmwareStore(hass)
+        await firmware_store.async_load()
+        domain["domain_data"] = KomfoventDomainData(
+            firmware_store=firmware_store,
+            firmware_checker=FirmwareChecker(hass, firmware_store),
+        )
+        _LOGGER.debug("Created domain-level firmware components")
+    return domain["domain_data"]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: KomfoventConfigEntry) -> bool:
@@ -57,6 +81,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: KomfoventConfigEntry) ->
     ema_time_constant = entry.options.get(
         OPT_EMA_TIME_CONSTANT, DEFAULT_EMA_TIME_CONSTANT
     )
+    firmware_enabled = entry.options.get(OPT_FIRMWARE_UPDATES, DEFAULT_FIRMWARE_UPDATES)
     coordinator = KomfoventCoordinator(
         hass=hass,
         config_entry=entry,
@@ -68,43 +93,26 @@ async def async_setup_entry(hass: HomeAssistant, entry: KomfoventConfigEntry) ->
 
     await coordinator.async_config_entry_first_refresh()
 
-    # Set up domain-level data if this is the first entry
-    hass.data.setdefault(DOMAIN, {})
-
-    if "domain_data" not in hass.data[DOMAIN]:
-        # First entry - create domain-level components
-        firmware_store = FirmwareStore(hass)
-        await firmware_store.async_load()
-
-        firmware_checker = FirmwareChecker(hass, firmware_store)
-
-        hass.data[DOMAIN]["domain_data"] = KomfoventDomainData(
-            firmware_store=firmware_store,
-            firmware_checker=firmware_checker,
-        )
-        _LOGGER.debug("Created domain-level firmware components")
-
-    domain_data: KomfoventDomainData = hass.data[DOMAIN]["domain_data"]
+    domain_data = await _async_get_domain_data(hass) if firmware_enabled else None
 
     # Store per-entry runtime data on the config entry
     entry.runtime_data = KomfoventRuntimeData(
         coordinator=coordinator,
-        firmware_store=domain_data.firmware_store,
+        firmware_store=domain_data.firmware_store if domain_data else None,
     )
 
     await async_register_services(hass)
 
-    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    await hass.config_entries.async_forward_entry_setups(
+        entry, _get_platforms(firmware_enabled=firmware_enabled)
+    )
 
-    # Only count the entry once setup succeeded, so a failed setup (which is
-    # never unloaded) cannot leave the checker running or the count skewed
-    domain_data.entry_count += 1
-    domain_data.firmware_checker.register_controller_type(coordinator.controller)
-
-    # Start firmware checker if this is the first entry
-    if domain_data.entry_count == 1:
+    # Register for firmware checks only once setup succeeded, so a failed
+    # setup (which is never unloaded) cannot leave the checker running
+    if domain_data is not None:
+        domain_data.firmware_entries.add(entry.entry_id)
+        domain_data.firmware_checker.register_controller_type(coordinator.controller)
         await domain_data.firmware_checker.async_start()
-        _LOGGER.debug("Started firmware checker")
 
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
 
@@ -112,10 +120,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: KomfoventConfigEntry) ->
 
 
 async def _async_update_listener(
-    hass: HomeAssistant,  # noqa: ARG001
+    hass: HomeAssistant,
     entry: KomfoventConfigEntry,
 ) -> None:
     """Handle options update."""
+    firmware_enabled = entry.options.get(OPT_FIRMWARE_UPDATES, DEFAULT_FIRMWARE_UPDATES)
+    if firmware_enabled != entry.runtime_data.firmware_enabled:
+        # Adds or removes the update platform, which needs a full reload
+        _LOGGER.debug("Firmware updates option changed, reloading entry")
+        await hass.config_entries.async_reload(entry.entry_id)
+        return
+
     coordinator = entry.runtime_data.coordinator
     update_interval = entry.options.get(OPT_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL)
     coordinator.update_interval = timedelta(seconds=update_interval)
@@ -127,19 +142,19 @@ async def _async_update_listener(
 
 async def async_unload_entry(hass: HomeAssistant, entry: KomfoventConfigEntry) -> bool:
     """Unload a config entry."""
-    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
-    if unload_ok:
+    firmware_enabled = entry.runtime_data.firmware_enabled
+    unload_ok = await hass.config_entries.async_unload_platforms(
+        entry, _get_platforms(firmware_enabled=firmware_enabled)
+    )
+    if unload_ok and firmware_enabled:
         domain_data: KomfoventDomainData = hass.data[DOMAIN]["domain_data"]
-
-        # Unregister this entry's controller type
+        domain_data.firmware_entries.discard(entry.entry_id)
         domain_data.firmware_checker.unregister_controller_type(
             entry.runtime_data.coordinator.controller
         )
 
-        domain_data.entry_count -= 1
-
-        # Stop firmware checker if this was the last entry
-        if domain_data.entry_count == 0:
+        # Stop firmware checker after the last firmware-enabled entry
+        if not domain_data.firmware_entries:
             await domain_data.firmware_checker.async_stop()
             hass.data[DOMAIN].pop("domain_data")
             _LOGGER.debug("Stopped firmware checker and cleaned up domain data")
