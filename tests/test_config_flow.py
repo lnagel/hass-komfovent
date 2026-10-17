@@ -105,36 +105,20 @@ class TestReconfigureStep:
         assert result["type"] == FlowResultType.FORM
         assert result["step_id"] == "reconfigure"
 
-    async def test_reconfigure_updates_entry(self, hass, existing_entry):
+    @pytest.mark.parametrize(
+        "password",
+        [{}, {CONF_PASSWORD: "newpassword"}],
+        ids=["no_password", "password"],
+    )
+    async def test_reconfigure_updates_entry(self, hass, existing_entry, password):
         """Test reconfigure step updates entry with new data."""
-        flow = KomfoventConfigFlow()
-        flow.hass = hass
-        new_data = {CONF_NAME: "New Name", CONF_HOST: "192.168.1.200", CONF_PORT: 503}
-        with (
-            patch.object(flow, "_get_reconfigure_entry", return_value=existing_entry),
-            patch.object(
-                flow,
-                "async_update_reload_and_abort",
-                return_value={
-                    "type": FlowResultType.ABORT,
-                    "reason": "reconfigure_successful",
-                },
-            ) as mock_update,
-        ):
-            await flow.async_step_reconfigure(new_data)
-            mock_update.assert_called_once_with(
-                entry=existing_entry, title="New Name", data_updates=new_data
-            )
-
-    async def test_reconfigure_updates_entry_with_password(self, hass, existing_entry):
-        """Test reconfigure step updates entry with password."""
         flow = KomfoventConfigFlow()
         flow.hass = hass
         new_data = {
             CONF_NAME: "New Name",
             CONF_HOST: "192.168.1.200",
             CONF_PORT: 503,
-            CONF_PASSWORD: "newpassword",
+            **password,
         }
         with (
             patch.object(flow, "_get_reconfigure_entry", return_value=existing_entry),
@@ -230,22 +214,14 @@ class TestSchemas:
         assert result[CONF_NAME] == expected_name
         assert result[CONF_PORT] == expected_port
 
-    def test_config_schema_password_optional(self):
-        """Test config schema accepts data without password."""
+    @pytest.mark.parametrize("password", [None, "test_password"])
+    def test_config_schema_password_optional(self, password):
+        """Test config schema accepts data with and without password."""
         data = {CONF_NAME: "Test", CONF_HOST: "192.168.1.100", CONF_PORT: 502}
+        if password is not None:
+            data[CONF_PASSWORD] = password
         result = CONFIG_SCHEMA(data)
-        assert CONF_PASSWORD not in result
-
-    def test_config_schema_password_included(self):
-        """Test config schema accepts data with password."""
-        data = {
-            CONF_NAME: "Test",
-            CONF_HOST: "192.168.1.100",
-            CONF_PORT: 502,
-            CONF_PASSWORD: "test_password",
-        }
-        result = CONFIG_SCHEMA(data)
-        assert result[CONF_PASSWORD] == "test_password"
+        assert result.get(CONF_PASSWORD) == password
 
     def test_options_schema_accepts_valid(self):
         """Test options schema accepts valid data."""
@@ -265,8 +241,6 @@ class TestSchemas:
         result = OPTIONS_SCHEMA({})
         assert result[OPT_UPDATE_INTERVAL] == DEFAULT_UPDATE_INTERVAL
         assert result[OPT_FIRMWARE_UPDATES] is True
-
-    def test_options_schema_firmware_updates_disabled(self):
-        """Test options schema keeps firmware updates disabled."""
-        result = OPTIONS_SCHEMA({OPT_FIRMWARE_UPDATES: False})
-        assert result[OPT_FIRMWARE_UPDATES] is False
+        assert (
+            OPTIONS_SCHEMA({OPT_FIRMWARE_UPDATES: False})[OPT_FIRMWARE_UPDATES] is False
+        )
