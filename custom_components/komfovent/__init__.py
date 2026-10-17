@@ -85,10 +85,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: KomfoventConfigEntry) ->
         _LOGGER.debug("Created domain-level firmware components")
 
     domain_data: KomfoventDomainData = hass.data[DOMAIN]["domain_data"]
-    domain_data.entry_count += 1
-
-    # Register this entry's controller type with the checker
-    domain_data.firmware_checker.register_controller_type(coordinator.controller)
 
     # Store per-entry runtime data on the config entry
     entry.runtime_data = KomfoventRuntimeData(
@@ -99,6 +95,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: KomfoventConfigEntry) ->
     await async_register_services(hass)
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
+    # Only count the entry once setup succeeded, so a failed setup (which is
+    # never unloaded) cannot leave the checker running or the count skewed
+    domain_data.entry_count += 1
+    domain_data.firmware_checker.register_controller_type(coordinator.controller)
 
     # Start firmware checker if this is the first entry
     if domain_data.entry_count == 1:

@@ -200,6 +200,49 @@ class TestAsyncSetupEntry:
         call_kwargs = mock_coordinator_class.call_args.kwargs
         assert call_kwargs["update_interval"] == timedelta(seconds=60)
 
+    async def test_setup_entry_platform_failure_does_not_register(
+        self, hass: HomeAssistant, mock_config_entry
+    ):
+        """Test a failed platform setup leaves firmware tracking untouched."""
+        mock_coordinator = MagicMock()
+        mock_coordinator.connect = AsyncMock()
+        mock_coordinator.async_config_entry_first_refresh = AsyncMock()
+        mock_firmware_store = MagicMock()
+        mock_firmware_store.async_load = AsyncMock()
+        mock_firmware_checker = MagicMock()
+        mock_firmware_checker.async_start = AsyncMock()
+
+        with (
+            patch(
+                "custom_components.komfovent.KomfoventCoordinator",
+                return_value=mock_coordinator,
+            ),
+            patch(
+                "custom_components.komfovent.FirmwareStore",
+                return_value=mock_firmware_store,
+            ),
+            patch(
+                "custom_components.komfovent.FirmwareChecker",
+                return_value=mock_firmware_checker,
+            ),
+            patch(
+                "custom_components.komfovent.async_register_services",
+                new_callable=AsyncMock,
+            ),
+            patch.object(
+                hass.config_entries,
+                "async_forward_entry_setups",
+                AsyncMock(side_effect=RuntimeError("platform failed")),
+            ),
+            pytest.raises(RuntimeError),
+        ):
+            await async_setup_entry(hass, mock_config_entry)
+
+        domain_data = hass.data[DOMAIN]["domain_data"]
+        assert domain_data.entry_count == 0
+        mock_firmware_checker.register_controller_type.assert_not_called()
+        mock_firmware_checker.async_start.assert_not_called()
+
 
 class TestAsyncUpdateListener:
     """Tests for _async_update_listener function."""

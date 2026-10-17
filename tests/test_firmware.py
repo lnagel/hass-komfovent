@@ -287,14 +287,43 @@ class TestFirmwareChecker:
     """Tests for FirmwareChecker."""
 
     def test_register_and_unregister(self, checker):
-        """Test controller types are tracked by firmware type."""
+        """Test controller types are reference counted by firmware type."""
+        checker.register_controller_type(Controller.C6)
         checker.register_controller_type(Controller.C6M)
         checker.register_controller_type(Controller.C8)
         checker.register_controller_type(Controller.NA)
-        assert checker._active_controller_types == {"C6", "C8"}
+        assert checker.active_controller_types == {"C6", "C8"}
 
+        # One of two C6-firmware entries unloaded: C6 stays active
         checker.unregister_controller_type(Controller.C6)
-        assert checker._active_controller_types == {"C8"}
+        assert checker.active_controller_types == {"C6", "C8"}
+
+        checker.unregister_controller_type(Controller.C6M)
+        assert checker.active_controller_types == {"C8"}
+
+        # Unregistering an inactive type is a no-op
+        checker.unregister_controller_type(Controller.C6)
+        checker.unregister_controller_type(Controller.NA)
+        assert checker.active_controller_types == {"C8"}
+
+    def test_register_new_type_while_running_checks_it(self, checker, storage_hass):
+        """Test a newly active type is checked immediately when running."""
+        checker._unsub_interval = MagicMock()
+        with patch.object(
+            checker, "_async_check_controller_type", AsyncMock()
+        ) as mock_check:
+            checker.register_controller_type(Controller.C8)
+            checker.register_controller_type(Controller.C8)
+
+        storage_hass.async_create_background_task.assert_called_once()
+        storage_hass.async_create_background_task.call_args.args[0].close()
+        mock_check.assert_called_once_with("C8")
+
+    def test_register_while_stopped_does_not_check(self, checker, storage_hass):
+        """Test registering before start defers checks to the initial run."""
+        checker.register_controller_type(Controller.C6)
+
+        storage_hass.async_create_background_task.assert_not_called()
 
     async def test_start_and_stop(self, checker):
         """Test start registers the interval once and stop removes it."""
@@ -357,9 +386,9 @@ class TestFirmwareChecker:
         assert not old.exists()
         assert checker._checking is False
 
-    async def test_check_normalizes_c6m(self, checker, mock_session):
-        """Test a C6M type entry is checked as C6."""
-        checker._active_controller_types = {"C6M"}
+    async def test_check_c6m_uses_c6_firmware(self, checker, mock_session):
+        """Test a C6M entry is checked with the shared C6 firmware."""
+        checker.register_controller_type(Controller.C6M)
         with patch.object(
             checker, "_async_check_controller_type", AsyncMock()
         ) as mock_check:
