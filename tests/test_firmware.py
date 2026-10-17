@@ -1,16 +1,20 @@
 """Tests for Komfovent firmware store, checker and uploader."""
 
+import json
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import aiohttp
 import pytest
+from aiohttp import hdrs
 from homeassistant.exceptions import UnsupportedStorageVersionError
 
 from custom_components.komfovent.const import (
     FIRMWARE_CHECK_INTERVAL,
     FIRMWARE_MIN_SIZE,
     FIRMWARE_URLS,
+    USER_AGENT,
+    VERSION,
     Controller,
 )
 from custom_components.komfovent.firmware import (
@@ -141,6 +145,13 @@ def firmware_file(tmp_path) -> Path:
 
 
 # ==================== Helper Function Tests ====================
+
+
+def test_user_agent():
+    """Test the user agent names the integration version before HA's."""
+    manifest = json.loads(Path("custom_components/komfovent/manifest.json").read_text())
+    assert manifest["version"] == VERSION
+    assert USER_AGENT.startswith(f"hass-komfovent/{VERSION} HomeAssistant/")
 
 
 def test_format_version():
@@ -418,6 +429,9 @@ class TestFirmwareChecker:
         await checker.async_check_for_updates()
 
         assert mock_session.get.call_args.args[0] == FIRMWARE_URLS["C6"]
+        assert mock_session.get.call_args.kwargs["headers"] == {
+            hdrs.USER_AGENT: USER_AGENT
+        }
         info = store.get_firmware_info("C6")
         assert info is not None
         assert info["filename"] == C6_FILENAME
@@ -551,6 +565,8 @@ class TestFirmwareUploader:
         assert login_call.args[0] == "http://192.168.1.100/g1.html"
         assert login_call.kwargs["data"] == {"1": "user", "2": "secret"}
         assert isinstance(upload_call.kwargs["data"], aiohttp.FormData)
+        for call in (login_call, upload_call):
+            assert call.kwargs["headers"] == {hdrs.USER_AGENT: USER_AGENT}
 
     @pytest.mark.parametrize("password", [None, "", "user"])
     async def test_login_default_password(
