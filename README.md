@@ -183,6 +183,7 @@ During initial setup, you'll configure:
 - **name**: The name of your Komfovent device
 - **Host**: The IP address of your Komfovent device
 - **Port**: The Modbus TCP port (default: 502)
+- **Password** (optional): The device web interface password, used for firmware updates. Leave blank for the default `user`
 
 After setup, the device info will include a direct link to the device's web interface for easy access.
 
@@ -196,6 +197,24 @@ After installation, you can configure advanced options through the integration's
   - Higher values provide more smoothing but slower response to temperature changes
 - **Step Thresholds**: Minimum change thresholds for various sensor types (flow, temperature, humidity, CO2, VOC, timer)
   - Helps reduce noise and unnecessary updates
+- **Check for firmware updates**: Offer controller firmware updates (default: enabled)
+
+## Firmware Updates
+
+With firmware updates enabled, the integration downloads the latest controller
+firmware from Komfovent once a week (one download per controller type, shared
+by all devices) and shows it on a **Firmware** update entity. Nothing is
+installed automatically: pressing **Install** uploads the firmware through the
+device's web interface, pauses polling while the device restarts, and then
+checks that the device reports the new version.
+
+- C6/C6M controllers need firmware v1.3.15 or newer for this; update older
+  devices manually first. C8 controllers are supported on any version.
+- The device resets its web password to `user` after every firmware upgrade,
+  so if the configured password is rejected, the integration retries with
+  `user`.
+- Turn off **Check for firmware updates** in the options to remove the update
+  entity and stop the downloads.
 
 ## ModBus tools
 
