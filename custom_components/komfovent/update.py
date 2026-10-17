@@ -182,7 +182,7 @@ class KomfoventUpdateEntity(KomfoventCoordinatorEntity, UpdateEntity):
         self.async_write_ha_state()
 
         # Stop Modbus polling while the device is flashing and restarting
-        self.coordinator.pause_updates()
+        await self.coordinator.async_pause_updates()
         try:
             uploader = FirmwareUploader(self.hass, host, password=password)
 
@@ -200,7 +200,7 @@ class KomfoventUpdateEntity(KomfoventCoordinatorEntity, UpdateEntity):
             await asyncio.sleep(DEVICE_RESTART_DELAY)
 
             # Verify while still in progress so the old version never shows as final
-            self.coordinator.resume_updates()
+            await self.coordinator.async_resume_updates()
             await self.coordinator.async_refresh()
             self._verify_installed_version(expected_version)
 
@@ -215,7 +215,7 @@ class KomfoventUpdateEntity(KomfoventCoordinatorEntity, UpdateEntity):
             msg = f"Firmware update failed: {err}"
             raise HomeAssistantError(msg) from err
         finally:
-            self.coordinator.resume_updates()
+            await self.coordinator.async_resume_updates()
             self._attr_in_progress = False
             self.async_write_ha_state()
 

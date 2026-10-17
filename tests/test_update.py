@@ -218,10 +218,10 @@ async def test_install(
 ):
     """Test install uploads firmware, waits for restart and verifies it."""
     manager = MagicMock()
-    manager.attach_mock(mock_coordinator.pause_updates, "pause")
+    manager.attach_mock(mock_coordinator.async_pause_updates, "pause")
     manager.attach_mock(mock_uploader.return_value.async_upload_firmware, "upload")
     manager.attach_mock(mock_sleep, "sleep")
-    manager.attach_mock(mock_coordinator.resume_updates, "resume")
+    manager.attach_mock(mock_coordinator.async_resume_updates, "resume")
     manager.attach_mock(mock_coordinator.async_refresh, "refresh")
 
     await entity.async_install(None, backup=False)
@@ -295,7 +295,7 @@ async def test_install_device_not_back_after_restart(
     with pytest.raises(HomeAssistantError, match="did not respond"):
         await entity.async_install(None, backup=False)
 
-    mock_coordinator.resume_updates.assert_called()
+    mock_coordinator.async_resume_updates.assert_called()
     assert entity.in_progress is False
 
 
@@ -355,7 +355,7 @@ async def test_install_failure(
         await entity.async_install(None, backup=False)
 
     # Polling resumes right away instead of waiting for a restart
-    mock_coordinator.resume_updates.assert_called_once()
+    mock_coordinator.async_resume_updates.assert_called_once()
     mock_sleep.assert_not_awaited()
     mock_coordinator.async_refresh.assert_not_awaited()
     assert entity.in_progress is False

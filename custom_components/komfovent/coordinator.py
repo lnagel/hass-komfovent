@@ -77,13 +77,18 @@ class KomfoventCoordinator(TimestampDataUpdateCoordinator[dict[int, Any]]):
         """Set a cooldown period before the next update can proceed."""
         self._cooldown_until = utcnow() + timedelta(seconds=seconds)
 
-    def pause_updates(self) -> None:
-        """Stop polling the device and keep the last data (e.g. while flashing)."""
+    async def async_pause_updates(self) -> None:
+        """Stop polling and drop the connection, keeping the last data."""
         self._updates_paused = True
+        # A device restart resets the socket, so reconnect fresh on resume
+        await self.client.close()
 
-    def resume_updates(self) -> None:
-        """Resume polling the device."""
+    async def async_resume_updates(self) -> None:
+        """Reconnect and resume polling the device."""
+        if not self._updates_paused:
+            return
         self._updates_paused = False
+        await self.client.connect()
 
     async def _wait_for_cooldown(self) -> None:
         """Wait for cooldown period to expire if set."""
