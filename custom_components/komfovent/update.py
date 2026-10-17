@@ -199,6 +199,13 @@ class KomfoventUpdateEntity(KomfoventCoordinatorEntity, UpdateEntity):
             )
             await asyncio.sleep(DEVICE_RESTART_DELAY)
 
+            # Verify while still in progress so the old version never shows as final
+            self.coordinator.resume_updates()
+            await self.coordinator.async_refresh()
+            self._verify_installed_version(expected_version)
+
+        except HomeAssistantError:
+            raise
         except FirmwareUploadError as err:
             _LOGGER.exception("Firmware upload failed")
             msg = f"Firmware upload failed: {err}"
@@ -211,10 +218,6 @@ class KomfoventUpdateEntity(KomfoventCoordinatorEntity, UpdateEntity):
             self.coordinator.resume_updates()
             self._attr_in_progress = False
             self.async_write_ha_state()
-
-        # Read the version the device reports after restarting
-        await self.coordinator.async_refresh()
-        self._verify_installed_version(expected_version)
 
         _LOGGER.info(
             "Firmware update completed for %s",

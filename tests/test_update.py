@@ -227,13 +227,14 @@ async def test_install(
     await entity.async_install(None, backup=False)
 
     mock_uploader.assert_called_once_with(entity.hass, "192.168.1.100", password=None)
-    # Polling is paused for the whole upload and restart, then resumed
+    # Resumed to verify; the final resume in finally is a no-op here
     assert [c[0] for c in manager.mock_calls] == [
         "pause",
         "upload",
         "sleep",
         "resume",
         "refresh",
+        "resume",
     ]
     mock_uploader.return_value.async_upload_firmware.assert_awaited_once_with(
         firmware_path
@@ -241,6 +242,28 @@ async def test_install(
     mock_sleep.assert_awaited_once_with(DEVICE_RESTART_DELAY)
     assert entity.in_progress is False
     assert entity.async_write_ha_state.call_count == 2
+
+
+async def test_install_in_progress_until_verified(
+    entity, mock_coordinator, mock_uploader
+):
+    """Test install stays in progress until the device reports the new version."""
+    flashed_refresh = mock_coordinator.async_refresh.side_effect
+    in_progress_at = {}
+
+    async def refresh():
+        in_progress_at["refresh"] = entity.in_progress
+        await flashed_refresh()
+
+    mock_coordinator.async_refresh.side_effect = refresh
+    written = []
+    entity.async_write_ha_state.side_effect = lambda: written.append(entity.in_progress)
+
+    await entity.async_install(None, backup=False)
+
+    # No "not in progress" state is written while the old version is current
+    assert in_progress_at["refresh"] is True
+    assert written == [True, False]
 
 
 async def test_install_uses_configured_password(
