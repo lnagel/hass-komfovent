@@ -23,8 +23,8 @@ from homeassistant.const import (
     UnitOfVolumeFlowRate,
 )
 from homeassistant.helpers.entity import EntityCategory
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
+from .entity import KomfoventCoordinatorEntity
 from .helpers import build_device_info, get_controller_version, get_panel_version
 
 if TYPE_CHECKING:
@@ -842,7 +842,7 @@ async def async_setup_entry(
     async_add_entities(await create_sensors(coordinator))
 
 
-class KomfoventSensor(CoordinatorEntity["KomfoventCoordinator"], SensorEntity):
+class KomfoventSensor(KomfoventCoordinatorEntity, SensorEntity):
     """Base representation of a Komfovent sensor."""
 
     _attr_has_entity_name = True
@@ -863,6 +863,7 @@ class KomfoventSensor(CoordinatorEntity["KomfoventCoordinator"], SensorEntity):
         )
         self._attr_translation_key = entity_description.key
         self._attr_device_info = build_device_info(coordinator)
+        self._update_attrs()
 
     @property
     def raw_value(self) -> int | None:
@@ -872,8 +873,11 @@ class KomfoventSensor(CoordinatorEntity["KomfoventCoordinator"], SensorEntity):
 
         return self.coordinator.data.get(self.register_id)
 
-    @property
-    def native_value(self) -> StateType | date | datetime | Decimal:
+    def _update_attrs(self) -> None:
+        """Set the sensor value from coordinator data."""
+        self._attr_native_value = self._compute_native_value()
+
+    def _compute_native_value(self) -> StateType | date | datetime | Decimal:
         """Return the state of the sensor."""
         return self.raw_value
 
@@ -881,8 +885,7 @@ class KomfoventSensor(CoordinatorEntity["KomfoventCoordinator"], SensorEntity):
 class FloatSensor(KomfoventSensor):
     """Temperature sensor with x10 scaling."""
 
-    @property
-    def native_value(self) -> float | None:
+    def _compute_native_value(self) -> float | None:
         """Return the float value of the sensor."""
         value = self.raw_value
         if value is None:
@@ -897,10 +900,9 @@ class FloatSensor(KomfoventSensor):
 class FloatX10Sensor(FloatSensor):
     """Sensor that divides its value by 10."""
 
-    @property
-    def native_value(self) -> float | None:
+    def _compute_native_value(self) -> float | None:
         """Return the sensor value divided by 10."""
-        value = super().native_value
+        value = super()._compute_native_value()
         if value is None:
             return None
 
@@ -910,10 +912,9 @@ class FloatX10Sensor(FloatSensor):
 class FloatX100Sensor(FloatSensor):
     """Sensor that divides its value by 100."""
 
-    @property
-    def native_value(self) -> float | None:
+    def _compute_native_value(self) -> float | None:
         """Return the value divided by 100."""
-        value = super().native_value
+        value = super()._compute_native_value()
         if value is None:
             return None
 
@@ -923,8 +924,7 @@ class FloatX100Sensor(FloatSensor):
 class FloatX1000Sensor(KomfoventSensor):
     """Sensor that divides its value by 1000."""
 
-    @property
-    def native_value(self) -> float | None:
+    def _compute_native_value(self) -> float | None:
         """Return the energy value in kWh."""
         raw_value = self.raw_value
         if raw_value is None:
@@ -943,8 +943,7 @@ class FirmwareVersionSensor(KomfoventSensor):
         """Format a packed version integer into a display string."""
         raise NotImplementedError
 
-    @property
-    def native_value(self) -> str | None:
+    def _compute_native_value(self) -> str | None:
         """Return the firmware version string."""
         raw_value = self.raw_value
         if raw_value is None:
@@ -982,10 +981,9 @@ class PanelFirmwareVersionSensor(FirmwareVersionSensor):
 class DutyCycleSensor(FloatX10Sensor):
     """Temperature sensor with range validation."""
 
-    @property
-    def native_value(self) -> float | None:
+    def _compute_native_value(self) -> float | None:
         """Return the temperature value if within valid range."""
-        value = super().native_value
+        value = super()._compute_native_value()
         if value is None:
             return None
 
@@ -997,10 +995,9 @@ class DutyCycleSensor(FloatX10Sensor):
 class DxUnitSensor(FloatX10Sensor):
     """Signed DX unit signal: negative is cooling, positive is heating."""
 
-    @property
-    def native_value(self) -> float | None:
+    def _compute_native_value(self) -> float | None:
         """Return the signed DX level if within valid range."""
-        value = super().native_value
+        value = super()._compute_native_value()
         if value is None:
             return None
 
@@ -1012,10 +1009,9 @@ class DxUnitSensor(FloatX10Sensor):
 class DxHeatingSensor(DxUnitSensor):
     """Heating duty cycle of the DX unit."""
 
-    @property
-    def native_value(self) -> float | None:
+    def _compute_native_value(self) -> float | None:
         """Return the heating share of the signal, zero while cooling."""
-        value = super().native_value
+        value = super()._compute_native_value()
         if value is None:
             return None
 
@@ -1025,10 +1021,9 @@ class DxHeatingSensor(DxUnitSensor):
 class DxCoolingSensor(DxUnitSensor):
     """Cooling duty cycle of the DX unit."""
 
-    @property
-    def native_value(self) -> float | None:
+    def _compute_native_value(self) -> float | None:
         """Return the cooling share of the signal, zero while heating."""
-        value = super().native_value
+        value = super()._compute_native_value()
         if value is None:
             return None
 
@@ -1038,10 +1033,9 @@ class DxCoolingSensor(DxUnitSensor):
 class TemperatureSensor(FloatX10Sensor):
     """Temperature sensor with range validation."""
 
-    @property
-    def native_value(self) -> float | None:
+    def _compute_native_value(self) -> float | None:
         """Return the temperature value if within valid range."""
-        value = super().native_value
+        value = super()._compute_native_value()
         if value is None:
             return None
 
@@ -1053,8 +1047,7 @@ class TemperatureSensor(FloatX10Sensor):
 class RelativeHumiditySensor(KomfoventSensor):
     """Humidity sensor with range validation."""
 
-    @property
-    def native_value(self) -> int | None:
+    def _compute_native_value(self) -> int | None:
         """Return the humidity value if within valid range."""
         raw_value = self.raw_value
         if raw_value is None:
@@ -1073,10 +1066,9 @@ class RelativeHumiditySensor(KomfoventSensor):
 class AbsoluteHumiditySensor(FloatX100Sensor):
     """Humidity sensor with range validation."""
 
-    @property
-    def native_value(self) -> float | None:
+    def _compute_native_value(self) -> float | None:
         """Return the humidity value if within valid range."""
-        value = super().native_value
+        value = super()._compute_native_value()
         if value is None:
             return None
 
@@ -1088,8 +1080,7 @@ class AbsoluteHumiditySensor(FloatX100Sensor):
 class CO2Sensor(KomfoventSensor):
     """CO2 sensor with range validation."""
 
-    @property
-    def native_value(self) -> int | None:
+    def _compute_native_value(self) -> int | None:
         """Return the CO2 value if within valid range."""
         raw_value = self.raw_value
         if raw_value is None:
@@ -1108,10 +1099,9 @@ class CO2Sensor(KomfoventSensor):
 class SPISensor(FloatX1000Sensor):
     """SPI sensor with scaling and range validation."""
 
-    @property
-    def native_value(self) -> float | None:
+    def _compute_native_value(self) -> float | None:
         """Return the SPI value if within valid range."""
-        value = super().native_value
+        value = super()._compute_native_value()
         if value is None:
             return None
 
@@ -1123,8 +1113,7 @@ class SPISensor(FloatX1000Sensor):
 class VOCSensor(KomfoventSensor):
     """VOC sensor with range validation."""
 
-    @property
-    def native_value(self) -> int | None:
+    def _compute_native_value(self) -> int | None:
         """Return the VOC value if within valid range."""
         raw_value = self.raw_value
         if raw_value is None:
@@ -1143,8 +1132,14 @@ class VOCSensor(KomfoventSensor):
 class FlowSensor(FloatSensor):
     """Flow sensor with dynamic units based on flow unit setting."""
 
-    @property
-    def native_unit_of_measurement(self) -> str | None:
+    def _update_attrs(self) -> None:
+        """Set the sensor value and unit from coordinator data."""
+        super()._update_attrs()
+        self._attr_native_unit_of_measurement = (
+            self._compute_native_unit_of_measurement()
+        )
+
+    def _compute_native_unit_of_measurement(self) -> str | None:
         """Return the unit of measurement."""
         if not self.coordinator.data:
             return None
@@ -1169,8 +1164,7 @@ class FlowSensor(FloatSensor):
 class HeatExchangerTypeSensor(KomfoventSensor):
     """Heat exchanger type sensor."""
 
-    @property
-    def native_value(self) -> str | None:
+    def _compute_native_value(self) -> str | None:
         """Return the heat exchanger type name."""
         raw_value = self.raw_value
         if raw_value is None:
@@ -1185,8 +1179,7 @@ class HeatExchangerTypeSensor(KomfoventSensor):
 class ConnectedPanelsSensor(KomfoventSensor):
     """Connected panels sensor."""
 
-    @property
-    def native_value(self) -> str | None:
+    def _compute_native_value(self) -> str | None:
         """Return the connected panels state name."""
         raw_value = self.raw_value
         if raw_value is None:
@@ -1201,8 +1194,7 @@ class ConnectedPanelsSensor(KomfoventSensor):
 class FlowUnitSensor(KomfoventSensor):
     """Flow unit sensor."""
 
-    @property
-    def native_value(self) -> str | None:
+    def _compute_native_value(self) -> str | None:
         """Return the flow units state name."""
         raw_value = self.raw_value
         if raw_value is None:
@@ -1217,8 +1209,7 @@ class FlowUnitSensor(KomfoventSensor):
 class SystemTimeSensor(KomfoventSensor):
     """System time sensor."""
 
-    @property
-    def native_value(self) -> datetime | None:
+    def _compute_native_value(self) -> datetime | None:
         """Return the system time as datetime from Unix timestamp."""
         raw_value = self.raw_value
         if raw_value is None:
@@ -1254,8 +1245,12 @@ _ALARM_REGISTERS = [
 class ActiveAlarmsSensor(KomfoventSensor):
     """Sensor showing active alarm codes."""
 
-    @property
-    def native_value(self) -> str | None:
+    def _update_attrs(self) -> None:
+        """Set the alarm codes and details from coordinator data."""
+        super()._update_attrs()
+        self._attr_extra_state_attributes = self._compute_extra_state_attributes()
+
+    def _compute_native_value(self) -> str | None:
         """Return space-separated alarm codes in manual format, or empty string."""
         if not self.coordinator.data:
             return None
@@ -1271,8 +1266,7 @@ class ActiveAlarmsSensor(KomfoventSensor):
                 codes.append(format_alarm_code(raw))
         return " ".join(codes)
 
-    @property
-    def extra_state_attributes(self) -> dict[str, dict[str, str]]:
+    def _compute_extra_state_attributes(self) -> dict[str, dict[str, str]]:
         """Return alarm details mapping code string to message."""
         if not self.coordinator.data:
             return {"alarm_details": {}}

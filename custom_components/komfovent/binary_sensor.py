@@ -9,7 +9,6 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
     BinarySensorEntityDescription,
 )
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -18,6 +17,7 @@ if TYPE_CHECKING:
     from .coordinator import KomfoventConfigEntry, KomfoventCoordinator
 
 from . import registers
+from .entity import KomfoventCoordinatorEntity
 from .helpers import build_device_info
 
 # Status bitmask values
@@ -189,9 +189,7 @@ async def async_setup_entry(
     async_add_entities(await create_binary_sensors(coordinator))
 
 
-class KomfoventBinarySensor(
-    CoordinatorEntity["KomfoventCoordinator"], BinarySensorEntity
-):
+class KomfoventBinarySensor(KomfoventCoordinatorEntity, BinarySensorEntity):
     """Base class for Komfovent binary sensors."""
 
     _attr_has_entity_name = True
@@ -212,9 +210,13 @@ class KomfoventBinarySensor(
         )
         self._attr_translation_key = entity_description.key
         self._attr_device_info = build_device_info(coordinator)
+        self._update_attrs()
 
-    @property
-    def is_on(self) -> bool | None:
+    def _update_attrs(self) -> None:
+        """Set the binary sensor state from coordinator data."""
+        self._attr_is_on = self._compute_is_on()
+
+    def _compute_is_on(self) -> bool | None:
         """Return true if the binary sensor is on."""
         if not self.coordinator.data:
             return None
@@ -235,11 +237,10 @@ class KomfoventStatusBinarySensor(KomfoventBinarySensor):
         entity_description: BinarySensorEntityDescription,
     ) -> None:
         """Initialize the binary sensor."""
-        super().__init__(coordinator, register_id, entity_description)
         self.bitmask = bitmask
+        super().__init__(coordinator, register_id, entity_description)
 
-    @property
-    def is_on(self) -> bool | None:
+    def _compute_is_on(self) -> bool | None:
         """Return true if the binary sensor is on."""
         if not self.coordinator.data:
             return None

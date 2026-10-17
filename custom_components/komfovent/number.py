@@ -17,7 +17,6 @@ from homeassistant.const import (
     UnitOfTime,
     UnitOfVolumeFlowRate,
 )
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -44,6 +43,7 @@ from .const import (
     FlowControl,
     FlowUnit,
 )
+from .entity import KomfoventCoordinatorEntity
 from .helpers import build_device_info
 from .registers import REG_ECO_MAX_TEMP, REG_ECO_MIN_TEMP
 
@@ -631,7 +631,7 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
-class KomfoventNumber(CoordinatorEntity["KomfoventCoordinator"], NumberEntity):
+class KomfoventNumber(KomfoventCoordinatorEntity, NumberEntity):
     """Base representation of a Komfovent number entity."""
 
     _attr_has_entity_name = True
@@ -652,9 +652,13 @@ class KomfoventNumber(CoordinatorEntity["KomfoventCoordinator"], NumberEntity):
         )
         self._attr_translation_key = entity_description.key
         self._attr_device_info = build_device_info(coordinator)
+        self._update_attrs()
 
-    @property
-    def native_value(self) -> float | None:
+    def _update_attrs(self) -> None:
+        """Set the number value from coordinator data."""
+        self._attr_native_value = self._compute_native_value()
+
+    def _compute_native_value(self) -> float | None:
         """Return the current value."""
         if not self.coordinator.data:
             return None
@@ -678,8 +682,14 @@ class KomfoventNumber(CoordinatorEntity["KomfoventCoordinator"], NumberEntity):
 class FlowNumber(KomfoventNumber):
     """Flow number with dynamic units based on flow unit setting."""
 
-    @property
-    def native_unit_of_measurement(self) -> str | None:
+    def _update_attrs(self) -> None:
+        """Set the number value and unit from coordinator data."""
+        super()._update_attrs()
+        self._attr_native_unit_of_measurement = (
+            self._compute_native_unit_of_measurement()
+        )
+
+    def _compute_native_unit_of_measurement(self) -> str | None:
         """Return the unit of measurement."""
         if not self.coordinator.data:
             return None
@@ -704,10 +714,9 @@ class FlowNumber(KomfoventNumber):
 class TemperatureNumber(KomfoventNumber):
     """Temperature number with x10 scaling."""
 
-    @property
-    def native_value(self) -> float | None:
+    def _compute_native_value(self) -> float | None:
         """Return the current value."""
-        value = super().native_value
+        value = super()._compute_native_value()
 
         if value is None:
             return None

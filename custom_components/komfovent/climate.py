@@ -12,7 +12,6 @@ from homeassistant.components.climate import (
     HVACMode,
 )
 from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import registers, services
 from .binary_sensor import (
@@ -24,6 +23,7 @@ from .const import (
     OperationMode,
     TemperatureControl,
 )
+from .entity import KomfoventCoordinatorEntity
 from .helpers import build_device_info
 
 if TYPE_CHECKING:
@@ -48,7 +48,7 @@ async def async_setup_entry(
     async_add_entities([KomfoventClimate(coordinator)])
 
 
-class KomfoventClimate(CoordinatorEntity["KomfoventCoordinator"], ClimateEntity):
+class KomfoventClimate(KomfoventCoordinatorEntity, ClimateEntity):
     """Representation of a Komfovent climate device."""
 
     _attr_has_entity_name = True
@@ -69,9 +69,17 @@ class KomfoventClimate(CoordinatorEntity["KomfoventCoordinator"], ClimateEntity)
         self._attr_device_info = build_device_info(coordinator)
         self._eco_mode = False
         self._auto_mode = False
+        self._update_attrs()
 
-    @property
-    def current_temperature(self) -> float | None:
+    def _update_attrs(self) -> None:
+        """Set the climate state from coordinator data."""
+        self._attr_current_temperature = self._compute_current_temperature()
+        self._attr_target_temperature = self._compute_target_temperature()
+        self._attr_hvac_mode = self._compute_hvac_mode()
+        self._attr_hvac_action = self._compute_hvac_action()
+        self._attr_preset_mode = self._compute_preset_mode()
+
+    def _compute_current_temperature(self) -> float | None:
         """Return the current temperature."""
         if not self.coordinator.data:
             return None
@@ -89,8 +97,7 @@ class KomfoventClimate(CoordinatorEntity["KomfoventCoordinator"], ClimateEntity)
 
         return None
 
-    @property
-    def target_temperature(self) -> float | None:
+    def _compute_target_temperature(self) -> float | None:
         """Return the temperature we try to reach."""
         if not self.coordinator.data:
             return None
@@ -107,8 +114,7 @@ class KomfoventClimate(CoordinatorEntity["KomfoventCoordinator"], ClimateEntity)
 
         return None
 
-    @property
-    def hvac_mode(self) -> HVACMode | None:
+    def _compute_hvac_mode(self) -> HVACMode | None:
         """Return hvac operation mode."""
         if not self.coordinator.data:
             return None
@@ -122,8 +128,7 @@ class KomfoventClimate(CoordinatorEntity["KomfoventCoordinator"], ClimateEntity)
             return HVACMode.HEAT_COOL
         return HVACMode.OFF
 
-    @property
-    def hvac_action(self) -> HVACAction | None:  # noqa: PLR0911
+    def _compute_hvac_action(self) -> HVACAction | None:  # noqa: PLR0911
         """Return the current HVAC action."""
         if not self.coordinator.data:
             return None
@@ -148,8 +153,7 @@ class KomfoventClimate(CoordinatorEntity["KomfoventCoordinator"], ClimateEntity)
         # Device is on but not actively doing anything
         return HVACAction.IDLE
 
-    @property
-    def preset_mode(self) -> str | None:
+    def _compute_preset_mode(self) -> str | None:
         """Return the current preset mode."""
         if not self.coordinator.data:
             return None
