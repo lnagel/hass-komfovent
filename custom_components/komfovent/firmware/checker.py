@@ -202,12 +202,8 @@ class FirmwareChecker:
 
         """
         try:
-            # Get the download URL for this controller type
-            if controller_type == "C6":
-                url = FIRMWARE_URLS[Controller.C6]
-            elif controller_type == "C8":
-                url = FIRMWARE_URLS[Controller.C8]
-            else:
+            url = FIRMWARE_URLS.get(controller_type)
+            if url is None:
                 _LOGGER.warning("Unknown controller type: %s", controller_type)
                 return
 
@@ -390,17 +386,3 @@ class FirmwareChecker:
             file_path="",  # Will be set after saving
             last_checked_at="",  # Will be set after saving
         )
-
-    async def async_force_check(self, controller_type: str | None = None) -> None:
-        """
-        Force an immediate firmware check.
-
-        Args:
-            controller_type: Optional specific controller type to check.
-                           If None, checks all registered types.
-
-        """
-        if controller_type:
-            await self._async_check_controller_type(controller_type)
-        else:
-            await self.async_check_for_updates()

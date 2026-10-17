@@ -81,12 +81,10 @@ class Panel(IntEnum):
     NA = 15
 
 
-# Firmware download URLs per controller type
-# C6 and C6M share the same firmware
-FIRMWARE_URLS: Final[dict[Controller, str]] = {
-    Controller.C6: "https://www.komfovent.com/Update/Controllers/firmware.php?file=mbin",
-    Controller.C6M: "https://www.komfovent.com/Update/Controllers/firmware.php?file=mbin",
-    Controller.C8: "https://www.komfovent.com/Update/Controllers/C8/firmware.php?file=mbin",
+# Firmware download URLs per firmware type (C6 and C6M share the C6 firmware)
+FIRMWARE_URLS: Final[dict[str, str]] = {
+    "C6": "https://www.komfovent.com/Update/Controllers/firmware.php?file=mbin",
+    "C8": "https://www.komfovent.com/Update/Controllers/C8/firmware.php?file=mbin",
 }
 
 

@@ -52,6 +52,11 @@
         "name": "Clear Active Alarms"
       }
     },
+    "update": {
+      "firmware": {
+        "name": "Firmware"
+      }
+    },
     "select": {
       "operation_mode": {
         "name": "Operation Mode",

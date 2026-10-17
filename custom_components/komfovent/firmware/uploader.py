@@ -12,7 +12,6 @@ from aiofiles import os as aio_os
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
     from pathlib import Path
 
     from homeassistant.core import HomeAssistant
@@ -36,7 +35,6 @@ DEFAULT_USERNAME = "user"
 DEFAULT_PASSWORD = "user"  # noqa: S105
 
 # Timeouts (in seconds)
-CONNECT_TIMEOUT = 10
 LOGIN_TIMEOUT = 30
 # Upload timeout is long due to slow TCP transfer (~19 KB/s, ~57s for 1MB)
 UPLOAD_TIMEOUT = 300
@@ -59,7 +57,6 @@ class FirmwareUploader:
         self,
         hass: HomeAssistant,
         host: str,
-        username: str = DEFAULT_USERNAME,
         password: str | None = None,
     ) -> None:
         """
@@ -68,13 +65,11 @@ class FirmwareUploader:
         Args:
             hass: Home Assistant instance
             host: Device hostname or IP address
-            username: Login username (default: "user")
             password: Login password; blank uses the default password
 
         """
         self._hass = hass
         self._host = host
-        self._username = username
         # Passwords to try in order, without duplicates
         self._passwords = list(
             dict.fromkeys(p for p in (password, DEFAULT_PASSWORD) if p)
@@ -84,17 +79,12 @@ class FirmwareUploader:
     async def async_upload_firmware(
         self,
         firmware_path: Path,
-        progress_callback: Callable[[int, int], None] | None = None,
-    ) -> bool:
+    ) -> None:
         """
         Upload firmware to the device.
 
         Args:
             firmware_path: Path to the firmware file
-            progress_callback: Optional callback for progress (bytes_sent, total)
-
-        Returns:
-            True if upload was successful
 
         Raises:
             FirmwareUploadError: If upload fails
@@ -126,12 +116,7 @@ class FirmwareUploader:
             _LOGGER.debug("Login successful")
 
             # Step 2: Upload firmware
-            await self._async_upload(
-                session,
-                firmware_path.name,
-                firmware_data,
-                progress_callback,
-            )
+            await self._async_upload(session, firmware_path.name, firmware_data)
             _LOGGER.info("Firmware upload completed successfully")
 
         except aiohttp.ClientError as err:
@@ -140,8 +125,6 @@ class FirmwareUploader:
         except TimeoutError as err:
             msg = "Upload timed out"
             raise FirmwareUploadError(msg) from err
-        else:
-            return True
 
     async def _async_login(self, session: aiohttp.ClientSession) -> None:
         """
@@ -189,7 +172,7 @@ class FirmwareUploader:
         """
         url = f"{self._base_url}{UPLOAD_ENDPOINT}"
         form_data = {
-            FORM_FIELD_USERNAME: self._username,
+            FORM_FIELD_USERNAME: DEFAULT_USERNAME,
             FORM_FIELD_PASSWORD: password,
         }
 
@@ -206,7 +189,6 @@ class FirmwareUploader:
         session: aiohttp.ClientSession,
         filename: str,
         firmware_data: bytes,
-        progress_callback: Callable[[int, int], None] | None = None,
     ) -> None:
         """
         Upload firmware file.
@@ -215,7 +197,6 @@ class FirmwareUploader:
             session: aiohttp client session
             filename: Name of the firmware file
             firmware_data: Firmware binary content
-            progress_callback: Optional progress callback
 
         Raises:
             FirmwareUploadError: If upload fails
@@ -248,10 +229,6 @@ class FirmwareUploader:
             msg = "Upload timed out - device may have slow connection or be processing"
             raise FirmwareUploadError(msg) from err
 
-        # Call progress callback with completion
-        if progress_callback:
-            progress_callback(len(firmware_data), len(firmware_data))
-
     @staticmethod
     def _check_response_for_errors(body: str) -> None:
         """
@@ -283,14 +260,3 @@ class FirmwareUploader:
         if "success" not in status_lower:
             msg = f"Unexpected device response after upload: {status}"
             raise FirmwareUploadError(msg)
-
-    @staticmethod
-    def get_restart_delay() -> int:
-        """
-        Get the expected device restart delay in seconds.
-
-        Returns:
-            Number of seconds to wait for device restart
-
-        """
-        return DEVICE_RESTART_DELAY

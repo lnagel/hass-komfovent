@@ -17,15 +17,21 @@ from homeassistant.exceptions import HomeAssistantError
 from . import registers
 from .const import FIRMWARE_MIN_SUPPORTED_VERSION_C6
 from .entity import KomfoventCoordinatorEntity
-from .firmware import FirmwareInfo, get_controller_type_for_firmware
-from .firmware.uploader import FirmwareUploader, FirmwareUploadError
+from .firmware import get_controller_type_for_firmware
+from .firmware.uploader import (
+    DEVICE_RESTART_DELAY,
+    FirmwareUploader,
+    FirmwareUploadError,
+)
 from .helpers import build_device_info, get_controller_version
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
+    from .const import Controller
     from .coordinator import KomfoventConfigEntry, KomfoventCoordinator
+    from .firmware import FirmwareInfo
     from .firmware.store import FirmwareStore
 
 _LOGGER = logging.getLogger(__name__)
@@ -49,7 +55,7 @@ class KomfoventUpdateEntity(KomfoventCoordinatorEntity, UpdateEntity):
     """Representation of a Komfovent firmware update entity."""
 
     _attr_has_entity_name = True
-    _attr_name = "Firmware"
+    _attr_translation_key = "firmware"
     _attr_device_class = UpdateDeviceClass.FIRMWARE
     _attr_supported_features = (
         UpdateEntityFeature.INSTALL | UpdateEntityFeature.PROGRESS
@@ -87,35 +93,29 @@ class KomfoventUpdateEntity(KomfoventCoordinatorEntity, UpdateEntity):
             self._attr_latest_version = str(info["controller_version"][4])
             self._attr_release_summary = info["filename"]
 
-    def _compute_installed_version(self) -> str | None:
-        """Return the installed firmware functional version (v4)."""
+    def _get_installed_firmware(self) -> tuple[Controller, int, int, int, int] | None:
+        """Return the installed controller firmware version, if reported."""
         if not self.coordinator.data:
             return None
 
         raw_value = self.coordinator.data.get(registers.REG_FIRMWARE)
-        if raw_value is None or raw_value == 0:
+        if not raw_value:
             return None
 
         try:
-            version = get_controller_version(int(raw_value))
-            return str(version[4])
+            return get_controller_version(int(raw_value))
         except ValueError, TypeError:
             return None
+
+    def _compute_installed_version(self) -> str | None:
+        """Return the installed firmware functional version (v4)."""
+        version = self._get_installed_firmware()
+        return None if version is None else str(version[4])
 
     def _get_firmware_info(self) -> FirmwareInfo | None:
         """Return the stored firmware info for this controller type."""
         controller_type = get_controller_type_for_firmware(self.coordinator.controller)
-        if controller_type == "NA":
-            return None
         return self._store.get_firmware_info(controller_type)
-
-    @property
-    def available(self) -> bool:
-        """Return if the entity is available."""
-        # Entity is available if we have coordinator data
-        return (
-            self.coordinator.last_update_success and self.coordinator.data is not None
-        )
 
     @property
     def _is_firmware_supported(self) -> bool:
@@ -128,26 +128,12 @@ class KomfoventUpdateEntity(KomfoventCoordinatorEntity, UpdateEntity):
         if get_controller_type_for_firmware(self.coordinator.controller) != "C6":
             return True
 
-        if not self.coordinator.data:
-            return False
-
-        raw_value = self.coordinator.data.get(registers.REG_FIRMWARE)
-        if raw_value is None or raw_value == 0:
-            return False
-
-        try:
-            version = get_controller_version(int(raw_value))
-        except ValueError, TypeError:
-            return False
-        else:
-            # Compare v1, v2, v3 with minimum supported version
-            installed = (version[1], version[2], version[3])
-            return installed >= FIRMWARE_MIN_SUPPORTED_VERSION_C6
+        version = self._get_installed_firmware()
+        return version is not None and version[1:4] >= FIRMWARE_MIN_SUPPORTED_VERSION_C6
 
     @property
     def entity_picture(self) -> str | None:
-        """Return entity picture URL."""
-        # No entity picture for now
+        """Return no picture; the integration ships no brand icon."""
         return None
 
     async def async_install(
@@ -172,7 +158,6 @@ class KomfoventUpdateEntity(KomfoventCoordinatorEntity, UpdateEntity):
             msg = "Firmware update already in progress"
             raise HomeAssistantError(msg)
 
-        # Check if firmware update is supported
         if not self._is_firmware_supported:
             min_ver = ".".join(map(str, FIRMWARE_MIN_SUPPORTED_VERSION_C6))
             msg = (
@@ -181,22 +166,15 @@ class KomfoventUpdateEntity(KomfoventCoordinatorEntity, UpdateEntity):
             )
             raise HomeAssistantError(msg)
 
-        # Get controller type
         controller_type = get_controller_type_for_firmware(self.coordinator.controller)
-        if controller_type == "NA":
-            msg = "Unknown controller type"
-            raise HomeAssistantError(msg)
-
-        # Get firmware file path
         firmware_path = self._store.get_firmware_path(controller_type)
-        if firmware_path is None or not firmware_path.exists():
+        if firmware_path is None:
             msg = "Firmware file not available. Wait for firmware check to complete."
             raise HomeAssistantError(msg)
 
         # The functional version the device should report after flashing
         expected_version = self.latest_version
 
-        # Get device connection details
         host = self.coordinator.config_entry.data[CONF_HOST]
         password = self.coordinator.config_entry.data.get(CONF_PASSWORD)
 
@@ -217,9 +195,9 @@ class KomfoventUpdateEntity(KomfoventCoordinatorEntity, UpdateEntity):
 
             _LOGGER.info(
                 "Firmware upload complete, waiting %d seconds for device restart",
-                FirmwareUploader.get_restart_delay(),
+                DEVICE_RESTART_DELAY,
             )
-            await asyncio.sleep(FirmwareUploader.get_restart_delay())
+            await asyncio.sleep(DEVICE_RESTART_DELAY)
 
         except FirmwareUploadError as err:
             _LOGGER.exception("Firmware upload failed")

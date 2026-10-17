@@ -40,8 +40,7 @@ def firmware_path(tmp_path):
 @pytest.fixture
 def mock_store(firmware_path):
     """Create a mock firmware store holding one C6 firmware."""
-    store = MagicMock()
-    store.get_firmware_info.return_value = FirmwareInfo(
+    info = FirmwareInfo(
         controller_type="C6",
         filename=FIRMWARE_FILENAME,
         controller_version=(0, 1, 5, 46, 72),
@@ -49,7 +48,9 @@ def mock_store(firmware_path):
         file_path=str(firmware_path),
         last_checked_at="2026-01-01T00:00:00+00:00",
     )
-    store.get_firmware_path.return_value = firmware_path
+    store = MagicMock()
+    store.get_firmware_info.side_effect = {"C6": info, "C8": info}.get
+    store.get_firmware_path.side_effect = {"C6": firmware_path, "C8": firmware_path}.get
     return store
 
 
@@ -72,19 +73,20 @@ def entity(hass, mock_coordinator, mock_store) -> KomfoventUpdateEntity:
 
 
 @pytest.fixture
-def mock_uploader():
-    """Patch the firmware uploader and the restart wait."""
-    with (
-        patch(
-            "custom_components.komfovent.update.FirmwareUploader", autospec=True
-        ) as uploader_class,
-        patch(
-            "custom_components.komfovent.update.asyncio.sleep", AsyncMock()
-        ) as mock_sleep,
-    ):
-        uploader_class.get_restart_delay.return_value = DEVICE_RESTART_DELAY
-        uploader_class.return_value.async_upload_firmware = AsyncMock(return_value=True)
-        uploader_class.sleep = mock_sleep
+def mock_sleep():
+    """Patch the wait for the device restart."""
+    with patch(
+        "custom_components.komfovent.update.asyncio.sleep", AsyncMock()
+    ) as mock_sleep:
+        yield mock_sleep
+
+
+@pytest.fixture
+def mock_uploader(mock_sleep):
+    """Patch the firmware uploader; the restart wait is patched too."""
+    with patch(
+        "custom_components.komfovent.update.FirmwareUploader", autospec=True
+    ) as uploader_class:
         yield uploader_class
 
 
@@ -103,6 +105,7 @@ async def test_setup_entry_without_firmware_store(
 def test_attributes(entity):
     """Test static entity attributes."""
     assert entity.unique_id == "test_entry_id_firmware_update"
+    assert entity.translation_key == "firmware"
     assert entity.device_class == UpdateDeviceClass.FIRMWARE
     assert entity.supported_features == (
         UpdateEntityFeature.INSTALL | UpdateEntityFeature.PROGRESS
@@ -145,7 +148,7 @@ def test_latest_version(entity, mock_store):
 
 def test_latest_version_without_firmware(entity, mock_store):
     """Test latest version is unknown when no firmware was downloaded."""
-    mock_store.get_firmware_info.return_value = None
+    mock_store.get_firmware_info.side_effect = lambda _: None
     entity._update_attrs()
 
     assert entity.latest_version is None
@@ -166,7 +169,6 @@ def test_latest_version_unknown_controller(entity, mock_coordinator):
     [
         (True, {registers.REG_FIRMWARE: 1}, True),
         (False, {registers.REG_FIRMWARE: 1}, False),
-        (True, None, False),
     ],
 )
 def test_available(entity, mock_coordinator, last_update_success, data, expected):
@@ -211,12 +213,14 @@ async def test_install_c8_below_c6_minimum(entity, mock_coordinator, mock_upload
     mock_uploader.return_value.async_upload_firmware.assert_awaited_once()
 
 
-async def test_install(entity, mock_coordinator, mock_uploader, firmware_path):
+async def test_install(
+    entity, mock_coordinator, mock_uploader, mock_sleep, firmware_path
+):
     """Test install uploads firmware, waits for restart and verifies it."""
     manager = MagicMock()
     manager.attach_mock(mock_coordinator.pause_updates, "pause")
     manager.attach_mock(mock_uploader.return_value.async_upload_firmware, "upload")
-    manager.attach_mock(mock_uploader.sleep, "sleep")
+    manager.attach_mock(mock_sleep, "sleep")
     manager.attach_mock(mock_coordinator.resume_updates, "resume")
     manager.attach_mock(mock_coordinator.async_refresh, "refresh")
 
@@ -234,7 +238,7 @@ async def test_install(entity, mock_coordinator, mock_uploader, firmware_path):
     mock_uploader.return_value.async_upload_firmware.assert_awaited_once_with(
         firmware_path
     )
-    mock_uploader.sleep.assert_awaited_once_with(DEVICE_RESTART_DELAY)
+    mock_sleep.assert_awaited_once_with(DEVICE_RESTART_DELAY)
     assert entity.in_progress is False
     assert entity.async_write_ha_state.call_count == 2
 
@@ -300,26 +304,10 @@ async def test_install_unsupported_firmware(entity, mock_coordinator, mock_uploa
     mock_uploader.assert_not_called()
 
 
-async def test_install_unknown_controller(entity, mock_coordinator, mock_uploader):
-    """Test install is rejected for unsupported controllers."""
+async def test_install_without_firmware(entity, mock_coordinator, mock_uploader):
+    """Test install is rejected without downloaded firmware for the controller."""
     mock_coordinator.controller = Controller.NA
     entity._update_attrs()
-
-    with pytest.raises(HomeAssistantError, match="Unknown controller type"):
-        await entity.async_install(None, backup=False)
-
-    mock_uploader.assert_not_called()
-
-
-@pytest.mark.parametrize("missing", ["path", "file"])
-async def test_install_without_firmware_file(
-    entity, mock_store, mock_uploader, firmware_path, missing
-):
-    """Test install is rejected when the firmware file is unavailable."""
-    if missing == "path":
-        mock_store.get_firmware_path.return_value = None
-    else:
-        firmware_path.unlink()
 
     with pytest.raises(HomeAssistantError, match="not available"):
         await entity.async_install(None, backup=False)
@@ -334,7 +322,9 @@ async def test_install_without_firmware_file(
         (RuntimeError("boom"), "Firmware update failed: boom"),
     ],
 )
-async def test_install_failure(entity, mock_coordinator, mock_uploader, error, message):
+async def test_install_failure(
+    entity, mock_coordinator, mock_uploader, mock_sleep, error, message
+):
     """Test upload failures are raised and progress is reset."""
     mock_uploader.return_value.async_upload_firmware.side_effect = error
 
@@ -343,6 +333,6 @@ async def test_install_failure(entity, mock_coordinator, mock_uploader, error, m
 
     # Polling resumes right away instead of waiting for a restart
     mock_coordinator.resume_updates.assert_called_once()
-    mock_uploader.sleep.assert_not_awaited()
+    mock_sleep.assert_not_awaited()
     mock_coordinator.async_refresh.assert_not_awaited()
     assert entity.in_progress is False
