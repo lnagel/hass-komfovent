@@ -3,7 +3,7 @@
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from homeassistant.const import CONF_HOST, CONF_PORT
+from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT
 from pymodbus import ModbusException
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
@@ -155,3 +155,22 @@ async def test_diagnostics_entry(hass, mock_entry, side_effect, expected_registe
     assert "config_entry" in result
     assert result["registers"] == expected_registers
     assert result["coordinator_data"] == {"test": "data"}
+
+
+async def test_diagnostics_redacts_password(hass, mock_entry):
+    """Test the device password is not exported in diagnostics."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        entry_id="test_entry_id",
+        data={CONF_HOST: "192.168.1.100", CONF_PORT: 502, CONF_PASSWORD: "secret"},
+    )
+    entry.runtime_data = mock_entry.runtime_data
+    with patch(
+        "custom_components.komfovent.diagnostics.dump_registers",
+        AsyncMock(return_value={}),
+    ):
+        result = await async_get_config_entry_diagnostics(hass, entry)
+
+    assert result["config_entry"]["data"][CONF_PASSWORD] == "**REDACTED**"
+    assert result["config_entry"]["data"][CONF_HOST] == "192.168.1.100"
+    assert "secret" not in str(result)
