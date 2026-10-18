@@ -11,9 +11,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  run-unittest:
+  test-locked-ha:
     runs-on: ubuntu-latest
-    name: Run unit tests
+    name: Test against locked HA
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v7
@@ -47,3 +47,30 @@ jobs:
         uses: codecov/test-results-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+
+  test-minimum-ha:
+    runs-on: ubuntu-latest
+    name: Test against minimum HA
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Read minimum Home Assistant version
+        id: min
+        run: echo "version=$(jq -r .homeassistant hacs.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Install minimum Home Assistant
+        run: uv add --dev "homeassistant==${{ steps.min.outputs.version }}" "pytest-homeassistant-custom-component>=0.13"
+
+      - name: Run tests
+        run: uv run pytest -p no:cacheprovider

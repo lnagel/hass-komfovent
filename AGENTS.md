@@ -206,7 +206,7 @@ when possible.
 
 The CI runs three workflow files on PRs:
 
-1. **checks.yml** - Unit tests with pytest
+1. **checks.yml** - Unit tests with pytest against locked and minimum HA
 2. **lint.yml** - Ruff check, Ruff format, ty type check
 3. **validate.yml** - Hassfest and HACS validation
 
