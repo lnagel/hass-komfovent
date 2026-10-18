@@ -11,9 +11,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  run-unittest:
+  test-locked-ha:
     runs-on: ubuntu-latest
-    name: Run unit tests
+    name: Test against locked HA
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v7
@@ -48,9 +48,9 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
-  run-unittest-min-ha:
+  test-minimum-ha:
     runs-on: ubuntu-latest
-    name: Run unit tests (minimum Home Assistant from hacs.json)
+    name: Test against minimum HA
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v7
@@ -73,14 +73,14 @@ jobs:
       # homeassistant version, but not every patch release gets one. Pick the
       # lowest release pinning a patch in the minimum's series (~=); the floor
       # keeps the resolver away from ancient releases that pin nothing.
-      - name: Install dependencies pinned to minimum Home Assistant
+      - name: Install minimum Home Assistant
         run: |
           uv sync --dev
           uv pip install --resolution lowest-direct \
             "homeassistant~=${{ steps.min.outputs.version }}" \
             "pytest-homeassistant-custom-component>=0.13"
 
-      - name: Verify installed Home Assistant version
+      - name: Check installed versions
         run: |
           uv run --no-sync python - "${{ steps.min.outputs.version }}" <<'EOF'
           import sys

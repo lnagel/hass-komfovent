@@ -206,8 +206,8 @@ when possible.
 
 The CI runs three workflow files on PRs:
 
-1. **checks.yml** - Unit tests with pytest, against both the locked (latest)
-   Home Assistant and the minimum version advertised in `hacs.json`
+1. **checks.yml** - Unit tests with pytest, against both the Home Assistant
+   version locked in `uv.lock` and the minimum advertised in `hacs.json`
 2. **lint.yml** - Ruff check, Ruff format, ty type check
 3. **validate.yml** - Hassfest and HACS validation
 
