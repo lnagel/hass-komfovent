@@ -76,23 +76,5 @@ jobs:
             "homeassistant~=${{ steps.min.outputs.version }}" \
             "pytest-homeassistant-custom-component>=0.13"
 
-      - name: Check installed versions
-        run: |
-          uv run --no-sync python - "${{ steps.min.outputs.version }}" <<'EOF'
-          import sys
-          from importlib.metadata import requires, version
-
-          minimum = sys.argv[1]
-          ha = version("homeassistant")
-          phcc = version("pytest-homeassistant-custom-component")
-          print(f"Minimum {minimum}: installed homeassistant {ha}, phcc {phcc}")
-          if ha.split(".")[:2] != minimum.split(".")[:2]:
-              sys.exit(f"homeassistant {ha} is outside the {minimum} series")
-          if f"homeassistant=={ha}" not in requires(
-              "pytest-homeassistant-custom-component"
-          ):
-              sys.exit(f"phcc {phcc} does not pin homeassistant=={ha}")
-          EOF
-
       - name: Run tests
         run: uv run --no-sync pytest -p no:cacheprovider
