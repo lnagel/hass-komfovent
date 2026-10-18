@@ -69,18 +69,34 @@ jobs:
         id: min
         run: echo "version=$(jq -r .homeassistant hacs.json)" >> "$GITHUB_OUTPUT"
 
-      # pytest-homeassistant-custom-component pins an exact homeassistant
-      # version per release, so the resolver picks the matching release.
+      # Each pytest-homeassistant-custom-component release pins one exact
+      # homeassistant version, but not every patch release gets one. Pick the
+      # lowest release pinning a patch in the minimum's series (~=); the floor
+      # keeps the resolver away from ancient releases that pin nothing.
       - name: Install dependencies pinned to minimum Home Assistant
         run: |
           uv sync --dev
-          uv pip install "homeassistant==${{ steps.min.outputs.version }}" pytest-homeassistant-custom-component
+          uv pip install --resolution lowest-direct \
+            "homeassistant~=${{ steps.min.outputs.version }}" \
+            "pytest-homeassistant-custom-component>=0.13"
 
       - name: Verify installed Home Assistant version
         run: |
-          installed=$(uv run --no-sync python -c "from homeassistant.const import __version__; print(__version__)")
-          echo "Installed: $installed, expected: ${{ steps.min.outputs.version }}"
-          test "$installed" = "${{ steps.min.outputs.version }}"
+          uv run --no-sync python - "${{ steps.min.outputs.version }}" <<'EOF'
+          import sys
+          from importlib.metadata import requires, version
+
+          minimum = sys.argv[1]
+          ha = version("homeassistant")
+          phcc = version("pytest-homeassistant-custom-component")
+          print(f"Minimum {minimum}: installed homeassistant {ha}, phcc {phcc}")
+          if ha.split(".")[:2] != minimum.split(".")[:2]:
+              sys.exit(f"homeassistant {ha} is outside the {minimum} series")
+          if f"homeassistant=={ha}" not in requires(
+              "pytest-homeassistant-custom-component"
+          ):
+              sys.exit(f"phcc {phcc} does not pin homeassistant=={ha}")
+          EOF
 
       # --no-sync keeps uv from reverting to the versions in uv.lock
       - name: Run tests
