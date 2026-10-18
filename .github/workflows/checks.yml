@@ -47,3 +47,41 @@ jobs:
         uses: codecov/test-results-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+
+  run-unittest-min-ha:
+    runs-on: ubuntu-latest
+    name: Run unit tests (minimum Home Assistant from hacs.json)
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Read minimum Home Assistant version
+        id: min
+        run: echo "version=$(jq -r .homeassistant hacs.json)" >> "$GITHUB_OUTPUT"
+
+      # pytest-homeassistant-custom-component pins an exact homeassistant
+      # version per release, so the resolver picks the matching release.
+      - name: Install dependencies pinned to minimum Home Assistant
+        run: |
+          uv sync --dev
+          uv pip install "homeassistant==${{ steps.min.outputs.version }}" pytest-homeassistant-custom-component
+
+      - name: Verify installed Home Assistant version
+        run: |
+          installed=$(uv run --no-sync python -c "from homeassistant.const import __version__; print(__version__)")
+          echo "Installed: $installed, expected: ${{ steps.min.outputs.version }}"
+          test "$installed" = "${{ steps.min.outputs.version }}"
+
+      # --no-sync keeps uv from reverting to the versions in uv.lock
+      - name: Run tests
+        run: uv run --no-sync pytest -p no:cacheprovider
