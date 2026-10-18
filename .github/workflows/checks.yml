@@ -70,11 +70,7 @@ jobs:
         run: echo "version=$(jq -r .homeassistant hacs.json)" >> "$GITHUB_OUTPUT"
 
       - name: Install minimum Home Assistant
-        run: |
-          uv sync --dev
-          uv pip install --resolution lowest-direct \
-            "homeassistant~=${{ steps.min.outputs.version }}" \
-            "pytest-homeassistant-custom-component>=0.13"
+        run: uv add --dev "homeassistant==${{ steps.min.outputs.version }}" "pytest-homeassistant-custom-component>=0.13"
 
       - name: Run tests
-        run: uv run --no-sync pytest -p no:cacheprovider
+        run: uv run pytest -p no:cacheprovider
