@@ -69,10 +69,6 @@ jobs:
         id: min
         run: echo "version=$(jq -r .homeassistant hacs.json)" >> "$GITHUB_OUTPUT"
 
-      # Each pytest-homeassistant-custom-component release pins one exact
-      # homeassistant version, but not every patch release gets one. Pick the
-      # lowest release pinning a patch in the minimum's series (~=); the floor
-      # keeps the resolver away from ancient releases that pin nothing.
       - name: Install minimum Home Assistant
         run: |
           uv sync --dev
@@ -98,6 +94,5 @@ jobs:
               sys.exit(f"phcc {phcc} does not pin homeassistant=={ha}")
           EOF
 
-      # --no-sync keeps uv from reverting to the versions in uv.lock
       - name: Run tests
         run: uv run --no-sync pytest -p no:cacheprovider
