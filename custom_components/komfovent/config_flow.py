@@ -105,7 +105,7 @@ class KomfoventConfigFlow(ConfigFlow, domain=DOMAIN):
         reconfigure_entry = self._get_reconfigure_entry()
 
         if user_input is not None:
-            return self.async_update_reload_and_abort(
+            return self.async_update_and_abort(
                 entry=reconfigure_entry,
                 title=user_input[CONF_NAME],
                 data_updates=user_input,
