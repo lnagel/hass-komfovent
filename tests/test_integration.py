@@ -190,6 +190,7 @@ class TestAsyncUpdateListener:
         mock_config_entry_with_updated_options.runtime_data = KomfoventRuntimeData(
             coordinator=mock_coordinator
         )
+        mock_coordinator.config_data = dict(mock_config_entry_with_updated_options.data)
 
         # Call the update listener
         await _async_update_listener(hass, mock_config_entry_with_updated_options)
@@ -205,6 +206,7 @@ class TestAsyncUpdateListener:
         mock_config_entry.runtime_data = KomfoventRuntimeData(
             coordinator=mock_coordinator
         )
+        mock_coordinator.config_data = dict(mock_config_entry.data)
 
         # Call the update listener (options is empty by default in mock_config_entry)
         await _async_update_listener(hass, mock_config_entry)
@@ -213,6 +215,27 @@ class TestAsyncUpdateListener:
         assert mock_coordinator.update_interval == timedelta(
             seconds=DEFAULT_UPDATE_INTERVAL
         )
+
+    async def test_update_listener_reloads_when_data_changed(
+        self,
+        hass: HomeAssistant,
+        mock_coordinator,
+        mock_config_entry_with_updated_options,
+    ):
+        """Test update listener reloads the entry after reconfigure changed data."""
+        mock_config_entry_with_updated_options.runtime_data = KomfoventRuntimeData(
+            coordinator=mock_coordinator
+        )
+        mock_coordinator.config_data = {CONF_HOST: "192.168.1.1", CONF_PORT: 502}
+        mock_coordinator.update_interval = timedelta(seconds=30)
+
+        with patch.object(
+            hass.config_entries, "async_reload", new=AsyncMock()
+        ) as mock_reload:
+            await _async_update_listener(hass, mock_config_entry_with_updated_options)
+
+        mock_reload.assert_awaited_once_with("test_entry_id")
+        assert mock_coordinator.update_interval == timedelta(seconds=30)
 
 
 class TestAsyncUnloadEntry:

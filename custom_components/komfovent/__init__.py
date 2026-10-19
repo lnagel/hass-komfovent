@@ -66,11 +66,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: KomfoventConfigEntry) ->
 
 
 async def _async_update_listener(
-    hass: HomeAssistant,  # noqa: ARG001
+    hass: HomeAssistant,
     entry: KomfoventConfigEntry,
 ) -> None:
-    """Handle options update."""
+    """Handle config entry update."""
     coordinator = entry.runtime_data.coordinator
+    if entry.data != coordinator.config_data:
+        # Reconfigure changed the connection or name, which needs a full reload
+        _LOGGER.debug("Config entry data changed, reloading entry")
+        await hass.config_entries.async_reload(entry.entry_id)
+        return
+
     update_interval = entry.options.get(OPT_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL)
     coordinator.update_interval = timedelta(seconds=update_interval)
     coordinator.ema_time_constant = entry.options.get(

@@ -104,7 +104,7 @@ class TestReconfigureStep:
             patch.object(flow, "_get_reconfigure_entry", return_value=existing_entry),
             patch.object(
                 flow,
-                "async_update_reload_and_abort",
+                "async_update_and_abort",
                 return_value={
                     "type": FlowResultType.ABORT,
                     "reason": "reconfigure_successful",

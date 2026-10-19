@@ -64,6 +64,7 @@ class KomfoventCoordinator(TimestampDataUpdateCoordinator[dict[int, Any]]):
 
         super().__init__(hass, _LOGGER, config_entry=config_entry, **kwargs)
 
+        self.config_data = dict(config_entry.data)
         self.client = KomfoventModbusClient(
             host=config_entry.data[CONF_HOST],
             port=config_entry.data[CONF_PORT],
