@@ -9,12 +9,8 @@ import sys
 from pathlib import Path
 
 from pymodbus import ModbusDeviceIdentification
-from pymodbus.datastore import (
-    ModbusDeviceContext,
-    ModbusServerContext,
-    ModbusSparseDataBlock,
-)
 from pymodbus.server import StartAsyncTcpServer
+from pymodbus.simulator import DataType, SimData, SimDevice
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -31,15 +27,15 @@ async def run_server(host: str, port: int, register_data: dict[str, list[int]]) 
         register_data: Dictionary of register numbers and values
 
     """
-    # Convert register data to Modbus block format. Keys are 1-based register
+    # Convert register data to holding register blocks. Keys are 1-based register
     # numbers while the data block is addressed from zero, and pymodbus rejects
-    # empty value lists, so unpopulated blocks are dropped.
-    block_values = {int(k) - 1: values for k, values in register_data.items() if values}
-
-    # Initialize data storage
-    holding_registers = ModbusSparseDataBlock(block_values)
-    store = ModbusDeviceContext(hr=holding_registers)
-    context = ModbusServerContext(devices=store, single=True)
+    # empty value lists, so unpopulated blocks are dropped. Values are raw
+    # unsigned 16-bit registers, hence UINT16 (the default type is signed).
+    holding_registers = [
+        SimData(int(k) - 1, values=values, datatype=DataType.UINT16)
+        for k, values in register_data.items()
+        if values
+    ]
 
     # Server identity
     identity = ModbusDeviceIdentification()
@@ -50,7 +46,7 @@ async def run_server(host: str, port: int, register_data: dict[str, list[int]]) 
     # Start server
     _LOGGER.info("Starting Modbus TCP server on %s:%d", host, port)
     await StartAsyncTcpServer(
-        context=context,
+        context=SimDevice(1, simdata=holding_registers),
         identity=identity,
         address=(host, port),
     )
