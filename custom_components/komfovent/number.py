@@ -10,7 +10,6 @@ from homeassistant.components.number import (
     NumberEntityDescription,
 )
 from homeassistant.const import (
-    PERCENTAGE,
     EntityCategory,
     UnitOfRatio,
     UnitOfTemperature,
@@ -110,7 +109,7 @@ async def async_setup_entry(
                 native_min_value=AQ_INTENSITY_MIN,
                 native_max_value=AQ_INTENSITY_MAX,
                 native_step=step_flow,
-                native_unit_of_measurement=PERCENTAGE,
+                native_unit_of_measurement=UnitOfRatio.PERCENTAGE,
             ),
         ),
         KomfoventNumber(
@@ -123,7 +122,7 @@ async def async_setup_entry(
                 native_min_value=AQ_INTENSITY_MIN,
                 native_max_value=AQ_INTENSITY_MAX,
                 native_step=step_flow,
-                native_unit_of_measurement=PERCENTAGE,
+                native_unit_of_measurement=UnitOfRatio.PERCENTAGE,
             ),
         ),
         KomfoventNumber(
@@ -598,7 +597,7 @@ async def async_setup_entry(
                     key="aq_voc_setpoint",
                     name="AQ VOC Setpoint",
                     native_step=step_voc,
-                    native_unit_of_measurement=PERCENTAGE,
+                    native_unit_of_measurement=UnitOfRatio.PERCENTAGE,
                 ),
             ),
         )
@@ -620,7 +619,7 @@ async def async_setup_entry(
                     key="aq_humidity_setpoint",
                     name="AQ Humidity Setpoint",
                     native_step=step_humidity,
-                    native_unit_of_measurement=PERCENTAGE,
+                    native_unit_of_measurement=UnitOfRatio.PERCENTAGE,
                     native_min_value=0,
                     native_max_value=100,
                     device_class=NumberDeviceClass.HUMIDITY,
@@ -697,7 +696,7 @@ class FlowNumber(KomfoventNumber):
         if self.coordinator.controller in {Controller.C6, Controller.C6M}:
             flow_control = self.coordinator.data.get(registers.REG_FLOW_CONTROL)
             if flow_control == FlowControl.OFF:
-                return PERCENTAGE
+                return UnitOfRatio.PERCENTAGE
 
             flow_unit = self.coordinator.data.get(registers.REG_FLOW_UNIT)
             if flow_unit == FlowUnit.M3H:
@@ -706,7 +705,7 @@ class FlowNumber(KomfoventNumber):
                 return UnitOfVolumeFlowRate.LITERS_PER_SECOND
         elif self.coordinator.controller == Controller.C8:
             # no flow control or flow unit support
-            return PERCENTAGE
+            return UnitOfRatio.PERCENTAGE
 
         return None
 

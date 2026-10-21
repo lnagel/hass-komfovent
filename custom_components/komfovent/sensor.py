@@ -13,7 +13,6 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.const import (
-    PERCENTAGE,
     UnitOfDensity,
     UnitOfEnergy,
     UnitOfPower,
@@ -99,7 +98,7 @@ def create_aq_sensor(
         key = "extract_voc"
         name = "Extract VOC"
         sensor_class = VOCSensor
-        unit = PERCENTAGE
+        unit = UnitOfRatio.PERCENTAGE
         device_class = None
     elif sensor_type == AirQualitySensorType.HUMIDITY:
         outdoor_humidity_sensor = coordinator.data.get(
@@ -121,7 +120,7 @@ def create_aq_sensor(
             name = "Extract Humidity"
 
         sensor_class = RelativeHumiditySensor
-        unit = PERCENTAGE
+        unit = UnitOfRatio.PERCENTAGE
         device_class = SensorDeviceClass.HUMIDITY
     else:
         return None
@@ -195,7 +194,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="supply_fan",
                     name="Supply Fan",
-                    native_unit_of_measurement=PERCENTAGE,
+                    native_unit_of_measurement=UnitOfRatio.PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
                 ),
@@ -206,7 +205,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="extract_fan",
                     name="Extract Fan",
-                    native_unit_of_measurement=PERCENTAGE,
+                    native_unit_of_measurement=UnitOfRatio.PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
                 ),
@@ -217,7 +216,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="heat_exchanger",
                     name="Heat Exchanger",
-                    native_unit_of_measurement=PERCENTAGE,
+                    native_unit_of_measurement=UnitOfRatio.PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
                 ),
@@ -228,7 +227,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="electric_heater",
                     name="Electric Heater",
-                    native_unit_of_measurement=PERCENTAGE,
+                    native_unit_of_measurement=UnitOfRatio.PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
                 ),
@@ -239,7 +238,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="water_heater",
                     name="Water Heater",
-                    native_unit_of_measurement=PERCENTAGE,
+                    native_unit_of_measurement=UnitOfRatio.PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
                     entity_registry_enabled_default=False,
@@ -251,7 +250,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="water_cooler",
                     name="Water Cooler",
-                    native_unit_of_measurement=PERCENTAGE,
+                    native_unit_of_measurement=UnitOfRatio.PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
                     entity_registry_enabled_default=False,
@@ -263,7 +262,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="dx_heating",
                     name="DX Heating",
-                    native_unit_of_measurement=PERCENTAGE,
+                    native_unit_of_measurement=UnitOfRatio.PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
                     entity_registry_enabled_default=False,
@@ -275,7 +274,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="dx_cooling",
                     name="DX Cooling",
-                    native_unit_of_measurement=PERCENTAGE,
+                    native_unit_of_measurement=UnitOfRatio.PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
                     entity_registry_enabled_default=False,
@@ -287,7 +286,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="filter_clogging",
                     name="Filter Clogging",
-                    native_unit_of_measurement=PERCENTAGE,
+                    native_unit_of_measurement=UnitOfRatio.PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
                 ),
@@ -298,7 +297,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="air_dampers",
                     name="Air Dampers",
-                    native_unit_of_measurement=PERCENTAGE,
+                    native_unit_of_measurement=UnitOfRatio.PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
                     entity_registry_enabled_default=False,
@@ -346,7 +345,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="heat_exchanger_efficiency",
                     name="Heat Exchanger Efficiency",
-                    native_unit_of_measurement=PERCENTAGE,
+                    native_unit_of_measurement=UnitOfRatio.PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
                 ),
@@ -357,7 +356,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                 entity_description=SensorEntityDescription(
                     key="energy_saving",
                     name="Energy Saving",
-                    native_unit_of_measurement=PERCENTAGE,
+                    native_unit_of_measurement=UnitOfRatio.PERCENTAGE,
                     state_class=SensorStateClass.MEASUREMENT,
                     suggested_display_precision=0,
                     entity_registry_enabled_default=False,
@@ -753,7 +752,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_description=SensorEntityDescription(
                         key="panel_1_humidity",
                         name="Panel 1 Humidity",
-                        native_unit_of_measurement=PERCENTAGE,
+                        native_unit_of_measurement=UnitOfRatio.PERCENTAGE,
                         device_class=SensorDeviceClass.HUMIDITY,
                         state_class=SensorStateClass.MEASUREMENT,
                         suggested_display_precision=0,
@@ -796,7 +795,7 @@ async def create_sensors(coordinator: KomfoventCoordinator) -> list[KomfoventSen
                     entity_description=SensorEntityDescription(
                         key="panel_2_humidity",
                         name="Panel 2 Humidity",
-                        native_unit_of_measurement=PERCENTAGE,
+                        native_unit_of_measurement=UnitOfRatio.PERCENTAGE,
                         device_class=SensorDeviceClass.HUMIDITY,
                         state_class=SensorStateClass.MEASUREMENT,
                         suggested_display_precision=0,
@@ -1158,7 +1157,7 @@ class FlowSensor(FloatSensor):
         if self.coordinator.controller in {Controller.C6, Controller.C6M}:
             flow_control = self.coordinator.data.get(registers.REG_FLOW_CONTROL)
             if flow_control == FlowControl.OFF:
-                return PERCENTAGE
+                return UnitOfRatio.PERCENTAGE
 
             flow_unit = self.coordinator.data.get(registers.REG_FLOW_UNIT)
             if flow_unit == FlowUnit.M3H:
@@ -1167,7 +1166,7 @@ class FlowSensor(FloatSensor):
                 return UnitOfVolumeFlowRate.LITERS_PER_SECOND
         elif self.coordinator.controller == Controller.C8:
             # no flow control or flow unit support
-            return PERCENTAGE
+            return UnitOfRatio.PERCENTAGE
 
         return None
 

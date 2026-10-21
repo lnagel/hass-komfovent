@@ -9,7 +9,7 @@ from homeassistant.components.sensor import (
     SensorEntityDescription,
     SensorStateClass,
 )
-from homeassistant.const import PERCENTAGE, UnitOfEnergy, UnitOfVolumeFlowRate
+from homeassistant.const import UnitOfEnergy, UnitOfRatio, UnitOfVolumeFlowRate
 
 from custom_components.komfovent import registers
 from custom_components.komfovent.const import (
@@ -86,7 +86,7 @@ ENUM_SENSORS = [
 ]
 
 FLOW_UNITS = [
-    (Controller.C6, FlowControl.OFF, None, PERCENTAGE),
+    (Controller.C6, FlowControl.OFF, None, UnitOfRatio.PERCENTAGE),
     (
         Controller.C6,
         FlowControl.CONSTANT,
@@ -105,7 +105,7 @@ FLOW_UNITS = [
         FlowUnit.M3H,
         UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR,
     ),
-    (Controller.C8, None, None, PERCENTAGE),
+    (Controller.C8, None, None, UnitOfRatio.PERCENTAGE),
 ]
 
 AQ_SENSORS = [
