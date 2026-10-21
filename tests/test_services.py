@@ -182,7 +182,7 @@ def test_get_coordinator_for_device(hass, setup, expected):
     )
     mock_device = MagicMock() if setup else None
     if mock_device:
-        mock_device.config_entries = ["test_entry_id"]
+        mock_device.config_entry_id = "test_entry_id"
     with patch("custom_components.komfovent.services.dr.async_get") as mock_get:
         mock_registry = MagicMock()
         mock_registry.async_get.return_value = mock_device
@@ -195,7 +195,7 @@ def test_device_without_coordinator(hass):
     """Test returns None when device has no matching coordinator."""
     hass.config_entries.async_get_entry.return_value = None
     mock_device = MagicMock()
-    mock_device.config_entries = ["nonexistent_entry"]
+    mock_device.config_entry_id = "nonexistent_entry"
     with patch("custom_components.komfovent.services.dr.async_get") as mock_get:
         mock_registry = MagicMock()
         mock_registry.async_get.return_value = mock_device
@@ -218,7 +218,7 @@ async def test_handle_clear_active_alarms(hass, mock_coordinator):
     mock_call = MagicMock()
     mock_call.data = {"device_id": "device_123"}
     mock_device = MagicMock()
-    mock_device.config_entries = ["test_entry_id"]
+    mock_device.config_entry_id = "test_entry_id"
     with patch("custom_components.komfovent.services.dr.async_get") as mock_get:
         mock_registry = MagicMock()
         mock_registry.async_get.return_value = mock_device
