@@ -9,7 +9,7 @@ authors = [
 ]
 dependencies = [
     "aiofiles",
-    "pymodbus",
+    "pymodbus==3.13.1",
 ]
 
 [dependency-groups]
