@@ -8,12 +8,11 @@ authors = [
     { name = "lnagel", email = "lnagel@users.noreply.github.com" }
 ]
 dependencies = [
-    "pymodbus",
+    "pymodbus==3.13.1",
 ]
 
 [dependency-groups]
 dev = [
-    "pymodbus==3.13.1",
     "pytest-homeassistant-custom-component",
     "bump-my-version",
     "diff-cover",

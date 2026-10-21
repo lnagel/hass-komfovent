@@ -1167,20 +1167,18 @@ dependencies = [
 dev = [
     { name = "bump-my-version" },
     { name = "diff-cover" },
-    { name = "pymodbus" },
     { name = "pytest-homeassistant-custom-component" },
     { name = "ruff" },
     { name = "ty" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "pymodbus" }]
+requires-dist = [{ name = "pymodbus", specifier = "==3.13.1" }]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "bump-my-version" },
     { name = "diff-cover" },
-    { name = "pymodbus", specifier = "==3.13.1" },
     { name = "pytest-homeassistant-custom-component" },
     { name = "ruff" },
     { name = "ty" },
