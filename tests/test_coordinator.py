@@ -113,6 +113,45 @@ async def test_cooldown_delays_update(hass: HomeAssistant, mock_config_entry) ->
         assert 0.9 < wait_time <= 1.0
 
 
+async def test_paused_updates_keep_last_data(
+    hass: HomeAssistant, mock_config_entry
+) -> None:
+    """Test paused updates skip Modbus reads and keep the last data."""
+    mock_client = AsyncMock()
+    mock_client.connect = AsyncMock()
+    mock_client.read = AsyncMock(return_value={1: 42})
+
+    with patch(
+        "custom_components.komfovent.coordinator.KomfoventModbusClient",
+        return_value=mock_client,
+    ):
+        coordinator = KomfoventCoordinator(hass, config_entry=mock_config_entry)
+        await coordinator.connect()
+
+        # Without data yet, a paused coordinator still performs the first read
+        await coordinator.async_pause_updates()
+        await coordinator.async_refresh()
+        assert coordinator.data[1] == 42
+        reads = mock_client.read.await_count
+
+        mock_client.read.return_value = {1: 43}
+        await coordinator.async_refresh()
+        assert mock_client.read.await_count == reads
+        assert coordinator.data[1] == 42
+        assert coordinator.last_update_success is True
+
+        # Pausing drops the connection, resuming reconnects once
+        mock_client.close.assert_awaited_once()
+        connects = mock_client.connect.await_count
+        await coordinator.async_resume_updates()
+        await coordinator.async_resume_updates()
+        assert mock_client.connect.await_count == connects + 1
+
+        await coordinator.async_refresh()
+        assert mock_client.read.await_count > reads
+        assert coordinator.data[1] == 43
+
+
 class TestEmaFiltering:
     """Tests for EMA filtering in coordinator."""
 

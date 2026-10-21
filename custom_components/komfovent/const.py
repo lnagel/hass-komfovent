@@ -2,10 +2,28 @@
 
 from __future__ import annotations
 
+import json
+from datetime import timedelta
 from enum import IntEnum
+from pathlib import Path
 from typing import Final
 
+from homeassistant.helpers.aiohttp_client import SERVER_SOFTWARE
+
 DOMAIN = "komfovent"
+
+MANIFEST_PATH = Path(__file__).parent / "manifest.json"
+VERSION: Final = json.loads(MANIFEST_PATH.read_text())["version"]
+USER_AGENT: Final = f"hass-komfovent/{VERSION} {SERVER_SOFTWARE}"
+
+# Firmware update constants
+FIRMWARE_CHECK_INTERVAL: Final = timedelta(days=7)
+FIRMWARE_STORAGE_KEY: Final = "komfovent_firmware"
+FIRMWARE_STORAGE_VERSION: Final = 1
+FIRMWARE_DIR: Final = "komfovent"
+FIRMWARE_MIN_SIZE: Final = 100 * 1024  # 100 KB
+FIRMWARE_MAX_SIZE: Final = 10 * 1024 * 1024  # 10 MB
+FIRMWARE_MIN_SUPPORTED_VERSION_C6: Final = (1, 3, 15)  # .mbin needs v1.3.15+
 
 # Config
 DEFAULT_NAME = "Komfovent"
@@ -22,10 +40,12 @@ OPT_STEP_HUMIDITY: Final = "step_humidity"
 OPT_STEP_CO2: Final = "step_co2"
 OPT_STEP_VOC: Final = "step_voc"
 OPT_STEP_TIMER: Final = "step_timer"
+OPT_FIRMWARE_UPDATES: Final = "firmware_updates"
 
 # Defaults
 DEFAULT_UPDATE_INTERVAL = 30
 DEFAULT_EMA_TIME_CONSTANT = 300
+DEFAULT_FIRMWARE_UPDATES: Final = True
 DEFAULT_STEP_FLOW: Final = 5.0
 DEFAULT_STEP_TEMPERATURE: Final = 0.5
 DEFAULT_STEP_HUMIDITY: Final = 5.0
@@ -63,6 +83,13 @@ class Panel(IntEnum):
 
     P1 = 0
     NA = 15
+
+
+# Firmware download URLs per firmware type (C6 and C6M share the C6 firmware)
+FIRMWARE_URLS: Final[dict[str, str]] = {
+    "C6": "https://www.komfovent.com/Update/Controllers/firmware.php?file=mbin",
+    "C8": "https://www.komfovent.com/Update/Controllers/C8/firmware.php?file=mbin",
+}
 
 
 class OperationMode(IntEnum):
