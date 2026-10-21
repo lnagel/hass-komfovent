@@ -2,7 +2,7 @@
 
 import pytest
 from homeassistant.components.number import NumberEntityDescription
-from homeassistant.const import PERCENTAGE, UnitOfVolumeFlowRate
+from homeassistant.const import UnitOfRatio, UnitOfVolumeFlowRate
 
 from custom_components.komfovent import registers
 from custom_components.komfovent.const import (
@@ -34,7 +34,7 @@ TEMP_READ_CASES = [(215, 21.5), (50, 5.0), (400, 40.0)]
 TEMP_WRITE_CASES = [(21.5, 215), (5.0, 50), (40.0, 400)]
 
 FLOW_UNITS = [
-    (Controller.C6, FlowControl.OFF, None, PERCENTAGE),
+    (Controller.C6, FlowControl.OFF, None, UnitOfRatio.PERCENTAGE),
     (
         Controller.C6,
         FlowControl.CONSTANT,
@@ -53,7 +53,7 @@ FLOW_UNITS = [
         FlowUnit.M3H,
         UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR,
     ),
-    (Controller.C8, None, None, PERCENTAGE),
+    (Controller.C8, None, None, UnitOfRatio.PERCENTAGE),
 ]
 
 FLOW_EDGE_CASES = [
