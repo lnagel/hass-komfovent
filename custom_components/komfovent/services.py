@@ -28,14 +28,13 @@ def get_coordinator_for_device(
     if (device_entry := device_registry.async_get(device_id)) is None:
         return None
 
-    for entry_id in device_entry.config_entries:
-        entry = hass.config_entries.async_get_entry(entry_id)
-        if (
-            entry is not None
-            and entry.domain == DOMAIN
-            and entry.state is ConfigEntryState.LOADED
-        ):
-            return entry.runtime_data.coordinator
+    entry = hass.config_entries.async_get_entry(device_entry.config_entry_id)
+    if (
+        entry is not None
+        and entry.domain == DOMAIN
+        and entry.state is ConfigEntryState.LOADED
+    ):
+        return entry.runtime_data.coordinator
     return None
 
 
