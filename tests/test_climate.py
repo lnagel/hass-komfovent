@@ -13,7 +13,9 @@ from custom_components.komfovent.const import (
     BITMASK_FAN,
     BITMASK_HEATING,
     DOMAIN,
+    PANEL_TEMP_ABSENT,
     ConnectedPanels,
+    Controller,
     OperationMode,
     TemperatureControl,
 )
@@ -83,8 +85,6 @@ def test_current_temperature(mock_coordinator, mode, register, temp_value):
         # Only panel 2 connected, panel 1 reports the "absent" value (issue #258)
         (ConnectedPanels.PANEL2, -32768, 211, 21.1),
         (ConnectedPanels.PANEL2, None, 211, 21.1),
-        # Values as seen in the issue #258 diagnostics dump
-        (ConnectedPanels.PANEL2, -32768.0, 209.2, 20.92),
         # Panel 1 absent value but connected panels unknown: fall back to panel 2
         (None, -32768, 211, 21.1),
         # Both panels connected: panel 1 is preferred
@@ -109,6 +109,21 @@ def test_current_temperature_room_panels(
         assert current is None
     else:
         assert current == pytest.approx(expected)
+
+
+@pytest.mark.parametrize(
+    "mock_coordinator_by_controller",
+    [("C6M_registers_issue258.json", Controller.C6M)],
+    indirect=True,
+)
+def test_current_temperature_room_panel2_only(mock_coordinator_by_controller):
+    """Test room temperature from panel 2 on a unit without panel 1 (#258)."""
+    data = mock_coordinator_by_controller.data
+    assert data[registers.REG_TEMP_CONTROL] == TemperatureControl.ROOM
+    assert data[registers.REG_CONNECTED_PANELS] == ConnectedPanels.PANEL2
+    assert data[registers.REG_PANEL1_TEMP] == PANEL_TEMP_ABSENT
+    current = KomfoventClimate(mock_coordinator_by_controller).current_temperature
+    assert current == pytest.approx(data[registers.REG_PANEL2_TEMP] / 10)
 
 
 @pytest.mark.parametrize(("mode", "register", "expected"), TARGET_TEMP_MODES)
