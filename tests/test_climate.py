@@ -13,7 +13,6 @@ from custom_components.komfovent.const import (
     BITMASK_FAN,
     BITMASK_HEATING,
     DOMAIN,
-    PANEL_TEMP_ABSENT,
     ConnectedPanels,
     Controller,
     OperationMode,
@@ -80,35 +79,27 @@ def test_current_temperature(mock_coordinator, mode, register, temp_value):
 
 
 @pytest.mark.parametrize(
-    ("connected", "panel1", "panel2", "expected"),
+    ("mode", "connected", "register"),
     [
-        # Only panel 2 connected, panel 1 reports the "absent" value (issue #258)
-        (ConnectedPanels.PANEL2, -32768, 211, 21.1),
-        (ConnectedPanels.PANEL2, None, 211, 21.1),
-        # Panel 1 absent value but connected panels unknown: fall back to panel 2
-        (None, -32768, 211, 21.1),
-        # Both panels connected: panel 1 is preferred
-        (ConnectedPanels.BOTH, 235, 211, 23.5),
-        (ConnectedPanels.PANEL1, 235, 211, 23.5),
-        # No usable panel reading at all
-        (ConnectedPanels.NONE, -32768, -32768, None),
+        (TemperatureControl.SUPPLY, None, registers.REG_SUPPLY_TEMP),
+        (TemperatureControl.EXTRACT, None, registers.REG_EXTRACT_TEMP),
+        (TemperatureControl.BALANCE, None, registers.REG_EXTRACT_TEMP),
+        (TemperatureControl.ROOM, None, registers.REG_PANEL1_TEMP),
+        (TemperatureControl.ROOM, ConnectedPanels.NONE, registers.REG_PANEL1_TEMP),
+        (TemperatureControl.ROOM, ConnectedPanels.PANEL1, registers.REG_PANEL1_TEMP),
+        (TemperatureControl.ROOM, ConnectedPanels.PANEL2, registers.REG_PANEL2_TEMP),
+        (TemperatureControl.ROOM, ConnectedPanels.BOTH, registers.REG_PANEL1_TEMP),
+        (None, None, None),
+        (99, None, None),
     ],
 )
-def test_current_temperature_room_panels(
-    mock_coordinator, connected, panel1, panel2, expected
-):
-    """Test room temperature uses whichever panel is actually connected."""
+def test_temperature_register(mock_coordinator, mode, connected, register):
+    """Test the source register resolved for each temperature control mode."""
     mock_coordinator.data = {
-        registers.REG_TEMP_CONTROL: TemperatureControl.ROOM,
+        registers.REG_TEMP_CONTROL: mode,
         registers.REG_CONNECTED_PANELS: connected,
-        registers.REG_PANEL1_TEMP: panel1,
-        registers.REG_PANEL2_TEMP: panel2,
     }
-    current = KomfoventClimate(mock_coordinator).current_temperature
-    if expected is None:
-        assert current is None
-    else:
-        assert current == pytest.approx(expected)
+    assert KomfoventClimate(mock_coordinator)._temperature_register() == register
 
 
 @pytest.mark.parametrize(
@@ -121,7 +112,6 @@ def test_current_temperature_room_panel2_only(mock_coordinator_by_controller):
     data = mock_coordinator_by_controller.data
     assert data[registers.REG_TEMP_CONTROL] == TemperatureControl.ROOM
     assert data[registers.REG_CONNECTED_PANELS] == ConnectedPanels.PANEL2
-    assert data[registers.REG_PANEL1_TEMP] == PANEL_TEMP_ABSENT
     current = KomfoventClimate(mock_coordinator_by_controller).current_temperature
     assert current == pytest.approx(data[registers.REG_PANEL2_TEMP] / 10)
 
@@ -208,6 +198,17 @@ def test_hvac_action_edge_cases(mock_coordinator, data):
     [
         (None, "current_temperature"),
         ({registers.REG_TEMP_CONTROL: 99}, "current_temperature"),
+        (
+            {registers.REG_TEMP_CONTROL: TemperatureControl.SUPPLY},
+            "current_temperature",
+        ),
+        (
+            {
+                registers.REG_TEMP_CONTROL: TemperatureControl.SUPPLY,
+                registers.REG_SUPPLY_TEMP: -32768,
+            },
+            "current_temperature",
+        ),
         (None, "target_temperature"),
         ({registers.REG_OPERATION_MODE: 99}, "target_temperature"),
         (None, "preset_mode"),

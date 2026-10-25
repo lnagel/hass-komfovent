@@ -20,13 +20,12 @@ from .binary_sensor import (
     BITMASK_HEATING,
 )
 from .const import (
-    PANEL_TEMP_ABSENT,
     ConnectedPanels,
     OperationMode,
     TemperatureControl,
 )
 from .entity import KomfoventCoordinatorEntity
-from .helpers import build_device_info
+from .helpers import build_device_info, valid_temperature
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -89,36 +88,30 @@ class KomfoventClimate(KomfoventCoordinatorEntity, ClimateEntity):
         if not self.coordinator.data:
             return None
 
-        try:
-            temp_control = TemperatureControl(
-                self.coordinator.data.get(registers.REG_TEMP_CONTROL)
-            )
-            if temp_control == TemperatureControl.ROOM:
-                return self._compute_room_temperature()
-            temp_key = TEMP_CONTROL_MAPPING[temp_control]
+        register = self._temperature_register()
+        if register is None:
+            return None
 
-            if (temp := self.coordinator.data.get(temp_key)) is not None:
-                return float(temp) / 10
-        except ValueError, KeyError:
-            _LOGGER.warning("Invalid temperature control mode")
+        if (temp := self.coordinator.data.get(register)) is None:
+            return None
+        return valid_temperature(float(temp) / 10)
 
-        return None
-
-    def _compute_room_temperature(self) -> float | None:
-        """Return the room temperature from a connected control panel."""
-        panel_keys = [registers.REG_PANEL1_TEMP, registers.REG_PANEL2_TEMP]
-        if (
-            self.coordinator.data.get(registers.REG_CONNECTED_PANELS)
-            == ConnectedPanels.PANEL2
-        ):
-            panel_keys.reverse()
-
-        for temp_key in panel_keys:
-            temp = self.coordinator.data.get(temp_key)
-            if temp is not None and temp != PANEL_TEMP_ABSENT:
-                return float(temp) / 10
-
-        return None
+    def _temperature_register(self) -> int | None:
+        """Return the register measuring the temperature the unit controls."""
+        data = self.coordinator.data
+        match data.get(registers.REG_TEMP_CONTROL):
+            case TemperatureControl.SUPPLY:
+                return registers.REG_SUPPLY_TEMP
+            # Using extract temp for balance mode
+            case TemperatureControl.EXTRACT | TemperatureControl.BALANCE:
+                return registers.REG_EXTRACT_TEMP
+            case TemperatureControl.ROOM:
+                if data.get(registers.REG_CONNECTED_PANELS) == ConnectedPanels.PANEL2:
+                    return registers.REG_PANEL2_TEMP
+                return registers.REG_PANEL1_TEMP
+            case _:
+                _LOGGER.warning("Invalid temperature control mode")
+                return None
 
     def _compute_target_temperature(self) -> float | None:
         """Return the temperature we try to reach."""
@@ -246,10 +239,4 @@ MODE_TEMP_MAPPING = {
     OperationMode.HOLIDAY: registers.REG_HOLIDAYS_TEMP,
     OperationMode.AIR_QUALITY: registers.REG_AQ_TEMP_SETPOINT,
     OperationMode.OFF: registers.REG_NORMAL_SETPOINT,  # Use normal temp when off
-}
-TEMP_CONTROL_MAPPING = {
-    TemperatureControl.SUPPLY: registers.REG_SUPPLY_TEMP,
-    TemperatureControl.EXTRACT: registers.REG_EXTRACT_TEMP,
-    # Using extract temp for balance mode
-    TemperatureControl.BALANCE: registers.REG_EXTRACT_TEMP,
 }

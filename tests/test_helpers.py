@@ -1,10 +1,13 @@
 """Test cases for Komfovent helper functions."""
 
+import pytest
+
 from custom_components.komfovent.const import DOMAIN, Controller, Panel
 from custom_components.komfovent.helpers import (
     build_device_info,
     get_controller_version,
     get_panel_version,
+    valid_temperature,
 )
 
 
@@ -80,3 +83,20 @@ def test_build_device_info_with_different_controllers(
     controller = mock_coordinator_by_controller.controller
     assert device_info["model"] == controller.name
     assert device_info["configuration_url"] == "http://192.168.1.100"
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        (21.5, 21.5),
+        (-50.0, -50.0),
+        (120.0, 120.0),
+        (-50.1, None),
+        (120.1, None),
+        (-3276.8, None),
+        (None, None),
+    ],
+)
+def test_valid_temperature(value, expected):
+    """Test temperatures outside the valid range are rejected."""
+    assert valid_temperature(value) == expected

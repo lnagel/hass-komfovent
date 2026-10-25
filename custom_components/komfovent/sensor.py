@@ -29,6 +29,7 @@ from .helpers import (
     flow_present,
     get_controller_version,
     get_panel_version,
+    valid_temperature,
 )
 
 if TYPE_CHECKING:
@@ -56,8 +57,6 @@ from .const import (
 # Constants for value validation
 MIN_DUTY_CYCLE = 0
 MAX_DUTY_CYCLE = 100
-MIN_TEMPERATURE = -50
-MAX_TEMPERATURE = 120
 MAX_PERCENTAGE = 100
 MAX_HUMIDITY = 125
 MIN_ABS_HUMIDITY = 0.01
@@ -1045,13 +1044,7 @@ class TemperatureSensor(FloatX10Sensor):
 
     def _compute_native_value(self) -> float | None:
         """Return the temperature value if within valid range."""
-        value = super()._compute_native_value()
-        if value is None:
-            return None
-
-        if MIN_TEMPERATURE <= value <= MAX_TEMPERATURE:
-            return value
-        return None
+        return valid_temperature(super()._compute_native_value())
 
 
 class RelativeHumiditySensor(KomfoventSensor):
