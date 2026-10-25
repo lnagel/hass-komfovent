@@ -53,6 +53,9 @@ DEFAULT_STEP_CO2: Final = 25.0
 DEFAULT_STEP_VOC: Final = 5.0
 DEFAULT_STEP_TIMER: Final = 5.0
 
+# Raw panel temperature value reported when the panel is not connected
+PANEL_TEMP_ABSENT: Final = -32768
+
 # Status bitmask values
 BITMASK_STARTING: Final = 1 << 0  # 1
 BITMASK_STOPPING: Final = 1 << 1  # 2

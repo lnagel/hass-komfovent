@@ -13,6 +13,7 @@ from custom_components.komfovent.const import (
     BITMASK_FAN,
     BITMASK_HEATING,
     DOMAIN,
+    ConnectedPanels,
     OperationMode,
     TemperatureControl,
 )
@@ -74,6 +75,40 @@ def test_current_temperature(mock_coordinator, mode, register, temp_value):
     """Test current temp with various temperature control modes."""
     mock_coordinator.data = {registers.REG_TEMP_CONTROL: mode, register: temp_value}
     assert KomfoventClimate(mock_coordinator).current_temperature == temp_value / 10
+
+
+@pytest.mark.parametrize(
+    ("connected", "panel1", "panel2", "expected"),
+    [
+        # Only panel 2 connected, panel 1 reports the "absent" value (issue #258)
+        (ConnectedPanels.PANEL2, -32768, 211, 21.1),
+        (ConnectedPanels.PANEL2, None, 211, 21.1),
+        # Values as seen in the issue #258 diagnostics dump
+        (ConnectedPanels.PANEL2, -32768.0, 209.2, 20.92),
+        # Panel 1 absent value but connected panels unknown: fall back to panel 2
+        (None, -32768, 211, 21.1),
+        # Both panels connected: panel 1 is preferred
+        (ConnectedPanels.BOTH, 235, 211, 23.5),
+        (ConnectedPanels.PANEL1, 235, 211, 23.5),
+        # No usable panel reading at all
+        (ConnectedPanels.NONE, -32768, -32768, None),
+    ],
+)
+def test_current_temperature_room_panels(
+    mock_coordinator, connected, panel1, panel2, expected
+):
+    """Test room temperature uses whichever panel is actually connected."""
+    mock_coordinator.data = {
+        registers.REG_TEMP_CONTROL: TemperatureControl.ROOM,
+        registers.REG_CONNECTED_PANELS: connected,
+        registers.REG_PANEL1_TEMP: panel1,
+        registers.REG_PANEL2_TEMP: panel2,
+    }
+    current = KomfoventClimate(mock_coordinator).current_temperature
+    if expected is None:
+        assert current is None
+    else:
+        assert current == pytest.approx(expected)
 
 
 @pytest.mark.parametrize(("mode", "register", "expected"), TARGET_TEMP_MODES)

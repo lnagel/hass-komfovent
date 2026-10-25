@@ -20,6 +20,8 @@ from .binary_sensor import (
     BITMASK_HEATING,
 )
 from .const import (
+    PANEL_TEMP_ABSENT,
+    ConnectedPanels,
     OperationMode,
     TemperatureControl,
 )
@@ -91,12 +93,30 @@ class KomfoventClimate(KomfoventCoordinatorEntity, ClimateEntity):
             temp_control = TemperatureControl(
                 self.coordinator.data.get(registers.REG_TEMP_CONTROL)
             )
+            if temp_control == TemperatureControl.ROOM:
+                return self._compute_room_temperature()
             temp_key = TEMP_CONTROL_MAPPING[temp_control]
 
             if (temp := self.coordinator.data.get(temp_key)) is not None:
                 return float(temp) / 10
         except ValueError, KeyError:
             _LOGGER.warning("Invalid temperature control mode")
+
+        return None
+
+    def _compute_room_temperature(self) -> float | None:
+        """Return the room temperature from a connected control panel."""
+        panel_keys = [registers.REG_PANEL1_TEMP, registers.REG_PANEL2_TEMP]
+        if (
+            self.coordinator.data.get(registers.REG_CONNECTED_PANELS)
+            == ConnectedPanels.PANEL2
+        ):
+            panel_keys.reverse()
+
+        for temp_key in panel_keys:
+            temp = self.coordinator.data.get(temp_key)
+            if temp is not None and temp != PANEL_TEMP_ABSENT:
+                return float(temp) / 10
 
         return None
 
@@ -230,8 +250,6 @@ MODE_TEMP_MAPPING = {
 TEMP_CONTROL_MAPPING = {
     TemperatureControl.SUPPLY: registers.REG_SUPPLY_TEMP,
     TemperatureControl.EXTRACT: registers.REG_EXTRACT_TEMP,
-    # Using panel1 temp for room temperature
-    TemperatureControl.ROOM: registers.REG_PANEL1_TEMP,
     # Using extract temp for balance mode
     TemperatureControl.BALANCE: registers.REG_EXTRACT_TEMP,
 }
