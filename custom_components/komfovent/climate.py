@@ -102,7 +102,6 @@ class KomfoventClimate(KomfoventCoordinatorEntity, ClimateEntity):
         match data.get(registers.REG_TEMP_CONTROL):
             case TemperatureControl.SUPPLY:
                 return registers.REG_SUPPLY_TEMP
-            # Using extract temp for balance mode
             case TemperatureControl.EXTRACT | TemperatureControl.BALANCE:
                 return registers.REG_EXTRACT_TEMP
             case TemperatureControl.ROOM:
