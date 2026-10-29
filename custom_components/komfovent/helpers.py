@@ -8,7 +8,14 @@ from homeassistant.const import CONF_HOST
 from homeassistant.helpers.device_registry import DeviceInfo
 
 from . import registers
-from .const import BITMASK_FAN, DOMAIN, Controller, Panel
+from .const import (
+    BITMASK_FAN,
+    DOMAIN,
+    MAX_TEMPERATURE,
+    MIN_TEMPERATURE,
+    Controller,
+    Panel,
+)
 
 if TYPE_CHECKING:
     from .coordinator import KomfoventCoordinator
@@ -61,6 +68,25 @@ def flow_present(data: dict[int, Any]) -> bool | None:
     if status is None:
         return None
     return bool(status & BITMASK_FAN)
+
+
+def valid_temperature(value: float | None) -> float | None:
+    """
+    Return the temperature if it is within the valid reading range.
+
+    Absent sensors report out-of-range values (e.g. -3276.8 °C), which
+    are mapped to None.
+
+    Args:
+        value: Temperature in °C
+
+    Returns:
+        The temperature, or None if missing or out of range
+
+    """
+    if value is None or not MIN_TEMPERATURE <= value <= MAX_TEMPERATURE:
+        return None
+    return value
 
 
 def _unpack_version(value: int) -> tuple[int, int, int, int, int]:

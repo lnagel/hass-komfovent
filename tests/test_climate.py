@@ -13,6 +13,8 @@ from custom_components.komfovent.const import (
     BITMASK_FAN,
     BITMASK_HEATING,
     DOMAIN,
+    ConnectedPanels,
+    Controller,
     OperationMode,
     TemperatureControl,
 )
@@ -72,8 +74,50 @@ class TestKomfoventClimate:
 @pytest.mark.parametrize(("mode", "register", "temp_value"), TEMP_CONTROL_MODES)
 def test_current_temperature(mock_coordinator, mode, register, temp_value):
     """Test current temp with various temperature control modes."""
-    mock_coordinator.data = {registers.REG_TEMP_CONTROL: mode, register: temp_value}
+    mock_coordinator.data = {
+        registers.REG_TEMP_CONTROL: mode,
+        registers.REG_CONNECTED_PANELS: ConnectedPanels.PANEL1,
+        register: temp_value,
+    }
     assert KomfoventClimate(mock_coordinator).current_temperature == temp_value / 10
+
+
+@pytest.mark.parametrize(
+    ("mode", "connected", "register"),
+    [
+        (TemperatureControl.SUPPLY, None, registers.REG_SUPPLY_TEMP),
+        (TemperatureControl.EXTRACT, None, registers.REG_EXTRACT_TEMP),
+        (TemperatureControl.BALANCE, None, registers.REG_EXTRACT_TEMP),
+        (TemperatureControl.ROOM, None, None),
+        (TemperatureControl.ROOM, ConnectedPanels.NONE, None),
+        (TemperatureControl.ROOM, ConnectedPanels.PANEL1, registers.REG_PANEL1_TEMP),
+        (TemperatureControl.ROOM, ConnectedPanels.PANEL2, registers.REG_PANEL2_TEMP),
+        (TemperatureControl.ROOM, ConnectedPanels.BOTH, registers.REG_PANEL1_TEMP),
+        (None, None, None),
+        (99, None, None),
+    ],
+)
+def test_temperature_register(mock_coordinator, mode, connected, register):
+    """Test the source register resolved for each temperature control mode."""
+    mock_coordinator.data = {
+        registers.REG_TEMP_CONTROL: mode,
+        registers.REG_CONNECTED_PANELS: connected,
+    }
+    assert KomfoventClimate(mock_coordinator)._temperature_register() == register
+
+
+@pytest.mark.parametrize(
+    "mock_coordinator_by_controller",
+    [("C6M_registers_issue258.json", Controller.C6M)],
+    indirect=True,
+)
+def test_current_temperature_room_panel2_only(mock_coordinator_by_controller):
+    """Test room temperature from panel 2 on a unit without panel 1 (#258)."""
+    data = mock_coordinator_by_controller.data
+    assert data[registers.REG_TEMP_CONTROL] == TemperatureControl.ROOM
+    assert data[registers.REG_CONNECTED_PANELS] == ConnectedPanels.PANEL2
+    current = KomfoventClimate(mock_coordinator_by_controller).current_temperature
+    assert current == pytest.approx(data[registers.REG_PANEL2_TEMP] / 10)
 
 
 @pytest.mark.parametrize(("mode", "register", "expected"), TARGET_TEMP_MODES)
@@ -158,6 +202,17 @@ def test_hvac_action_edge_cases(mock_coordinator, data):
     [
         (None, "current_temperature"),
         ({registers.REG_TEMP_CONTROL: 99}, "current_temperature"),
+        (
+            {registers.REG_TEMP_CONTROL: TemperatureControl.SUPPLY},
+            "current_temperature",
+        ),
+        (
+            {
+                registers.REG_TEMP_CONTROL: TemperatureControl.SUPPLY,
+                registers.REG_SUPPLY_TEMP: -32768,
+            },
+            "current_temperature",
+        ),
         (None, "target_temperature"),
         ({registers.REG_OPERATION_MODE: 99}, "target_temperature"),
         (None, "preset_mode"),
