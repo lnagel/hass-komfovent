@@ -111,7 +111,6 @@ class KomfoventClimate(KomfoventCoordinatorEntity, ClimateEntity):
                         return registers.REG_PANEL1_TEMP
                     case ConnectedPanels.PANEL2:
                         return registers.REG_PANEL2_TEMP
-                # No panel connected, so there is no room temperature reading
                 return None
             case _:
                 _LOGGER.warning("Invalid temperature control mode")
