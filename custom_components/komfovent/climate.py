@@ -106,9 +106,13 @@ class KomfoventClimate(KomfoventCoordinatorEntity, ClimateEntity):
             case TemperatureControl.EXTRACT | TemperatureControl.BALANCE:
                 return registers.REG_EXTRACT_TEMP
             case TemperatureControl.ROOM:
-                if data.get(registers.REG_CONNECTED_PANELS) == ConnectedPanels.PANEL2:
-                    return registers.REG_PANEL2_TEMP
-                return registers.REG_PANEL1_TEMP
+                match data.get(registers.REG_CONNECTED_PANELS):
+                    case ConnectedPanels.PANEL1 | ConnectedPanels.BOTH:
+                        return registers.REG_PANEL1_TEMP
+                    case ConnectedPanels.PANEL2:
+                        return registers.REG_PANEL2_TEMP
+                # No panel connected, so there is no room temperature reading
+                return None
             case _:
                 _LOGGER.warning("Invalid temperature control mode")
                 return None

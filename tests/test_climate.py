@@ -74,7 +74,11 @@ class TestKomfoventClimate:
 @pytest.mark.parametrize(("mode", "register", "temp_value"), TEMP_CONTROL_MODES)
 def test_current_temperature(mock_coordinator, mode, register, temp_value):
     """Test current temp with various temperature control modes."""
-    mock_coordinator.data = {registers.REG_TEMP_CONTROL: mode, register: temp_value}
+    mock_coordinator.data = {
+        registers.REG_TEMP_CONTROL: mode,
+        registers.REG_CONNECTED_PANELS: ConnectedPanels.PANEL1,
+        register: temp_value,
+    }
     assert KomfoventClimate(mock_coordinator).current_temperature == temp_value / 10
 
 
@@ -84,8 +88,8 @@ def test_current_temperature(mock_coordinator, mode, register, temp_value):
         (TemperatureControl.SUPPLY, None, registers.REG_SUPPLY_TEMP),
         (TemperatureControl.EXTRACT, None, registers.REG_EXTRACT_TEMP),
         (TemperatureControl.BALANCE, None, registers.REG_EXTRACT_TEMP),
-        (TemperatureControl.ROOM, None, registers.REG_PANEL1_TEMP),
-        (TemperatureControl.ROOM, ConnectedPanels.NONE, registers.REG_PANEL1_TEMP),
+        (TemperatureControl.ROOM, None, None),
+        (TemperatureControl.ROOM, ConnectedPanels.NONE, None),
         (TemperatureControl.ROOM, ConnectedPanels.PANEL1, registers.REG_PANEL1_TEMP),
         (TemperatureControl.ROOM, ConnectedPanels.PANEL2, registers.REG_PANEL2_TEMP),
         (TemperatureControl.ROOM, ConnectedPanels.BOTH, registers.REG_PANEL1_TEMP),
