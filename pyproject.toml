@@ -14,7 +14,12 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "pytest-homeassistant-custom-component",
+    # pytest-home-assistant replaces pytest-homeassistant-custom-component from
+    # HA 2026.11 on. Until it is published on PyPI, install it from the
+    # home-assistant/core tag matching the pinned homeassistant version.
+    "homeassistant==2026.11.0b3",
+    "pytest-home-assistant @ git+https://github.com/home-assistant/core@2026.11.0b3#subdirectory=packages/pytest-home-assistant",
+    "pytest-cov",
     "bump-my-version",
     "diff-cover",
     "ruff",
@@ -35,6 +40,8 @@ asyncio_mode = "auto"
 testpaths = ["tests"]
 norecursedirs = [".git", "testing_config"]
 asyncio_default_fixture_loop_scope = "function"
+# Let Home Assistant install its httpx alias before respx is imported.
+addopts = "-p no:respx"
 markers = [
     "enable_socket: mark test to run with real socket connections"
 ]

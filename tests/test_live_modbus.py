@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 from homeassistant.const import CONF_HOST, CONF_PORT
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant.common import MockConfigEntry
 
 from custom_components.komfovent import registers
 from custom_components.komfovent.const import DOMAIN, Controller

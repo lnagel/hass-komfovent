@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.util.dt import utcnow
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant.common import MockConfigEntry
 
 from custom_components.komfovent.const import BITMASK_FAN, DOMAIN
 from custom_components.komfovent.coordinator import KomfoventCoordinator
