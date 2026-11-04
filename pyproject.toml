@@ -38,10 +38,6 @@ testpaths = ["tests"]
 norecursedirs = [".git", "testing_config"]
 asyncio_default_fixture_loop_scope = "function"
 addopts = "-p no:respx"
-filterwarnings = [
-    "ignore:Inheritance class HomeAssistantApplication from web.Application is discouraged:DeprecationWarning",
-    "ignore:'asyncio.iscoroutinefunction' is deprecated:DeprecationWarning:backoff",
-]
 markers = [
     "enable_socket: mark test to run with real socket connections"
 ]
