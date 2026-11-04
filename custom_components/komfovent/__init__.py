@@ -75,7 +75,7 @@ async def _async_get_domain_data(hass: HomeAssistant) -> KomfoventDomainData:
     return domain["domain_data"]
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: KomfoventConfigEntry) -> bool:
+async def async_setup_entry(hass: HomeAssistant, entry: KomfoventConfigEntry) -> None:
     """Set up Komfovent from a config entry."""
     update_interval = entry.options.get(OPT_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL)
     ema_time_constant = entry.options.get(
@@ -115,8 +115,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: KomfoventConfigEntry) ->
 
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
 
-    return True
-
 
 async def _async_update_listener(
     hass: HomeAssistant,
@@ -145,13 +143,13 @@ async def _async_update_listener(
     _LOGGER.debug("Update interval changed to %s seconds", update_interval)
 
 
-async def async_unload_entry(hass: HomeAssistant, entry: KomfoventConfigEntry) -> bool:
+async def async_unload_entry(hass: HomeAssistant, entry: KomfoventConfigEntry) -> None:
     """Unload a config entry."""
     firmware_enabled = entry.runtime_data.firmware_enabled
-    unload_ok = await hass.config_entries.async_unload_platforms(
+    await hass.config_entries.async_unload_platforms_or_raise(
         entry, _get_platforms(firmware_enabled=firmware_enabled)
     )
-    if unload_ok and firmware_enabled:
+    if firmware_enabled:
         domain_data: KomfoventDomainData = hass.data[DOMAIN]["domain_data"]
         domain_data.firmware_entries.discard(entry.entry_id)
         domain_data.firmware_checker.unregister_controller_type(
@@ -163,5 +161,3 @@ async def async_unload_entry(hass: HomeAssistant, entry: KomfoventConfigEntry) -
             await domain_data.firmware_checker.async_stop()
             hass.data[DOMAIN].pop("domain_data")
             _LOGGER.debug("Stopped firmware checker and cleaned up domain data")
-
-    return unload_ok
