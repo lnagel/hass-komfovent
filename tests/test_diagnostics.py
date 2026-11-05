@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT
 from pymodbus import ModbusException
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant.common import MockConfigEntry
 
 from custom_components.komfovent.const import DOMAIN
 from custom_components.komfovent.coordinator import KomfoventRuntimeData

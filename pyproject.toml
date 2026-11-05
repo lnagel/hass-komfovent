@@ -14,7 +14,9 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "pytest-homeassistant-custom-component",
+    "homeassistant==2026.11.0",
+    "pytest-homeassistant==2026.11.0",
+    "pytest-cov",
     "bump-my-version",
     "diff-cover",
     "ruff",
@@ -35,6 +37,7 @@ asyncio_mode = "auto"
 testpaths = ["tests"]
 norecursedirs = [".git", "testing_config"]
 asyncio_default_fixture_loop_scope = "function"
+addopts = "-p no:respx"
 markers = [
     "enable_socket: mark test to run with real socket connections"
 ]

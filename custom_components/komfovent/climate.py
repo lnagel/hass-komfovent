@@ -54,7 +54,7 @@ class KomfoventClimate(KomfoventCoordinatorEntity, ClimateEntity):
 
     _attr_has_entity_name = True
     _attr_name = None
-    _attr_temperature_unit = UnitOfTemperature.CELSIUS
+    _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_hvac_modes = [HVACMode.OFF, HVACMode.HEAT_COOL]
     _attr_supported_features = (
         ClimateEntityFeature.TARGET_TEMPERATURE
@@ -77,8 +77,8 @@ class KomfoventClimate(KomfoventCoordinatorEntity, ClimateEntity):
 
     def _update_attrs(self) -> None:
         """Set the climate state from coordinator data."""
-        self._attr_current_temperature = self._compute_current_temperature()
-        self._attr_target_temperature = self._compute_target_temperature()
+        self._attr_native_current_temperature = self._compute_current_temperature()
+        self._attr_native_target_temperature = self._compute_target_temperature()
         self._attr_hvac_mode = self._compute_hvac_mode()
         self._attr_hvac_action = self._compute_hvac_action()
         self._attr_preset_mode = self._compute_preset_mode()

@@ -20,10 +20,12 @@ updates:
     groups:
       home-assistant-test-stack:
         patterns:
-          - "pytest-homeassistant-custom-component"
+          - "homeassistant"
+          - "pytest-homeassistant"
       dev-tooling:
         dependency-type: "development"
         exclude-patterns:
-          - "pytest-homeassistant-custom-component"
+          - "homeassistant"
+          - "pytest-homeassistant"
         patterns:
           - "*"

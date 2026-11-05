@@ -79,7 +79,9 @@ def test_current_temperature(mock_coordinator, mode, register, temp_value):
         registers.REG_CONNECTED_PANELS: ConnectedPanels.PANEL1,
         register: temp_value,
     }
-    assert KomfoventClimate(mock_coordinator).current_temperature == temp_value / 10
+    assert (
+        KomfoventClimate(mock_coordinator).native_current_temperature == temp_value / 10
+    )
 
 
 @pytest.mark.parametrize(
@@ -116,7 +118,9 @@ def test_current_temperature_room_panel2_only(mock_coordinator_by_controller):
     data = mock_coordinator_by_controller.data
     assert data[registers.REG_TEMP_CONTROL] == TemperatureControl.ROOM
     assert data[registers.REG_CONNECTED_PANELS] == ConnectedPanels.PANEL2
-    current = KomfoventClimate(mock_coordinator_by_controller).current_temperature
+    current = KomfoventClimate(
+        mock_coordinator_by_controller
+    ).native_current_temperature
     assert current == pytest.approx(data[registers.REG_PANEL2_TEMP] / 10)
 
 
@@ -127,7 +131,7 @@ def test_target_temperature(mock_coordinator, mode, register, expected):
         registers.REG_OPERATION_MODE: mode,
         register: int(expected * 10),
     }
-    assert KomfoventClimate(mock_coordinator).target_temperature == expected
+    assert KomfoventClimate(mock_coordinator).native_target_temperature == expected
 
 
 @pytest.mark.parametrize(("mode", "expected"), ALL_PRESETS)
@@ -200,21 +204,21 @@ def test_hvac_action_edge_cases(mock_coordinator, data):
 @pytest.mark.parametrize(
     ("data", "attr"),
     [
-        (None, "current_temperature"),
-        ({registers.REG_TEMP_CONTROL: 99}, "current_temperature"),
+        (None, "native_current_temperature"),
+        ({registers.REG_TEMP_CONTROL: 99}, "native_current_temperature"),
         (
             {registers.REG_TEMP_CONTROL: TemperatureControl.SUPPLY},
-            "current_temperature",
+            "native_current_temperature",
         ),
         (
             {
                 registers.REG_TEMP_CONTROL: TemperatureControl.SUPPLY,
                 registers.REG_SUPPLY_TEMP: -32768,
             },
-            "current_temperature",
+            "native_current_temperature",
         ),
-        (None, "target_temperature"),
-        ({registers.REG_OPERATION_MODE: 99}, "target_temperature"),
+        (None, "native_target_temperature"),
+        ({registers.REG_OPERATION_MODE: 99}, "native_target_temperature"),
         (None, "preset_mode"),
         ({registers.REG_OPERATION_MODE: 99}, "preset_mode"),
     ],

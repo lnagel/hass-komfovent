@@ -6,7 +6,7 @@ import pytest
 from homeassistant.components.update import UpdateDeviceClass, UpdateEntityFeature
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT
 from homeassistant.exceptions import HomeAssistantError
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant.common import MockConfigEntry
 
 from custom_components.komfovent import registers
 from custom_components.komfovent.const import DOMAIN, Controller

@@ -6,7 +6,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from homeassistant.const import CONF_HOST, CONF_PORT, Platform
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from homeassistant.exceptions import ConfigEntryError
+from pytest_homeassistant.common import MockConfigEntry
 
 from custom_components.komfovent import (
     PLATFORMS,
@@ -185,9 +186,8 @@ class TestAsyncSetupEntry:
                 new_callable=AsyncMock,
             ),
         ):
-            result = await async_setup_entry(hass, mock_config_entry)
+            await async_setup_entry(hass, mock_config_entry)
 
-        assert result is True
         # Verify coordinator was created with default update_interval
         mock_coordinator_class.assert_called_once()
         call_kwargs = mock_coordinator_class.call_args.kwargs
@@ -219,9 +219,8 @@ class TestAsyncSetupEntry:
                 new_callable=AsyncMock,
             ),
         ):
-            result = await async_setup_entry(hass, mock_config_entry_with_options)
+            await async_setup_entry(hass, mock_config_entry_with_options)
 
-        assert result is True
         # Verify coordinator was created with custom update_interval
         mock_coordinator_class.assert_called_once()
         call_kwargs = mock_coordinator_class.call_args.kwargs
@@ -409,39 +408,38 @@ class TestAsyncUnloadEntry:
     async def test_unload_entry_success(
         self, hass: HomeAssistant, mock_coordinator, mock_config_entry
     ):
-        """Test successful platform unload returns True."""
+        """Test successful platform unload."""
         mock_config_entry.runtime_data = KomfoventRuntimeData(
             coordinator=mock_coordinator
         )
 
         with patch.object(
             hass.config_entries,
-            "async_unload_platforms",
+            "async_unload_platforms_or_raise",
             new_callable=AsyncMock,
-            return_value=True,
         ) as mock_unload:
-            result = await async_unload_entry(hass, mock_config_entry)
+            await async_unload_entry(hass, mock_config_entry)
 
-        assert result is True
         mock_unload.assert_awaited_once()
 
     async def test_unload_entry_failure(
         self, hass: HomeAssistant, mock_coordinator, mock_config_entry
     ):
-        """Test failed platform unload returns False."""
+        """Test failed platform unload raises."""
         mock_config_entry.runtime_data = KomfoventRuntimeData(
             coordinator=mock_coordinator
         )
 
-        with patch.object(
-            hass.config_entries,
-            "async_unload_platforms",
-            new_callable=AsyncMock,
-            return_value=False,
+        with (
+            patch.object(
+                hass.config_entries,
+                "async_unload_platforms_or_raise",
+                new_callable=AsyncMock,
+                side_effect=ConfigEntryError,
+            ),
+            pytest.raises(ConfigEntryError),
         ):
-            result = await async_unload_entry(hass, mock_config_entry)
-
-        assert result is False
+            await async_unload_entry(hass, mock_config_entry)
 
     @pytest.mark.parametrize(
         ("other_entries", "stopped"),
@@ -465,13 +463,11 @@ class TestAsyncUnloadEntry:
 
         with patch.object(
             hass.config_entries,
-            "async_unload_platforms",
+            "async_unload_platforms_or_raise",
             new_callable=AsyncMock,
-            return_value=True,
         ) as mock_unload:
-            result = await async_unload_entry(hass, mock_config_entry)
+            await async_unload_entry(hass, mock_config_entry)
 
-        assert result is True
         mock_unload.assert_awaited_once_with(mock_config_entry, PLATFORMS)
         checker.unregister_controller_type.assert_called_once_with(
             mock_coordinator.controller
@@ -490,9 +486,8 @@ class TestAsyncUnloadEntry:
 
         with patch.object(
             hass.config_entries,
-            "async_unload_platforms",
+            "async_unload_platforms_or_raise",
             new_callable=AsyncMock,
-            return_value=True,
         ) as mock_unload:
             await async_unload_entry(hass, mock_config_entry)
 
@@ -509,14 +504,16 @@ class TestAsyncUnloadEntry:
             coordinator=mock_coordinator, firmware_store=domain_data.firmware_store
         )
 
-        with patch.object(
-            hass.config_entries,
-            "async_unload_platforms",
-            new_callable=AsyncMock,
-            return_value=False,
+        with (
+            patch.object(
+                hass.config_entries,
+                "async_unload_platforms_or_raise",
+                new_callable=AsyncMock,
+                side_effect=ConfigEntryError,
+            ),
+            pytest.raises(ConfigEntryError),
         ):
-            result = await async_unload_entry(hass, mock_config_entry)
+            await async_unload_entry(hass, mock_config_entry)
 
-        assert result is False
         assert domain_data.firmware_entries == {"test_entry_id"}
         checker.async_stop.assert_not_awaited()
