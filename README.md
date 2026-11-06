@@ -2,7 +2,7 @@
 
 [![GitHub Release](https://img.shields.io/github/v/release/lnagel/hass-komfovent)](https://github.com/lnagel/hass-komfovent/releases)
 [![License](https://img.shields.io/github/license/lnagel/hass-komfovent)](https://github.com/lnagel/hass-komfovent/blob/main/LICENSE)
-[![HACS](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=lnagel&repository=hass-komfovent&category=integration)
+[![Marketplace](https://img.shields.io/badge/Home_Assistant-Marketplace-41BDF5.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=lnagel&repository=hass-komfovent&category=integration)
 [![CI](https://img.shields.io/github/actions/workflow/status/lnagel/hass-komfovent/checks.yml?branch=main&label=tests)](https://github.com/lnagel/hass-komfovent/actions)
 [![codecov](https://codecov.io/gh/lnagel/hass-komfovent/branch/main/graph/badge.svg)](https://codecov.io/gh/lnagel/hass-komfovent)
 
@@ -165,11 +165,11 @@ If you have issues seeing the data correctly, then please open a new ticket with
 
 ## Installation
 
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=lnagel&repository=hass-komfovent&category=integration)
+[![Open your Home Assistant instance and open a repository in the Marketplace.](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=lnagel&repository=hass-komfovent&category=integration)
 
-1. Add this repository to HACS or copy the `custom_components/komfovent` folder to your Home Assistant configuration directory.
-2. Restart Home Assistant.
-3. Add the integration through the Home Assistant UI.
+1. Open **Settings > Marketplace** in Home Assistant, or use the button above.
+2. Search for "Komfovent" and select **Install**.
+3. Continue with the integration setup when prompted.
 4. Configure the integration with the IP address of your Komfovent device.
 
 ## Configuration
