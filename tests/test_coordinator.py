@@ -331,17 +331,16 @@ class TestEmaFiltering:
             assert data[REG_SPI] == pytest.approx(309.1, rel=0.01)
 
 
-async def test_failed_update_drops_connection(
+async def test_failed_update_resets_connection(
     hass: HomeAssistant, mock_config_entry
 ) -> None:
-    """Test a failed poll hands the real pymodbus connection back to reconnect."""
+    """Test a failed poll resets the connection before raising UpdateFailed."""
     coordinator = KomfoventCoordinator(hass, config_entry=mock_config_entry)
-    error = ModbusException("Error reading registers at 200")
     with (
-        patch.object(coordinator.client, "read", side_effect=error),
-        patch.object(coordinator.client.client.ctx, "connection_lost") as lost,
+        patch.object(coordinator.client, "read", side_effect=ModbusException("x")),
+        patch.object(coordinator.client, "reset_connection") as reset,
         pytest.raises(UpdateFailed),
     ):
         await coordinator._async_update_data()
 
-    lost.assert_called_once_with(error)
+    reset.assert_awaited_once_with()
