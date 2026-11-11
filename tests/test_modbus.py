@@ -126,30 +126,3 @@ async def test_write_error_response(mock_pymodbus):
         pytest.raises(ModbusException, match="Error writing register"),
     ):
         await KomfoventModbusClient("192.168.1.100", 502).write(100, 42)
-
-
-# ==================== Reconnect Tests ====================
-
-
-async def test_reconnect_closes_and_opens_fresh_connection(mock_pymodbus):
-    """Test reconnect drops the current connection before connecting again."""
-    calls = []
-    mock_pymodbus.close = MagicMock(side_effect=lambda: calls.append("close"))
-
-    async def connect() -> bool:
-        calls.append("connect")
-        return True
-
-    mock_pymodbus.connect = connect
-    client = KomfoventModbusClient("192.168.1.100", 502)
-
-    assert await client.reconnect() is True
-    assert calls == ["close", "connect"]
-
-
-async def test_reconnect_reports_failed_connect(mock_pymodbus):
-    """Test reconnect returns False when the new connection fails."""
-    mock_pymodbus.connect = AsyncMock(return_value=False)
-
-    assert await KomfoventModbusClient("192.168.1.100", 502).reconnect() is False
-    mock_pymodbus.close.assert_called_once_with()

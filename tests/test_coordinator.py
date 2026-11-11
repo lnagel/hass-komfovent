@@ -2,13 +2,14 @@
 
 from datetime import timedelta
 from typing import TYPE_CHECKING
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.helpers.update_coordinator import UpdateFailed
 from homeassistant.util.dt import utcnow
-from pymodbus.exceptions import ModbusException
+from pymodbus import ModbusException
+from pymodbus.client import AsyncModbusTcpClient
 from pytest_homeassistant.common import MockConfigEntry
 
 from custom_components.komfovent.const import BITMASK_FAN, DOMAIN
@@ -332,63 +333,34 @@ class TestEmaFiltering:
 
 
 @pytest.mark.parametrize(
-    "read_error",
-    [ConnectionError("lost"), ModbusException("Error reading registers at 200")],
+    ("previous_success", "dropped"),
+    [(True, False), (False, True)],
+    ids=["first_failure", "repeated_failure"],
 )
-async def test_failed_update_reconnects(
-    hass: HomeAssistant, mock_config_entry, read_error
+async def test_repeated_failure_drops_connection(
+    hass: HomeAssistant, mock_config_entry, previous_success, dropped
 ) -> None:
-    """Test a failed poll forces a fresh connection for the next poll."""
-    mock_client = AsyncMock()
-    mock_client.read = AsyncMock(side_effect=read_error)
-    mock_client.reconnect = AsyncMock(return_value=True)
+    """Test a second failed poll in a row hands the connection to pymodbus."""
+    error = ModbusException("Error reading registers at 200")
+    mock_client = MagicMock()
+    mock_client.read = AsyncMock(side_effect=error)
 
     with patch(
         "custom_components.komfovent.coordinator.KomfoventModbusClient",
         return_value=mock_client,
     ):
         coordinator = KomfoventCoordinator(hass, config_entry=mock_config_entry)
+        coordinator.last_update_success = previous_success
         with pytest.raises(UpdateFailed):
             await coordinator._async_update_data()
 
-    mock_client.reconnect.assert_awaited_once_with()
+    connection_lost = mock_client.client.ctx.connection_lost
+    if dropped:
+        connection_lost.assert_called_once()
+    else:
+        connection_lost.assert_not_called()
 
 
-@pytest.mark.parametrize(
-    "reconnect_error",
-    [ConnectionError("refused"), ModbusException("connect"), OSError("unreachable")],
-)
-async def test_failed_reconnect_still_raises_update_failed(
-    hass: HomeAssistant, mock_config_entry, reconnect_error, caplog
-) -> None:
-    """Test a failing reconnect is logged and the poll still fails cleanly."""
-    mock_client = AsyncMock()
-    mock_client.read = AsyncMock(side_effect=ModbusException("read"))
-    mock_client.reconnect = AsyncMock(side_effect=reconnect_error)
-
-    with patch(
-        "custom_components.komfovent.coordinator.KomfoventModbusClient",
-        return_value=mock_client,
-    ):
-        coordinator = KomfoventCoordinator(hass, config_entry=mock_config_entry)
-        with pytest.raises(UpdateFailed):
-            await coordinator._async_update_data()
-
-    assert "Komfovent reconnect failed" in caplog.text
-
-
-async def test_successful_update_does_not_reconnect(
-    hass: HomeAssistant, mock_config_entry
-) -> None:
-    """Test a successful poll keeps the existing connection."""
-    mock_client = AsyncMock()
-    mock_client.read = AsyncMock(return_value={1: 42})
-
-    with patch(
-        "custom_components.komfovent.coordinator.KomfoventModbusClient",
-        return_value=mock_client,
-    ):
-        coordinator = KomfoventCoordinator(hass, config_entry=mock_config_entry)
-        await coordinator._async_update_data()
-
-    mock_client.reconnect.assert_not_awaited()
+async def test_pymodbus_exposes_connection_lost() -> None:
+    """Test the pymodbus hook used to drop a stale connection still exists."""
+    assert callable(AsyncModbusTcpClient("127.0.0.1").ctx.connection_lost)

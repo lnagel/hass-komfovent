@@ -71,18 +71,6 @@ class KomfoventModbusClient:
         """Close the Modbus connection."""
         self.client.close()
 
-    async def reconnect(self) -> bool:
-        """
-        Drop the current connection and open a fresh one.
-
-        pymodbus only reconnects when the socket is lost, but a device can keep
-        an established connection open while answering it with error frames or
-        not at all. A new connection recovers from that state.
-        """
-        async with self._lock:
-            self.client.close()
-            return await self.client.connect()
-
     async def read(self, register: int, count: int) -> dict[int, int]:
         """Read holding registers and return dict keyed by absolute register numbers."""
         async with self._lock:
