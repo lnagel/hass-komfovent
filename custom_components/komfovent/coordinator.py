@@ -217,6 +217,7 @@ class KomfoventCoordinator(TimestampDataUpdateCoordinator[dict[int, Any]]):
 
         except (ConnectionError, ModbusException) as error:
             _LOGGER.warning("Error communicating with Komfovent: %s", error)
+            await self.client.reset_connection()
             raise UpdateFailed from error
 
         self._apply_ema_on_update_data(data)

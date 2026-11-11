@@ -6,7 +6,9 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 from homeassistant.const import CONF_HOST, CONF_PORT
+from homeassistant.helpers.update_coordinator import UpdateFailed
 from homeassistant.util.dt import utcnow
+from pymodbus import ModbusException
 from pytest_homeassistant.common import MockConfigEntry
 
 from custom_components.komfovent.const import BITMASK_FAN, DOMAIN
@@ -327,3 +329,18 @@ class TestEmaFiltering:
             data = {REG_STATUS: BITMASK_FAN, REG_SPI: 400}
             coordinator._apply_ema_on_update_data(data)
             assert data[REG_SPI] == pytest.approx(309.1, rel=0.01)
+
+
+async def test_failed_update_resets_connection(
+    hass: HomeAssistant, mock_config_entry
+) -> None:
+    """Test a failed poll resets the connection before raising UpdateFailed."""
+    coordinator = KomfoventCoordinator(hass, config_entry=mock_config_entry)
+    with (
+        patch.object(coordinator.client, "read", side_effect=ModbusException("x")),
+        patch.object(coordinator.client, "reset_connection") as reset,
+        pytest.raises(UpdateFailed),
+    ):
+        await coordinator._async_update_data()
+
+    reset.assert_awaited_once_with()

@@ -1,6 +1,6 @@
 """Tests for Komfovent modbus client."""
 
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, call, patch
 
 import pytest
 from pymodbus import ModbusException
@@ -126,3 +126,21 @@ async def test_write_error_response(mock_pymodbus):
         pytest.raises(ModbusException, match="Error writing register"),
     ):
         await KomfoventModbusClient("192.168.1.100", 502).write(100, 42)
+
+
+# ==================== Reset Connection Tests ====================
+
+
+@pytest.mark.parametrize(
+    ("connected", "expected_calls"),
+    [(True, [call.close(), call.connect()]), (False, [])],
+    ids=["connected", "disconnected"],
+)
+async def test_reset_connection(mock_pymodbus, connected, expected_calls):
+    """Test only an open connection is replaced; pymodbus handles lost ones."""
+    mock_pymodbus.connected = connected
+    mock_pymodbus.connect = AsyncMock(return_value=True)
+
+    await KomfoventModbusClient("192.168.1.100", 502).reset_connection()
+
+    assert mock_pymodbus.mock_calls == expected_calls

@@ -71,6 +71,13 @@ class KomfoventModbusClient:
         """Close the Modbus connection."""
         self.client.close()
 
+    async def reset_connection(self) -> None:
+        """Replace a connection that is open but failing with a fresh one."""
+        if self.client.connected:
+            async with self._lock:
+                self.client.close()
+                await self.client.connect()
+
     async def read(self, register: int, count: int) -> dict[int, int]:
         """Read holding registers and return dict keyed by absolute register numbers."""
         async with self._lock:
