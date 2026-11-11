@@ -332,15 +332,10 @@ class TestEmaFiltering:
             assert data[REG_SPI] == pytest.approx(309.1, rel=0.01)
 
 
-@pytest.mark.parametrize(
-    ("previous_success", "dropped"),
-    [(True, False), (False, True)],
-    ids=["first_failure", "repeated_failure"],
-)
-async def test_repeated_failure_drops_connection(
-    hass: HomeAssistant, mock_config_entry, previous_success, dropped
+async def test_failed_update_drops_connection(
+    hass: HomeAssistant, mock_config_entry
 ) -> None:
-    """Test a second failed poll in a row hands the connection to pymodbus."""
+    """Test a failed poll hands the connection to pymodbus to reconnect."""
     error = ModbusException("Error reading registers at 200")
     mock_client = MagicMock()
     mock_client.read = AsyncMock(side_effect=error)
@@ -350,15 +345,10 @@ async def test_repeated_failure_drops_connection(
         return_value=mock_client,
     ):
         coordinator = KomfoventCoordinator(hass, config_entry=mock_config_entry)
-        coordinator.last_update_success = previous_success
         with pytest.raises(UpdateFailed):
             await coordinator._async_update_data()
 
-    connection_lost = mock_client.client.ctx.connection_lost
-    if dropped:
-        connection_lost.assert_called_once()
-    else:
-        connection_lost.assert_not_called()
+    mock_client.client.ctx.connection_lost.assert_called_once_with(error)
 
 
 async def test_pymodbus_exposes_connection_lost() -> None:

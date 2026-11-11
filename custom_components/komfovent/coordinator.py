@@ -126,13 +126,7 @@ class KomfoventCoordinator(TimestampDataUpdateCoordinator[dict[int, Any]]):
             _LOGGER.debug("Updates paused, keeping last data")
             return self.data
 
-        try:
-            return await self._async_read_device_data()
-        except UpdateFailed as error:
-            if not self.last_update_success:
-                # pymodbus reconnects lost sockets but not ones answering errors
-                self.client.client.ctx.connection_lost(error)
-            raise
+        return await self._async_read_device_data()
 
     async def _async_read_device_data(self) -> dict[int, Any]:
         """Read all register blocks from the device."""
@@ -223,6 +217,8 @@ class KomfoventCoordinator(TimestampDataUpdateCoordinator[dict[int, Any]]):
 
         except (ConnectionError, ModbusException) as error:
             _LOGGER.warning("Error communicating with Komfovent: %s", error)
+            # pymodbus reconnects lost sockets but not ones answering errors
+            self.client.client.ctx.connection_lost(error)
             raise UpdateFailed from error
 
         self._apply_ema_on_update_data(data)
