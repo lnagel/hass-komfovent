@@ -1,0 +1,39 @@
+name: Release
+
+on:
+  release:
+    types:
+      - published
+
+permissions:
+  contents: read
+
+jobs:
+  release-zip:
+    name: Attach integration zip
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      DOMAIN: komfovent
+      TAG: ${{ github.event.release.tag_name }}
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v7
+
+      - name: Check the tag matches the manifest version
+        run: |
+          version=$(jq -r .version "custom_components/${DOMAIN}/manifest.json")
+          if [ "${TAG#v}" != "${version}" ]; then
+            echo "::error::Release tag ${TAG} does not match manifest version ${version}"
+            exit 1
+          fi
+
+      - name: Zip the integration directory
+        working-directory: custom_components/${{ env.DOMAIN }}
+        run: zip -r "${GITHUB_WORKSPACE}/${DOMAIN}.zip" . -x '*__pycache__*'
+
+      - name: Upload the zip to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${TAG}" "${DOMAIN}.zip" --clobber
