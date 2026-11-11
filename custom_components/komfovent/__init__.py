@@ -149,6 +149,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: KomfoventConfigEntry) -
     await hass.config_entries.async_unload_platforms_or_raise(
         entry, _get_platforms(firmware_enabled=firmware_enabled)
     )
+    await entry.runtime_data.coordinator.client.close()
     if firmware_enabled:
         domain_data: KomfoventDomainData = hass.data[DOMAIN]["domain_data"]
         domain_data.firmware_entries.discard(entry.entry_id)
