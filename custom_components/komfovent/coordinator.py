@@ -217,10 +217,18 @@ class KomfoventCoordinator(TimestampDataUpdateCoordinator[dict[int, Any]]):
 
         except (ConnectionError, ModbusException) as error:
             _LOGGER.warning("Error communicating with Komfovent: %s", error)
+            await self._async_reconnect()
             raise UpdateFailed from error
 
         self._apply_ema_on_update_data(data)
         return data
+
+    async def _async_reconnect(self) -> None:
+        """Retry the next poll on a fresh connection instead of the failed one."""
+        try:
+            await self.client.reconnect()
+        except (ConnectionError, ModbusException, OSError) as error:
+            _LOGGER.warning("Komfovent reconnect failed: %s", error)
 
     def _apply_ema_on_update_data(self, data: dict[int, Any]) -> None:
         """Apply EMA filtering to selected registers."""
