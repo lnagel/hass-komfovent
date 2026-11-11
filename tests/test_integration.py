@@ -421,6 +421,7 @@ class TestAsyncUnloadEntry:
             await async_unload_entry(hass, mock_config_entry)
 
         mock_unload.assert_awaited_once()
+        mock_coordinator.client.close.assert_awaited_once()
 
     async def test_unload_entry_failure(
         self, hass: HomeAssistant, mock_coordinator, mock_config_entry
@@ -440,6 +441,8 @@ class TestAsyncUnloadEntry:
             pytest.raises(ConfigEntryError),
         ):
             await async_unload_entry(hass, mock_config_entry)
+
+        mock_coordinator.client.close.assert_not_awaited()
 
     @pytest.mark.parametrize(
         ("other_entries", "stopped"),
