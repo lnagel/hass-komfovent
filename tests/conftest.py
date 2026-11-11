@@ -126,6 +126,7 @@ def mock_coordinator(hass, mock_config_entry):
     coordinator.client = MagicMock()
     coordinator.client.write = AsyncMock()
     coordinator.client.read = AsyncMock()
+    coordinator.client.close = AsyncMock()
 
     # Mock async_request_refresh
     coordinator.async_request_refresh = AsyncMock()
