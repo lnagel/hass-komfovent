@@ -183,10 +183,10 @@ def test_available(entity, mock_coordinator, last_update_success, data, expected
 @pytest.mark.parametrize(
     ("controller", "version", "expected"),
     [
-        (Controller.C6, (1, 1, 17, 15), True),
-        (Controller.C6, (1, 5, 46, 14), False),
+        (Controller.C6, (1, 4, 30, 21), True),
+        (Controller.C6, (1, 1, 17, 20), False),
         (Controller.C6, (1, 5, 46, 72), True),
-        (Controller.C6M, (1, 5, 46, 14), False),
+        (Controller.C6M, (1, 1, 17, 20), False),
         (Controller.C8, (1, 1, 14, 27), True),
         (Controller.C8, (1, 0, 0, 1), True),
     ],
@@ -203,7 +203,7 @@ def test_is_firmware_supported(entity, mock_coordinator, controller, version, ex
 
 def test_latest_version_unsupported_firmware(entity, mock_coordinator):
     """Test no update is offered below the minimum firmware version."""
-    mock_coordinator.data = {registers.REG_FIRMWARE: pack_version(0, 1, 5, 46, 14)}
+    mock_coordinator.data = {registers.REG_FIRMWARE: pack_version(0, 1, 1, 17, 20)}
     entity._update_attrs()
 
     assert entity.latest_version is None

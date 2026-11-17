@@ -122,7 +122,8 @@ class KomfoventUpdateEntity(KomfoventCoordinatorEntity, UpdateEntity):
         """
         Check if firmware update is supported for this device.
 
-        C6/C6M controllers need X.X.X.15 or newer for .mbin uploads. C8
+        C6/C6M controllers need X.X.X.21 or newer: .mbin uploads need
+        X.X.X.15+, and 1st generation C6 hardware stops at X.X.X.20. C8
         controllers supported .mbin uploads from launch.
         """
         if get_controller_type_for_firmware(self.coordinator.controller) != "C6":
@@ -161,8 +162,7 @@ class KomfoventUpdateEntity(KomfoventCoordinatorEntity, UpdateEntity):
         if not self._is_firmware_supported:
             msg = (
                 f"Firmware update not supported. Device firmware must be "
-                f"X.X.X.{FIRMWARE_MIN_SUPPORTED_VERSION_C6} or newer. "
-                f"Please update manually first."
+                f"X.X.X.{FIRMWARE_MIN_SUPPORTED_VERSION_C6} or newer."
             )
             raise HomeAssistantError(msg)
 

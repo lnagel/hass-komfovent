@@ -208,8 +208,8 @@ installed automatically: pressing **Install** uploads the firmware through the
 device's web interface, pauses polling while the device restarts, and then
 checks that the device reports the new version.
 
-- C6/C6M controllers need firmware X.X.X.15 or newer for this; update older
-  devices manually first. C8 controllers are supported on any version.
+- C6/C6M controllers need firmware X.X.X.21 or newer for this. C8 controllers
+  are supported on any version.
 - The device resets its web password to `user` after every firmware upgrade,
   so if the configured password is rejected, the integration retries with
   `user`.
