@@ -158,6 +158,14 @@ class KomfoventUpdateEntity(KomfoventCoordinatorEntity, UpdateEntity):
             msg = "Firmware update already in progress"
             raise HomeAssistantError(msg)
 
+        if not self._is_firmware_supported:
+            msg = (
+                f"Firmware update not supported. Device functional version must "
+                f"be {FIRMWARE_MIN_FUNCTIONAL_VERSION_C6} or newer. Please update "
+                f"manually first."
+            )
+            raise HomeAssistantError(msg)
+
         controller_type = get_controller_type_for_firmware(self.coordinator.controller)
         firmware_path = self._store.get_firmware_path(controller_type)
         if firmware_path is None:

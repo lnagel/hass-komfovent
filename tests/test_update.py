@@ -344,6 +344,16 @@ async def test_install_already_in_progress(entity, mock_uploader):
     mock_uploader.assert_not_called()
 
 
+async def test_install_unsupported_firmware(entity, mock_coordinator, mock_uploader):
+    """Test install is rejected below the minimum functional version."""
+    mock_coordinator.data = {registers.REG_FIRMWARE: pack_version(0, 1, 5, 46, 14)}
+
+    with pytest.raises(HomeAssistantError, match="functional version must be 15"):
+        await entity.async_install(None, backup=False)
+
+    mock_uploader.assert_not_called()
+
+
 async def test_install_without_firmware(entity, mock_coordinator, mock_uploader):
     """Test install is rejected without downloaded firmware for the controller."""
     mock_coordinator.controller = Controller.NA
