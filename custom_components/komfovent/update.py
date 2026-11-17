@@ -15,7 +15,7 @@ from homeassistant.const import CONF_HOST, CONF_PASSWORD
 from homeassistant.exceptions import HomeAssistantError
 
 from . import registers
-from .const import FIRMWARE_MIN_FUNCTIONAL_VERSION_C6
+from .const import FIRMWARE_MIN_SUPPORTED_VERSION_C6
 from .entity import KomfoventCoordinatorEntity
 from .firmware import get_controller_type_for_firmware
 from .firmware.uploader import (
@@ -122,14 +122,14 @@ class KomfoventUpdateEntity(KomfoventCoordinatorEntity, UpdateEntity):
         """
         Check if firmware update is supported for this device.
 
-        C6/C6M controllers need functional version 15 (X.X.X.15) or newer
-        for .mbin uploads. C8 controllers supported .mbin uploads from launch.
+        C6/C6M controllers need X.X.X.15 or newer for .mbin uploads. C8
+        controllers supported .mbin uploads from launch.
         """
         if get_controller_type_for_firmware(self.coordinator.controller) != "C6":
             return True
 
         version = self._get_installed_firmware()
-        return version is not None and version[4] >= FIRMWARE_MIN_FUNCTIONAL_VERSION_C6
+        return version is not None and version[4] >= FIRMWARE_MIN_SUPPORTED_VERSION_C6
 
     @property
     def entity_picture(self) -> str | None:
@@ -160,9 +160,9 @@ class KomfoventUpdateEntity(KomfoventCoordinatorEntity, UpdateEntity):
 
         if not self._is_firmware_supported:
             msg = (
-                f"Firmware update not supported. Device functional version must "
-                f"be {FIRMWARE_MIN_FUNCTIONAL_VERSION_C6} or newer. Please update "
-                f"manually first."
+                f"Firmware update not supported. Device firmware must be "
+                f"X.X.X.{FIRMWARE_MIN_SUPPORTED_VERSION_C6} or newer. "
+                f"Please update manually first."
             )
             raise HomeAssistantError(msg)
 
