@@ -208,8 +208,10 @@ installed automatically: pressing **Install** uploads the firmware through the
 device's web interface, pauses polling while the device restarts, and then
 checks that the device reports the new version.
 
-- C6/C6M controllers need firmware v1.3.15 or newer for this; update older
-  devices manually first. C8 controllers are supported on any version.
+- C6/C6M controllers need functional firmware version 15 or newer (the last
+  number, e.g. `1.3.17.15`), as required for `.mbin` uploads by Komfovent's
+  update guide. Older devices are not offered an update; update them manually
+  first. C8 controllers are supported on any version.
 - The device resets its web password to `user` after every firmware upgrade,
   so if the configured password is rejected, the integration retries with
   `user`.

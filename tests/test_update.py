@@ -183,16 +183,19 @@ def test_available(entity, mock_coordinator, last_update_success, data, expected
 @pytest.mark.parametrize(
     ("controller", "version", "expected"),
     [
-        (Controller.C6, (1, 3, 15, 1), True),
-        (Controller.C6, (1, 3, 14, 99), False),
+        (Controller.C6, (1, 1, 17, 20), True),
+        (Controller.C6, (1, 3, 15, 15), True),
+        (Controller.C6, (1, 3, 15, 14), False),
+        (Controller.C6, (1, 3, 15, 1), False),
         (Controller.C6, (1, 5, 46, 72), True),
-        (Controller.C6M, (1, 3, 14, 99), False),
+        (Controller.C6M, (1, 3, 17, 14), False),
+        (Controller.C6M, (1, 1, 17, 15), True),
         (Controller.C8, (1, 1, 14, 27), True),
         (Controller.C8, (1, 0, 0, 1), True),
     ],
 )
 def test_is_firmware_supported(entity, mock_coordinator, controller, version, expected):
-    """Test the minimum firmware version only applies to C6 controllers."""
+    """Test the minimum functional version only applies to C6 controllers."""
     mock_coordinator.controller = controller
     mock_coordinator.data = {
         registers.REG_FIRMWARE: pack_version(controller.value, *version)
@@ -201,12 +204,36 @@ def test_is_firmware_supported(entity, mock_coordinator, controller, version, ex
     assert entity._is_firmware_supported is expected
 
 
+def test_no_update_offered_below_minimum(entity, mock_coordinator, mock_store):
+    """Test no update is offered when the functional version is too old."""
+    mock_coordinator.data = {registers.REG_FIRMWARE: pack_version(0, 1, 5, 46, 14)}
+    mock_store.get_firmware_info.reset_mock()
+    entity._update_attrs()
+
+    assert entity.installed_version == "14"
+    assert entity.latest_version is None
+    assert entity.release_summary is None
+    mock_store.get_firmware_info.assert_not_called()
+
+
+def test_update_offered_at_minimum(entity, mock_coordinator):
+    """Test an update is offered from the minimum functional version."""
+    mock_coordinator.data = {registers.REG_FIRMWARE: pack_version(0, 1, 1, 17, 15)}
+    entity._update_attrs()
+
+    assert entity.installed_version == "15"
+    assert entity.latest_version == "72"
+
+
 async def test_install_c8_below_c6_minimum(entity, mock_coordinator, mock_uploader):
-    """Test C8 firmware below the C6 minimum version can be installed."""
+    """Test C8 firmware below the C6 minimum version is offered and installed."""
     mock_coordinator.controller = Controller.C8
     mock_coordinator.data = {
-        registers.REG_FIRMWARE: pack_version(Controller.C8.value, 1, 1, 14, 27)
+        registers.REG_FIRMWARE: pack_version(Controller.C8.value, 1, 1, 14, 1)
     }
+    entity._update_attrs()
+
+    assert entity.latest_version == "72"
 
     await entity.async_install(None, backup=False)
 
@@ -312,16 +339,6 @@ async def test_install_already_in_progress(entity, mock_uploader):
     entity._attr_in_progress = True
 
     with pytest.raises(HomeAssistantError, match="already in progress"):
-        await entity.async_install(None, backup=False)
-
-    mock_uploader.assert_not_called()
-
-
-async def test_install_unsupported_firmware(entity, mock_coordinator, mock_uploader):
-    """Test install is rejected for too old firmware."""
-    mock_coordinator.data = {registers.REG_FIRMWARE: pack_version(0, 1, 3, 14, 1)}
-
-    with pytest.raises(HomeAssistantError, match="not supported"):
         await entity.async_install(None, backup=False)
 
     mock_uploader.assert_not_called()

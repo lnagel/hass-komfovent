@@ -3,7 +3,8 @@
 Download Komfovent C6/C6M firmware files.
 
 This script downloads .mbin firmware from the manufacturer's server.
-Only firmware v1.3.15+ (.mbin) is supported. Older .bin firmware is not supported.
+Only .mbin firmware is supported; the device needs functional version 15+
+(X.X.X.15) to accept it. Older devices need the .bin firmware first.
 
 Usage:
     python3 download_firmware.py [--output firmware.mbin]
@@ -24,7 +25,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Firmware download URL (only .mbin supported, v1.3.15+)
+# Firmware download URL (only .mbin supported, functional version 15+)
 FIRMWARE_URL = "https://www.komfovent.com/Update/Controllers/firmware.php?file=mbin"
 
 # Reference documentation
@@ -208,7 +209,7 @@ def download_firmware(output_path: str | None = None) -> bool:
     """
     Download firmware file from manufacturer.
 
-    Only .mbin firmware (v1.3.15+) is supported.
+    Only .mbin firmware (functional version 15+) is supported.
 
     Args:
         output_path: Output file path (optional)
@@ -315,7 +316,7 @@ def validate_firmware_file(filepath: str) -> bool:
 
     if path.suffix != ".mbin":
         logger.error("Invalid extension: %s", path.suffix)
-        logger.error("Expected: .mbin (only v1.3.15+ firmware supported)")
+        logger.error("Expected: .mbin (device needs functional version 15+)")
         return False
 
     logger.info("Extension: %s", path.suffix)
@@ -345,7 +346,7 @@ def validate_firmware_file(filepath: str) -> bool:
 def main() -> None:
     """Download or validate Komfovent firmware."""
     parser = argparse.ArgumentParser(
-        description="Download Komfovent C6/C6M firmware files (.mbin only, v1.3.15+)",
+        description="Download Komfovent C6/C6M .mbin firmware (functional version 15+)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -358,8 +359,8 @@ Examples:
   # Validate an existing firmware file
   python3 download_firmware.py --validate firmware.mbin
 
-Note: Only .mbin firmware (v1.3.15+) is supported. Older .bin firmware requires
-manual update first.
+Note: Only .mbin firmware (functional version 15+) is supported. Older devices
+require a manual .bin update first.
 
 This script must be run from the same network as your Komfovent device.
         """,
