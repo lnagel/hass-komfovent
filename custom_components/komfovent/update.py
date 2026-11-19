@@ -85,7 +85,7 @@ class KomfoventUpdateEntity(KomfoventCoordinatorEntity, UpdateEntity):
         """Set version attributes from coordinator data and the firmware store."""
         self._attr_installed_version = self._compute_installed_version()
 
-        info = self._get_firmware_info()
+        info = self._get_firmware_info() if self._is_firmware_supported else None
         if info is None:
             self._attr_latest_version = None
             self._attr_release_summary = None
@@ -122,14 +122,15 @@ class KomfoventUpdateEntity(KomfoventCoordinatorEntity, UpdateEntity):
         """
         Check if firmware update is supported for this device.
 
-        C6/C6M controllers need v1.3.15 or newer for .mbin uploads. C8
+        C6/C6M controllers need X.X.X.21 or newer: .mbin uploads need
+        X.X.X.15+, and 1st generation C6 hardware stops at X.X.X.20. C8
         controllers supported .mbin uploads from launch.
         """
         if get_controller_type_for_firmware(self.coordinator.controller) != "C6":
             return True
 
         version = self._get_installed_firmware()
-        return version is not None and version[1:4] >= FIRMWARE_MIN_SUPPORTED_VERSION_C6
+        return version is not None and version[4] >= FIRMWARE_MIN_SUPPORTED_VERSION_C6
 
     @property
     def entity_picture(self) -> str | None:
@@ -159,10 +160,9 @@ class KomfoventUpdateEntity(KomfoventCoordinatorEntity, UpdateEntity):
             raise HomeAssistantError(msg)
 
         if not self._is_firmware_supported:
-            min_ver = ".".join(map(str, FIRMWARE_MIN_SUPPORTED_VERSION_C6))
             msg = (
                 f"Firmware update not supported. Device firmware must be "
-                f"v{min_ver} or newer. Please update manually first."
+                f"X.X.X.{FIRMWARE_MIN_SUPPORTED_VERSION_C6} or newer."
             )
             raise HomeAssistantError(msg)
 

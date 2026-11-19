@@ -183,10 +183,10 @@ def test_available(entity, mock_coordinator, last_update_success, data, expected
 @pytest.mark.parametrize(
     ("controller", "version", "expected"),
     [
-        (Controller.C6, (1, 3, 15, 1), True),
-        (Controller.C6, (1, 3, 14, 99), False),
+        (Controller.C6, (1, 4, 30, 21), True),
+        (Controller.C6, (1, 1, 17, 20), False),
         (Controller.C6, (1, 5, 46, 72), True),
-        (Controller.C6M, (1, 3, 14, 99), False),
+        (Controller.C6M, (1, 1, 17, 20), False),
         (Controller.C8, (1, 1, 14, 27), True),
         (Controller.C8, (1, 0, 0, 1), True),
     ],
@@ -201,11 +201,19 @@ def test_is_firmware_supported(entity, mock_coordinator, controller, version, ex
     assert entity._is_firmware_supported is expected
 
 
+def test_latest_version_unsupported_firmware(entity, mock_coordinator):
+    """Test no update is offered below the minimum firmware version."""
+    mock_coordinator.data = {registers.REG_FIRMWARE: pack_version(0, 1, 1, 17, 20)}
+    entity._update_attrs()
+
+    assert entity.latest_version is None
+
+
 async def test_install_c8_below_c6_minimum(entity, mock_coordinator, mock_uploader):
     """Test C8 firmware below the C6 minimum version can be installed."""
     mock_coordinator.controller = Controller.C8
     mock_coordinator.data = {
-        registers.REG_FIRMWARE: pack_version(Controller.C8.value, 1, 1, 14, 27)
+        registers.REG_FIRMWARE: pack_version(Controller.C8.value, 1, 1, 14, 1)
     }
 
     await entity.async_install(None, backup=False)
