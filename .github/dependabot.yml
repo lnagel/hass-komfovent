@@ -20,12 +20,10 @@ updates:
     groups:
       home-assistant-test-stack:
         patterns:
-          - "homeassistant"
           - "pytest-homeassistant"
       dev-tooling:
         dependency-type: "development"
         exclude-patterns:
-          - "homeassistant"
           - "pytest-homeassistant"
         patterns:
           - "*"
