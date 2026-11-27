@@ -14,8 +14,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "homeassistant==2026.11.1",
-    "pytest-homeassistant==2026.11.1",
+    "pytest-homeassistant",
     "pytest-cov",
     "bump-my-version",
     "diff-cover",
